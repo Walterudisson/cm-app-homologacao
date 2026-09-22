@@ -909,7 +909,10 @@
       const card = document.createElement('article');
       card.className = 'inventario-card';
       card.innerHTML = `
-        <span class="inventario-ribbon hidden" aria-label="Inventário encerrado">ENCERRADO</span>
+        <span class="inventario-ribbon hidden" aria-label="Inventário encerrado">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6.5 12.5 3.2 3.2 7.8-8.2"/></svg>
+          <span>ENCERRADO</span>
+        </span>
         <div class="inventario-card-header">
           <h3 class="inventario-nome font-bold text-white text-sm break-words"></h3>
           <strong class="inventario-percentual text-slate-300 text-sm whitespace-nowrap">…</strong>

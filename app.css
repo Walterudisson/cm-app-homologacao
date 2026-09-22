@@ -358,23 +358,27 @@
     .inventario-card-header { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 0.5rem; min-width: 0; }
     .inventario-nome { min-width: 0; overflow-wrap: anywhere; word-break: normal; }
     .inventario-percentual { flex: 0 0 auto; }
-    .inventario-card.esta-encerrado { padding-top: 2.35rem; }
+    .inventario-card.esta-encerrado { padding-top: 2.85rem; }
     .inventario-ribbon {
       position: absolute;
-      top: 0.55rem;
-      right: -2.25rem;
-      width: 8.5rem;
-      transform: rotate(45deg);
-      border-block: 1px solid rgb(167 243 208 / 0.45);
-      background: #047857;
+      top: -1px;
+      right: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      width: auto;
+      border: 1px solid rgb(110 231 183 / 0.55);
+      border-top: 0;
+      border-radius: 0 0 0.48rem 0.48rem;
+      background: linear-gradient(180deg, #10b981, #047857);
       color: #ecfdf5;
-      padding: 0.2rem 0;
-      text-align: center;
-      font-size: 0.54rem;
+      padding: 0.32rem 0.52rem 0.38rem;
+      font-size: 0.55rem;
       font-weight: 900;
       letter-spacing: 0.08em;
-      box-shadow: 0 3px 10px rgb(0 0 0 / 0.28);
+      box-shadow: 0 5px 12px rgb(2 6 23 / 0.35);
     }
+    .inventario-ribbon svg { width: 0.9rem; height: 0.9rem; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
     .inventario-card.com-progresso {
       border: 2px solid transparent;
       background: linear-gradient(#0f172a, #0f172a) padding-box,

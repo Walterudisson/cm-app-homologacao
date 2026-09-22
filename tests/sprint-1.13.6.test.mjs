@@ -22,6 +22,8 @@ test('mantém o percentual dentro do card e sinaliza inventários encerrados', a
   assert.match(app, /estado\.estado === 'encerrado'/);
   assert.match(css, /grid-template-columns: minmax\(0, 1fr\) auto/);
   assert.match(css, /\.inventario-nome[^}]+overflow-wrap: anywhere/);
+  assert.match(css, /\.inventario-ribbon[^}]+linear-gradient\(180deg, #10b981, #047857\)/);
+  assert.match(css, /\.inventario-ribbon svg/);
 });
 
 test('move a manutenção do próprio usuário para Meu perfil', async () => {
