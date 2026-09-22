@@ -70,7 +70,7 @@ test('o aviso pausado duplicado é ocultado quando o resultado está visível', 
 });
 
 test('a interface identifica a Sprint 1.3C', () => {
-  assert.match(html, /v1\.13\.5-H • HOMOLOGAÇÃO/);
+  assert.match(html, /v1\.13\.6-H • HOMOLOGAÇÃO/);
 });
 
 test('Gestão separa usuários e inventários em telas próprias', () => {

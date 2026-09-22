@@ -29,7 +29,7 @@
       encerrarInventarioGeral, listarInventariosGerais,
       reiniciarDivisaoEncerrada, reiniciarInventarioGeral, divisoesDoInventarioAtual,
       consultarEncerramentoGeral
-    } from "./js/services/inventarios.service.js?v=1.13.5";
+    } from "./js/services/inventarios.service.js?v=1.13.6";
     import { obterUrlFotoPerfil, removerFotoPerfil, salvarFotoPerfil } from "./js/services/perfil.service.js";
     import {
       configurarHistoricoFeedback,
@@ -113,7 +113,39 @@
       aoFecharCamada: removerCamadaHistorico
     });
     inicializarPwa({ notificarMensagem });
+    inicializarAlternadoresSenha();
     window.addEventListener('popstate', tratarPopstate);
+
+    function iconeAlternadorSenha(visivel) {
+      return visivel
+        ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 10.7a2 2 0 0 0 2.7 2.7M9.9 4.2A10.8 10.8 0 0 1 12 4c5.5 0 9 5 9 5a15.7 15.7 0 0 1-2.1 2.6M6.6 6.6A16.2 16.2 0 0 0 3 12s3.5 5 9 5a10.5 10.5 0 0 0 4.1-.8"/></svg>'
+        : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12s3.5-5 9-5 9 5 9 5-3.5 5-9 5-9-5-9-5Zm9 2.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/></svg>';
+    }
+
+    function inicializarAlternadoresSenha() {
+      document.querySelectorAll('input[type="password"]').forEach(input => {
+        if (input.closest('.password-control')) return;
+        const controle = document.createElement('div');
+        controle.className = 'password-control';
+        input.parentNode.insertBefore(controle, input);
+        controle.appendChild(input);
+        const botao = document.createElement('button');
+        botao.type = 'button';
+        botao.className = 'password-toggle';
+        botao.setAttribute('aria-label', 'Mostrar senha');
+        botao.setAttribute('aria-pressed', 'false');
+        botao.innerHTML = iconeAlternadorSenha(false);
+        botao.addEventListener('click', () => {
+          const visivel = input.type === 'text';
+          input.type = visivel ? 'password' : 'text';
+          botao.setAttribute('aria-label', visivel ? 'Mostrar senha' : 'Ocultar senha');
+          botao.setAttribute('aria-pressed', String(!visivel));
+          botao.innerHTML = iconeAlternadorSenha(!visivel);
+          input.focus({ preventScroll: true });
+        });
+        controle.appendChild(botao);
+      });
+    }
 
     function urlDaAba(aba) {
       return `#${aba || 'dashboard'}`;
@@ -389,6 +421,7 @@
     function atualizarDadosTelaPerfil() {
       if (!usuarioLogado) return;
       document.getElementById('perfil-nome').textContent = usuarioLogado.nome || 'Usuário';
+      document.getElementById('perfil-editar-nome').value = usuarioLogado.nome || '';
       document.getElementById('perfil-email').textContent = usuarioLogado.email || 'Não informado';
       document.getElementById('perfil-papel').textContent = usuarioLogado.perfil || 'Não informado';
       const divisoes = usuarioLogado.perfil === 'conferente'
@@ -399,6 +432,32 @@
         : 'Abrangência global no módulo de patrimônio';
       document.getElementById('btn-remover-foto')?.classList.toggle('hidden', !fotoPerfilUrl);
     }
+
+    document.getElementById('form-meu-nome')?.addEventListener('submit', async evento => {
+      evento.preventDefault();
+      if (!usuarioLogado) return;
+      const nome = document.getElementById('perfil-editar-nome').value.trim();
+      if (nome.length < 3) return notificarMensagem('Informe um nome com pelo menos 3 caracteres.', 'aviso');
+      const botao = document.getElementById('btn-salvar-meu-nome');
+      botao.disabled = true;
+      botao.textContent = 'SALVANDO...';
+      try {
+        await updateDoc(doc(db, 'usuarios', usuarioLogado.uid), { nome });
+        if (auth.currentUser) {
+          try { await updateProfile(auth.currentUser, { displayName: nome }); }
+          catch (erroPerfil) { console.warn('Nome salvo, mas o perfil do Authentication não foi sincronizado.', erroPerfil); }
+        }
+        usuarioLogado = { ...usuarioLogado, nome };
+        atualizarCabecalhoUsuario();
+        notificarMensagem('Nome atualizado com sucesso.', 'sucesso');
+      } catch (erro) {
+        console.error('Erro ao atualizar o próprio nome:', erro);
+        notificarMensagem('Não foi possível atualizar seu nome.', 'erro');
+      } finally {
+        botao.disabled = false;
+        botao.textContent = 'SALVAR NOME';
+      }
+    });
 
     async function carregarFotoPerfilAtual() {
       if (!usuarioLogado) return;
@@ -529,9 +588,6 @@
         : collection(db, "usuarios");
       const snapshot = await getDocs(consultaUsuarios);
       bancoUsuarios = snapshot.docs.map(docSnap => ({ uid: docSnap.id, ...docSnap.data() }));
-      if (usuarioLogado?.perfil === 'gestor' && !bancoUsuarios.some(usuario => usuario.uid === usuarioLogado.uid)) {
-        bancoUsuarios.unshift({ ...usuarioLogado });
-      }
       usuariosCarregados = true;
 
       bancoUsuarios.forEach(usuario => {
@@ -853,7 +909,8 @@
       const card = document.createElement('article');
       card.className = 'inventario-card';
       card.innerHTML = `
-        <div class="flex items-start justify-between gap-2">
+        <span class="inventario-ribbon hidden" aria-label="Inventário encerrado">ENCERRADO</span>
+        <div class="inventario-card-header">
           <h3 class="inventario-nome font-bold text-white text-sm break-words"></h3>
           <strong class="inventario-percentual text-slate-300 text-sm whitespace-nowrap">…</strong>
         </div>
@@ -963,10 +1020,14 @@
           try {
             const estado = await consultarCicloDivisao(divisao);
             if (revisao !== revisaoInventarios || usuarioLogado?.uid !== uid) return;
-            cards.get(divisao).querySelector('.inventario-ciclo').textContent = `Ciclo ${estado.ciclo} · ${({
+            const card = cards.get(divisao);
+            card.querySelector('.inventario-ciclo').textContent = `Ciclo ${estado.ciclo} · ${({
               aberto: 'Em andamento', encerrando: 'Encerramento em andamento',
               encerrado: 'Encerrado', reiniciando: 'Reinício em andamento'
             })[estado.estado] || 'Estado indisponível'}`;
+            const encerrado = estado.estado === 'encerrado';
+            card.classList.toggle('esta-encerrado', encerrado);
+            card.querySelector('.inventario-ribbon').classList.toggle('hidden', !encerrado);
           } catch (_) {
             if (revisao !== revisaoInventarios || usuarioLogado?.uid !== uid) return;
             cards.get(divisao).querySelector('.inventario-ciclo').textContent = 'Estado indisponível';
@@ -1444,9 +1505,10 @@
       if (!container || !usuarioLogado) return;
 
       const usuariosFiltradosPorPermissao = bancoUsuarios.filter(u => {
+        if (u.uid === usuarioLogado.uid) return false;
         if (usuarioLogado.perfil === 'admin') return true;
         if (usuarioLogado.perfil === 'gestor') {
-          return u.uid === usuarioLogado.uid || u.perfil === 'conferente';
+          return u.perfil === 'conferente';
         }
         return false;
       });
@@ -1489,8 +1551,7 @@
           `;
 
           listaGrupo.forEach(u => {
-            const ehProprio = u.uid === usuarioLogado.uid;
-            const podeExcluir = !ehProprio && (
+            const podeExcluir = (
               (usuarioLogado.perfil === 'admin' && u.perfil !== 'admin') ||
               (usuarioLogado.perfil === 'gestor' && u.perfil === 'conferente')
             );
@@ -1498,7 +1559,7 @@
             htmlConsolidado += `
               <div class="bg-slate-800 p-3 rounded-lg border border-slate-700/60 space-y-2 text-xs">
                 <div class="space-y-0.5">
-                  <div class="font-bold text-white">${u.nome} ${ehProprio ? '(Você)' : ''}</div>
+                  <div class="font-bold text-white">${u.nome}</div>
                   <div class="text-[10px] text-slate-400">${u.email}</div>
                   <div class="text-[10px] text-emerald-400">${u.perfil === 'conferente'
                     ? `Setores: ${(u.divisaoAtribuidas || u.divisoesAtribuidas || []).join(', ') || 'Nenhum'}`
@@ -1604,6 +1665,9 @@
     window.abrirModalEdicao = function(uid) {
       const user = bancoUsuarios.find(u => u.uid === uid);
       if (!user) return;
+      if (user.uid === usuarioLogado.uid) {
+        return notificarMensagem('Altere seus próprios dados na tela Meu perfil.', 'aviso');
+      }
 
       if (usuarioLogado.perfil === 'gestor') {
         if (user.uid !== usuarioLogado.uid && user.perfil !== 'conferente') {
@@ -1656,6 +1720,9 @@
       const targetUser = bancoUsuarios.find(u => u.uid === uid);
 
       if (!targetUser) return;
+      if (targetUser.uid === usuarioLogado.uid) {
+        return notificarMensagem('Altere seus próprios dados na tela Meu perfil.', 'aviso');
+      }
 
       if (usuarioLogado.perfil === 'gestor') {
         if (targetUser.uid !== usuarioLogado.uid && targetUser.perfil !== 'conferente') {
@@ -1672,15 +1739,8 @@
       const divisoes = perfilNovo === 'conferente' ? Array.from(checkboxes).map(cb => cb.value) : [];
 
       try {
-        const gestorEditandoProprioPerfil = usuarioLogado.perfil === 'gestor' && targetUser.uid === usuarioLogado.uid;
-        const dadosAtualizacao = gestorEditandoProprioPerfil
-          ? { nome }
-          : { nome, perfil: perfilNovo, divisoesAtribuidas: divisoes };
+        const dadosAtualizacao = { nome, perfil: perfilNovo, divisoesAtribuidas: divisoes };
         await updateDoc(doc(db, "usuarios", uid), dadosAtualizacao);
-        if (uid === usuarioLogado.uid) {
-          usuarioLogado = { ...usuarioLogado, ...dadosAtualizacao };
-          atualizarCabecalhoUsuario();
-        }
         notificarMensagem("Dados atualizados com sucesso.", 'sucesso');
         await fecharModalHistorico('modal-edicao-usuario', 'edicao-usuario');
         await carregarUsuarios(true);

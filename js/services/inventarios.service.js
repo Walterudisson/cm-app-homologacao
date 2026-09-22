@@ -3,16 +3,11 @@ import {
   query, runTransaction, serverTimestamp, where, or, writeBatch
 } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
 import { db } from '../config/firebase.js';
+import { chaveInventarioDivisao, validarNomeDivisao } from '../core/inventario-id.js?v=1.13.6';
 
-const referencia = divisao => doc(db, 'inventarios', divisao);
+const referencia = divisao => doc(db, 'inventarios', chaveInventarioDivisao(divisao));
 const localEfetivo = item => item.localizacaoAtual || item.divisaoOrigem || item.divisao || '';
 const identificador = () => globalThis.crypto.randomUUID();
-
-export function validarNomeDivisao(divisao) {
-  if (!divisao || divisao.includes('/')) {
-    throw new Error('Nome da divisão inválido para o histórico. Informe a administração do sistema.');
-  }
-}
 
 export async function consultarCicloDivisao(divisao) {
   validarNomeDivisao(divisao);
