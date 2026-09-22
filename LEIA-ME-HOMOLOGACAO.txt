@@ -1,0 +1,9 @@
+CM APP v1.13.5-H — ambiente de homologação
+
+Projeto Firebase: cm-app-homologacao
+Firestore: (default)
+Este pacote contém apenas dados de configuração públicos do aplicativo Web. Não concede acesso ao projeto sem as credenciais e regras publicadas.
+
+Publique o conteúdo desta pasta no Hosting do projeto de homologação, em endereço separado da produção. Não publique no Hosting do projeto patrimonioscm.
+O Storage ainda precisa ser configurado separadamente caso queira testar fotos.
+Crie usuários e dados fictícios antes dos testes operacionais.
