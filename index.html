@@ -20,7 +20,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.13.6">
+  <link rel="stylesheet" href="./app.css?v=1.13.7">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div style="position:fixed;top:0;left:0;right:0;z-index:9999;background:#b45309;color:white;text-align:center;font:700 12px/28px system-ui,sans-serif;letter-spacing:.08em;pointer-events:none" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -53,7 +53,7 @@
 
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.6-H • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.7-H • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -112,7 +112,7 @@
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.13.6-H</span>
+        <span>v1.13.7-H</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -449,24 +449,47 @@
 
       <!-- ABA 3: GESTÃO DE USUÁRIOS -->
       <section id="sec-usuarios" class="hidden space-y-5">
-        <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden shadow-lg">
-          <div class="p-4 border-b border-slate-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <span class="eyebrow">Controle de acesso</span>
-              <h2 class="mt-1 text-sm font-bold text-white">Usuários e permissões</h2>
-              <p class="mt-1 text-xs text-slate-400">Cadastre colaboradores e mantenha perfis e divisões de atuação.</p>
-            </div>
-            <button onclick="abrirModalCriacaoUsuario()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-3 py-2 rounded-lg text-xs flex items-center justify-center gap-1 transition-colors">
-              ➕ Novo Usuário
-            </button>
+        <div class="users-heading">
+          <div>
+            <span class="eyebrow">Controle de acesso</span>
+            <h2>Usuários e permissões</h2>
+            <p>Consulte colaboradores, perfis, divisões de atuação e situação do acesso.</p>
           </div>
-          <div class="p-4 space-y-3 bg-slate-900/40">
-            <div class="search-field">
-              <input type="text" id="filtro-busca-usuarios" placeholder="Pesquisar por nome ou e-mail..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 pr-10 text-xs text-white focus:outline-none focus:border-blue-500">
-              <button id="btn-limpar-busca-usuarios" type="button" class="search-clear hidden" aria-label="Limpar pesquisa de usuários">×</button>
+          <button id="btn-novo-usuario" type="button" onclick="abrirModalCriacaoUsuario()" class="users-primary-action">
+            <span aria-hidden="true">＋</span> Cadastrar usuário
+          </button>
+        </div>
+
+        <div class="users-stats" aria-label="Resumo dos usuários">
+          <article><span class="users-stat-icon stat-blue" aria-hidden="true">◎</span><div><strong id="usuarios-total">0</strong><small>Total de usuários</small></div></article>
+          <article><span class="users-stat-icon stat-green" aria-hidden="true">✓</span><div><strong id="usuarios-ativos">0</strong><small>Ativos</small></div></article>
+          <article><span class="users-stat-icon stat-red" aria-hidden="true">—</span><div><strong id="usuarios-inativos">0</strong><small>Inativos</small></div></article>
+          <article><span class="users-stat-icon stat-amber" aria-hidden="true">◇</span><div><strong id="usuarios-conferentes">0</strong><small>Conferentes</small></div></article>
+        </div>
+
+        <div class="users-panel">
+          <div class="users-toolbar">
+            <div class="users-tabs" role="tablist" aria-label="Situação do acesso">
+              <button type="button" class="active" data-users-status="todos">Todos <span id="usuarios-tab-todos-contagem">0</span></button>
+              <button type="button" data-users-status="ativos">Ativos <span id="usuarios-tab-ativos-contagem">0</span></button>
+              <button type="button" data-users-status="inativos">Inativos <span id="usuarios-tab-inativos-contagem">0</span></button>
             </div>
-            <div id="lista-usuarios-container" class="space-y-3 max-h-[65vh] overflow-y-auto pr-1"></div>
+            <div class="users-filters">
+              <div class="search-field">
+                <input type="text" id="filtro-busca-usuarios" placeholder="Pesquisar nome ou e-mail..." aria-label="Pesquisar usuários">
+                <button id="btn-limpar-busca-usuarios" type="button" class="search-clear hidden" aria-label="Limpar pesquisa de usuários">×</button>
+              </div>
+              <select id="filtro-perfil-usuarios" aria-label="Filtrar usuários por perfil">
+                <option value="todos">Todos os perfis</option>
+                <option value="admin">Administradores</option>
+                <option value="gestor">Gestores</option>
+                <option value="conferente">Conferentes</option>
+              </select>
+            </div>
           </div>
+          <div class="users-table-header" aria-hidden="true"><span>Usuário</span><span>Perfil</span><span>Divisões</span><span>Status</span><span>Cadastro</span><span>Ações</span></div>
+          <div id="lista-usuarios-container" class="users-list" aria-live="polite"></div>
+          <div id="usuarios-paginacao" class="users-pagination"></div>
         </div>
       </section>
 
@@ -591,7 +614,7 @@
 
       <footer class="app-footer">
         <span>CM APP · Patrimônio</span>
-        <span>v1.13.6-H · HOMOLOGAÇÃO</span>
+        <span>v1.13.7-H · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -614,7 +637,7 @@
         </div>
         <div>
           <label class="text-[11px] text-slate-400 block mb-1">Senha Inicial</label>
-          <input type="password" id="cad-senha" required placeholder="Mínimo de 6 caracteres" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-1.5 text-xs text-white">
+          <input type="password" id="cad-senha" required minlength="8" placeholder="Mínimo de 8 caracteres" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-1.5 text-xs text-white">
         </div>
         <div id="campo-perfil-container">
           <label class="text-[11px] text-slate-400 block mb-1">Perfil de Acesso</label>
@@ -698,6 +721,6 @@
     </div>
   </div>
 
-    <script type="module" src="./app.js?v=1.13.6"></script>
+    <script type="module" src="./app.js?v=1.13.7"></script>
 </body>
 </html>

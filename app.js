@@ -1,6 +1,5 @@
     import {
       EmailAuthProvider,
-      createUserWithEmailAndPassword,
       onAuthStateChanged,
       reauthenticateWithCredential,
       sendPasswordResetEmail,
@@ -10,12 +9,12 @@
       updateProfile
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import {
-      doc, getDoc, getDocFromServer, setDoc, updateDoc, deleteDoc,
+      doc, getDoc, getDocFromServer, setDoc, updateDoc,
       collection, getDocs, onSnapshot, writeBatch, query, where,
       and, or, orderBy, startAt, startAfter, endAt, limit, documentId,
       getCountFromServer
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-    import { auth, db, authSecundario } from "./js/config/firebase.js";
+    import { auth, db } from "./js/config/firebase.js";
     import { ehPerfilValidador, prepararAtualizacaoPatrimonio, prepararResolucaoTransferencia } from "./js/core/movimentacao.js?v=1.12.5";
     import { situacaoPatrimonio, divisoesVisiveisPatrimonio, patrimonioVisivelParaDivisoes, correspondeSituacaoPatrimonio, contarSituacoesPatrimonio, descontarItensForaDoEscopo, resumirProgressoDivisao } from "./js/core/relacao.js?v=1.13.3";
     import { carregarPaginaIntercalada } from "./js/core/paginacao.js?v=1.12.4";
@@ -31,6 +30,7 @@
       consultarEncerramentoGeral
     } from "./js/services/inventarios.service.js?v=1.13.6";
     import { obterUrlFotoPerfil, removerFotoPerfil, salvarFotoPerfil } from "./js/services/perfil.service.js";
+    import { alterarEstadoUsuario, atualizarUsuarioSeguro, criarUsuarioSeguro } from "./js/services/usuarios.service.js?v=1.13.7";
     import {
       configurarHistoricoFeedback,
       confirmarAcao,
@@ -73,6 +73,9 @@
     let escopoVisualizacao = '';
     let revisaoEscopo = 0;
     let revisaoInventarios = 0;
+    let filtroStatusUsuarios = 'todos';
+    let filtroPerfilUsuarios = 'todos';
+    let paginaUsuarios = 1;
 
     const TAMANHO_PAGINA_RELACAO = 50;
     const VALIDADE_RESUMO_INVENTARIO_MS = 120000;
@@ -338,6 +341,11 @@
           return;
         }
         usuarioLogado = { uid: user.uid, email: user.email, ...userDoc.data() };
+        if (usuarioLogado.ativo === false) {
+          await signOut(auth);
+          notificarMensagem('Este acesso está desativado. Procure um Administrador.', 'erro');
+          return;
+        }
         
         document.getElementById('view-login').classList.add('hidden');
         document.getElementById('view-app').classList.remove('hidden');
@@ -382,6 +390,7 @@
       const btnTransf = document.getElementById('tab-btn-transferencias');
       const btnUsuarios = document.getElementById('tab-btn-usuarios');
       const btnInventarios = document.getElementById('tab-btn-inventarios');
+      const btnNovoUsuario = document.getElementById('btn-novo-usuario');
       const campoPerfil = document.getElementById('campo-perfil-container');
       const tituloCad = document.getElementById('titulo-cad-usuario');
       const boxExportacao = document.getElementById('container-botoes-exportacao');
@@ -389,6 +398,7 @@
       const btnSalvar = document.getElementById('btn-salvar');
       document.getElementById('dash-aguardando-acao').innerText = usuarioLogado.perfil === 'conferente'
         ? 'Ver na relação →' : 'Abrir fila geral →';
+      btnNovoUsuario?.classList.toggle('hidden', usuarioLogado.perfil !== 'admin');
 
       if (usuarioLogado.perfil === 'conferente') {
         btnTransf.classList.add('hidden');
@@ -1469,19 +1479,17 @@
 
     document.getElementById('form-cad-usuario').addEventListener('submit', async (e) => {
       e.preventDefault();
-      if (usuarioLogado.perfil === 'conferente') return notificarMensagem("Acesso negado para esta operação.", 'erro');
+      if (usuarioLogado.perfil !== 'admin') return notificarMensagem("Apenas Administradores podem cadastrar usuários.", 'erro');
 
       const nome = document.getElementById('cad-nome').value.trim();
       const email = document.getElementById('cad-email').value.trim();
       const senha = document.getElementById('cad-senha').value;
-      let perfil = usuarioLogado.perfil === 'gestor' ? 'conferente' : document.getElementById('cad-perfil').value;
+      const perfil = document.getElementById('cad-perfil').value;
       const checkboxes = document.querySelectorAll('input[name="divisao-check"]:checked');
       const divisoes = perfil === 'conferente' ? Array.from(checkboxes).map(cb => cb.value) : [];
 
       try {
-        const cred = await createUserWithEmailAndPassword(authSecundario, email, senha);
-        await setDoc(doc(db, "usuarios", cred.user.uid), { nome, email, perfil, divisoesAtribuidas: divisoes });
-        await signOut(authSecundario);
+        await criarUsuarioSeguro({ nome, email, senha, perfil, divisoesAtribuidas: divisoes });
 
         notificarMensagem(`Colaborador ${nome} cadastrado com sucesso.`, 'sucesso');
         document.getElementById('form-cad-usuario').reset();
@@ -1491,16 +1499,25 @@
       } catch (err) {
         let msg = "Não foi possível concluir o cadastro.";
         let tipo = 'erro';
-        if (err.code === 'auth/email-already-in-use') {
+        if (err.code === 'functions/already-exists') {
           msg = "Este e-mail já está cadastrado no sistema.";
           tipo = 'aviso';
-        } else if (err.code === 'auth/weak-password') {
-          msg = "A senha deve conter pelo menos 6 caracteres.";
+        } else if (err.code === 'functions/invalid-argument') {
+          msg = err.message || "Confira os dados informados.";
           tipo = 'aviso';
         }
         notificarMensagem(msg, tipo);
       }
     });
+
+    function iniciaisUsuario(nome = '') {
+      return nome.split(/\s+/).filter(Boolean).slice(0, 2).map(parte => parte[0]).join('').toUpperCase() || 'US';
+    }
+
+    function formatarDataUsuario(valor) {
+      const data = valor?.toDate?.() || (valor ? new Date(valor) : null);
+      return data && !Number.isNaN(data.getTime()) ? data.toLocaleDateString('pt-BR') : 'Legado';
+    }
 
     function renderizarListaUsuarios() {
       const container = document.getElementById('lista-usuarios-container');
@@ -1519,85 +1536,67 @@
       const usuariosFinais = usuariosFiltradosPorPermissao.filter(u => {
         const nomeMatch = (u.nome || "").toLowerCase().includes(termoBusca);
         const emailMatch = (u.email || "").toLowerCase().includes(termoBusca);
-        return nomeMatch || emailMatch;
-      });
+        const statusMatch = filtroStatusUsuarios === 'todos'
+          || (filtroStatusUsuarios === 'ativos' && u.ativo !== false)
+          || (filtroStatusUsuarios === 'inativos' && u.ativo === false);
+        const perfilMatch = filtroPerfilUsuarios === 'todos' || u.perfil === filtroPerfilUsuarios;
+        return (nomeMatch || emailMatch) && statusMatch && perfilMatch;
+      }).sort((a, b) => (a.nome || '').localeCompare(b.nome || '', 'pt-BR'));
+
+      const total = usuariosFiltradosPorPermissao.length;
+      const ativos = usuariosFiltradosPorPermissao.filter(u => u.ativo !== false).length;
+      const inativos = total - ativos;
+      const conferentes = usuariosFiltradosPorPermissao.filter(u => u.perfil === 'conferente').length;
+      document.getElementById('usuarios-total').textContent = total;
+      document.getElementById('usuarios-ativos').textContent = ativos;
+      document.getElementById('usuarios-inativos').textContent = inativos;
+      document.getElementById('usuarios-conferentes').textContent = conferentes;
+      document.getElementById('usuarios-tab-todos-contagem').textContent = total;
+      document.getElementById('usuarios-tab-ativos-contagem').textContent = ativos;
+      document.getElementById('usuarios-tab-inativos-contagem').textContent = inativos;
 
       if (usuariosFinais.length === 0) {
-        container.innerHTML = `<div class="text-xs text-slate-400 text-center py-4 bg-slate-900 rounded-lg border border-slate-700/60">Nenhum usuário encontrado.</div>`;
+        container.innerHTML = `<div class="users-empty">Nenhum usuário encontrado com os filtros selecionados.</div>`;
+        document.getElementById('usuarios-paginacao').innerHTML = '';
         return;
       }
-
-      const grupos = {
-        admin: usuariosFinais.filter(u => u.perfil === 'admin').sort((a, b) => a.nome.localeCompare(b.nome)),
-        gestor: usuariosFinais.filter(u => u.perfil === 'gestor').sort((a, b) => a.nome.localeCompare(b.nome)),
-        conferente: usuariosFinais.filter(u => u.perfil === 'conferente').sort((a, b) => a.nome.localeCompare(b.nome))
-      };
-
-      const titulosGrupos = {
-        admin: "🛡️ Administradores",
-        gestor: "⭐ Gestores",
-        conferente: "👤 Conferentes"
-      };
-
-      let htmlConsolidado = "";
-
-      ['admin', 'gestor', 'conferente'].forEach((tipo, idx) => {
-        const listaGrupo = grupos[tipo];
-        if (listaGrupo.length > 0) {
-          htmlConsolidado += `
-            <div class="bg-slate-900 rounded-xl border border-slate-700 overflow-hidden">
-              <button onclick="document.getElementById('acc-user-${idx}').classList.toggle('collapsed')" class="w-full flex justify-between items-center p-3 text-left font-bold text-xs bg-slate-800 border-b border-slate-700/50">
-                <span class="text-blue-400 font-semibold">${titulosGrupos[tipo]} (${listaGrupo.length})</span>
-                <span class="text-[10px] text-slate-400">▼ Expandir/Recolher</span>
-              </button>
-              <div id="acc-user-${idx}" class="accordion-content p-2 space-y-2 bg-slate-900/50">
-          `;
-
-          listaGrupo.forEach(u => {
-            const podeExcluir = (
-              (usuarioLogado.perfil === 'admin' && u.perfil !== 'admin') ||
-              (usuarioLogado.perfil === 'gestor' && u.perfil === 'conferente')
-            );
-
-            htmlConsolidado += `
-              <div class="bg-slate-800 p-3 rounded-lg border border-slate-700/60 space-y-2 text-xs">
-                <div class="space-y-0.5">
-                  <div class="font-bold text-white">${u.nome}</div>
-                  <div class="text-[10px] text-slate-400">${u.email}</div>
-                  <div class="text-[10px] text-emerald-400">${u.perfil === 'conferente'
-                    ? `Setores: ${(u.divisaoAtribuidas || u.divisoesAtribuidas || []).join(', ') || 'Nenhum'}`
-                    : 'Abrangência: acesso global'}</div>
-                </div>
-                <div class="flex flex-wrap gap-2 pt-1 border-t border-slate-700">
-                  <button onclick="abrirModalEdicao('${u.uid}')" class="flex-1 bg-slate-700 hover:bg-blue-600 text-slate-200 hover:text-white py-1.5 rounded text-[11px] font-bold transition-colors text-center">
-                    ✏️ Editar
-                  </button>
-                  ${usuarioLogado.perfil === 'admin' ? `
-                    <button onclick="enviarRedefinicaoSenha('${u.uid}')" class="flex-1 bg-amber-950/60 hover:bg-amber-900 text-amber-200 py-1.5 px-3 rounded text-[11px] font-bold transition-colors text-center border border-amber-500/30" title="Enviar e-mail de redefinição para ${u.email}">
-                      ✉️ Redefinir senha
-                    </button>
-                  ` : ''}
-                  ${podeExcluir ? `
-                    <button onclick="excluirUsuario('${u.uid}', '${u.nome}')" class="bg-red-950/60 hover:bg-red-900 text-red-300 py-1.5 px-3 rounded text-[11px] font-bold transition-colors text-center border border-red-500/30">
-                      🗑️ Excluir
-                    </button>
-                  ` : ''}
-                </div>
-              </div>
-            `;
-          });
-
-          htmlConsolidado += `</div></div>`;
-        }
-      });
-
-      container.innerHTML = htmlConsolidado;
+      const porPagina = 10;
+      const totalPaginas = Math.max(1, Math.ceil(usuariosFinais.length / porPagina));
+      paginaUsuarios = Math.min(paginaUsuarios, totalPaginas);
+      const inicio = (paginaUsuarios - 1) * porPagina;
+      const pagina = usuariosFinais.slice(inicio, inicio + porPagina);
+      const rotuloPerfil = { admin: 'Administrador', gestor: 'Gestor', conferente: 'Conferente' };
+      container.innerHTML = pagina.map(u => {
+        const ativo = u.ativo !== false;
+        const divisoes = u.divisoesAtribuidas || u.divisaoAtribuidas || [];
+        const acoes = usuarioLogado.perfil === 'admin'
+          ? (ativo ? `
+            <button type="button" onclick="abrirModalEdicao('${u.uid}')">Editar</button>
+            <button type="button" onclick="enviarRedefinicaoSenha('${u.uid}')">Redefinir senha</button>
+            <button type="button" class="danger" onclick="alterarAcessoUsuario('${u.uid}')">Desativar acesso</button>`
+            : `<button type="button" class="success" onclick="alterarAcessoUsuario('${u.uid}')">Reativar acesso</button>`)
+          : '<span class="users-readonly">Somente consulta</span>';
+        return `<article class="user-row ${ativo ? '' : 'is-inactive'}">
+          <div class="user-identity"><span class="user-avatar">${escaparHtml(iniciaisUsuario(u.nome))}</span><div><strong>${escaparHtml(u.nome)}</strong><small>${escaparHtml(u.email)}</small></div></div>
+          <div data-label="Perfil"><span class="user-role role-${u.perfil}">${escaparHtml(rotuloPerfil[u.perfil] || u.perfil)}</span></div>
+          <div data-label="Divisões" class="user-divisions">${u.perfil === 'conferente' ? escaparHtml(divisoes.join(', ') || 'Nenhuma') : 'Acesso global'}</div>
+          <div data-label="Status"><span class="user-status ${ativo ? 'active' : 'inactive'}">${ativo ? 'Ativo' : 'Inativo'}</span></div>
+          <div data-label="Cadastro" class="user-date">${formatarDataUsuario(u.criadoEm)}</div>
+          <div data-label="Ações" class="user-actions">${acoes}</div>
+        </article>`;
+      }).join('');
+      document.getElementById('usuarios-paginacao').innerHTML = `
+        <span>Exibindo ${inicio + 1}–${Math.min(inicio + porPagina, usuariosFinais.length)} de ${usuariosFinais.length}</span>
+        <div><button ${paginaUsuarios === 1 ? 'disabled' : ''} onclick="mudarPaginaUsuarios(-1)" aria-label="Página anterior">‹</button><strong>${paginaUsuarios}/${totalPaginas}</strong><button ${paginaUsuarios === totalPaginas ? 'disabled' : ''} onclick="mudarPaginaUsuarios(1)" aria-label="Próxima página">›</button></div>`;
     }
+
+    window.mudarPaginaUsuarios = deslocamento => { paginaUsuarios += deslocamento; renderizarListaUsuarios(); };
 
     const filtroBuscaUsuarios = document.getElementById('filtro-busca-usuarios');
     const btnLimparBuscaUsuarios = document.getElementById('btn-limpar-busca-usuarios');
     filtroBuscaUsuarios?.addEventListener('input', () => {
       btnLimparBuscaUsuarios?.classList.toggle('hidden', !filtroBuscaUsuarios.value);
+      paginaUsuarios = 1;
       renderizarListaUsuarios();
     });
     btnLimparBuscaUsuarios?.addEventListener('click', () => {
@@ -1607,30 +1606,40 @@
       filtroBuscaUsuarios.focus();
     });
 
-    window.excluirUsuario = async function(uid, nome) {
-      const userAlvo = bancoUsuarios.find(u => u.uid === uid);
-      if (!userAlvo) return;
+    document.querySelectorAll('[data-users-status]').forEach(botao => botao.addEventListener('click', () => {
+      filtroStatusUsuarios = botao.dataset.usersStatus;
+      paginaUsuarios = 1;
+      document.querySelectorAll('[data-users-status]').forEach(item => item.classList.toggle('active', item === botao));
+      renderizarListaUsuarios();
+    }));
+    document.getElementById('filtro-perfil-usuarios')?.addEventListener('change', evento => {
+      filtroPerfilUsuarios = evento.target.value;
+      paginaUsuarios = 1;
+      renderizarListaUsuarios();
+    });
 
-      if (usuarioLogado.perfil === 'gestor' && userAlvo.perfil !== 'conferente') {
-        return notificarMensagem("Operação não permitida: Gestores só podem remover usuários com perfil conferente.", 'erro');
-      }
-
-      const confirmarExclusao = await confirmarAcao({
-        titulo: 'Remover acesso',
-        mensagem: `O acesso de ${nome} será removido. Esta ação não pode ser desfeita.`,
-        confirmarTexto: 'Remover usuário',
-        perigosa: true
+    window.alterarAcessoUsuario = async function(uid) {
+      if (usuarioLogado?.perfil !== 'admin') return notificarMensagem('Apenas Administradores podem alterar acessos.', 'erro');
+      const alvo = bancoUsuarios.find(u => u.uid === uid);
+      if (!alvo) return;
+      const reativar = alvo.ativo === false;
+      const confirmado = await confirmarAcao({
+        titulo: reativar ? 'Reativar acesso' : 'Desativar acesso',
+        mensagem: reativar
+          ? `${alvo.nome} poderá voltar a entrar no CM APP com a mesma conta.`
+          : `${alvo.nome} perderá o acesso, mas seu cadastro e todo o histórico serão preservados.`,
+        confirmarTexto: reativar ? 'Reativar acesso' : 'Desativar acesso',
+        perigosa: !reativar
       });
-      if (!confirmarExclusao) return;
-
+      if (!confirmado) return;
       try {
-        await deleteDoc(doc(db, "usuarios", uid));
-        notificarMensagem("Usuário removido com sucesso.", 'sucesso');
+        await alterarEstadoUsuario(uid, reativar);
+        notificarMensagem(reativar ? 'Acesso reativado com sucesso.' : 'Acesso desativado e sessões revogadas.', 'sucesso');
         await carregarUsuarios(true);
-      } catch (err) {
-        notificarMensagem("Erro ao remover o usuário. Tente novamente.", 'erro');
+      } catch (erro) {
+        notificarMensagem(erro?.message || 'Não foi possível alterar o acesso.', 'erro');
       }
-    }
+    };
 
     window.enviarRedefinicaoSenha = async function(uid) {
       if (usuarioLogado?.perfil !== 'admin') {
@@ -1668,14 +1677,9 @@
     window.abrirModalEdicao = function(uid) {
       const user = bancoUsuarios.find(u => u.uid === uid);
       if (!user) return;
+      if (usuarioLogado?.perfil !== 'admin') return notificarMensagem('Apenas Administradores podem editar usuários.', 'erro');
       if (user.uid === usuarioLogado.uid) {
         return notificarMensagem('Altere seus próprios dados na tela Meu perfil.', 'aviso');
-      }
-
-      if (usuarioLogado.perfil === 'gestor') {
-        if (user.uid !== usuarioLogado.uid && user.perfil !== 'conferente') {
-          return notificarMensagem("Acesso restrito: Gestores não possuem permissão para editar outros gestores ou administradores.", 'erro');
-        }
       }
 
       document.getElementById('edit-uid').value = user.uid;
@@ -1686,20 +1690,15 @@
       const campoPerfilEdit = document.getElementById('edit-campo-perfil-container');
       const campoDivisoesEdit = document.getElementById('edit-divisoes-container');
       
-      if (usuarioLogado.perfil === 'gestor') {
-        campoPerfilEdit.classList.add('hidden');
-      } else {
-        campoPerfilEdit.classList.remove('hidden');
-        perfilSelect.value = user.perfil || 'conferente';
-      }
+      campoPerfilEdit.classList.remove('hidden');
+      perfilSelect.value = user.perfil || 'conferente';
 
       const atribuidas = user.divisaoAtribuidas || user.divisoesAtribuidas || [];
       document.querySelectorAll('input[name="edit-divisao-check"]').forEach(cb => {
         cb.checked = atribuidas.includes(cb.value);
       });
 
-      const gestorEditandoProprioPerfil = usuarioLogado.perfil === 'gestor' && user.uid === usuarioLogado.uid;
-      campoDivisoesEdit.classList.toggle('hidden', gestorEditandoProprioPerfil || user.perfil !== 'conferente');
+      campoDivisoesEdit.classList.toggle('hidden', user.perfil !== 'conferente');
 
       abrirModalHistorico('modal-edicao-usuario', 'edicao-usuario');
     }
@@ -1727,23 +1726,14 @@
         return notificarMensagem('Altere seus próprios dados na tela Meu perfil.', 'aviso');
       }
 
-      if (usuarioLogado.perfil === 'gestor') {
-        if (targetUser.uid !== usuarioLogado.uid && targetUser.perfil !== 'conferente') {
-          return notificarMensagem("Operação negada pelas diretrizes de hierarquia.", 'erro');
-        }
-      }
-
-      let perfilNovo = targetUser.perfil;
-      if (usuarioLogado.perfil === 'admin') {
-        perfilNovo = document.getElementById('edit-perfil').value;
-      }
+      if (usuarioLogado.perfil !== 'admin') return notificarMensagem('Apenas Administradores podem editar usuários.', 'erro');
+      const perfilNovo = document.getElementById('edit-perfil').value;
 
       const checkboxes = document.querySelectorAll('input[name="edit-divisao-check"]:checked');
       const divisoes = perfilNovo === 'conferente' ? Array.from(checkboxes).map(cb => cb.value) : [];
 
       try {
-        const dadosAtualizacao = { nome, perfil: perfilNovo, divisoesAtribuidas: divisoes };
-        await updateDoc(doc(db, "usuarios", uid), dadosAtualizacao);
+        await atualizarUsuarioSeguro({ uid, nome, perfil: perfilNovo, divisoesAtribuidas: divisoes });
         notificarMensagem("Dados atualizados com sucesso.", 'sucesso');
         await fecharModalHistorico('modal-edicao-usuario', 'edicao-usuario');
         await carregarUsuarios(true);
