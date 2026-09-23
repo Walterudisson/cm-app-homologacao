@@ -53,7 +53,7 @@
 
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.7-H • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.7-H.1 • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -112,7 +112,7 @@
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.13.7-H</span>
+        <span>v1.13.7-H.1</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -487,7 +487,26 @@
               </select>
             </div>
           </div>
-          <div class="users-table-header" aria-hidden="true"><span>Usuário</span><span>Perfil</span><span>Divisões</span><span>Status</span><span>Cadastro</span><span>Ações</span></div>
+          <div class="users-mobile-sort">
+            <label for="ordenacao-usuarios">Ordenar por</label>
+            <select id="ordenacao-usuarios">
+              <option value="nome:asc">Nome (A–Z)</option>
+              <option value="nome:desc">Nome (Z–A)</option>
+              <option value="perfil:asc">Perfil</option>
+              <option value="divisoes:asc">Divisão</option>
+              <option value="ativo:asc">Status</option>
+              <option value="criadoEm:desc">Cadastro mais recente</option>
+              <option value="criadoEm:asc">Cadastro mais antigo</option>
+            </select>
+          </div>
+          <div class="users-table-header">
+            <button type="button" data-users-sort="nome">Usuário <span aria-hidden="true"></span></button>
+            <button type="button" data-users-sort="perfil">Perfil <span aria-hidden="true"></span></button>
+            <button type="button" data-users-sort="divisoes">Divisões <span aria-hidden="true"></span></button>
+            <button type="button" data-users-sort="ativo">Status <span aria-hidden="true"></span></button>
+            <button type="button" data-users-sort="criadoEm">Cadastro <span aria-hidden="true"></span></button>
+            <span>Detalhes</span>
+          </div>
           <div id="lista-usuarios-container" class="users-list" aria-live="polite"></div>
           <div id="usuarios-paginacao" class="users-pagination"></div>
         </div>
@@ -614,7 +633,7 @@
 
       <footer class="app-footer">
         <span>CM APP · Patrimônio</span>
-        <span>v1.13.7-H · HOMOLOGAÇÃO</span>
+        <span>v1.13.7-H.1 · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -694,6 +713,27 @@
     </div>
   </div>
 
+  <!-- MODAL DE DETALHES DO USUÁRIO -->
+  <div id="modal-detalhes-usuario" class="hidden fixed inset-0 bg-slate-950/80 z-50 flex items-center justify-center p-4">
+    <div class="user-details-dialog" role="dialog" aria-modal="true" aria-labelledby="detalhes-usuario-titulo">
+      <div class="user-details-heading">
+        <h3 id="detalhes-usuario-titulo">Detalhes do usuário</h3>
+        <button id="btn-fechar-detalhes-usuario" type="button" aria-label="Fechar detalhes do usuário">✕</button>
+      </div>
+      <div class="user-details-profile">
+        <span id="detalhes-usuario-avatar" class="user-avatar user-avatar-large">US</span>
+        <div><strong id="detalhes-usuario-nome"></strong><small id="detalhes-usuario-email"></small></div>
+      </div>
+      <dl class="user-details-grid">
+        <div><dt>Perfil</dt><dd id="detalhes-usuario-perfil"></dd></div>
+        <div><dt>Status</dt><dd id="detalhes-usuario-status"></dd></div>
+        <div class="user-details-wide"><dt>Divisões atribuídas</dt><dd id="detalhes-usuario-divisoes"></dd></div>
+        <div><dt>Cadastro</dt><dd id="detalhes-usuario-cadastro"></dd></div>
+      </dl>
+      <div id="detalhes-usuario-acoes" class="user-details-actions"></div>
+    </div>
+  </div>
+
   <!-- MODAL DE DETALHES E HISTÓRICO DO ITEM -->
   <div id="modal-detalhes-item" class="hidden fixed inset-0 bg-slate-950/80 z-50 flex items-center justify-center p-4">
     <div class="bg-slate-800 border border-slate-700 w-full max-w-md p-5 rounded-2xl shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
@@ -721,6 +761,6 @@
     </div>
   </div>
 
-    <script type="module" src="./app.js?v=1.13.7"></script>
+    <script type="module" src="./app.js?v=1.13.7-H.1"></script>
 </body>
 </html>

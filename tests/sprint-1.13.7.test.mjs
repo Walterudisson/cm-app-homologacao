@@ -10,8 +10,8 @@ const [app, html, css, config, servico, worker, regras, backend] = await Promise
   readFile(new URL('js/config/firebase.js', raiz), 'utf8'),
   readFile(new URL('js/services/usuarios.service.js', raiz), 'utf8'),
   readFile(new URL('service-worker.js', raiz), 'utf8'),
-  readFile(new URL('../../cm-app-v1.13.7-internal/firestore.rules', import.meta.url), 'utf8'),
-  readFile(new URL('../../cm-app-v1.13.7-internal/functions/index.js', import.meta.url), 'utf8')
+  readFile(new URL('../../cm-app-v1.13.7-H.1-internal/firestore.rules', import.meta.url), 'utf8'),
+  readFile(new URL('../../cm-app-v1.13.7-H.1-internal/functions/index.js', import.meta.url), 'utf8')
 ]);
 
 test('usa Cloud Functions no projeto regional e remove cadastro privilegiado do navegador', () => {
@@ -54,6 +54,6 @@ test('Gestão de Usuários possui indicadores, filtros, status e paginação', (
 test('gestor consulta e Administrador mantém as ações de acesso', () => {
   assert.match(app, /btnNovoUsuario\?\.classList\.toggle\('hidden', usuarioLogado\.perfil !== 'admin'\)/);
   assert.match(app, /usuarioLogado\.perfil === 'admin'[\s\S]*abrirModalEdicao/);
-  assert.match(app, /Somente consulta/);
+  assert.match(app, /Visualização disponível; alterações são exclusivas de Administradores/);
   assert.match(backend, /O Administrador não pode desativar a própria conta|Use Meu perfil/);
 });

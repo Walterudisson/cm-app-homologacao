@@ -76,6 +76,9 @@
     let filtroStatusUsuarios = 'todos';
     let filtroPerfilUsuarios = 'todos';
     let paginaUsuarios = 1;
+    let ordenacaoUsuarios = { campo: 'nome', direcao: 'asc' };
+    let usuarioDetalhadoUid = '';
+    const cacheFotosUsuarios = new Map();
 
     const TAMANHO_PAGINA_RELACAO = 50;
     const VALIDADE_RESUMO_INVENTARIO_MS = 120000;
@@ -202,6 +205,7 @@
       if (fecharConfirmacaoAtiva()) return true;
       const camadas = [
         ['modal-detalhes-item', 'detalhes-item'],
+        ['modal-detalhes-usuario', 'detalhes-usuario'],
         ['modal-edicao-usuario', 'edicao-usuario'],
         ['modal-criacao-usuario', 'criacao-usuario']
       ];
@@ -319,6 +323,8 @@
         let mensagemAmigavel = "Erro ao realizar autenticação. Verifique suas credenciais.";
         if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
           mensagemAmigavel = "E-mail ou senha incorretos. Por favor, tente novamente.";
+        } else if (err.code === 'auth/user-disabled') {
+          mensagemAmigavel = "Este acesso está desativado. Procure um Administrador do CM APP para solicitar a reativação.";
         } else if (err.code === 'auth/too-many-requests') {
           mensagemAmigavel = "Muitas tentativas falhas. O acesso foi temporariamente bloqueado por segurança.";
         } else if (err.message) {
@@ -1519,6 +1525,59 @@
       return data && !Number.isNaN(data.getTime()) ? data.toLocaleDateString('pt-BR') : 'Legado';
     }
 
+    function valorOrdenacaoUsuario(usuario, campo) {
+      const divisoes = usuario.divisoesAtribuidas || usuario.divisaoAtribuidas || [];
+      if (campo === 'criadoEm') {
+        const data = usuario.criadoEm?.toDate?.() || (usuario.criadoEm ? new Date(usuario.criadoEm) : null);
+        return data && !Number.isNaN(data.getTime()) ? data.getTime() : 0;
+      }
+      if (campo === 'ativo') return usuario.ativo === false ? 'inativo' : 'ativo';
+      if (campo === 'divisoes') return divisoes.join(' ');
+      return usuario[campo] || '';
+    }
+
+    function compararUsuarios(a, b) {
+      const valorA = valorOrdenacaoUsuario(a, ordenacaoUsuarios.campo);
+      const valorB = valorOrdenacaoUsuario(b, ordenacaoUsuarios.campo);
+      const resultado = typeof valorA === 'number'
+        ? valorA - valorB
+        : String(valorA).localeCompare(String(valorB), 'pt-BR', { sensitivity: 'base', numeric: true });
+      return ordenacaoUsuarios.direcao === 'desc' ? -resultado : resultado;
+    }
+
+    function atualizarControlesOrdenacaoUsuarios() {
+      document.querySelectorAll('[data-users-sort]').forEach(botao => {
+        const selecionado = botao.dataset.usersSort === ordenacaoUsuarios.campo;
+        botao.classList.toggle('is-sorted', selecionado);
+        botao.setAttribute('aria-sort', selecionado
+          ? (ordenacaoUsuarios.direcao === 'asc' ? 'ascending' : 'descending')
+          : 'none');
+        const indicador = botao.querySelector('span');
+        if (indicador) indicador.textContent = selecionado ? (ordenacaoUsuarios.direcao === 'asc' ? '↑' : '↓') : '';
+      });
+      const seletor = document.getElementById('ordenacao-usuarios');
+      if (seletor) seletor.value = `${ordenacaoUsuarios.campo}:${ordenacaoUsuarios.direcao}`;
+    }
+
+    async function obterFotoUsuarioCache(uid) {
+      if (!cacheFotosUsuarios.has(uid)) {
+        cacheFotosUsuarios.set(uid, obterUrlFotoPerfil(uid).catch(() => ''));
+      }
+      return cacheFotosUsuarios.get(uid);
+    }
+
+    async function carregarAvataresUsuarios(usuarios) {
+      await Promise.all(usuarios.map(async usuario => {
+        const url = await obterFotoUsuarioCache(usuario.uid);
+        if (!url) return;
+        document.querySelectorAll('[data-user-avatar]').forEach(avatar => {
+          if (avatar.dataset.userAvatar === usuario.uid) {
+            avatar.innerHTML = `<img src="${escaparHtml(url)}" alt="Foto de ${escaparHtml(usuario.nome)}">`;
+          }
+        });
+      }));
+    }
+
     function renderizarListaUsuarios() {
       const container = document.getElementById('lista-usuarios-container');
       const termoBusca = (document.getElementById('filtro-busca-usuarios')?.value || "").toLowerCase().trim();
@@ -1541,7 +1600,7 @@
           || (filtroStatusUsuarios === 'inativos' && u.ativo === false);
         const perfilMatch = filtroPerfilUsuarios === 'todos' || u.perfil === filtroPerfilUsuarios;
         return (nomeMatch || emailMatch) && statusMatch && perfilMatch;
-      }).sort((a, b) => (a.nome || '').localeCompare(b.nome || '', 'pt-BR'));
+      }).sort(compararUsuarios);
 
       const total = usuariosFiltradosPorPermissao.length;
       const ativos = usuariosFiltradosPorPermissao.filter(u => u.ativo !== false).length;
@@ -1569,25 +1628,20 @@
       container.innerHTML = pagina.map(u => {
         const ativo = u.ativo !== false;
         const divisoes = u.divisoesAtribuidas || u.divisaoAtribuidas || [];
-        const acoes = usuarioLogado.perfil === 'admin'
-          ? (ativo ? `
-            <button type="button" onclick="abrirModalEdicao('${u.uid}')">Editar</button>
-            <button type="button" onclick="enviarRedefinicaoSenha('${u.uid}')">Redefinir senha</button>
-            <button type="button" class="danger" onclick="alterarAcessoUsuario('${u.uid}')">Desativar acesso</button>`
-            : `<button type="button" class="success" onclick="alterarAcessoUsuario('${u.uid}')">Reativar acesso</button>`)
-          : '<span class="users-readonly">Somente consulta</span>';
-        return `<article class="user-row ${ativo ? '' : 'is-inactive'}">
-          <div class="user-identity"><span class="user-avatar">${escaparHtml(iniciaisUsuario(u.nome))}</span><div><strong>${escaparHtml(u.nome)}</strong><small>${escaparHtml(u.email)}</small></div></div>
+        return `<article class="user-row ${ativo ? '' : 'is-inactive'}" role="button" tabindex="0" data-user-details="${escaparHtml(u.uid)}" aria-label="Abrir detalhes de ${escaparHtml(u.nome)}">
+          <div class="user-identity"><span class="user-avatar" data-user-avatar="${escaparHtml(u.uid)}">${escaparHtml(iniciaisUsuario(u.nome))}</span><div><strong>${escaparHtml(u.nome)}</strong><small>${escaparHtml(u.email)}</small></div></div>
           <div data-label="Perfil"><span class="user-role role-${u.perfil}">${escaparHtml(rotuloPerfil[u.perfil] || u.perfil)}</span></div>
           <div data-label="Divisões" class="user-divisions">${u.perfil === 'conferente' ? escaparHtml(divisoes.join(', ') || 'Nenhuma') : 'Acesso global'}</div>
           <div data-label="Status"><span class="user-status ${ativo ? 'active' : 'inactive'}">${ativo ? 'Ativo' : 'Inativo'}</span></div>
           <div data-label="Cadastro" class="user-date">${formatarDataUsuario(u.criadoEm)}</div>
-          <div data-label="Ações" class="user-actions">${acoes}</div>
+          <div data-label="Detalhes"><span class="user-open-details">Abrir perfil →</span></div>
         </article>`;
       }).join('');
       document.getElementById('usuarios-paginacao').innerHTML = `
         <span>Exibindo ${inicio + 1}–${Math.min(inicio + porPagina, usuariosFinais.length)} de ${usuariosFinais.length}</span>
         <div><button ${paginaUsuarios === 1 ? 'disabled' : ''} onclick="mudarPaginaUsuarios(-1)" aria-label="Página anterior">‹</button><strong>${paginaUsuarios}/${totalPaginas}</strong><button ${paginaUsuarios === totalPaginas ? 'disabled' : ''} onclick="mudarPaginaUsuarios(1)" aria-label="Próxima página">›</button></div>`;
+      atualizarControlesOrdenacaoUsuarios();
+      carregarAvataresUsuarios(pagina);
     }
 
     window.mudarPaginaUsuarios = deslocamento => { paginaUsuarios += deslocamento; renderizarListaUsuarios(); };
@@ -1618,6 +1672,88 @@
       renderizarListaUsuarios();
     });
 
+    document.querySelectorAll('[data-users-sort]').forEach(botao => botao.addEventListener('click', () => {
+      const campo = botao.dataset.usersSort;
+      ordenacaoUsuarios = {
+        campo,
+        direcao: ordenacaoUsuarios.campo === campo && ordenacaoUsuarios.direcao === 'asc' ? 'desc' : 'asc'
+      };
+      paginaUsuarios = 1;
+      renderizarListaUsuarios();
+    }));
+
+    document.getElementById('ordenacao-usuarios')?.addEventListener('change', evento => {
+      const [campo, direcao] = evento.target.value.split(':');
+      ordenacaoUsuarios = { campo, direcao };
+      paginaUsuarios = 1;
+      renderizarListaUsuarios();
+    });
+
+    document.getElementById('lista-usuarios-container')?.addEventListener('click', evento => {
+      const linha = evento.target.closest('[data-user-details]');
+      if (linha) window.abrirDetalhesUsuario(linha.dataset.userDetails);
+    });
+
+    document.getElementById('lista-usuarios-container')?.addEventListener('keydown', evento => {
+      if (!['Enter', ' '].includes(evento.key)) return;
+      const linha = evento.target.closest('[data-user-details]');
+      if (!linha) return;
+      evento.preventDefault();
+      window.abrirDetalhesUsuario(linha.dataset.userDetails);
+    });
+
+    window.abrirDetalhesUsuario = async function(uid) {
+      const usuario = bancoUsuarios.find(item => item.uid === uid);
+      if (!usuario || !['admin', 'gestor'].includes(usuarioLogado?.perfil)) return;
+      usuarioDetalhadoUid = uid;
+      const ativo = usuario.ativo !== false;
+      const divisoes = usuario.divisoesAtribuidas || usuario.divisaoAtribuidas || [];
+      const rotuloPerfil = { admin: 'Administrador', gestor: 'Gestor', conferente: 'Conferente' };
+      const avatar = document.getElementById('detalhes-usuario-avatar');
+      avatar.textContent = iniciaisUsuario(usuario.nome);
+      document.getElementById('detalhes-usuario-nome').textContent = usuario.nome || 'Sem nome';
+      document.getElementById('detalhes-usuario-email').textContent = usuario.email || 'Sem e-mail';
+      document.getElementById('detalhes-usuario-perfil').textContent = rotuloPerfil[usuario.perfil] || usuario.perfil;
+      document.getElementById('detalhes-usuario-status').innerHTML = `<span class="user-status ${ativo ? 'active' : 'inactive'}">${ativo ? 'Ativo' : 'Inativo'}</span>`;
+      document.getElementById('detalhes-usuario-divisoes').textContent = usuario.perfil === 'conferente'
+        ? (divisoes.join(', ') || 'Nenhuma divisão atribuída')
+        : 'Acesso global';
+      document.getElementById('detalhes-usuario-cadastro').textContent = formatarDataUsuario(usuario.criadoEm);
+      const acoes = document.getElementById('detalhes-usuario-acoes');
+      acoes.innerHTML = usuarioLogado.perfil === 'admin'
+        ? (ativo ? `
+          <button type="button" data-user-action="editar">Editar dados</button>
+          <button type="button" data-user-action="senha">Redefinir senha</button>
+          <button type="button" class="danger" data-user-action="acesso">Desativar acesso</button>`
+          : `<button type="button" class="success" data-user-action="acesso">Reativar acesso</button>`)
+        : '<span class="users-readonly">Visualização disponível; alterações são exclusivas de Administradores.</span>';
+      abrirModalHistorico('modal-detalhes-usuario', 'detalhes-usuario');
+      const url = await obterFotoUsuarioCache(uid);
+      if (url && usuarioDetalhadoUid === uid) {
+        avatar.innerHTML = `<img src="${escaparHtml(url)}" alt="Foto de ${escaparHtml(usuario.nome)}">`;
+      }
+    };
+
+    window.fecharDetalhesUsuario = function() {
+      usuarioDetalhadoUid = '';
+      return fecharModalHistorico('modal-detalhes-usuario', 'detalhes-usuario');
+    };
+
+    document.getElementById('btn-fechar-detalhes-usuario')?.addEventListener('click', () => window.fecharDetalhesUsuario());
+    document.getElementById('detalhes-usuario-acoes')?.addEventListener('click', async evento => {
+      const acao = evento.target.closest('[data-user-action]')?.dataset.userAction;
+      const uid = usuarioDetalhadoUid;
+      if (!acao || !uid) return;
+      if (acao === 'editar') {
+        await window.fecharDetalhesUsuario();
+        window.abrirModalEdicao(uid);
+      } else if (acao === 'senha') {
+        await window.enviarRedefinicaoSenha(uid);
+      } else if (acao === 'acesso') {
+        await window.alterarAcessoUsuario(uid);
+      }
+    });
+
     window.alterarAcessoUsuario = async function(uid) {
       if (usuarioLogado?.perfil !== 'admin') return notificarMensagem('Apenas Administradores podem alterar acessos.', 'erro');
       const alvo = bancoUsuarios.find(u => u.uid === uid);
@@ -1635,6 +1771,7 @@
       try {
         await alterarEstadoUsuario(uid, reativar);
         notificarMensagem(reativar ? 'Acesso reativado com sucesso.' : 'Acesso desativado e sessões revogadas.', 'sucesso');
+        await window.fecharDetalhesUsuario();
         await carregarUsuarios(true);
       } catch (erro) {
         notificarMensagem(erro?.message || 'Não foi possível alterar o acesso.', 'erro');
