@@ -12,6 +12,7 @@
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg">
   <link rel="apple-touch-icon" href="./assets/apple-touch-icon.png">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.5.0/dist/driver.css">
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -20,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.13.7">
+  <link rel="stylesheet" href="./app.css?v=1.13.8">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div style="position:fixed;top:0;left:0;right:0;z-index:9999;background:#b45309;color:white;text-align:center;font:700 12px/28px system-ui,sans-serif;letter-spacing:.08em;pointer-events:none" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -53,7 +54,7 @@
 
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.7-H.1 • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.8-H • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -112,7 +113,7 @@
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.13.7-H.1</span>
+        <span>v1.13.8-H</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -433,6 +434,14 @@
             </div>
             <button id="btn-instalar-app" type="button" class="profile-action profile-action-primary hidden">INSTALAR CM APP</button>
           </article>
+          <article id="tutorial-conferente-card" class="hidden app-card tutorial-profile-card">
+            <div>
+              <span class="eyebrow">Ajuda guiada</span>
+              <h2>Tutorial do Conferente</h2>
+              <p id="tutorial-conferente-status">Conheça o fluxo de leitura e conferência sem alterar dados patrimoniais.</p>
+            </div>
+            <button id="btn-iniciar-tutorial" type="button" class="profile-action profile-action-primary">INICIAR TUTORIAL</button>
+          </article>
         </div>
       </section>
 
@@ -461,10 +470,10 @@
         </div>
 
         <div class="users-stats" aria-label="Resumo dos usuários">
-          <article><span class="users-stat-icon stat-blue" aria-hidden="true">◎</span><div><strong id="usuarios-total">0</strong><small>Total de usuários</small></div></article>
-          <article><span class="users-stat-icon stat-green" aria-hidden="true">✓</span><div><strong id="usuarios-ativos">0</strong><small>Ativos</small></div></article>
-          <article><span class="users-stat-icon stat-red" aria-hidden="true">—</span><div><strong id="usuarios-inativos">0</strong><small>Inativos</small></div></article>
-          <article><span class="users-stat-icon stat-amber" aria-hidden="true">◇</span><div><strong id="usuarios-conferentes">0</strong><small>Conferentes</small></div></article>
+          <button type="button" class="is-selected" data-users-card="todos" aria-pressed="true"><span class="users-stat-icon stat-blue" aria-hidden="true">◎</span><div><strong id="usuarios-total">0</strong><small>Total de usuários</small></div></button>
+          <button type="button" data-users-card="ativos" aria-pressed="false"><span class="users-stat-icon stat-green" aria-hidden="true">✓</span><div><strong id="usuarios-ativos">0</strong><small>Ativos</small></div></button>
+          <button type="button" data-users-card="inativos" aria-pressed="false"><span class="users-stat-icon stat-red" aria-hidden="true">—</span><div><strong id="usuarios-inativos">0</strong><small>Inativos</small></div></button>
+          <button type="button" data-users-card="conferentes" aria-pressed="false"><span class="users-stat-icon stat-amber" aria-hidden="true">◇</span><div><strong id="usuarios-conferentes">0</strong><small>Conferentes</small></div></button>
         </div>
 
         <div class="users-panel">
@@ -633,7 +642,7 @@
 
       <footer class="app-footer">
         <span>CM APP · Patrimônio</span>
-        <span>v1.13.7-H.1 · HOMOLOGAÇÃO</span>
+        <span>v1.13.8-H · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -761,6 +770,7 @@
     </div>
   </div>
 
-    <script type="module" src="./app.js?v=1.13.7-H.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/driver.js@1.5.0/dist/driver.js.iife.js"></script>
+    <script type="module" src="./app.js?v=1.13.8"></script>
 </body>
 </html>

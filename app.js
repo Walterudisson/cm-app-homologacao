@@ -79,6 +79,9 @@
     let ordenacaoUsuarios = { campo: 'nome', direcao: 'asc' };
     let usuarioDetalhadoUid = '';
     const cacheFotosUsuarios = new Map();
+    let tutorialConferente = null;
+    let tutorialFinalizado = false;
+    let tutorialEraRevisao = false;
 
     const TAMANHO_PAGINA_RELACAO = 50;
     const VALIDADE_RESUMO_INVENTARIO_MS = 120000;
@@ -305,6 +308,202 @@
       atualizarCarrossel();
     }, 18000);
 
+    function atualizarEstadoTutorialConferente() {
+      const ehConferente = usuarioLogado?.perfil === 'conferente';
+      document.getElementById('tutorial-conferente-card')?.classList.toggle('hidden', !ehConferente);
+      if (!ehConferente) return;
+      const concluido = usuarioLogado.tutorialConferenteV1Concluido === true;
+      const adiado = usuarioLogado.tutorialConferenteV1Adiado === true;
+      const status = document.getElementById('tutorial-conferente-status');
+      const botao = document.getElementById('btn-iniciar-tutorial');
+      if (status) status.textContent = concluido
+        ? 'Tutorial concluído. Você pode revê-lo sempre que precisar.'
+        : (adiado ? 'Tutorial pausado. Continue a partir da última orientação.' : 'Conheça o fluxo de leitura e conferência sem alterar dados patrimoniais.');
+      if (botao) botao.textContent = concluido ? 'REVER TUTORIAL' : (adiado ? 'CONTINUAR TUTORIAL' : 'INICIAR TUTORIAL');
+    }
+
+    async function salvarEstadoTutorialConferente({ etapa, concluido, adiado }) {
+      if (!usuarioLogado || usuarioLogado.perfil !== 'conferente') return;
+      const dados = {
+        tutorialConferenteV1Etapa: Math.max(0, Number(etapa) || 0),
+        tutorialConferenteV1Concluido: Boolean(concluido),
+        tutorialConferenteV1Adiado: Boolean(adiado)
+      };
+      Object.assign(usuarioLogado, dados);
+      atualizarEstadoTutorialConferente();
+      try {
+        await updateDoc(doc(db, 'usuarios', usuarioLogado.uid), dados);
+      } catch (erro) {
+        console.warn('Não foi possível salvar o progresso do tutorial.', erro);
+      }
+    }
+
+    function adicionarBotaoPularTutorial(popover) {
+      const rodape = popover?.footerButtons || document.querySelector('.driver-popover-footer');
+      if (!rodape || rodape.querySelector('.tutorial-skip-button')) return;
+      const botao = document.createElement('button');
+      botao.type = 'button';
+      botao.className = 'driver-popover-footer-btn tutorial-skip-button';
+      botao.textContent = 'Pular por enquanto';
+      botao.addEventListener('click', async () => {
+        const etapa = tutorialConferente?.getActiveIndex?.() || 0;
+        await salvarEstadoTutorialConferente({
+          etapa,
+          concluido: tutorialEraRevisao,
+          adiado: !tutorialEraRevisao
+        });
+        tutorialConferente?.destroy();
+      });
+      rodape.prepend(botao);
+    }
+
+    function passosTutorialConferente() {
+      return [
+        {
+          element: '.app-topbar',
+          popover: {
+            title: 'Bem-vindo ao CM APP',
+            description: 'Este guia apresenta o fluxo do Conferente. Nenhum patrimônio será alterado durante o tutorial.'
+          }
+        },
+        {
+          element: '#escopo-barra',
+          popover: {
+            title: 'Sua divisão de trabalho',
+            description: 'Quando houver mais de uma divisão atribuída, escolha aqui qual deseja consultar no Painel e na Relação.',
+            onNextClick: async () => {
+              await alternarAba('scanner');
+              tutorialConferente.moveNext();
+            }
+          }
+        },
+        {
+          element: '#scanner-camera-card',
+          popover: {
+            title: 'Leitura pela câmera',
+            description: 'Ligue a câmera quando quiser ler o código de barras. OCR e digitação manual continuam disponíveis como alternativas.',
+            onPrevClick: async () => {
+              await alternarAba('dashboard');
+              tutorialConferente.movePrevious();
+            }
+          }
+        },
+        {
+          element: '#scanner-form-card',
+          popover: {
+            title: 'Consulta da plaqueta',
+            description: 'Toda leitura chega a este formulário. Aqui você confere o patrimônio antes de registrar qualquer informação.'
+          }
+        },
+        {
+          element: '#input-plaqueta',
+          popover: {
+            title: 'Digitação manual',
+            description: 'Se a etiqueta não puder ser lida, digite somente os números da plaqueta e use Buscar.'
+          }
+        },
+        {
+          element: '#scanner-form-card',
+          popover: {
+            title: 'Resultado encontrado',
+            description: 'O aplicativo mostrará descrição, divisão anterior e histórico. Leia esses dados antes de continuar.'
+          }
+        },
+        {
+          element: '#select-localizacao',
+          popover: {
+            title: 'Local onde o item foi encontrado',
+            description: 'Informe a divisão real em que o patrimônio está. Na mesma divisão, a conferência é concluída diretamente.'
+          }
+        },
+        {
+          element: '#patrimonio-atualizacao-form',
+          popover: {
+            title: 'Transferência para aprovação',
+            description: 'Se a divisão informada for diferente da atual, o sistema cria uma solicitação para Gestor ou Administrador analisar.'
+          }
+        },
+        {
+          element: '#scanner-form-card',
+          popover: {
+            title: 'Plaqueta não encontrada',
+            description: 'Confira o número. Se estiver correto e ainda não existir na base, comunique um Gestor ou Administrador.'
+          }
+        },
+        {
+          element: '#btn-salvar',
+          popover: {
+            title: 'Registrar conferência',
+            description: 'Este botão grava a conferência real. Ele está bloqueado durante o tutorial e nenhum dado será enviado.'
+          }
+        },
+        {
+          element: '#btn-profile-menu',
+          popover: {
+            title: 'Tutorial concluído',
+            description: 'Você poderá rever este guia em Meu perfil. Agora já conhece o fluxo essencial do Conferente.'
+          }
+        }
+      ];
+    }
+
+    async function iniciarTutorialConferente({ automatico = false } = {}) {
+      if (usuarioLogado?.perfil !== 'conferente') return;
+      const criarDriver = window.driver?.js?.driver;
+      if (typeof criarDriver !== 'function') {
+        if (!automatico) notificarMensagem('O tutorial não pôde ser carregado. Verifique a conexão e tente novamente.', 'aviso');
+        return;
+      }
+      tutorialConferente?.destroy?.();
+      tutorialFinalizado = false;
+      tutorialEraRevisao = usuarioLogado.tutorialConferenteV1Concluido === true;
+      await alternarAba('dashboard');
+      tutorialConferente = criarDriver({
+        popoverClass: 'cmapp-tutorial',
+        showProgress: true,
+        progressText: '{{current}} de {{total}}',
+        nextBtnText: 'Próximo',
+        prevBtnText: 'Anterior',
+        doneBtnText: 'Concluir',
+        showButtons: ['next', 'previous'],
+        allowClose: false,
+        overlayClickBehavior: 'none',
+        disableActiveInteraction: true,
+        smoothScroll: true,
+        steps: passosTutorialConferente(),
+        onPopoverRender: adicionarBotaoPularTutorial,
+        onHighlighted: (_elemento, _passo, opcoes) => {
+          const etapa = opcoes?.state?.activeIndex ?? tutorialConferente?.getActiveIndex?.() ?? 0;
+          salvarEstadoTutorialConferente({ etapa, concluido: tutorialEraRevisao, adiado: false });
+        },
+        onDoneClick: async () => {
+          tutorialFinalizado = true;
+          await salvarEstadoTutorialConferente({ etapa: 0, concluido: true, adiado: false });
+          tutorialConferente.destroy();
+          notificarMensagem('Tutorial do Conferente concluído.', 'sucesso');
+        },
+        onDestroyed: () => {
+          tutorialConferente = null;
+          if (tutorialFinalizado) atualizarEstadoTutorialConferente();
+        }
+      });
+      const etapaSalva = automatico || usuarioLogado.tutorialConferenteV1Adiado === true
+        ? Math.min(Number(usuarioLogado.tutorialConferenteV1Etapa) || 0, passosTutorialConferente().length - 1)
+        : 0;
+      if (etapaSalva >= 2) await alternarAba('scanner');
+      tutorialConferente.drive(etapaSalva);
+    }
+
+    function agendarTutorialConferente() {
+      atualizarEstadoTutorialConferente();
+      if (usuarioLogado?.perfil !== 'conferente'
+        || usuarioLogado.tutorialConferenteV1Concluido === true
+        || usuarioLogado.tutorialConferenteV1Adiado === true) return;
+      window.setTimeout(() => iniciarTutorialConferente({ automatico: true }), 700);
+    }
+
+    document.getElementById('btn-iniciar-tutorial')?.addEventListener('click', () => iniciarTutorialConferente());
+
     document.getElementById('form-login').addEventListener('submit', async (e) => {
       e.preventDefault();
       const loginErro = document.getElementById('login-erro');
@@ -362,6 +561,7 @@
         await carregarFotoPerfilAtual();
         atualizarCarrossel();
         await alternarAba('dashboard', { substituirHistorico: true });
+        agendarTutorialConferente();
       } else {
         encerrarOuvinteTransferencias();
         if (controladorCamera.estaAtiva()) await controladorCamera.desligar({ limparResultado: true });
@@ -390,6 +590,7 @@
     function atualizarCabecalhoUsuario() {
       atualizarUsuarioNavegacao(usuarioLogado, fotoPerfilUrl);
       atualizarAcessoNavegacao(usuarioLogado.perfil);
+      atualizarEstadoTutorialConferente();
       document.getElementById('profile-menu-name').innerText = usuarioLogado.nome;
       atualizarDadosTelaPerfil();
       
@@ -1559,6 +1760,38 @@
       if (seletor) seletor.value = `${ordenacaoUsuarios.campo}:${ordenacaoUsuarios.direcao}`;
     }
 
+    function cardUsuarioCorrespondente() {
+      if (filtroStatusUsuarios === 'ativos' && filtroPerfilUsuarios === 'todos') return 'ativos';
+      if (filtroStatusUsuarios === 'inativos' && filtroPerfilUsuarios === 'todos') return 'inativos';
+      if (filtroStatusUsuarios === 'todos' && filtroPerfilUsuarios === 'conferente') return 'conferentes';
+      if (filtroStatusUsuarios === 'todos' && filtroPerfilUsuarios === 'todos') return 'todos';
+      return '';
+    }
+
+    function sincronizarFiltrosUsuarios() {
+      document.querySelectorAll('[data-users-status]').forEach(item => {
+        item.classList.toggle('active', item.dataset.usersStatus === filtroStatusUsuarios);
+      });
+      const seletorPerfil = document.getElementById('filtro-perfil-usuarios');
+      if (seletorPerfil) seletorPerfil.value = filtroPerfilUsuarios;
+      const cardAtual = cardUsuarioCorrespondente();
+      document.querySelectorAll('[data-users-card]').forEach(card => {
+        const selecionado = card.dataset.usersCard === cardAtual;
+        card.classList.toggle('is-selected', selecionado);
+        card.setAttribute('aria-pressed', String(selecionado));
+      });
+    }
+
+    function aplicarFiltroCardUsuarios(card) {
+      const repetido = card !== 'todos' && cardUsuarioCorrespondente() === card;
+      const destino = repetido ? 'todos' : card;
+      filtroStatusUsuarios = ['ativos', 'inativos'].includes(destino) ? destino : 'todos';
+      filtroPerfilUsuarios = destino === 'conferentes' ? 'conferente' : 'todos';
+      paginaUsuarios = 1;
+      sincronizarFiltrosUsuarios();
+      renderizarListaUsuarios();
+    }
+
     async function obterFotoUsuarioCache(uid) {
       if (!cacheFotosUsuarios.has(uid)) {
         cacheFotosUsuarios.set(uid, obterUrlFotoPerfil(uid).catch(() => ''));
@@ -1613,6 +1846,7 @@
       document.getElementById('usuarios-tab-todos-contagem').textContent = total;
       document.getElementById('usuarios-tab-ativos-contagem').textContent = ativos;
       document.getElementById('usuarios-tab-inativos-contagem').textContent = inativos;
+      sincronizarFiltrosUsuarios();
 
       if (usuariosFinais.length === 0) {
         container.innerHTML = `<div class="users-empty">Nenhum usuário encontrado com os filtros selecionados.</div>`;
@@ -1663,14 +1897,19 @@
     document.querySelectorAll('[data-users-status]').forEach(botao => botao.addEventListener('click', () => {
       filtroStatusUsuarios = botao.dataset.usersStatus;
       paginaUsuarios = 1;
-      document.querySelectorAll('[data-users-status]').forEach(item => item.classList.toggle('active', item === botao));
+      sincronizarFiltrosUsuarios();
       renderizarListaUsuarios();
     }));
     document.getElementById('filtro-perfil-usuarios')?.addEventListener('change', evento => {
       filtroPerfilUsuarios = evento.target.value;
       paginaUsuarios = 1;
+      sincronizarFiltrosUsuarios();
       renderizarListaUsuarios();
     });
+
+    document.querySelectorAll('[data-users-card]').forEach(card => card.addEventListener('click', () => {
+      aplicarFiltroCardUsuarios(card.dataset.usersCard);
+    }));
 
     document.querySelectorAll('[data-users-sort]').forEach(botao => botao.addEventListener('click', () => {
       const campo = botao.dataset.usersSort;

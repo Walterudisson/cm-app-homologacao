@@ -10,8 +10,8 @@ const [app, html, css, config, servico, worker, regras, backend] = await Promise
   readFile(new URL('js/config/firebase.js', raiz), 'utf8'),
   readFile(new URL('js/services/usuarios.service.js', raiz), 'utf8'),
   readFile(new URL('service-worker.js', raiz), 'utf8'),
-  readFile(new URL('../../cm-app-v1.13.7-H.1-internal/firestore.rules', import.meta.url), 'utf8'),
-  readFile(new URL('../../cm-app-v1.13.7-H.1-internal/functions/index.js', import.meta.url), 'utf8')
+  readFile(new URL('../../cm-app-v1.13.8-internal/firestore.rules', import.meta.url), 'utf8'),
+  readFile(new URL('../../cm-app-v1.13.8-internal/functions/index.js', import.meta.url), 'utf8')
 ]);
 
 test('usa Cloud Functions no projeto regional e remove cadastro privilegiado do navegador', () => {

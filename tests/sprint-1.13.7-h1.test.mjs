@@ -8,13 +8,13 @@ const [app, html, css, worker, storage, firebase] = await Promise.all([
   readFile(new URL('index.html', raiz), 'utf8'),
   readFile(new URL('app.css', raiz), 'utf8'),
   readFile(new URL('service-worker.js', raiz), 'utf8'),
-  readFile(new URL('../../cm-app-v1.13.7-H.1-internal/storage.rules', import.meta.url), 'utf8'),
-  readFile(new URL('../../cm-app-v1.13.7-H.1-internal/firebase.json', import.meta.url), 'utf8')
+  readFile(new URL('../../cm-app-v1.13.8-internal/storage.rules', import.meta.url), 'utf8'),
+  readFile(new URL('../../cm-app-v1.13.8-internal/firebase.json', import.meta.url), 'utf8')
 ]);
 
-test('identifica a revisão corretiva H.1 e renova o cache do PWA', () => {
-  assert.match(html, /v1\.13\.7-H\.1/);
-  assert.match(worker, /v1\.13\.7-homologacao-r2/);
+test('preserva os ajustes da revisão corretiva anterior', () => {
+  assert.match(html, /v1\.13\.8-H/);
+  assert.match(worker, /v1\.13\.8-homologacao/);
 });
 
 test('lista permite ordenar pelos cabeçalhos e por seletor responsivo', () => {
