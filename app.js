@@ -90,6 +90,7 @@
     let tutorialConferente = null;
     let tutorialFinalizado = false;
     let tutorialEraRevisao = false;
+    let filaSalvamentoTutorial = Promise.resolve();
 
     const TAMANHO_PAGINA_RELACAO = 50;
     const VALIDADE_RESUMO_INVENTARIO_MS = 120000;
@@ -340,11 +341,11 @@
       };
       Object.assign(usuarioLogado, dados);
       atualizarEstadoTutorialConferente();
-      try {
-        await updateDoc(doc(db, 'usuarios', usuarioLogado.uid), dados);
-      } catch (erro) {
-        console.warn('Não foi possível salvar o progresso do tutorial.', erro);
-      }
+      filaSalvamentoTutorial = filaSalvamentoTutorial
+        .catch(() => {})
+        .then(() => updateDoc(doc(db, 'usuarios', usuarioLogado.uid), dados));
+      try { await filaSalvamentoTutorial; }
+      catch (erro) { console.warn('Não foi possível salvar o progresso do tutorial.', erro); }
     }
 
     function adicionarBotaoPularTutorial(popover) {
@@ -353,10 +354,10 @@
       const botao = document.createElement('button');
       botao.type = 'button';
       botao.className = 'driver-popover-footer-btn tutorial-skip-button';
-      botao.textContent = 'Pular por enquanto';
-      botao.addEventListener('click', async () => {
+      botao.textContent = 'Pular';
+      botao.addEventListener('click', () => {
         const etapa = tutorialConferente?.getActiveIndex?.() || 0;
-        await salvarEstadoTutorialConferente({
+        void salvarEstadoTutorialConferente({
           etapa,
           concluido: tutorialEraRevisao,
           adiado: !tutorialEraRevisao
@@ -379,7 +380,7 @@
           element: '#escopo-barra',
           popover: {
             title: 'Sua divisão de trabalho',
-            description: 'Quando houver mais de uma divisão atribuída, escolha aqui qual deseja consultar no Painel e na Relação.',
+            description: 'Quando houver mais de uma divisão atribuída sob sua responsabilidade, escolha aqui qual deseja visualizar e operar no sistema. Quando necessário, você poderá alternar entre elas.',
             onNextClick: async () => {
               await alternarAba('scanner');
               tutorialConferente.moveNext();
@@ -390,18 +391,11 @@
           element: '#scanner-camera-card',
           popover: {
             title: 'Leitura pela câmera',
-            description: 'Ligue a câmera quando quiser ler o código de barras. OCR e digitação manual continuam disponíveis como alternativas.',
+            description: 'Ligue a câmera quando quiser ler o código de barras. Caso necessário, lembre-se de que a leitura dos números por OCR e a digitação manual também estão disponíveis como alternativas.',
             onPrevClick: async () => {
               await alternarAba('dashboard');
               tutorialConferente.movePrevious();
             }
-          }
-        },
-        {
-          element: '#scanner-form-card',
-          popover: {
-            title: 'Consulta da plaqueta',
-            description: 'Toda leitura chega a este formulário. Aqui você confere o patrimônio antes de registrar qualquer informação.'
           }
         },
         {
@@ -414,29 +408,22 @@
         {
           element: '#scanner-form-card',
           popover: {
+            title: 'Consulta da plaqueta',
+            description: 'Toda leitura chega a este formulário. Aqui você confere o patrimônio antes de registrar qualquer informação.'
+          }
+        },
+        {
+          element: '#scanner-form-card',
+          popover: {
             title: 'Resultado encontrado',
-            description: 'O aplicativo mostrará descrição, divisão anterior e histórico. Leia esses dados antes de continuar.'
+            description: 'O aplicativo mostrará a descrição, a divisão anterior e o histórico. Leia <strong>atentamente</strong> esses dados antes de continuar.'
           }
         },
         {
           element: '#select-localizacao',
           popover: {
             title: 'Local onde o item foi encontrado',
-            description: 'Informe a divisão real em que o patrimônio está. Na mesma divisão, a conferência é concluída diretamente.'
-          }
-        },
-        {
-          element: '#patrimonio-atualizacao-form',
-          popover: {
-            title: 'Transferência para aprovação',
-            description: 'Se a divisão informada for diferente da atual, o sistema cria uma solicitação para Gestor ou Administrador analisar.'
-          }
-        },
-        {
-          element: '#scanner-form-card',
-          popover: {
-            title: 'Plaqueta não encontrada',
-            description: 'Confira o número. Se estiver correto e ainda não existir na base, comunique um Gestor ou Administrador.'
+            description: 'Informe a divisão real em que o patrimônio está. Se estiver na mesma divisão, a conferência será concluída diretamente quando você clicar em <strong>Registrar conferência</strong>.'
           }
         },
         {
@@ -447,10 +434,31 @@
           }
         },
         {
+          element: '#patrimonio-atualizacao-form',
+          popover: {
+            title: 'Transferência para aprovação',
+            description: 'Se a divisão informada for diferente da atual, o sistema criará uma solicitação para a Seção de Patrimônio analisar.'
+          }
+        },
+        {
+          element: '#scanner-form-card',
+          popover: {
+            title: 'Sugerir destino',
+            description: 'Se um item pendente estiver em outra divisão, utilize <strong>Sugerir destino</strong>. A informação será enviada para análise e não marcará o patrimônio como localizado.'
+          }
+        },
+        {
+          element: '#scanner-form-card',
+          popover: {
+            title: 'Plaqueta não encontrada',
+            description: 'Confira <strong>atentamente</strong> o número. Se estiver correto e o patrimônio ainda não for localizado, ele pode não existir na base ou pertencer a outro órgão. Comunique a Seção de Patrimônio para análise.'
+          }
+        },
+        {
           element: '#btn-profile-menu',
           popover: {
             title: 'Tutorial concluído',
-            description: 'Você poderá rever este guia em Meu perfil. Agora já conhece o fluxo essencial do Conferente.'
+            description: 'Parabéns! Você concluiu o guia e já conhece o fluxo essencial para conferir seus patrimônios. Você poderá rever este guia a qualquer momento em <strong>Meu perfil</strong>.'
           }
         }
       ];
@@ -485,9 +493,9 @@
           const etapa = opcoes?.state?.activeIndex ?? tutorialConferente?.getActiveIndex?.() ?? 0;
           salvarEstadoTutorialConferente({ etapa, concluido: tutorialEraRevisao, adiado: false });
         },
-        onDoneClick: async () => {
+        onDoneClick: () => {
           tutorialFinalizado = true;
-          await salvarEstadoTutorialConferente({ etapa: 0, concluido: true, adiado: false });
+          void salvarEstadoTutorialConferente({ etapa: 0, concluido: true, adiado: false });
           tutorialConferente.destroy();
           notificarMensagem('Tutorial do Conferente concluído.', 'sucesso');
         },
@@ -496,7 +504,7 @@
           if (tutorialFinalizado) atualizarEstadoTutorialConferente();
         }
       });
-      const etapaSalva = automatico || usuarioLogado.tutorialConferenteV1Adiado === true
+      const etapaSalva = usuarioLogado.tutorialConferenteV1Adiado === true
         ? Math.min(Number(usuarioLogado.tutorialConferenteV1Etapa) || 0, passosTutorialConferente().length - 1)
         : 0;
       if (etapaSalva >= 2) await alternarAba('scanner');
@@ -569,6 +577,7 @@
         inicializarEscopoVisualizacao();
         await carregarFotoPerfilAtual();
         atualizarCarrossel();
+        if (usuarioLogado.perfil !== 'conferente') iniciarOuvinteTransferencias();
         await alternarAba('dashboard', { substituirHistorico: true });
         agendarTutorialConferente();
       } else {
@@ -1004,7 +1013,6 @@
         }
       }
 
-      if (abaAtiva !== 'transferencias') encerrarOuvinteTransferencias();
       if (registrarHistorico) registrarAbaHistorico(abaAtiva, { substituir: substituirHistorico });
       abaAtual = abaAtiva;
       ativarPagina(abaAtiva);
@@ -1030,7 +1038,7 @@
       try {
         if (abaAtiva === 'dashboard') await carregarDashboard();
         if (abaAtiva === 'scanner') await carregarCatalogoDivisoes();
-        if (abaAtiva === 'transferencias') iniciarOuvinteTransferencias();
+        if (abaAtiva === 'transferencias' && unsubscribeTransferencias.length === 0) iniciarOuvinteTransferencias();
         if (abaAtiva === 'usuarios') {
           await carregarUsuarios();
           await carregarCatalogoDivisoes();
@@ -1059,7 +1067,8 @@
       const progresso = document.querySelector('.progress-track');
       progresso?.setAttribute('aria-valuenow', String(percentual));
 
-      aplicarBadgeTransferencias(aguardandoGlobal);
+      // O badge da fila é mantido pelos listeners em tempo real, incluindo
+      // transferências físicas e sugestões de destino.
     }
 
     document.querySelectorAll('[data-dashboard-target]').forEach(card => {
@@ -2166,7 +2175,7 @@
       metodoLocalizacaoSelecionado = 'digitacao';
       inputPlaqueta.value = '';
       btnLimparPlaqueta?.classList.add('hidden');
-      suggestionsBox.classList.add('hidden');
+      ocultarSugestoesPlaqueta();
       document.getElementById('select-localizacao').value = '';
       document.getElementById('input-observacao').value = '';
       document.getElementById('item-details').classList.add('hidden');
@@ -2254,10 +2263,16 @@
 
     suggestionsBox.addEventListener('click', (e) => {
       const item = e.target.closest('[data-plaqueta]');
-      if (item) { preencherEConsultarPlaqueta(item.getAttribute('data-plaqueta')); suggestionsBox.classList.add('hidden'); }
+      if (item) {
+        ocultarSugestoesPlaqueta();
+        preencherEConsultarPlaqueta(item.getAttribute('data-plaqueta'));
+      }
     });
 
-    document.getElementById('btn-buscar').addEventListener('click', () => buscarEExibirItem(limparPlaqueta(inputPlaqueta.value), 'digitacao'));
+    document.getElementById('btn-buscar').addEventListener('click', () => {
+      ocultarSugestoesPlaqueta();
+      buscarEExibirItem(limparPlaqueta(inputPlaqueta.value), 'digitacao');
+    });
     btnLimparPlaqueta?.addEventListener('click', () => {
       limparFormularioLeitura();
       inputPlaqueta.focus();
@@ -2270,10 +2285,12 @@
     inputPlaqueta.addEventListener('keydown', event => {
       if (event.key !== 'Enter') return;
       event.preventDefault();
+      ocultarSugestoesPlaqueta();
       buscarEExibirItem(limparPlaqueta(inputPlaqueta.value), 'digitacao');
     });
 
     async function buscarEExibirItem(plaquetaCod, origem = 'digitacao') {
+      ocultarSugestoesPlaqueta();
       if (!plaquetaCod) return false;
       metodoLocalizacaoSelecionado = origem === 'codigo' ? 'codigo_barras' : origem === 'ocr' ? 'ocr' : 'digitacao';
       const itemLocal = cachePatrimonios.get(plaquetaCod);
@@ -3132,13 +3149,13 @@
             <span class="text-blue-400 font-semibold">📁 ${divNome} (${totalCount} carregados)</span>
             <span class="text-xs ${locCount === totalCount ? 'text-emerald-400' : 'text-amber-400'}">${locCount}/${totalCount} nesta página</span>
           </button>
-          <div id="acc-${idx}" class="accordion-content collapsed p-3 grid grid-cols-1 md:grid-cols-2 gap-3 bg-slate-900/50">
+          <div id="acc-${idx}" class="accordion-content p-3 grid grid-cols-1 md:grid-cols-2 gap-3 bg-slate-900/50">
             ${visiveisDaDiv.map(item => `
               <div onclick="abrirModalItemPorPlaqueta('${item.plaqueta}')" class="patrimonio-card patrimonio-card--${situacaoPatrimonio(item)} bg-slate-800/90 p-3 rounded-lg border text-xs space-y-1.5 cursor-pointer transition-colors shadow-sm">
                 <div class="flex justify-between items-center">
                   <span class="font-bold text-white text-sm">Plaqueta: ${item.plaqueta}</span>
-                  <span class="px-2 py-0.5 rounded text-[10px] font-bold ${item.sugestaoDestinoStatus === 'pendente' || situacaoPatrimonio(item) === 'aguardando' ? 'bg-amber-900 text-amber-300' : situacaoPatrimonio(item) === 'localizados' ? 'bg-emerald-900 text-emerald-300' : 'bg-slate-700 text-slate-400'}">
-                    ${item.sugestaoDestinoStatus === 'pendente' ? '📍 PENDENTE · DESTINO SUGERIDO' : situacaoPatrimonio(item) === 'aguardando' ? '⏳ AGUARDANDO APROVAÇÃO' : situacaoPatrimonio(item) === 'localizados' ? '🟢 LOCALIZADO' : '🔴 PENDENTE'}
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold ${situacaoPatrimonio(item) === 'aguardando' ? 'bg-amber-900 text-amber-300' : situacaoPatrimonio(item) === 'localizados' ? 'bg-emerald-900 text-emerald-300' : 'bg-slate-700 text-slate-400'}">
+                    ${situacaoPatrimonio(item) === 'aguardando' ? '⏳ AGUARDANDO APROVAÇÃO' : situacaoPatrimonio(item) === 'localizados' ? '🟢 LOCALIZADO' : '🔴 PENDENTE'}
                   </span>
                 </div>
                 <p class="text-slate-300 text-xs">${item.descricao}</p>
@@ -3183,6 +3200,12 @@
       filtroBuscaRelacao.focus();
     });
     document.getElementById('filtro-status').addEventListener('change', () => carregarRelacaoPatrimonial({ reiniciar: true }));
+    document.getElementById('btn-expandir-divisoes')?.addEventListener('click', () => {
+      document.querySelectorAll('#container-accordions .accordion-content').forEach(elemento => elemento.classList.remove('collapsed'));
+    });
+    document.getElementById('btn-recolher-divisoes')?.addEventListener('click', () => {
+      document.querySelectorAll('#container-accordions .accordion-content').forEach(elemento => elemento.classList.add('collapsed'));
+    });
     document.getElementById('btn-atualizar-relacao')?.addEventListener('click', () => {
       invalidarCacheRelacao({ preservarInventarios: true });
       carregarRelacaoPatrimonial({ reiniciar: true, forcarServidor: true });
@@ -3205,4 +3228,9 @@
       const a = document.createElement('a'); a.href = url;
       a.download = `${nomeArquivo}_${new Date().toISOString().slice(0,10)}.csv`;
       document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    }
+    function ocultarSugestoesPlaqueta() {
+      clearTimeout(timerAutocomplete);
+      suggestionsBox.innerHTML = '';
+      suggestionsBox.classList.add('hidden');
     }
