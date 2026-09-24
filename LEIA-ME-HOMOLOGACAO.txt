@@ -1,4 +1,4 @@
-CM APP v1.13.10-H — ambiente de homologação
+CM APP v1.13.10-H.1 — ambiente de homologação
 
 Projeto Firebase: cm-app-homologacao
 Firestore: (default)

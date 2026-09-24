@@ -920,11 +920,6 @@
       popularSelectsDivisao();
     }
 
-    function iniciaisUsuario(nome = '') {
-      const partes = String(nome).trim().split(/\s+/).filter(Boolean);
-      return partes.length ? `${partes[0][0]}${partes.at(-1)?.[0] || ''}`.toLocaleUpperCase('pt-BR') : 'US';
-    }
-
     function opcoesResponsaveis(valor = '') {
       const usuarios = bancoUsuarios
         .filter(usuario => usuario.ativo !== false)
