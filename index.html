@@ -21,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.13.10-h1">
+  <link rel="stylesheet" href="./app.css?v=1.13.10-h2">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div style="position:fixed;top:0;left:0;right:0;z-index:9999;background:#b45309;color:white;text-align:center;font:700 12px/28px system-ui,sans-serif;letter-spacing:.08em;pointer-events:none" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -54,7 +54,7 @@
 
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.10-H.1 • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.10-H.2 • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -117,7 +117,7 @@
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.13.10-H.1</span>
+        <span>v1.13.10-H.2</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -536,19 +536,27 @@
           </div>
           <button id="btn-nova-divisao" type="button" class="users-primary-action"><span aria-hidden="true">＋</span> Nova divisão</button>
         </div>
-        <div class="division-stats" aria-label="Resumo das divisões">
-          <div><span class="users-stat-icon stat-blue">▦</span><p><strong id="divisoes-total">0</strong><small>Total</small></p></div>
-          <div><span class="users-stat-icon stat-green">✓</span><p><strong id="divisoes-ativas">0</strong><small>Ativas</small></p></div>
-          <div><span class="users-stat-icon stat-red">—</span><p><strong id="divisoes-inativas">0</strong><small>Inativas</small></p></div>
-          <div><span class="users-stat-icon stat-amber">♙</span><p><strong id="divisoes-com-responsavel">0</strong><small>Com responsável</small></p></div>
+        <div class="division-stats users-stats" aria-label="Resumo das divisões">
+          <button type="button" class="is-selected" data-divisions-card="todas" aria-pressed="true"><span class="users-stat-icon stat-blue">▦</span><p><strong id="divisoes-total">0</strong><small>Total</small></p></button>
+          <button type="button" data-divisions-card="ativas" aria-pressed="false"><span class="users-stat-icon stat-green">✓</span><p><strong id="divisoes-ativas">0</strong><small>Ativas</small></p></button>
+          <button type="button" data-divisions-card="inativas" aria-pressed="false"><span class="users-stat-icon stat-red">—</span><p><strong id="divisoes-inativas">0</strong><small>Inativas</small></p></button>
+          <button type="button" data-divisions-card="responsavel" aria-pressed="false"><span class="users-stat-icon stat-amber">♙</span><p><strong id="divisoes-com-responsavel">0</strong><small>Com responsável</small></p></button>
         </div>
         <div class="divisions-panel">
           <div class="divisions-toolbar">
+            <div class="users-tabs" role="tablist" aria-label="Situação das divisões">
+              <button type="button" class="active" data-divisions-status="todas">Todas <span id="divisoes-tab-todas-contagem">0</span></button>
+              <button type="button" data-divisions-status="ativas">Ativas <span id="divisoes-tab-ativas-contagem">0</span></button>
+              <button type="button" data-divisions-status="inativas">Inativas <span id="divisoes-tab-inativas-contagem">0</span></button>
+            </div>
+            <div class="divisions-filters">
             <div class="search-field"><input id="filtro-busca-divisoes" type="search" placeholder="Pesquisar divisão ou responsável..." aria-label="Pesquisar divisões"></div>
-            <select id="filtro-status-divisoes" aria-label="Filtrar divisões por situação"><option value="todas">Todas as situações</option><option value="ativas">Ativas</option><option value="inativas">Inativas</option></select>
+            </div>
           </div>
-          <div class="divisions-table-header"><span>Divisão</span><span>Responsável principal</span><span>Substituto</span><span>Status</span><span>Ações</span></div>
+          <div class="users-mobile-sort divisions-mobile-sort"><label for="ordenacao-divisoes">Ordenar por</label><select id="ordenacao-divisoes"><option value="nome:asc">Divisão (A–Z)</option><option value="nome:desc">Divisão (Z–A)</option><option value="principal:asc">Responsável principal</option><option value="substituto:asc">Substituto</option><option value="ativo:asc">Status</option><option value="atualizadoEm:desc">Alteração mais recente</option></select></div>
+          <div class="divisions-table-header"><button type="button" data-divisions-sort="nome">Divisão <span></span></button><button type="button" data-divisions-sort="principal">Responsável principal <span></span></button><button type="button" data-divisions-sort="substituto">Substituto <span></span></button><button type="button" data-divisions-sort="ativo">Status <span></span></button><span>Ações</span></div>
           <div id="lista-divisoes-container" class="divisions-list" aria-live="polite"></div>
+          <div id="divisoes-paginacao" class="users-pagination"></div>
         </div>
       </section>
 
@@ -677,7 +685,7 @@
 
       <footer class="app-footer">
         <span>CM APP · Patrimônio</span>
-        <span>v1.13.10-H.1 · HOMOLOGAÇÃO</span>
+        <span>v1.13.10-H.2 · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -855,6 +863,6 @@
   </div>
 
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.5.0/dist/driver.js.iife.js"></script>
-    <script type="module" src="./app.js?v=1.13.10-h1"></script>
+    <script type="module" src="./app.js?v=1.13.10-h2"></script>
 </body>
 </html>

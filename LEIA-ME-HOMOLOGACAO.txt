@@ -1,4 +1,4 @@
-CM APP v1.13.10-H.1 — ambiente de homologação
+CM APP v1.13.10-H.2 — ambiente de homologação
 
 Projeto Firebase: cm-app-homologacao
 Firestore: (default)
@@ -14,6 +14,7 @@ Escopo v1.13.10-H:
 - cadastro de divisão e manutenção de situação ativa/inativa;
 - definição de responsável principal e substituto a partir dos usuários ativos;
 - pesquisa, filtro e indicadores gerenciais das divisões;
+- cards e abas sincronizados como filtros, ordenação desktop/mobile e paginação;
 - Administrador altera; Gestor possui acesso somente para consulta;
 - nome de divisão existente é imutável para preservar patrimônios e históricos;
 - trilha de auditoria registrada no próprio documento da divisão;

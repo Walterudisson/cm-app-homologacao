@@ -153,11 +153,14 @@
     .division-stats strong { color: #fff; font-size: 1.3rem; line-height: 1; }
     .division-stats small { margin-top: .35rem; color: var(--app-muted); font-size: .7rem; }
     .divisions-panel { overflow: hidden; border: 1px solid rgb(71 85 105 / .65); border-radius: 1rem; background: rgb(15 23 42 / .72); box-shadow: 0 16px 34px rgb(2 6 23 / .2); }
-    .divisions-toolbar { display: flex; justify-content: flex-end; gap: .55rem; padding: .9rem; background: rgb(30 41 59 / .86); }
+    .divisions-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .9rem; background: rgb(30 41 59 / .86); }
+    .divisions-filters { display: flex; gap: .55rem; }
     .divisions-toolbar input, .divisions-toolbar select { min-height: 2.35rem; border: 1px solid #334155; border-radius: .7rem; background: #0f172a; color: #e2e8f0; padding: .55rem .8rem; font-size: .7rem; }
     .divisions-toolbar input { min-width: 18rem; }
     .divisions-table-header, .division-row { display: grid; grid-template-columns: minmax(12rem, 1.4fr) minmax(10rem, 1fr) minmax(10rem, 1fr) 6rem 7rem; align-items: center; gap: .7rem; }
     .divisions-table-header { border-top: 1px solid #334155; border-bottom: 1px solid #334155; padding: .72rem 1rem; color: #64748b; font-size: .61rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }
+    .divisions-table-header button { display: inline-flex; align-items: center; gap: .28rem; color: inherit; font: inherit; letter-spacing: inherit; text-align: left; text-transform: inherit; }
+    .divisions-table-header button:hover, .divisions-table-header button.is-sorted { color: #93c5fd; }
     .division-row { min-height: 4.5rem; border-bottom: 1px solid rgb(51 65 85 / .52); padding: .75rem 1rem; color: #cbd5e1; font-size: .7rem; }
     .division-row:hover { background: rgb(30 41 59 / .72); }
     .division-name strong, .division-name small { display: block; }

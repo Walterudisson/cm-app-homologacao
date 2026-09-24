@@ -88,6 +88,10 @@
     let filtroPerfilUsuarios = 'todos';
     let paginaUsuarios = 1;
     let ordenacaoUsuarios = { campo: 'nome', direcao: 'asc' };
+    let filtroStatusDivisoes = 'todas';
+    let filtroResponsavelDivisoes = false;
+    let paginaDivisoes = 1;
+    let ordenacaoDivisoes = { campo: 'nome', direcao: 'asc' };
     let usuarioDetalhadoUid = '';
     const cacheFotosUsuarios = new Map();
     let tutorialConferente = null;
@@ -955,25 +959,60 @@
       const container = document.getElementById('lista-divisoes-container');
       if (!container) return;
       const termo = String(document.getElementById('filtro-busca-divisoes')?.value || '').trim().toLocaleLowerCase('pt-BR');
-      const status = document.getElementById('filtro-status-divisoes')?.value || 'todas';
       const total = bancoDivisoes.length;
       const ativas = bancoDivisoes.filter(divisao => divisao.ativo !== false).length;
+      const comResponsavel = bancoDivisoes.filter(divisao => divisao.responsavelPrincipalUid).length;
       document.getElementById('divisoes-total').textContent = total;
       document.getElementById('divisoes-ativas').textContent = ativas;
       document.getElementById('divisoes-inativas').textContent = total - ativas;
-      document.getElementById('divisoes-com-responsavel').textContent = bancoDivisoes.filter(divisao => divisao.responsavelPrincipalUid).length;
+      document.getElementById('divisoes-com-responsavel').textContent = comResponsavel;
+      document.getElementById('divisoes-tab-todas-contagem').textContent = total;
+      document.getElementById('divisoes-tab-ativas-contagem').textContent = ativas;
+      document.getElementById('divisoes-tab-inativas-contagem').textContent = total - ativas;
       const filtradas = bancoDivisoes.filter(divisao => {
-        if (status === 'ativas' && divisao.ativo === false) return false;
-        if (status === 'inativas' && divisao.ativo !== false) return false;
+        if (filtroStatusDivisoes === 'ativas' && divisao.ativo === false) return false;
+        if (filtroStatusDivisoes === 'inativas' && divisao.ativo !== false) return false;
+        if (filtroResponsavelDivisoes && !divisao.responsavelPrincipalUid) return false;
         return !termo || [divisao.nome, divisao.responsavelPrincipalNome, divisao.responsavelSubstitutoNome]
           .some(valor => String(valor || '').toLocaleLowerCase('pt-BR').includes(termo));
-      }).sort((a, b) => String(a.nome || '').localeCompare(String(b.nome || ''), 'pt-BR', { numeric: true }));
+      }).sort((a, b) => {
+        const valor = (divisao, campo) => ({
+          nome: divisao.nome,
+          principal: divisao.responsavelPrincipalNome,
+          substituto: divisao.responsavelSubstitutoNome,
+          ativo: divisao.ativo === false ? 1 : 0,
+          atualizadoEm: divisao.atualizadoEm || divisao.criadoEm || ''
+        })[campo] ?? '';
+        const comparacao = String(valor(a, ordenacaoDivisoes.campo)).localeCompare(String(valor(b, ordenacaoDivisoes.campo)), 'pt-BR', { numeric: true, sensitivity: 'base' });
+        return ordenacaoDivisoes.direcao === 'desc' ? -comparacao : comparacao;
+      });
+      document.querySelectorAll('[data-divisions-status]').forEach(botao => botao.classList.toggle('active', botao.dataset.divisionsStatus === filtroStatusDivisoes));
+      const cardAtivo = filtroResponsavelDivisoes ? 'responsavel' : filtroStatusDivisoes;
+      document.querySelectorAll('[data-divisions-card]').forEach(card => {
+        const selecionado = card.dataset.divisionsCard === cardAtivo;
+        card.classList.toggle('is-selected', selecionado);
+        card.setAttribute('aria-pressed', String(selecionado));
+      });
+      document.querySelectorAll('[data-divisions-sort]').forEach(botao => {
+        const selecionado = botao.dataset.divisionsSort === ordenacaoDivisoes.campo;
+        botao.classList.toggle('is-sorted', selecionado);
+        botao.querySelector('span').textContent = selecionado ? (ordenacaoDivisoes.direcao === 'asc' ? '↑' : '↓') : '';
+      });
+      const seletorOrdenacao = document.getElementById('ordenacao-divisoes');
+      const valorOrdenacao = `${ordenacaoDivisoes.campo}:${ordenacaoDivisoes.direcao}`;
+      if ([...seletorOrdenacao.options].some(opcao => opcao.value === valorOrdenacao)) seletorOrdenacao.value = valorOrdenacao;
       if (!filtradas.length) {
         container.innerHTML = '<div class="divisions-empty">Nenhuma divisão corresponde aos filtros informados.</div>';
+        document.getElementById('divisoes-paginacao').innerHTML = '';
         return;
       }
+      const porPagina = 10;
+      const totalPaginas = Math.max(1, Math.ceil(filtradas.length / porPagina));
+      paginaDivisoes = Math.min(paginaDivisoes, totalPaginas);
+      const inicio = (paginaDivisoes - 1) * porPagina;
+      const pagina = filtradas.slice(inicio, inicio + porPagina);
       const podeGerenciar = usuarioPode(usuarioLogado, PERMISSOES.DIVISOES_GERENCIAR);
-      container.innerHTML = filtradas.map(divisao => `
+      container.innerHTML = pagina.map(divisao => `
         <article class="division-row" data-divisao-id="${escaparHtml(divisao.id)}">
           <div class="division-name" data-label="Divisão"><strong>${escaparHtml(divisao.nome || 'Sem nome')}</strong><small>${escaparHtml(divisao.funcaoResponsavelId || 'responsavel_divisao')}</small></div>
           <div class="division-person" data-label="Responsável principal">${escaparHtml(divisao.responsavelPrincipalNome || 'Não definido')}</div>
@@ -981,6 +1020,13 @@
           <div data-label="Status"><span class="user-status ${divisao.ativo === false ? 'inactive' : 'active'}">${divisao.ativo === false ? 'Inativa' : 'Ativa'}</span></div>
           <div class="division-actions" data-label="Ações">${podeGerenciar ? '<button type="button" data-editar-divisao>Editar</button>' : '<span class="users-readonly">Somente consulta</span>'}</div>
         </article>`).join('');
+      document.getElementById('divisoes-paginacao').innerHTML = `
+        <span>Exibindo ${inicio + 1}–${Math.min(inicio + porPagina, filtradas.length)} de ${filtradas.length}</span>
+        <div><button ${paginaDivisoes === 1 ? 'disabled' : ''} data-divisions-page="-1" aria-label="Página anterior">‹</button><strong>${paginaDivisoes}/${totalPaginas}</strong><button ${paginaDivisoes === totalPaginas ? 'disabled' : ''} data-divisions-page="1" aria-label="Próxima página">›</button></div>`;
+      document.querySelectorAll('[data-divisions-page]').forEach(botao => botao.addEventListener('click', () => {
+        paginaDivisoes += Number(botao.dataset.divisionsPage);
+        renderizarDivisoes();
+      }));
       container.querySelectorAll('[data-editar-divisao]').forEach(botao => botao.addEventListener('click', () => {
         const id = botao.closest('[data-divisao-id]').dataset.divisaoId;
         abrirModalDivisao(bancoDivisoes.find(divisao => divisao.id === id));
@@ -1001,8 +1047,33 @@
       document.getElementById('btn-nova-divisao')?.addEventListener('click', () => abrirModalDivisao());
       document.getElementById('btn-fechar-modal-divisao')?.addEventListener('click', fecharModalDivisao);
       document.getElementById('btn-cancelar-modal-divisao')?.addEventListener('click', fecharModalDivisao);
-      document.getElementById('filtro-busca-divisoes')?.addEventListener('input', renderizarDivisoes);
-      document.getElementById('filtro-status-divisoes')?.addEventListener('change', renderizarDivisoes);
+      document.getElementById('filtro-busca-divisoes')?.addEventListener('input', () => { paginaDivisoes = 1; renderizarDivisoes(); });
+      document.querySelectorAll('[data-divisions-status]').forEach(botao => botao.addEventListener('click', () => {
+        filtroStatusDivisoes = botao.dataset.divisionsStatus;
+        filtroResponsavelDivisoes = false;
+        paginaDivisoes = 1;
+        renderizarDivisoes();
+      }));
+      document.querySelectorAll('[data-divisions-card]').forEach(card => card.addEventListener('click', () => {
+        const destino = card.dataset.divisionsCard;
+        const repetido = card.classList.contains('is-selected') && destino !== 'todas';
+        filtroResponsavelDivisoes = !repetido && destino === 'responsavel';
+        filtroStatusDivisoes = !repetido && ['ativas', 'inativas'].includes(destino) ? destino : 'todas';
+        paginaDivisoes = 1;
+        renderizarDivisoes();
+      }));
+      document.querySelectorAll('[data-divisions-sort]').forEach(botao => botao.addEventListener('click', () => {
+        const campo = botao.dataset.divisionsSort;
+        ordenacaoDivisoes = { campo, direcao: ordenacaoDivisoes.campo === campo && ordenacaoDivisoes.direcao === 'asc' ? 'desc' : 'asc' };
+        paginaDivisoes = 1;
+        renderizarDivisoes();
+      }));
+      document.getElementById('ordenacao-divisoes')?.addEventListener('change', evento => {
+        const [campo, direcao] = evento.target.value.split(':');
+        ordenacaoDivisoes = { campo, direcao };
+        paginaDivisoes = 1;
+        renderizarDivisoes();
+      });
       document.getElementById('form-divisao')?.addEventListener('submit', async evento => {
         evento.preventDefault();
         if (!usuarioPode(usuarioLogado, PERMISSOES.DIVISOES_GERENCIAR)) return;
