@@ -15,7 +15,13 @@
       getCountFromServer
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
     import { auth, db } from "./js/config/firebase.js";
-    import { ehPerfilValidador, prepararAtualizacaoPatrimonio, prepararResolucaoTransferencia } from "./js/core/movimentacao.js?v=1.12.5";
+    import {
+      ehPerfilValidador,
+      prepararAtualizacaoPatrimonio,
+      prepararResolucaoSugestaoDestino,
+      prepararResolucaoTransferencia,
+      prepararSugestaoDestino
+    } from "./js/core/movimentacao.js?v=1.13.9";
     import { situacaoPatrimonio, divisoesVisiveisPatrimonio, patrimonioVisivelParaDivisoes, correspondeSituacaoPatrimonio, contarSituacoesPatrimonio, descontarItensForaDoEscopo, resumirProgressoDivisao } from "./js/core/relacao.js?v=1.13.3";
     import { carregarPaginaIntercalada } from "./js/core/paginacao.js?v=1.12.4";
     import { divisoesDisponiveis, escopoInicial } from "./js/core/escopo.js?v=1.13.0";
@@ -52,10 +58,12 @@
     let bancoPatrimonio = [];
     let bancoUsuarios = [];
     let bancoTransferencias = [];
+    let filaTransferenciasFisicas = [];
+    let filaSugestoesDestino = [];
     let itemAtualSelecionado = null;
     let metodoLocalizacaoSelecionado = 'digitacao';
     let itensFiltradosCache = [];
-    let unsubscribeTransferencias = null;
+    let unsubscribeTransferencias = [];
     let abaAtual = 'dashboard';
     let usuariosCarregados = false;
     let relacaoCarregada = false;
@@ -207,6 +215,7 @@
     function fecharCamadaSobreposta() {
       if (fecharConfirmacaoAtiva()) return true;
       const camadas = [
+        ['modal-sugerir-destino', 'sugerir-destino'],
         ['modal-detalhes-item', 'detalhes-item'],
         ['modal-detalhes-usuario', 'detalhes-usuario'],
         ['modal-edicao-usuario', 'edicao-usuario'],
@@ -2302,15 +2311,19 @@
 
       const badgeStatus = document.getElementById('det-status');
       const btnSalvar = document.getElementById('btn-salvar');
-      const pendenteBloqueado = item.statusTransferencia === 'pendente';
+      const sugestaoPendente = item.sugestaoDestinoStatus === 'pendente';
+      const pendenteBloqueado = item.statusTransferencia === 'pendente' || sugestaoPendente;
       btnSalvar.disabled = pendenteBloqueado;
       btnSalvar.classList.toggle('opacity-50', pendenteBloqueado);
       btnSalvar.classList.toggle('cursor-not-allowed', pendenteBloqueado);
       btnSalvar.innerText = pendenteBloqueado
-        ? '⏳ Aguardando aprovação'
+        ? (sugestaoPendente ? '⏳ Destino sugerido em análise' : '⏳ Aguardando aprovação')
         : (ehPerfilValidador(usuarioLogado?.perfil) ? '✅ Atualizar Patrimônio' : '✅ Registrar Conferência');
       if (item.statusTransferencia === 'pendente') {
         badgeStatus.innerText = "⏳ AGUARDANDO TRANSF.";
+        badgeStatus.className = "px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-amber-900 text-amber-300 border border-amber-500/30";
+      } else if (sugestaoPendente) {
+        badgeStatus.innerText = "📍 DESTINO SUGERIDO";
         badgeStatus.className = "px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-amber-900 text-amber-300 border border-amber-500/30";
       } else if (item.localizado) {
         badgeStatus.innerText = "🟢 LOCALIZADO";
@@ -2337,7 +2350,86 @@
       const selectLoc = document.getElementById('select-localizacao');
       selectLoc.value = item.localizacaoAtual || divisaoOriginal;
       verificarAlertaTransferencia(item.localizacaoAtual || divisaoOriginal, selectLoc.value);
+      const localEfetivo = item.localizacaoAtual || divisaoOriginal;
+      const podeSugerir = usuarioLogado?.perfil === 'conferente'
+        && item.localizado !== true
+        && item.statusTransferencia !== 'pendente'
+        && item.sugestaoDestinoStatus !== 'pendente'
+        && (usuarioLogado.divisoesAtribuidas || []).includes(localEfetivo);
+      document.getElementById('btn-sugerir-destino')?.classList.toggle('hidden', !podeSugerir);
     }
+
+    function fecharModalSugestaoDestino() {
+      return fecharModalHistorico('modal-sugerir-destino', 'sugerir-destino');
+    }
+
+    function abrirModalSugestaoDestino() {
+      const item = itemAtualSelecionado;
+      if (!item || usuarioLogado?.perfil !== 'conferente') return;
+      const origem = item.localizacaoAtual || item.divisaoOrigem || item.divisao || '';
+      if (item.localizado === true) {
+        return notificarMensagem('O item já foi localizado. Utilize o fluxo normal de transferência.', 'aviso');
+      }
+      if (item.statusTransferencia === 'pendente' || item.sugestaoDestinoStatus === 'pendente') {
+        return notificarMensagem('Este patrimônio já possui uma solicitação aguardando aprovação.', 'aviso');
+      }
+      if (!(usuarioLogado.divisoesAtribuidas || []).includes(origem)) {
+        return notificarMensagem('Você só pode sugerir destino para itens de suas divisões atribuídas.', 'erro');
+      }
+      document.getElementById('sugestao-destino-plaqueta').textContent = `Plaqueta ${item.plaqueta}`;
+      document.getElementById('sugestao-destino-descricao').textContent = item.descricao || 'Descrição não informada';
+      document.getElementById('sugestao-destino-origem').textContent = origem;
+      const seletor = document.getElementById('sugestao-destino-divisao');
+      seletor.innerHTML = '<option value="">Selecione a divisão</option>'
+        + [...catalogoDivisoes]
+          .filter(divisao => divisao && divisao !== origem)
+          .sort((a, b) => a.localeCompare(b, 'pt-BR'))
+          .map(divisao => `<option value="${escaparHtml(divisao)}">${escaparHtml(divisao)}</option>`)
+          .join('');
+      document.getElementById('sugestao-destino-observacao').value = '';
+      abrirModalHistorico('modal-sugerir-destino', 'sugerir-destino');
+    }
+
+    document.getElementById('btn-sugerir-destino')?.addEventListener('click', abrirModalSugestaoDestino);
+    document.getElementById('btn-fechar-sugestao-destino')?.addEventListener('click', fecharModalSugestaoDestino);
+    document.getElementById('btn-cancelar-sugestao-destino')?.addEventListener('click', fecharModalSugestaoDestino);
+    document.getElementById('form-sugerir-destino')?.addEventListener('submit', async evento => {
+      evento.preventDefault();
+      const item = itemAtualSelecionado;
+      if (!item) return;
+      const destino = document.getElementById('sugestao-destino-divisao').value;
+      const observacao = document.getElementById('sugestao-destino-observacao').value.trim();
+      if (!destino) return notificarMensagem('Selecione a divisão de destino sugerida.', 'aviso');
+      const confirmado = await confirmarAcao({
+        titulo: 'Confirmar sugestão de destino',
+        mensagem: `Sugerir ${destino} para o patrimônio ${item.plaqueta}? O item continuará não localizado até uma conferência física.`,
+        confirmarTexto: 'Enviar sugestão'
+      });
+      if (!confirmado) return;
+      try {
+        const dadosAtualizacao = prepararSugestaoDestino({
+          item,
+          destino,
+          usuario: usuarioLogado,
+          observacao,
+          dataHora: new Date().toLocaleString('pt-BR')
+        });
+        await updateDoc(doc(db, 'patrimonios', item.plaqueta), dadosAtualizacao);
+        itemAtualSelecionado = { ...item, ...dadosAtualizacao };
+        cachePatrimonios.set(item.plaqueta, itemAtualSelecionado);
+        const indice = bancoPatrimonio.findIndex(registro => registro.plaqueta === item.plaqueta);
+        if (indice >= 0) bancoPatrimonio[indice] = itemAtualSelecionado;
+        invalidarCacheRelacao();
+        await fecharModalSugestaoDestino();
+        exibirDetalhes(itemAtualSelecionado);
+        notificarMensagem('Sugestão de destino enviada para aprovação. O item permanece não localizado.', 'sucesso');
+      } catch (erro) {
+        console.error('Erro ao sugerir destino:', erro);
+        notificarMensagem(erro?.code === 'permission-denied'
+          ? 'Sugestão não autorizada. Verifique sua divisão, o estado do inventário e as regras publicadas.'
+          : (erro?.message || 'Não foi possível enviar a sugestão.'), 'erro');
+      }
+    });
 
     document.getElementById('select-localizacao').addEventListener('change', (e) => {
       if (!itemAtualSelecionado) return;
@@ -2364,7 +2456,8 @@
 
     document.getElementById('btn-salvar').addEventListener('click', async () => {
       if (!itemAtualSelecionado) return notificarMensagem("Selecione um patrimônio válido antes de salvar.", 'aviso');
-      if (itemAtualSelecionado.statusTransferencia === 'pendente') {
+      if (itemAtualSelecionado.statusTransferencia === 'pendente'
+        || itemAtualSelecionado.sugestaoDestinoStatus === 'pendente') {
         return notificarMensagem("Este patrimônio já está aguardando aprovação. Conclua a movimentação na Fila antes de registrar outra leitura.", 'aviso');
       }
       const locAtual = document.getElementById('select-localizacao').value;
@@ -2424,32 +2517,46 @@
           ? 'Leitura não autorizada. Verifique se a divisão de origem ou destino está encerrada, se há transferência pendente e se as regras atualizadas foram publicadas.'
           : (erro?.message || 'Não foi possível registrar a leitura.'), 'erro');
       } finally {
-        if (itemAtualSelecionado?.statusTransferencia !== 'pendente') btnSalvar.disabled = false;
+        if (itemAtualSelecionado?.statusTransferencia !== 'pendente'
+          && itemAtualSelecionado?.sugestaoDestinoStatus !== 'pendente') btnSalvar.disabled = false;
       }
     });
 
     function encerrarOuvinteTransferencias() {
-      if (unsubscribeTransferencias) {
-        unsubscribeTransferencias();
-        unsubscribeTransferencias = null;
-      }
+      unsubscribeTransferencias.forEach(cancelar => cancelar());
+      unsubscribeTransferencias = [];
+      filaTransferenciasFisicas = [];
+      filaSugestoesDestino = [];
+    }
+
+    function consolidarFilaAprovacao() {
+      bancoTransferencias = [
+        ...filaTransferenciasFisicas.map(item => ({ ...item, tipoSolicitacaoFila: 'transferencia' })),
+        ...filaSugestoesDestino.map(item => ({ ...item, tipoSolicitacaoFila: 'sugestao_destino' }))
+      ];
+      cachearPatrimonios(bancoTransferencias);
+      renderizarFilaTransferencias();
+      aplicarBadgeTransferencias(bancoTransferencias.length);
     }
 
     function iniciarOuvinteTransferencias() {
       encerrarOuvinteTransferencias();
-      const consulta = query(collection(db, "patrimonios"), where("statusTransferencia", "==", "pendente"));
-      unsubscribeTransferencias = onSnapshot(consulta, snapshot => {
-        snapshot.docChanges()
-          .filter(alteracao => alteracao.type === 'removed')
-          .forEach(alteracao => cachePatrimonios.delete(alteracao.doc.id));
-        bancoTransferencias = snapshot.docs.map(normalizarPatrimonio);
-        cachearPatrimonios(bancoTransferencias);
-        renderizarFilaTransferencias();
-        aplicarBadgeTransferencias(bancoTransferencias.length);
-      }, erro => {
+      const tratarErro = erro => {
         console.error("Erro no listener de transferências:", erro);
         document.getElementById('container-transferencias').innerHTML = `<div class="bg-red-950/40 p-4 rounded-xl border border-red-500/30 text-center text-xs text-red-300 md:col-span-2">Não foi possível acompanhar a fila em tempo real.</div>`;
-      });
+      };
+      const consultaTransferencias = query(collection(db, "patrimonios"), where("statusTransferencia", "==", "pendente"));
+      const consultaSugestoes = query(collection(db, "patrimonios"), where("sugestaoDestinoStatus", "==", "pendente"));
+      unsubscribeTransferencias.push(
+        onSnapshot(consultaTransferencias, snapshot => {
+          filaTransferenciasFisicas = snapshot.docs.map(normalizarPatrimonio);
+          consolidarFilaAprovacao();
+        }, tratarErro),
+        onSnapshot(consultaSugestoes, snapshot => {
+          filaSugestoesDestino = snapshot.docs.map(normalizarPatrimonio);
+          consolidarFilaAprovacao();
+        }, tratarErro)
+      );
     }
 
     function aplicarBadgeTransferencias(quantidade) {
@@ -2471,14 +2578,17 @@
       contador.innerText = `${pendentes.length} ${pendentes.length === 1 ? 'pendente' : 'pendentes'}`;
 
       if (pendentes.length === 0) {
-        container.innerHTML = `<div class="bg-slate-800 p-6 rounded-xl border border-slate-700 text-center text-xs text-slate-400 md:col-span-2">✨ Nenhuma transferência pendente no momento.</div>`;
+        container.innerHTML = `<div class="bg-slate-800 p-6 rounded-xl border border-slate-700 text-center text-xs text-slate-400 md:col-span-2">✨ Nenhuma movimentação pendente no momento.</div>`;
         return;
       }
 
       const grupos = pendentes.reduce((acumulador, item) => {
-        const divisao = item.divisaoDestinoSugerida || 'Divisão não informada';
-        if (!acumulador.has(divisao)) acumulador.set(divisao, []);
-        acumulador.get(divisao).push(item);
+        const divisao = item.tipoSolicitacaoFila === 'sugestao_destino'
+          ? item.sugestaoDestinoDivisao
+          : item.divisaoDestinoSugerida;
+        const grupo = divisao || 'Divisão não informada';
+        if (!acumulador.has(grupo)) acumulador.set(grupo, []);
+        acumulador.get(grupo).push(item);
         return acumulador;
       }, new Map());
 
@@ -2498,6 +2608,9 @@
                 .sort((itemA, itemB) => String(itemA.plaqueta).localeCompare(String(itemB.plaqueta), 'pt-BR', { numeric: true }))
                 .map(item => `
                   <article class="transfer-card">
+                    <span class="transfer-type ${item.tipoSolicitacaoFila === 'sugestao_destino' ? 'suggestion' : 'physical'}">
+                      ${item.tipoSolicitacaoFila === 'sugestao_destino' ? 'Sugestão de destino' : 'Transferência após leitura'}
+                    </span>
                     <button type="button" class="transfer-card-link" onclick="abrirModalItemPorPlaqueta('${item.plaqueta}')">
                       <span>Plaqueta ${item.plaqueta}</span>
                       <span class="transfer-status">Aguardando</span>
@@ -2510,16 +2623,18 @@
                       </div>
                       <div>
                         <dt>Destino</dt>
-                        <dd>${item.divisaoDestinoSugerida || 'Não informado'}</dd>
+                        <dd>${item.tipoSolicitacaoFila === 'sugestao_destino' ? item.sugestaoDestinoDivisao : item.divisaoDestinoSugerida || 'Não informado'}</dd>
                       </div>
                     </dl>
                     <div class="transfer-note">
-                      <strong>💬 Observação da conferência</strong>
-                      <p>${escaparHtml(item.observacaoAtual || 'Nenhuma observação informada.')}</p>
+                      <strong>💬 ${item.tipoSolicitacaoFila === 'sugestao_destino' ? 'Informação da sugestão' : 'Observação da conferência'}</strong>
+                      <p>${escaparHtml(item.tipoSolicitacaoFila === 'sugestao_destino'
+                        ? `Destino sugerido por: ${item.sugestaoDestinoPor?.nome || 'Não informado'}${item.sugestaoDestinoObservacao ? ` — ${item.sugestaoDestinoObservacao}` : ''}`
+                        : (item.observacaoAtual || 'Nenhuma observação informada.'))}</p>
                     </div>
                     <div class="transfer-actions">
-                      <button type="button" onclick="aprovarTransferencia('${item.plaqueta}')" class="transfer-approve">Aprovar</button>
-                      <button type="button" onclick="rejeitarTransferencia('${item.plaqueta}')" class="transfer-reject">Rejeitar</button>
+                      <button type="button" onclick="${item.tipoSolicitacaoFila === 'sugestao_destino' ? 'aprovarSugestaoDestino' : 'aprovarTransferencia'}('${item.plaqueta}')" class="transfer-approve">Aprovar</button>
+                      <button type="button" onclick="${item.tipoSolicitacaoFila === 'sugestao_destino' ? 'rejeitarSugestaoDestino' : 'rejeitarTransferencia'}('${item.plaqueta}')" class="transfer-reject">Rejeitar</button>
                     </div>
                   </article>
                 `).join('')}
@@ -2577,6 +2692,43 @@
 
     window.aprovarTransferencia = plaqueta => resolverTransferencia(plaqueta, 'aprovar');
     window.rejeitarTransferencia = plaqueta => resolverTransferencia(plaqueta, 'rejeitar');
+
+    async function resolverSugestaoDestino(plaqueta, decisao) {
+      if (usuarioLogado.perfil === 'conferente') return notificarMensagem('Acesso negado para esta operação.', 'erro');
+      try {
+        const item = await obterTransferenciaPendente(plaqueta);
+        const destino = item.sugestaoDestinoDivisao || 'destino não informado';
+        const aprovando = decisao === 'aprovar';
+        const confirmado = await confirmarAcao({
+          titulo: `${aprovando ? 'Aprovar' : 'Rejeitar'} sugestão de destino`,
+          mensagem: aprovando
+            ? `Vincular o patrimônio ${plaqueta} a ${destino}? Ele continuará pendente até ser fisicamente conferido nessa divisão.`
+            : `Rejeitar a sugestão de ${destino} para o patrimônio ${plaqueta}? A localização anterior será mantida.`,
+          confirmarTexto: aprovando ? 'Aprovar sugestão' : 'Rejeitar sugestão',
+          perigosa: !aprovando
+        });
+        if (!confirmado) return;
+        const dadosAtualizacao = prepararResolucaoSugestaoDestino({
+          item,
+          usuario: usuarioLogado,
+          decisao,
+          dataHora: new Date().toLocaleString('pt-BR')
+        });
+        await updateDoc(doc(db, 'patrimonios', plaqueta), dadosAtualizacao);
+        atualizarCachesAposResolucao({ ...item, ...dadosAtualizacao });
+        notificarMensagem(aprovando
+          ? `Destino atualizado para ${destino}. O item permanece pendente de conferência física.`
+          : 'Sugestão rejeitada; localização anterior mantida.', 'sucesso');
+      } catch (erro) {
+        console.error('Erro ao resolver sugestão de destino:', erro);
+        notificarMensagem(erro?.code === 'permission-denied'
+          ? 'A sugestão não pôde ser analisada. Verifique o estado das divisões e as regras publicadas.'
+          : (erro.message || 'Não foi possível analisar a sugestão.'), 'erro');
+      }
+    }
+
+    window.aprovarSugestaoDestino = plaqueta => resolverSugestaoDestino(plaqueta, 'aprovar');
+    window.rejeitarSugestaoDestino = plaqueta => resolverSugestaoDestino(plaqueta, 'rejeitar');
 
     window.abrirModalItemPorPlaqueta = async function(plaqueta) {
       let item = bancoPatrimonio.find(patrimonio => patrimonio.plaqueta === plaqueta)
@@ -2985,8 +3137,8 @@
               <div onclick="abrirModalItemPorPlaqueta('${item.plaqueta}')" class="patrimonio-card patrimonio-card--${situacaoPatrimonio(item)} bg-slate-800/90 p-3 rounded-lg border text-xs space-y-1.5 cursor-pointer transition-colors shadow-sm">
                 <div class="flex justify-between items-center">
                   <span class="font-bold text-white text-sm">Plaqueta: ${item.plaqueta}</span>
-                  <span class="px-2 py-0.5 rounded text-[10px] font-bold ${situacaoPatrimonio(item) === 'aguardando' ? 'bg-amber-900 text-amber-300' : situacaoPatrimonio(item) === 'localizados' ? 'bg-emerald-900 text-emerald-300' : 'bg-slate-700 text-slate-400'}">
-                    ${situacaoPatrimonio(item) === 'aguardando' ? '⏳ AGUARDANDO APROVAÇÃO' : situacaoPatrimonio(item) === 'localizados' ? '🟢 LOCALIZADO' : '🔴 PENDENTE'}
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold ${item.sugestaoDestinoStatus === 'pendente' || situacaoPatrimonio(item) === 'aguardando' ? 'bg-amber-900 text-amber-300' : situacaoPatrimonio(item) === 'localizados' ? 'bg-emerald-900 text-emerald-300' : 'bg-slate-700 text-slate-400'}">
+                    ${item.sugestaoDestinoStatus === 'pendente' ? '📍 PENDENTE · DESTINO SUGERIDO' : situacaoPatrimonio(item) === 'aguardando' ? '⏳ AGUARDANDO APROVAÇÃO' : situacaoPatrimonio(item) === 'localizados' ? '🟢 LOCALIZADO' : '🔴 PENDENTE'}
                   </span>
                 </div>
                 <p class="text-slate-300 text-xs">${item.descricao}</p>
@@ -2994,6 +3146,7 @@
                   <div>🏷️ Divisão Anterior: ${item.divisaoOrigem || item.divisao}</div>
                   <div>📍 Local Atual: <span class="text-emerald-400 font-bold">${item.localizacaoAtual || item.divisaoOrigem || item.divisao}</span></div>
                   ${situacaoPatrimonio(item) === 'aguardando' ? `<div>➡️ Local sugerido: <span class="text-amber-300 font-bold">${item.divisaoDestinoSugerida}</span></div>` : ''}
+                  ${item.sugestaoDestinoStatus === 'pendente' ? `<div>📍 Destino indicado: <span class="text-amber-300 font-bold">${escaparHtml(item.sugestaoDestinoDivisao)}</span> · aguardando análise, sem conferência física</div>` : ''}
                 </div>
               </div>
             `).join('')}

@@ -8,7 +8,7 @@ const [app, html, css, worker, regras] = await Promise.all([
   readFile(new URL('index.html', raiz), 'utf8'),
   readFile(new URL('app.css', raiz), 'utf8'),
   readFile(new URL('service-worker.js', raiz), 'utf8'),
-  readFile(new URL('../../cm-app-v1.13.8-internal/firestore.rules', import.meta.url), 'utf8')
+  readFile(new URL('../../cm-app-v1.13.9-internal/firestore.rules', import.meta.url), 'utf8')
 ]);
 
 test('integra Driver.js de forma versionada e disponível no PWA', () => {

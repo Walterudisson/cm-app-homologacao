@@ -21,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.13.8">
+  <link rel="stylesheet" href="./app.css?v=1.13.9">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div style="position:fixed;top:0;left:0;right:0;z-index:9999;background:#b45309;color:white;text-align:center;font:700 12px/28px system-ui,sans-serif;letter-spacing:.08em;pointer-events:none" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -54,7 +54,7 @@
 
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.8-H • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.9-H • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -113,7 +113,7 @@
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.13.8-H</span>
+        <span>v1.13.9-H</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -319,6 +319,7 @@
             </div>
             <div><strong class="text-slate-400">Descrição:</strong> <span id="det-descricao" class="text-slate-200">---</span></div>
             <div><strong class="text-slate-400">🏷️ Divisão Anterior:</strong> <span id="det-divisao" class="text-amber-400 font-semibold">---</span></div>
+            <button id="btn-sugerir-destino" type="button" class="hidden suggestion-destination-button">📍 Sugerir destino</button>
             
             <div id="det-historico-box" class="hidden mt-2 pt-2 border-t border-slate-700/60 space-y-1">
               <strong class="text-blue-400 text-[11px] block">📜 Linha do Tempo (Histórico):</strong>
@@ -449,7 +450,7 @@
       <section id="sec-transferencias" class="hidden space-y-4">
         <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-2 shadow-md">
           <div class="flex justify-between items-center">
-            <h2 class="text-xs md:text-sm font-bold text-amber-400 uppercase">🔄 Fila de Aprovação de Transferências</h2>
+            <h2 class="text-xs md:text-sm font-bold text-amber-400 uppercase">🔄 Fila de Aprovação de Movimentações</h2>
             <span id="transf-contador" class="bg-slate-900 text-slate-300 text-xs font-bold px-2.5 py-1 rounded">0 pendentes</span>
           </div>
         </div>
@@ -642,7 +643,7 @@
 
       <footer class="app-footer">
         <span>CM APP · Patrimônio</span>
-        <span>v1.13.8-H · HOMOLOGAÇÃO</span>
+        <span>v1.13.9-H · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -744,6 +745,39 @@
   </div>
 
   <!-- MODAL DE DETALHES E HISTÓRICO DO ITEM -->
+  <div id="modal-sugerir-destino" class="hidden fixed inset-0 bg-slate-950/80 z-50 flex items-center justify-center p-4">
+    <div class="suggestion-dialog" role="dialog" aria-modal="true" aria-labelledby="sugestao-destino-titulo">
+      <div class="suggestion-heading">
+        <div><span class="eyebrow">Indicação administrativa</span><h3 id="sugestao-destino-titulo">Sugerir destino</h3></div>
+        <button id="btn-fechar-sugestao-destino" type="button" aria-label="Fechar sugestão de destino">✕</button>
+      </div>
+      <div class="suggestion-item-summary">
+        <strong id="sugestao-destino-plaqueta">Plaqueta ---</strong>
+        <span id="sugestao-destino-descricao">---</span>
+        <small>Localização atual: <b id="sugestao-destino-origem">---</b></small>
+      </div>
+      <form id="form-sugerir-destino" class="space-y-3">
+        <label class="profile-field">
+          <span>Divisão de destino sugerida</span>
+          <select id="sugestao-destino-divisao" required><option value="">Selecione a divisão</option></select>
+        </label>
+        <label class="profile-field">
+          <span>Justificativa ou informação recebida (opcional)</span>
+          <textarea id="sugestao-destino-observacao" rows="3" maxlength="500" placeholder="Ex.: informação recebida do responsável pelo setor"></textarea>
+        </label>
+        <div class="suggestion-warning">
+          <strong>Esta ação não localiza o patrimônio.</strong>
+          <p>A divisão oficial somente será alterada após aprovação, e o item continuará pendente de conferência física.</p>
+        </div>
+        <div class="suggestion-actions">
+          <button id="btn-cancelar-sugestao-destino" type="button">Cancelar</button>
+          <button type="submit">Enviar para aprovação</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL DE DETALHES E HISTÓRICO DO ITEM -->
   <div id="modal-detalhes-item" class="hidden fixed inset-0 bg-slate-950/80 z-50 flex items-center justify-center p-4">
     <div class="bg-slate-800 border border-slate-700 w-full max-w-md p-5 rounded-2xl shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-slate-700 pb-2">
@@ -771,6 +805,6 @@
   </div>
 
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.5.0/dist/driver.js.iife.js"></script>
-    <script type="module" src="./app.js?v=1.13.8"></script>
+    <script type="module" src="./app.js?v=1.13.9"></script>
 </body>
 </html>

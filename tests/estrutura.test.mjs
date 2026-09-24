@@ -69,8 +69,8 @@ test('o aviso pausado duplicado é ocultado quando o resultado está visível', 
   assert.match(controlador, /camera-status-result/);
 });
 
-test('a interface identifica a versão v1.13.8-H', () => {
-  assert.match(html, /v1\.13\.8-H • HOMOLOGAÇÃO/);
+test('a interface identifica a versão v1.13.9-H', () => {
+  assert.match(html, /v1\.13\.9-H • HOMOLOGAÇÃO/);
 });
 
 test('Gestão separa usuários e inventários em telas próprias', () => {

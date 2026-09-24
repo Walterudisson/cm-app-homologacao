@@ -1,15 +1,19 @@
-CM APP v1.13.8-H — ambiente de homologação
+CM APP v1.13.9-H — ambiente de homologação
 
 Projeto Firebase: cm-app-homologacao
 Firestore: (default)
 Este pacote contém apenas dados de configuração públicos do aplicativo Web. Não concede acesso ao projeto sem as credenciais e regras publicadas.
 
-Antes dos arquivos do site, publique firestore.rules da entrega interna v1.13.8 no projeto cm-app-homologacao.
+Antes dos arquivos do site, publique firestore.rules da entrega interna v1.13.9 no projeto cm-app-homologacao.
 Depois, publique o conteúdo desta pasta no repositório GitHub Pages exclusivo de homologação. Não substitua os arquivos do repositório de produção.
 Cloud Functions e Storage permanecem inalterados e não precisam de novo deploy.
 Crie usuários e dados fictícios antes dos testes operacionais.
 
-Escopo v1.13.8-H:
+Escopo v1.13.9-H:
+- fluxo "Sugerir destino" para Conferentes em itens ainda não localizados;
+- análise separada na Fila de Aprovação de Movimentações;
+- aprovação altera apenas a localização administrativa e mantém o item pendente de conferência física;
+- rejeição preserva a localização anterior;
 - tutorial guiado v1 para Conferentes;
 - início automático no primeiro acesso e retomada pela etapa salva;
 - opção de pausar, concluir e rever em Meu perfil;
