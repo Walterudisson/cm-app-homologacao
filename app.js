@@ -27,7 +27,8 @@
     import { divisoesDisponiveis, escopoInicial } from "./js/core/escopo.js?v=1.13.0";
     import { validarNovaSenha } from "./js/core/perfil.js";
     import { criarControladorCamera } from "./js/controllers/camera.controller.js?v=1.12.0";
-    import { listarDivisoesAtivas } from "./js/services/divisoes.service.js";
+    import { atualizarDivisao, criarDivisao, listarDivisoes, listarDivisoesAtivas } from "./js/services/divisoes.service.js?v=1.13.10";
+    import { PERMISSOES, usuarioPode } from "./js/core/permissoes.js?v=1.13.10";
     import {
       consultarCicloDivisao, encerrarDivisao, reabrirDivisao,
       listarFechamentos, listarEventosInventario, listarItensFechamento,
@@ -57,6 +58,7 @@
     let usuarioLogado = null;
     let bancoPatrimonio = [];
     let bancoUsuarios = [];
+    let bancoDivisoes = [];
     let bancoTransferencias = [];
     let filaTransferenciasFisicas = [];
     let filaSugestoesDestino = [];
@@ -66,6 +68,7 @@
     let unsubscribeTransferencias = [];
     let abaAtual = 'dashboard';
     let usuariosCarregados = false;
+    let divisoesCarregadas = false;
     let relacaoCarregada = false;
     let timerAutocomplete = null;
     let timerFiltroRelacao = null;
@@ -133,6 +136,7 @@
     });
     inicializarPwa({ notificarMensagem });
     inicializarAlternadoresSenha();
+    inicializarGestaoDivisoes();
     window.addEventListener('popstate', tratarPopstate);
 
     function iconeAlternadorSenha(visivel) {
@@ -642,11 +646,13 @@
         revisaoEscopo++;
         bancoPatrimonio = [];
         bancoUsuarios = [];
+        bancoDivisoes = [];
         bancoTransferencias = [];
         cachePatrimonios.clear();
         cacheSugestoes.clear();
         catalogoDivisoes.clear();
         usuariosCarregados = false;
+        divisoesCarregadas = false;
         invalidarCacheRelacao();
         catalogoDivisoesCarregado = false;
         fotoPerfilUrl = '';
@@ -668,6 +674,7 @@
       
       const btnTransf = document.getElementById('tab-btn-transferencias');
       const btnUsuarios = document.getElementById('tab-btn-usuarios');
+      const btnDivisoes = document.getElementById('tab-btn-divisoes');
       const btnInventarios = document.getElementById('tab-btn-inventarios');
       const btnNovoUsuario = document.getElementById('btn-novo-usuario');
       const campoPerfil = document.getElementById('campo-perfil-container');
@@ -678,10 +685,12 @@
       document.getElementById('dash-aguardando-acao').innerText = usuarioLogado.perfil === 'conferente'
         ? 'Ver na relação →' : 'Abrir fila geral →';
       btnNovoUsuario?.classList.toggle('hidden', usuarioLogado.perfil !== 'admin');
+      document.getElementById('btn-nova-divisao')?.classList.toggle('hidden', !usuarioPode(usuarioLogado, PERMISSOES.DIVISOES_GERENCIAR));
 
       if (usuarioLogado.perfil === 'conferente') {
         btnTransf.classList.add('hidden');
         btnUsuarios.classList.add('hidden');
+        btnDivisoes?.classList.add('hidden');
         btnInventarios.classList.remove('hidden');
         if (boxExportacao) boxExportacao.classList.add('hidden');
         if (panelCiclo) panelCiclo.classList.add('hidden');
@@ -693,12 +702,14 @@
         if (usuarioLogado.perfil === 'gestor') {
           btnTransf.classList.remove('hidden');
           btnUsuarios.classList.remove('hidden');
+          btnDivisoes?.classList.remove('hidden');
           btnInventarios.classList.remove('hidden');
           campoPerfil.classList.add('hidden');
           tituloCad.innerText = "👥 Cadastrar Novo Conferente";
         } else if (usuarioLogado.perfil === 'admin') {
           btnTransf.classList.remove('hidden');
           btnUsuarios.classList.remove('hidden');
+          btnDivisoes?.classList.remove('hidden');
           btnInventarios.classList.remove('hidden');
           campoPerfil.classList.remove('hidden');
           tituloCad.innerText = "👥 Cadastrar Novo Gestor ou Conferente";
@@ -909,6 +920,136 @@
       popularSelectsDivisao();
     }
 
+    function iniciaisUsuario(nome = '') {
+      const partes = String(nome).trim().split(/\s+/).filter(Boolean);
+      return partes.length ? `${partes[0][0]}${partes.at(-1)?.[0] || ''}`.toLocaleUpperCase('pt-BR') : 'US';
+    }
+
+    function opcoesResponsaveis(valor = '') {
+      const usuarios = bancoUsuarios
+        .filter(usuario => usuario.ativo !== false)
+        .sort((a, b) => String(a.nome || '').localeCompare(String(b.nome || ''), 'pt-BR'));
+      return `<option value="">Não definido</option>${usuarios.map(usuario =>
+        `<option value="${escaparHtml(usuario.uid)}" ${usuario.uid === valor ? 'selected' : ''}>${escaparHtml(usuario.nome || usuario.email)} · ${escaparHtml(usuario.perfil || 'usuário')}</option>`
+      ).join('')}`;
+    }
+
+    function fecharModalDivisao() {
+      document.getElementById('modal-divisao')?.classList.add('hidden');
+    }
+
+    function abrirModalDivisao(divisao = null) {
+      if (!usuarioPode(usuarioLogado, PERMISSOES.DIVISOES_GERENCIAR)) return;
+      const editando = Boolean(divisao);
+      document.getElementById('titulo-modal-divisao').textContent = editando ? 'Editar divisão' : 'Nova divisão';
+      document.getElementById('divisao-id').value = divisao?.id || '';
+      const campoNome = document.getElementById('divisao-nome');
+      campoNome.value = divisao?.nome || '';
+      campoNome.disabled = editando;
+      document.getElementById('divisao-ativa').checked = divisao?.ativo !== false;
+      document.getElementById('divisao-responsavel-principal').innerHTML = opcoesResponsaveis(divisao?.responsavelPrincipalUid || '');
+      document.getElementById('divisao-responsavel-substituto').innerHTML = opcoesResponsaveis(divisao?.responsavelSubstitutoUid || '');
+      document.getElementById('divisao-modal-aviso').textContent = editando
+        ? 'O nome é preservado para manter a integridade dos patrimônios, inventários e históricos vinculados.'
+        : 'O nome passa a identificar a divisão em patrimônios e inventários e não poderá ser alterado posteriormente.';
+      document.getElementById('modal-divisao').classList.remove('hidden');
+      setTimeout(() => (editando ? document.getElementById('divisao-responsavel-principal') : campoNome).focus(), 0);
+    }
+
+    function renderizarDivisoes() {
+      const container = document.getElementById('lista-divisoes-container');
+      if (!container) return;
+      const termo = String(document.getElementById('filtro-busca-divisoes')?.value || '').trim().toLocaleLowerCase('pt-BR');
+      const status = document.getElementById('filtro-status-divisoes')?.value || 'todas';
+      const total = bancoDivisoes.length;
+      const ativas = bancoDivisoes.filter(divisao => divisao.ativo !== false).length;
+      document.getElementById('divisoes-total').textContent = total;
+      document.getElementById('divisoes-ativas').textContent = ativas;
+      document.getElementById('divisoes-inativas').textContent = total - ativas;
+      document.getElementById('divisoes-com-responsavel').textContent = bancoDivisoes.filter(divisao => divisao.responsavelPrincipalUid).length;
+      const filtradas = bancoDivisoes.filter(divisao => {
+        if (status === 'ativas' && divisao.ativo === false) return false;
+        if (status === 'inativas' && divisao.ativo !== false) return false;
+        return !termo || [divisao.nome, divisao.responsavelPrincipalNome, divisao.responsavelSubstitutoNome]
+          .some(valor => String(valor || '').toLocaleLowerCase('pt-BR').includes(termo));
+      }).sort((a, b) => String(a.nome || '').localeCompare(String(b.nome || ''), 'pt-BR', { numeric: true }));
+      if (!filtradas.length) {
+        container.innerHTML = '<div class="divisions-empty">Nenhuma divisão corresponde aos filtros informados.</div>';
+        return;
+      }
+      const podeGerenciar = usuarioPode(usuarioLogado, PERMISSOES.DIVISOES_GERENCIAR);
+      container.innerHTML = filtradas.map(divisao => `
+        <article class="division-row" data-divisao-id="${escaparHtml(divisao.id)}">
+          <div class="division-name" data-label="Divisão"><strong>${escaparHtml(divisao.nome || 'Sem nome')}</strong><small>${escaparHtml(divisao.funcaoResponsavelId || 'responsavel_divisao')}</small></div>
+          <div class="division-person" data-label="Responsável principal">${escaparHtml(divisao.responsavelPrincipalNome || 'Não definido')}</div>
+          <div class="division-person" data-label="Substituto">${escaparHtml(divisao.responsavelSubstitutoNome || 'Não definido')}</div>
+          <div data-label="Status"><span class="user-status ${divisao.ativo === false ? 'inactive' : 'active'}">${divisao.ativo === false ? 'Inativa' : 'Ativa'}</span></div>
+          <div class="division-actions" data-label="Ações">${podeGerenciar ? '<button type="button" data-editar-divisao>Editar</button>' : '<span class="users-readonly">Somente consulta</span>'}</div>
+        </article>`).join('');
+      container.querySelectorAll('[data-editar-divisao]').forEach(botao => botao.addEventListener('click', () => {
+        const id = botao.closest('[data-divisao-id]').dataset.divisaoId;
+        abrirModalDivisao(bancoDivisoes.find(divisao => divisao.id === id));
+      }));
+    }
+
+    async function carregarGestaoDivisoes(forcar = false) {
+      if (!usuarioPode(usuarioLogado, PERMISSOES.DIVISOES_VISUALIZAR)) return;
+      if (!divisoesCarregadas || forcar) {
+        bancoDivisoes = await listarDivisoes();
+        divisoesCarregadas = true;
+      }
+      if (usuarioPode(usuarioLogado, PERMISSOES.DIVISOES_GERENCIAR) && !usuariosCarregados) await carregarUsuarios();
+      renderizarDivisoes();
+    }
+
+    function inicializarGestaoDivisoes() {
+      document.getElementById('btn-nova-divisao')?.addEventListener('click', () => abrirModalDivisao());
+      document.getElementById('btn-fechar-modal-divisao')?.addEventListener('click', fecharModalDivisao);
+      document.getElementById('btn-cancelar-modal-divisao')?.addEventListener('click', fecharModalDivisao);
+      document.getElementById('filtro-busca-divisoes')?.addEventListener('input', renderizarDivisoes);
+      document.getElementById('filtro-status-divisoes')?.addEventListener('change', renderizarDivisoes);
+      document.getElementById('form-divisao')?.addEventListener('submit', async evento => {
+        evento.preventDefault();
+        if (!usuarioPode(usuarioLogado, PERMISSOES.DIVISOES_GERENCIAR)) return;
+        const id = document.getElementById('divisao-id').value;
+        const nome = document.getElementById('divisao-nome').value.trim().replace(/\s+/g, ' ');
+        const principalUid = document.getElementById('divisao-responsavel-principal').value;
+        const substitutoUid = document.getElementById('divisao-responsavel-substituto').value;
+        if (principalUid && principalUid === substitutoUid) return notificarMensagem('Responsável principal e substituto devem ser pessoas diferentes.', 'aviso');
+        if (!id && bancoDivisoes.some(divisao => String(divisao.nome).localeCompare(nome, 'pt-BR', { sensitivity: 'base' }) === 0)) {
+          return notificarMensagem('Já existe uma divisão com esse nome.', 'aviso');
+        }
+        const principal = bancoUsuarios.find(usuario => usuario.uid === principalUid);
+        const substituto = bancoUsuarios.find(usuario => usuario.uid === substitutoUid);
+        const dados = {
+          nome,
+          ativo: document.getElementById('divisao-ativa').checked,
+          responsavelPrincipalUid: principalUid,
+          responsavelPrincipalNome: principal?.nome || principal?.email || '',
+          responsavelSubstitutoUid: substitutoUid,
+          responsavelSubstitutoNome: substituto?.nome || substituto?.email || ''
+        };
+        const botao = document.getElementById('btn-salvar-divisao');
+        botao.disabled = true;
+        botao.textContent = 'SALVANDO...';
+        try {
+          if (id) await atualizarDivisao(id, dados, usuarioLogado);
+          else await criarDivisao(dados, usuarioLogado);
+          fecharModalDivisao();
+          divisoesCarregadas = false;
+          catalogoDivisoesCarregado = false;
+          await Promise.all([carregarGestaoDivisoes(true), carregarCatalogoDivisoes(true)]);
+          notificarMensagem(id ? 'Divisão atualizada com sucesso.' : 'Divisão cadastrada com sucesso.', 'sucesso');
+        } catch (erro) {
+          console.error('Erro ao salvar divisão:', erro);
+          notificarMensagem(erro?.code === 'permission-denied' ? 'Seu perfil não possui permissão para alterar divisões.' : (erro?.message || 'Não foi possível salvar a divisão.'), 'erro');
+        } finally {
+          botao.disabled = false;
+          botao.textContent = 'Salvar divisão';
+        }
+      });
+    }
+
     async function carregarPatrimoniosPermitidos() {
       if (!usuarioLogado) return [];
       if (usuarioLogado.perfil === 'admin' || usuarioLogado.perfil === 'gestor') {
@@ -1062,7 +1203,7 @@
 
     async function alternarAba(abaAtiva, { registrarHistorico = true, substituirHistorico = false } = {}) {
       if (usuarioLogado && usuarioLogado.perfil === 'conferente') {
-        if (abaAtiva === 'transferencias' || abaAtiva === 'usuarios') {
+        if (abaAtiva === 'transferencias' || abaAtiva === 'usuarios' || abaAtiva === 'divisoes') {
           return;
         }
       }
@@ -1077,7 +1218,7 @@
         await controladorCamera.desligar({ retomarAposSalvar: true });
       }
 
-      ['dashboard', 'scanner', 'transferencias', 'usuarios', 'inventarios', 'lista', 'perfil'].forEach(aba => {
+      ['dashboard', 'scanner', 'transferencias', 'usuarios', 'divisoes', 'inventarios', 'lista', 'perfil'].forEach(aba => {
         const sec = document.getElementById(`sec-${aba}`);
         if (sec) sec.classList.toggle('hidden', aba !== abaAtiva);
       });
@@ -1087,6 +1228,7 @@
       if (usuarioLogado && usuarioLogado.perfil === 'conferente') {
         document.getElementById('tab-btn-transferencias').classList.add('hidden');
         document.getElementById('tab-btn-usuarios').classList.add('hidden');
+        document.getElementById('tab-btn-divisoes')?.classList.add('hidden');
       }
 
       try {
@@ -1097,6 +1239,7 @@
           await carregarUsuarios();
           await carregarCatalogoDivisoes();
         }
+        if (abaAtiva === 'divisoes') await carregarGestaoDivisoes();
         if (abaAtiva === 'inventarios') {
           await carregarCatalogoDivisoes();
           await Promise.all([carregarProgressoInventarios(), carregarHistoricoInventarios(), carregarHistoricoGeral()]);
