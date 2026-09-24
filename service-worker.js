@@ -1,4 +1,4 @@
-const VERSAO = 'v1.13.9-homologacao';
+const VERSAO = 'v1.13.9-h1-homologacao';
 const CACHE_SHELL = `cmapp-shell-${VERSAO}`;
 const CACHE_RUNTIME = `cmapp-runtime-${VERSAO}`;
 const PREFIXO_CACHE = 'cmapp-';
