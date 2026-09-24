@@ -28,7 +28,9 @@ test('tutorial é exclusivo do Conferente e não executa gravações patrimoniai
 test('tutorial inicia, pausa, retoma, conclui e pode ser revisto', () => {
   ['tutorialConferenteV1Etapa', 'tutorialConferenteV1Concluido', 'tutorialConferenteV1Adiado']
     .forEach(campo => assert.match(app, new RegExp(campo)));
-  assert.match(app, /Pular por enquanto/);
+  assert.match(app, /botao\.textContent = 'Pular'/);
+  assert.match(app, /filaSalvamentoTutorial = filaSalvamentoTutorial/);
+  assert.match(app, /const etapaSalva = usuarioLogado\.tutorialConferenteV1Adiado === true/);
   assert.match(app, /REVER TUTORIAL/);
   assert.match(app, /CONTINUAR TUTORIAL/);
   assert.match(html, /id="btn-iniciar-tutorial"/);

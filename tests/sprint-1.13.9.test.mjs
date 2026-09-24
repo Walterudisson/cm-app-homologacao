@@ -64,6 +64,24 @@ test('interface e fila distinguem sugestão de transferência física', () => {
   assert.match(app, /sem conferência física/);
 });
 
+test('revisão homologada mantém sugestão como pendente comum na Relação', () => {
+  assert.doesNotMatch(app, /PENDENTE · DESTINO SUGERIDO/);
+  assert.match(app, /item\.sugestaoDestinoStatus === 'pendente' \? `<div>📍 Destino indicado/);
+});
+
+test('Relação inicia expandida e oferece controles globais', () => {
+  assert.match(html, /id="btn-expandir-divisoes"/);
+  assert.match(html, /id="btn-recolher-divisoes"/);
+  assert.match(app, /class="accordion-content p-3/);
+  assert.match(app, /#container-accordions \.accordion-content/);
+});
+
+test('busca oculta sugestões e fila começa a contar no login', () => {
+  assert.match(app, /function ocultarSugestoesPlaqueta\(\)/);
+  assert.match(app, /async function buscarEExibirItem[\s\S]*?ocultarSugestoesPlaqueta\(\)/);
+  assert.match(app, /if \(usuarioLogado\.perfil !== 'conferente'\) iniciarOuvinteTransferencias\(\)/);
+});
+
 test('regras autorizam criação e resolução estritas da sugestão', () => {
   assert.match(regras, /function sugestaoDestinoValida\(\)/);
   assert.match(regras, /function resolucaoSugestaoDestinoValida\(\)/);
