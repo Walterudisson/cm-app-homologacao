@@ -21,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.13.10-h2">
+  <link rel="stylesheet" href="./app.css?v=1.13.11-h">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div style="position:fixed;top:0;left:0;right:0;z-index:9999;background:#b45309;color:white;text-align:center;font:700 12px/28px system-ui,sans-serif;letter-spacing:.08em;pointer-events:none" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -54,7 +54,7 @@
 
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.10-H.2 • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.11-H • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -114,10 +114,14 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V7l8-4 8 4v13M8 10h2M14 10h2M8 14h2M14 14h2M10 20v-3h4v3"/></svg>
           <span class="sidebar-label">Divisões</span>
         </button>
+        <button id="tab-btn-funcoes" type="button" class="nav-item" data-nav-page="funcoes" data-perfis="admin">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 7v5c0 5 3.4 8 8 9 4.6-1 8-4 8-9V7l-8-4Zm-3 9 2 2 4-5"/></svg>
+          <span class="sidebar-label">Funções e permissões</span>
+        </button>
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.13.10-H.2</span>
+        <span>v1.13.11-H</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -560,6 +564,24 @@
         </div>
       </section>
 
+      <!-- GESTÃO DE FUNÇÕES E PERMISSÕES -->
+      <section id="sec-funcoes" class="hidden space-y-5">
+        <div class="users-heading"><div><span class="eyebrow">Controle de acesso</span><h2>Funções e matriz de permissões</h2><p>Crie funções personalizadas e determine quais operações cada uma pode executar.</p></div><button id="btn-nova-funcao" type="button" class="users-primary-action"><span>＋</span> Nova função</button></div>
+        <div class="users-stats" aria-label="Resumo das funções">
+          <button type="button" class="is-selected" data-functions-card="todas" aria-pressed="true"><span class="users-stat-icon stat-blue">◎</span><div><strong id="funcoes-total">0</strong><small>Total de funções</small></div></button>
+          <button type="button" data-functions-card="ativas" aria-pressed="false"><span class="users-stat-icon stat-green">✓</span><div><strong id="funcoes-ativas">0</strong><small>Ativas</small></div></button>
+          <button type="button" data-functions-card="inativas" aria-pressed="false"><span class="users-stat-icon stat-red">—</span><div><strong id="funcoes-inativas">0</strong><small>Inativas</small></div></button>
+          <button type="button" data-functions-card="nativas" aria-pressed="false"><span class="users-stat-icon stat-amber">◆</span><div><strong id="funcoes-nativas">3</strong><small>Funções nativas</small></div></button>
+        </div>
+        <div class="functions-layout">
+          <div class="users-panel">
+            <div class="users-toolbar"><div class="users-tabs"><button type="button" class="active" data-functions-status="todas">Todas</button><button type="button" data-functions-status="ativas">Ativas</button><button type="button" data-functions-status="inativas">Inativas</button></div><div class="users-filters"><input id="filtro-busca-funcoes" type="search" placeholder="Pesquisar função..."></div></div>
+            <div id="lista-funcoes-container" class="functions-list" aria-live="polite"></div>
+          </div>
+          <aside class="permission-legend app-card"><span class="eyebrow">Como funciona</span><h3>Compatibilidade segura</h3><p>O perfil-base mantém os acessos atuais. A matriz adiciona permissões granulares e será aplicada progressivamente aos módulos.</p><ul><li>Funções nativas são protegidas.</li><li>Funções inativas permanecem no histórico.</li><li>Usuários vinculados mantêm o perfil-base.</li></ul></aside>
+        </div>
+      </section>
+
       <!-- ABA 4: INVENTÁRIO ATUAL E GESTÃO DO CICLO -->
       <section id="sec-inventarios" class="hidden space-y-5">
         <article class="app-card space-y-4">
@@ -685,7 +707,7 @@
 
       <footer class="app-footer">
         <span>CM APP · Patrimônio</span>
-        <span>v1.13.10-H.2 · HOMOLOGAÇÃO</span>
+        <span>v1.13.11-H · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -717,6 +739,11 @@
             <option value="gestor">Gestor</option>
             <option value="admin">Administrador</option>
           </select>
+        </div>
+        <div id="cad-funcao-container">
+          <label class="text-[11px] text-slate-400 block mb-1">Função de acesso</label>
+          <select id="cad-funcao" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-1.5 text-xs text-white"><option value="">Usar somente o perfil nativo</option></select>
+          <p class="text-[10px] text-slate-500 mt-1">Ao selecionar uma função personalizada, o perfil-base será aplicado automaticamente.</p>
         </div>
         <div id="cad-divisoes-container">
           <label class="text-[11px] text-slate-400 block mb-1">Divisões Atribuídas (somente Conferentes)</label>
@@ -754,6 +781,10 @@
             <option value="admin">Administrador</option>
           </select>
         </div>
+        <div id="edit-funcao-container">
+          <label class="text-[11px] text-slate-400 block mb-1">Função de acesso</label>
+          <select id="edit-funcao" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-1.5 text-xs text-white"><option value="">Usar somente o perfil nativo</option></select>
+        </div>
         <div id="edit-divisoes-container">
           <label class="text-[11px] text-slate-400 block mb-1">Divisões Atribuídas (somente Conferentes)</label>
           <div id="edit-divisoes-checkboxes" class="max-h-36 overflow-y-auto bg-slate-900 p-2 rounded border border-slate-700 space-y-1 text-xs"></div>
@@ -778,6 +809,7 @@
       </div>
       <dl class="user-details-grid">
         <div><dt>Perfil</dt><dd id="detalhes-usuario-perfil"></dd></div>
+        <div><dt>Função</dt><dd id="detalhes-usuario-funcao"></dd></div>
         <div><dt>Status</dt><dd id="detalhes-usuario-status"></dd></div>
         <div class="user-details-wide"><dt>Divisões atribuídas</dt><dd id="detalhes-usuario-divisoes"></dd></div>
         <div><dt>Cadastro</dt><dd id="detalhes-usuario-cadastro"></dd></div>
@@ -795,9 +827,22 @@
         <label class="profile-field"><span>Nome da divisão</span><input id="divisao-nome" type="text" minlength="3" maxlength="160" required placeholder="Ex.: CM - DTA"></label>
         <label class="profile-field"><span>Responsável principal</span><select id="divisao-responsavel-principal"><option value="">Não definido</option></select></label>
         <label class="profile-field"><span>Responsável substituto</span><select id="divisao-responsavel-substituto"><option value="">Não definido</option></select></label>
-        <label class="division-active-control"><input id="divisao-ativa" type="checkbox" checked><span>Divisão ativa e disponível para operação</span></label>
         <p id="divisao-modal-aviso" class="division-modal-note">O nome passa a identificar a divisão em patrimônios e inventários e não poderá ser alterado posteriormente.</p>
         <div class="suggestion-actions"><button id="btn-cancelar-modal-divisao" type="button">Cancelar</button><button id="btn-salvar-divisao" type="submit">Salvar divisão</button></div>
+      </form>
+    </div>
+  </div>
+
+  <div id="modal-funcao" class="hidden fixed inset-0 bg-slate-950/80 z-50 flex items-center justify-center p-4">
+    <div class="function-dialog" role="dialog" aria-modal="true" aria-labelledby="titulo-modal-funcao">
+      <div class="user-details-heading"><h3 id="titulo-modal-funcao">Nova função</h3><button id="btn-fechar-modal-funcao" type="button">✕</button></div>
+      <form id="form-funcao" class="space-y-3 mt-4">
+        <input id="funcao-id" type="hidden">
+        <label class="profile-field"><span>Nome da função</span><input id="funcao-nome" required minlength="3" maxlength="100" placeholder="Ex.: Responsável de divisão"></label>
+        <label class="profile-field"><span>Descrição</span><textarea id="funcao-descricao" rows="2" maxlength="300" placeholder="Finalidade e abrangência da função"></textarea></label>
+        <label class="profile-field"><span>Perfil-base de compatibilidade</span><select id="funcao-perfil-base"><option value="conferente">Conferente</option><option value="gestor">Gestor</option><option value="admin">Administrador</option></select></label>
+        <div><span class="function-matrix-title">Matriz de permissões</span><div id="matriz-permissoes" class="permission-matrix"></div></div>
+        <div class="suggestion-actions"><button id="btn-cancelar-modal-funcao" type="button">Cancelar</button><button id="btn-salvar-funcao" type="submit">Salvar função</button></div>
       </form>
     </div>
   </div>
@@ -863,6 +908,6 @@
   </div>
 
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.5.0/dist/driver.js.iife.js"></script>
-    <script type="module" src="./app.js?v=1.13.10-h2"></script>
+    <script type="module" src="./app.js?v=1.13.11-h"></script>
 </body>
 </html>

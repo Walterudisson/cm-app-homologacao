@@ -1,4 +1,4 @@
-CM APP v1.13.10-H.2 — ambiente de homologação
+CM APP v1.13.11-H — ambiente de homologação
 
 Projeto Firebase: cm-app-homologacao
 Firestore: (default)
@@ -9,7 +9,7 @@ Depois, publique o conteúdo desta pasta no repositório GitHub Pages exclusivo 
 Cloud Functions e Storage permanecem inalterados e não precisam de novo deploy.
 Crie usuários e dados fictícios antes dos testes operacionais.
 
-Escopo v1.13.10-H:
+Escopo v1.13.11-H:
 - nova tela Gestão de Divisões para Administradores e Gestores;
 - cadastro de divisão e manutenção de situação ativa/inativa;
 - definição de responsável principal e substituto a partir dos usuários ativos;
@@ -20,3 +20,7 @@ Escopo v1.13.10-H:
 - trilha de auditoria registrada no próprio documento da divisão;
 - catálogo inicial de permissões para futura Matriz de Funções e Permissões;
 - manutenção integral das funcionalidades homologadas até a v1.13.9-H.2.
+- Gestão de Funções com matriz de permissões e funções nativas protegidas;
+- funções personalizadas com perfil-base, descrição, estado e auditoria;
+- associação de funções personalizadas no cadastro e edição de usuários;
+- desativação e reativação de divisões por botão com confirmação.

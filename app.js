@@ -28,7 +28,8 @@
     import { validarNovaSenha } from "./js/core/perfil.js";
     import { criarControladorCamera } from "./js/controllers/camera.controller.js?v=1.12.0";
     import { atualizarDivisao, criarDivisao, listarDivisoes, listarDivisoesAtivas } from "./js/services/divisoes.service.js?v=1.13.10";
-    import { PERMISSOES, usuarioPode } from "./js/core/permissoes.js?v=1.13.10";
+    import { CATALOGO_PERMISSOES, FUNCOES_NATIVAS, PERMISSOES, usuarioPode } from "./js/core/permissoes.js?v=1.13.11";
+    import { alterarEstadoFuncao, atualizarFuncao, criarFuncao, listarFuncoesPersonalizadas } from "./js/services/funcoes.service.js?v=1.13.11";
     import {
       consultarCicloDivisao, encerrarDivisao, reabrirDivisao,
       listarFechamentos, listarEventosInventario, listarItensFechamento,
@@ -59,6 +60,7 @@
     let bancoPatrimonio = [];
     let bancoUsuarios = [];
     let bancoDivisoes = [];
+    let bancoFuncoes = [];
     let bancoTransferencias = [];
     let filaTransferenciasFisicas = [];
     let filaSugestoesDestino = [];
@@ -69,6 +71,7 @@
     let abaAtual = 'dashboard';
     let usuariosCarregados = false;
     let divisoesCarregadas = false;
+    let funcoesCarregadas = false;
     let relacaoCarregada = false;
     let timerAutocomplete = null;
     let timerFiltroRelacao = null;
@@ -92,6 +95,7 @@
     let filtroResponsavelDivisoes = false;
     let paginaDivisoes = 1;
     let ordenacaoDivisoes = { campo: 'nome', direcao: 'asc' };
+    let filtroFuncoes = 'todas';
     let usuarioDetalhadoUid = '';
     const cacheFotosUsuarios = new Map();
     let tutorialConferente = null;
@@ -141,6 +145,7 @@
     inicializarPwa({ notificarMensagem });
     inicializarAlternadoresSenha();
     inicializarGestaoDivisoes();
+    inicializarGestaoFuncoes();
     window.addEventListener('popstate', tratarPopstate);
 
     function iconeAlternadorSenha(visivel) {
@@ -651,12 +656,14 @@
         bancoPatrimonio = [];
         bancoUsuarios = [];
         bancoDivisoes = [];
+        bancoFuncoes = [];
         bancoTransferencias = [];
         cachePatrimonios.clear();
         cacheSugestoes.clear();
         catalogoDivisoes.clear();
         usuariosCarregados = false;
         divisoesCarregadas = false;
+        funcoesCarregadas = false;
         invalidarCacheRelacao();
         catalogoDivisoesCarregado = false;
         fotoPerfilUrl = '';
@@ -679,6 +686,7 @@
       const btnTransf = document.getElementById('tab-btn-transferencias');
       const btnUsuarios = document.getElementById('tab-btn-usuarios');
       const btnDivisoes = document.getElementById('tab-btn-divisoes');
+      const btnFuncoes = document.getElementById('tab-btn-funcoes');
       const btnInventarios = document.getElementById('tab-btn-inventarios');
       const btnNovoUsuario = document.getElementById('btn-novo-usuario');
       const campoPerfil = document.getElementById('campo-perfil-container');
@@ -695,6 +703,7 @@
         btnTransf.classList.add('hidden');
         btnUsuarios.classList.add('hidden');
         btnDivisoes?.classList.add('hidden');
+        btnFuncoes?.classList.add('hidden');
         btnInventarios.classList.remove('hidden');
         if (boxExportacao) boxExportacao.classList.add('hidden');
         if (panelCiclo) panelCiclo.classList.add('hidden');
@@ -707,6 +716,7 @@
           btnTransf.classList.remove('hidden');
           btnUsuarios.classList.remove('hidden');
           btnDivisoes?.classList.remove('hidden');
+          btnFuncoes?.classList.add('hidden');
           btnInventarios.classList.remove('hidden');
           campoPerfil.classList.add('hidden');
           tituloCad.innerText = "👥 Cadastrar Novo Conferente";
@@ -714,6 +724,7 @@
           btnTransf.classList.remove('hidden');
           btnUsuarios.classList.remove('hidden');
           btnDivisoes?.classList.remove('hidden');
+          btnFuncoes?.classList.remove('hidden');
           btnInventarios.classList.remove('hidden');
           campoPerfil.classList.remove('hidden');
           tituloCad.innerText = "👥 Cadastrar Novo Gestor ou Conferente";
@@ -945,7 +956,6 @@
       const campoNome = document.getElementById('divisao-nome');
       campoNome.value = divisao?.nome || '';
       campoNome.disabled = editando;
-      document.getElementById('divisao-ativa').checked = divisao?.ativo !== false;
       document.getElementById('divisao-responsavel-principal').innerHTML = opcoesResponsaveis(divisao?.responsavelPrincipalUid || '');
       document.getElementById('divisao-responsavel-substituto').innerHTML = opcoesResponsaveis(divisao?.responsavelSubstitutoUid || '');
       document.getElementById('divisao-modal-aviso').textContent = editando
@@ -1018,7 +1028,7 @@
           <div class="division-person" data-label="Responsável principal">${escaparHtml(divisao.responsavelPrincipalNome || 'Não definido')}</div>
           <div class="division-person" data-label="Substituto">${escaparHtml(divisao.responsavelSubstitutoNome || 'Não definido')}</div>
           <div data-label="Status"><span class="user-status ${divisao.ativo === false ? 'inactive' : 'active'}">${divisao.ativo === false ? 'Inativa' : 'Ativa'}</span></div>
-          <div class="division-actions" data-label="Ações">${podeGerenciar ? '<button type="button" data-editar-divisao>Editar</button>' : '<span class="users-readonly">Somente consulta</span>'}</div>
+          <div class="division-actions" data-label="Ações">${podeGerenciar ? `<button type="button" data-editar-divisao>Editar</button><button type="button" class="${divisao.ativo === false ? 'success' : 'danger'}" data-alterar-estado-divisao>${divisao.ativo === false ? 'Reativar' : 'Desativar'}</button>` : '<span class="users-readonly">Somente consulta</span>'}</div>
         </article>`).join('');
       document.getElementById('divisoes-paginacao').innerHTML = `
         <span>Exibindo ${inicio + 1}–${Math.min(inicio + porPagina, filtradas.length)} de ${filtradas.length}</span>
@@ -1030,6 +1040,30 @@
       container.querySelectorAll('[data-editar-divisao]').forEach(botao => botao.addEventListener('click', () => {
         const id = botao.closest('[data-divisao-id]').dataset.divisaoId;
         abrirModalDivisao(bancoDivisoes.find(divisao => divisao.id === id));
+      }));
+      container.querySelectorAll('[data-alterar-estado-divisao]').forEach(botao => botao.addEventListener('click', async () => {
+        const id = botao.closest('[data-divisao-id]').dataset.divisaoId;
+        const divisao = bancoDivisoes.find(item => item.id === id);
+        if (!divisao) return;
+        const reativar = divisao.ativo === false;
+        const confirmado = await confirmarAcao({
+          titulo: reativar ? 'Reativar divisão' : 'Desativar divisão',
+          mensagem: reativar
+            ? `${divisao.nome} voltará a aparecer nas seleções operacionais do CM APP.`
+            : `${divisao.nome} deixará de aparecer para novas operações, mas patrimônios, responsáveis e históricos serão preservados.`,
+          confirmarTexto: reativar ? 'Reativar divisão' : 'Desativar divisão',
+          perigosa: !reativar
+        });
+        if (!confirmado) return;
+        try {
+          await atualizarDivisao(divisao.id, { ...divisao, ativo: reativar }, usuarioLogado);
+          divisoesCarregadas = false;
+          catalogoDivisoesCarregado = false;
+          await Promise.all([carregarGestaoDivisoes(true), carregarCatalogoDivisoes(true)]);
+          notificarMensagem(reativar ? 'Divisão reativada com sucesso.' : 'Divisão desativada com sucesso.', 'sucesso');
+        } catch (erro) {
+          notificarMensagem(erro?.message || 'Não foi possível alterar o estado da divisão.', 'erro');
+        }
       }));
     }
 
@@ -1089,7 +1123,7 @@
         const substituto = bancoUsuarios.find(usuario => usuario.uid === substitutoUid);
         const dados = {
           nome,
-          ativo: document.getElementById('divisao-ativa').checked,
+          ativo: id ? bancoDivisoes.find(divisao => divisao.id === id)?.ativo !== false : true,
           responsavelPrincipalUid: principalUid,
           responsavelPrincipalNome: principal?.nome || principal?.email || '',
           responsavelSubstitutoUid: substitutoUid,
@@ -1113,6 +1147,134 @@
           botao.disabled = false;
           botao.textContent = 'Salvar divisão';
         }
+      });
+    }
+
+    const ROTULOS_PERFIL = { admin: 'Administrador', gestor: 'Gestor', conferente: 'Conferente' };
+
+    function funcoesNativas() {
+      return Object.entries(FUNCOES_NATIVAS).map(([id, permissoes]) => ({
+        id: `nativa_${id}`,
+        nome: ROTULOS_PERFIL[id],
+        descricao: 'Função nativa do sistema',
+        perfilBase: id,
+        permissoes: [...permissoes],
+        ativo: true,
+        nativa: true
+      }));
+    }
+
+    function renderizarMatrizPermissoes(selecionadas = []) {
+      const container = document.getElementById('matriz-permissoes');
+      const porModulo = CATALOGO_PERMISSOES.reduce((grupos, item) => {
+        (grupos[item.modulo] ||= []).push(item);
+        return grupos;
+      }, {});
+      container.innerHTML = Object.entries(porModulo).map(([modulo, itens]) => `
+        <div class="permission-group"><strong>${escaparHtml(modulo)}</strong><div class="permission-options">${itens.map(item => `
+          <label><input type="checkbox" name="permissao-funcao" value="${escaparHtml(item.id)}" ${selecionadas.includes(item.id) ? 'checked' : ''}><span>${escaparHtml(item.acao)}</span></label>`).join('')}</div></div>`).join('');
+    }
+
+    function fecharModalFuncao() { document.getElementById('modal-funcao')?.classList.add('hidden'); }
+
+    function abrirModalFuncao(funcao = null) {
+      if (usuarioLogado?.perfil !== 'admin' || funcao?.nativa) return;
+      document.getElementById('titulo-modal-funcao').textContent = funcao ? 'Editar função' : 'Nova função';
+      document.getElementById('funcao-id').value = funcao?.id || '';
+      document.getElementById('funcao-nome').value = funcao?.nome || '';
+      document.getElementById('funcao-descricao').value = funcao?.descricao || '';
+      document.getElementById('funcao-perfil-base').value = funcao?.perfilBase || 'conferente';
+      renderizarMatrizPermissoes(funcao?.permissoes || []);
+      document.getElementById('modal-funcao').classList.remove('hidden');
+      setTimeout(() => document.getElementById('funcao-nome').focus(), 0);
+    }
+
+    function renderizarFuncoes() {
+      const container = document.getElementById('lista-funcoes-container');
+      if (!container) return;
+      const todas = [...funcoesNativas(), ...bancoFuncoes];
+      const termo = String(document.getElementById('filtro-busca-funcoes')?.value || '').toLocaleLowerCase('pt-BR').trim();
+      const ativas = todas.filter(item => item.ativo !== false).length;
+      document.getElementById('funcoes-total').textContent = todas.length;
+      document.getElementById('funcoes-ativas').textContent = ativas;
+      document.getElementById('funcoes-inativas').textContent = todas.length - ativas;
+      document.getElementById('funcoes-nativas').textContent = funcoesNativas().length;
+      document.querySelectorAll('[data-functions-card]').forEach(card => {
+        const ativo = card.dataset.functionsCard === filtroFuncoes;
+        card.classList.toggle('is-selected', ativo);
+        card.setAttribute('aria-pressed', String(ativo));
+      });
+      document.querySelectorAll('[data-functions-status]').forEach(botao => botao.classList.toggle('active', botao.dataset.functionsStatus === filtroFuncoes));
+      const filtradas = todas.filter(item => {
+        if (filtroFuncoes === 'ativas' && item.ativo === false) return false;
+        if (filtroFuncoes === 'inativas' && item.ativo !== false) return false;
+        if (filtroFuncoes === 'nativas' && !item.nativa) return false;
+        return !termo || [item.nome, item.descricao, item.perfilBase].some(valor => String(valor || '').toLocaleLowerCase('pt-BR').includes(termo));
+      }).sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+      container.innerHTML = filtradas.length ? filtradas.map(item => `
+        <article class="function-row" data-funcao-id="${escaparHtml(item.id)}">
+          <div class="function-identity"><strong>${escaparHtml(item.nome)}</strong><small>${escaparHtml(item.descricao || 'Sem descrição')}</small></div>
+          <div><span class="user-role role-${escaparHtml(item.perfilBase)}">${escaparHtml(ROTULOS_PERFIL[item.perfilBase] || item.perfilBase)}</span></div>
+          <div class="function-permissions">${item.permissoes.length} permissões</div>
+          <div><span class="user-status ${item.ativo === false ? 'inactive' : 'active'}">${item.ativo === false ? 'Inativa' : 'Ativa'}</span></div>
+          <div class="function-actions">${item.nativa ? '<span class="users-readonly">Função protegida</span>' : `<button type="button" data-editar-funcao>Editar matriz</button><button type="button" class="${item.ativo === false ? 'success' : 'danger'}" data-estado-funcao>${item.ativo === false ? 'Reativar' : 'Desativar'}</button>`}</div>
+        </article>`).join('') : '<div class="users-empty">Nenhuma função encontrada.</div>';
+      container.querySelectorAll('[data-editar-funcao]').forEach(botao => botao.addEventListener('click', () => {
+        const id = botao.closest('[data-funcao-id]').dataset.funcaoId;
+        abrirModalFuncao(bancoFuncoes.find(item => item.id === id));
+      }));
+      container.querySelectorAll('[data-estado-funcao]').forEach(botao => botao.addEventListener('click', async () => {
+        const id = botao.closest('[data-funcao-id]').dataset.funcaoId;
+        const funcao = bancoFuncoes.find(item => item.id === id);
+        if (!funcao) return;
+        const reativar = funcao.ativo === false;
+        const confirmado = await confirmarAcao({ titulo: reativar ? 'Reativar função' : 'Desativar função', mensagem: reativar ? `${funcao.nome} poderá voltar a ser atribuída.` : `${funcao.nome} não poderá ser atribuída a novos usuários. Vínculos e auditoria serão preservados.`, confirmarTexto: reativar ? 'Reativar função' : 'Desativar função', perigosa: !reativar });
+        if (!confirmado) return;
+        await alterarEstadoFuncao(id, reativar, usuarioLogado);
+        await carregarGestaoFuncoes(true);
+        notificarMensagem(reativar ? 'Função reativada.' : 'Função desativada.', 'sucesso');
+      }));
+    }
+
+    async function carregarGestaoFuncoes(forcar = false) {
+      if (usuarioLogado?.perfil !== 'admin') return;
+      if (!funcoesCarregadas || forcar) {
+        bancoFuncoes = await listarFuncoesPersonalizadas();
+        funcoesCarregadas = true;
+      }
+      renderizarFuncoes();
+    }
+
+    function inicializarGestaoFuncoes() {
+      document.getElementById('btn-nova-funcao')?.addEventListener('click', () => abrirModalFuncao());
+      document.getElementById('btn-fechar-modal-funcao')?.addEventListener('click', fecharModalFuncao);
+      document.getElementById('btn-cancelar-modal-funcao')?.addEventListener('click', fecharModalFuncao);
+      document.getElementById('filtro-busca-funcoes')?.addEventListener('input', renderizarFuncoes);
+      [...document.querySelectorAll('[data-functions-card], [data-functions-status]')].forEach(botao => botao.addEventListener('click', () => {
+        const destino = botao.dataset.functionsCard || botao.dataset.functionsStatus;
+        filtroFuncoes = botao.classList.contains('is-selected') && destino !== 'todas' ? 'todas' : destino;
+        renderizarFuncoes();
+      }));
+      document.getElementById('form-funcao')?.addEventListener('submit', async evento => {
+        evento.preventDefault();
+        const id = document.getElementById('funcao-id').value;
+        const dados = {
+          nome: document.getElementById('funcao-nome').value.trim(),
+          descricao: document.getElementById('funcao-descricao').value.trim(),
+          perfilBase: document.getElementById('funcao-perfil-base').value,
+          permissoes: [...document.querySelectorAll('input[name="permissao-funcao"]:checked')].map(item => item.value)
+        };
+        if (!dados.permissoes.length) return notificarMensagem('Selecione ao menos uma permissão.', 'aviso');
+        const botao = document.getElementById('btn-salvar-funcao');
+        botao.disabled = true;
+        try {
+          if (id) await atualizarFuncao(id, dados, usuarioLogado); else await criarFuncao(dados, usuarioLogado);
+          fecharModalFuncao();
+          await carregarGestaoFuncoes(true);
+          notificarMensagem(id ? 'Função atualizada com sucesso.' : 'Função criada com sucesso.', 'sucesso');
+        } catch (erro) {
+          notificarMensagem(erro?.code === 'permission-denied' ? 'Somente Administradores podem gerenciar funções.' : (erro?.message || 'Não foi possível salvar a função.'), 'erro');
+        } finally { botao.disabled = false; }
       });
     }
 
@@ -1269,7 +1431,7 @@
 
     async function alternarAba(abaAtiva, { registrarHistorico = true, substituirHistorico = false } = {}) {
       if (usuarioLogado && usuarioLogado.perfil === 'conferente') {
-        if (abaAtiva === 'transferencias' || abaAtiva === 'usuarios' || abaAtiva === 'divisoes') {
+        if (abaAtiva === 'transferencias' || abaAtiva === 'usuarios' || abaAtiva === 'divisoes' || abaAtiva === 'funcoes') {
           return;
         }
       }
@@ -1284,7 +1446,7 @@
         await controladorCamera.desligar({ retomarAposSalvar: true });
       }
 
-      ['dashboard', 'scanner', 'transferencias', 'usuarios', 'divisoes', 'inventarios', 'lista', 'perfil'].forEach(aba => {
+      ['dashboard', 'scanner', 'transferencias', 'usuarios', 'divisoes', 'funcoes', 'inventarios', 'lista', 'perfil'].forEach(aba => {
         const sec = document.getElementById(`sec-${aba}`);
         if (sec) sec.classList.toggle('hidden', aba !== abaAtiva);
       });
@@ -1295,6 +1457,7 @@
         document.getElementById('tab-btn-transferencias').classList.add('hidden');
         document.getElementById('tab-btn-usuarios').classList.add('hidden');
         document.getElementById('tab-btn-divisoes')?.classList.add('hidden');
+        document.getElementById('tab-btn-funcoes')?.classList.add('hidden');
       }
 
       try {
@@ -1306,6 +1469,7 @@
           await carregarCatalogoDivisoes();
         }
         if (abaAtiva === 'divisoes') await carregarGestaoDivisoes();
+        if (abaAtiva === 'funcoes') await carregarGestaoFuncoes();
         if (abaAtiva === 'inventarios') {
           await carregarCatalogoDivisoes();
           await Promise.all([carregarProgressoInventarios(), carregarHistoricoInventarios(), carregarHistoricoGeral()]);
@@ -1954,9 +2118,39 @@
       }
     }
 
-    document.getElementById('cad-perfil')?.addEventListener('change', atualizarDivisoesCadastro);
+    async function popularFuncoesUsuarios() {
+      if (usuarioLogado?.perfil !== 'admin') return;
+      if (!funcoesCarregadas) {
+        bancoFuncoes = await listarFuncoesPersonalizadas();
+        funcoesCarregadas = true;
+      }
+      ['cad-funcao', 'edit-funcao'].forEach(id => {
+        const select = document.getElementById(id);
+        if (!select) return;
+        const atual = select.value;
+        select.innerHTML = '<option value="">Usar somente o perfil nativo</option>' + bancoFuncoes
+          .filter(item => item.ativo !== false)
+          .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'))
+          .map(item => `<option value="${escaparHtml(item.id)}">${escaparHtml(item.nome)} · base ${escaparHtml(ROTULOS_PERFIL[item.perfilBase] || item.perfilBase)}</option>`).join('');
+        select.value = atual;
+      });
+    }
 
-    window.abrirModalCriacaoUsuario = function() {
+    function aplicarFuncaoAoPerfil(selectFuncaoId, selectPerfilId) {
+      const funcao = bancoFuncoes.find(item => item.id === document.getElementById(selectFuncaoId)?.value);
+      const perfil = document.getElementById(selectPerfilId);
+      if (funcao && perfil) {
+        perfil.value = funcao.perfilBase;
+        perfil.dispatchEvent(new Event('change'));
+      }
+    }
+
+    document.getElementById('cad-perfil')?.addEventListener('change', atualizarDivisoesCadastro);
+    document.getElementById('cad-funcao')?.addEventListener('change', () => aplicarFuncaoAoPerfil('cad-funcao', 'cad-perfil'));
+    document.getElementById('edit-funcao')?.addEventListener('change', () => aplicarFuncaoAoPerfil('edit-funcao', 'edit-perfil'));
+
+    window.abrirModalCriacaoUsuario = async function() {
+      await popularFuncoesUsuarios();
       atualizarDivisoesCadastro();
       abrirModalHistorico('modal-criacao-usuario', 'criacao-usuario');
     }
@@ -1973,11 +2167,12 @@
       const email = document.getElementById('cad-email').value.trim();
       const senha = document.getElementById('cad-senha').value;
       const perfil = document.getElementById('cad-perfil').value;
+      const funcaoId = document.getElementById('cad-funcao').value;
       const checkboxes = document.querySelectorAll('input[name="divisao-check"]:checked');
       const divisoes = perfil === 'conferente' ? Array.from(checkboxes).map(cb => cb.value) : [];
 
       try {
-        await criarUsuarioSeguro({ nome, email, senha, perfil, divisoesAtribuidas: divisoes });
+        await criarUsuarioSeguro({ nome, email, senha, perfil, funcaoId, divisoesAtribuidas: divisoes });
 
         notificarMensagem(`Colaborador ${nome} cadastrado com sucesso.`, 'sucesso');
         document.getElementById('form-cad-usuario').reset();
@@ -2145,7 +2340,7 @@
         const divisoes = u.divisoesAtribuidas || u.divisaoAtribuidas || [];
         return `<article class="user-row ${ativo ? '' : 'is-inactive'}" role="button" tabindex="0" data-user-details="${escaparHtml(u.uid)}" aria-label="Abrir detalhes de ${escaparHtml(u.nome)}">
           <div class="user-identity"><span class="user-avatar" data-user-avatar="${escaparHtml(u.uid)}">${escaparHtml(iniciaisUsuario(u.nome))}</span><div><strong>${escaparHtml(u.nome)}</strong><small>${escaparHtml(u.email)}</small></div></div>
-          <div data-label="Perfil"><span class="user-role role-${u.perfil}">${escaparHtml(rotuloPerfil[u.perfil] || u.perfil)}</span></div>
+          <div data-label="Perfil"><span class="user-role role-${u.perfil}">${escaparHtml(u.funcaoNome || rotuloPerfil[u.perfil] || u.perfil)}</span></div>
           <div data-label="Divisões" class="user-divisions">${u.perfil === 'conferente' ? escaparHtml(divisoes.join(', ') || 'Nenhuma') : 'Acesso global'}</div>
           <div data-label="Status"><span class="user-status ${ativo ? 'active' : 'inactive'}">${ativo ? 'Ativo' : 'Inativo'}</span></div>
           <div data-label="Cadastro" class="user-date">${formatarDataUsuario(u.criadoEm)}</div>
@@ -2234,6 +2429,7 @@
       document.getElementById('detalhes-usuario-nome').textContent = usuario.nome || 'Sem nome';
       document.getElementById('detalhes-usuario-email').textContent = usuario.email || 'Sem e-mail';
       document.getElementById('detalhes-usuario-perfil').textContent = rotuloPerfil[usuario.perfil] || usuario.perfil;
+      document.getElementById('detalhes-usuario-funcao').textContent = usuario.funcaoNome || 'Função nativa do perfil';
       document.getElementById('detalhes-usuario-status').innerHTML = `<span class="user-status ${ativo ? 'active' : 'inactive'}">${ativo ? 'Ativo' : 'Inativo'}</span>`;
       document.getElementById('detalhes-usuario-divisoes').textContent = usuario.perfil === 'conferente'
         ? (divisoes.join(', ') || 'Nenhuma divisão atribuída')
@@ -2331,7 +2527,7 @@
       }
     }
 
-    window.abrirModalEdicao = function(uid) {
+    window.abrirModalEdicao = async function(uid) {
       const user = bancoUsuarios.find(u => u.uid === uid);
       if (!user) return;
       if (usuarioLogado?.perfil !== 'admin') return notificarMensagem('Apenas Administradores podem editar usuários.', 'erro');
@@ -2342,6 +2538,8 @@
       document.getElementById('edit-uid').value = user.uid;
       document.getElementById('edit-nome').value = user.nome || '';
       document.getElementById('edit-email').value = user.email || '';
+      await popularFuncoesUsuarios();
+      document.getElementById('edit-funcao').value = user.funcaoId || '';
       
       const perfilSelect = document.getElementById('edit-perfil');
       const campoPerfilEdit = document.getElementById('edit-campo-perfil-container');
@@ -2385,12 +2583,13 @@
 
       if (usuarioLogado.perfil !== 'admin') return notificarMensagem('Apenas Administradores podem editar usuários.', 'erro');
       const perfilNovo = document.getElementById('edit-perfil').value;
+      const funcaoId = document.getElementById('edit-funcao').value;
 
       const checkboxes = document.querySelectorAll('input[name="edit-divisao-check"]:checked');
       const divisoes = perfilNovo === 'conferente' ? Array.from(checkboxes).map(cb => cb.value) : [];
 
       try {
-        await atualizarUsuarioSeguro({ uid, nome, perfil: perfilNovo, divisoesAtribuidas: divisoes });
+        await atualizarUsuarioSeguro({ uid, nome, perfil: perfilNovo, funcaoId, divisoesAtribuidas: divisoes });
         notificarMensagem("Dados atualizados com sucesso.", 'sucesso');
         await fecharModalHistorico('modal-edicao-usuario', 'edicao-usuario');
         await carregarUsuarios(true);
