@@ -21,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.13.11-h">
+  <link rel="stylesheet" href="./app.css?v=1.14.0-h.1">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div style="position:fixed;top:0;left:0;right:0;z-index:9999;background:#b45309;color:white;text-align:center;font:700 12px/28px system-ui,sans-serif;letter-spacing:.08em;pointer-events:none" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -30,7 +30,7 @@
   <div id="view-login" class="fixed inset-0 bg-slate-950 z-50 flex flex-col items-center justify-center p-4">
     <div class="bg-slate-800 border border-slate-700 w-full max-w-md p-6 rounded-2xl shadow-2xl space-y-5">
       <div class="text-center space-y-1">
-        <h1 class="text-2xl font-bold text-blue-400">📦 Patrimônio CM</h1>
+        <h1 class="text-2xl font-bold text-blue-400">CM APP</h1>
         <p class="text-xs text-slate-400">Entre com sua credencial institucional</p>
       </div>
 
@@ -54,7 +54,7 @@
 
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.11-H • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.14.0-H.1 • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -67,7 +67,7 @@
         <div class="brand-mark" aria-hidden="true">CM</div>
         <div class="sidebar-label">
           <strong>CM APP</strong>
-          <span>Patrimônio</span>
+          <span>Patrimônios</span>
         </div>
       </div>
 
@@ -86,7 +86,7 @@
           <span class="sidebar-label">Painel</span>
         </button>
 
-        <span class="sidebar-section-label sidebar-label">Patrimônio</span>
+        <span class="sidebar-section-label sidebar-label">Patrimônios</span>
         <button id="tab-btn-scanner" type="button" class="nav-item" data-nav-page="scanner">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7V4h3M17 4h3v3M20 17v3h-3M7 20H4v-3M7 9h10v6H7V9Z"/></svg>
           <span class="sidebar-label">Leitura</span>
@@ -121,7 +121,7 @@
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.13.11-H</span>
+        <span>v1.14.0-H.1</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -706,8 +706,8 @@
       </main>
 
       <footer class="app-footer">
-        <span>CM APP · Patrimônio</span>
-        <span>v1.13.11-H · HOMOLOGAÇÃO</span>
+        <span>CM APP · Patrimônios</span>
+        <span>v1.14.0-H.1 · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -908,6 +908,7 @@
   </div>
 
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.5.0/dist/driver.js.iife.js"></script>
-    <script type="module" src="./app.js?v=1.13.11-h"></script>
+    <script type="module" src="./app.js?v=1.14.0-h.1"></script>
 </body>
 </html>
+

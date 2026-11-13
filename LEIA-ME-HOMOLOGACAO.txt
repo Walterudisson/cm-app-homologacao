@@ -1,4 +1,23 @@
-CM APP v1.13.11-H — ambiente de homologação
+CM APP v1.14.0-H.1 — ambiente de homologação
+
+Sprint 1 — Base modular:
+- catálogo de módulos e páginas da plataforma em js/platform;
+- Patrimônios identificado como módulo ativo, com declaração e carregador próprios;
+- usuários, divisões, funções e perfil identificados como páginas comuns;
+- DSIPS registrado como planejado, sem tela ou operação disponível;
+- navegação valida páginas conhecidas e perfis antes de alterar a tela;
+- carregamento de Inventários e ouvintes de transferências preservado pelo adaptador;
+- interface e cache PWA identificados com a nova versão.
+
+Esta entrega não exige alterações de regras, Functions, Storage ou documentos existentes.
+Não executar migração ou importar a planilha nesta sprint.
+Roteiro, limites da validação e reversão: docs/SPRINT-1-BASE-MODULAR.md.
+Arquitetura e próximos passos: docs/ARQUITETURA-MODULAR.md.
+
+O seletor de módulos e as atribuições de acesso serão implementados na Sprint 2.
+O app.js ainda integra estado, eventos e serviços existentes; a extração é gradual.
+
+Referência da base anterior (v1.13.11-H):
 
 Projeto Firebase: cm-app-homologacao
 Firestore: (default)
@@ -24,3 +43,4 @@ Escopo v1.13.11-H:
 - funções personalizadas com perfil-base, descrição, estado e auditoria;
 - associação de funções personalizadas no cadastro e edição de usuários;
 - desativação e reativação de divisões por botão com confirmação.
+
