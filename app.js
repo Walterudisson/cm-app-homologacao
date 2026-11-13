@@ -15,6 +15,9 @@
       getCountFromServer
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
     import { auth, db } from "./js/config/firebase.js";
+    import { listarIdsPaginas, obterPagina, podeAbrirPagina } from "./js/platform/modules.js?v=1.14.0-h.1";
+    import { criarCarregadorPaginas } from "./js/platform/pages.js?v=1.14.0-h.1";
+    import { criarCarregadorPatrimonios } from "./js/modules/patrimonios/pages.js?v=1.14.0-h.1";
     import {
       ehPerfilValidador,
       prepararAtualizacaoPatrimonio,
@@ -53,7 +56,7 @@
       fecharCamadasNavegacao,
       fecharNavegacaoMovel,
       inicializarNavegacao
-    } from "./js/ui/navigation.js?v=1.12.0";
+    } from "./js/ui/navigation.js?v=1.14.0-h.1";
     import { inicializarPwa } from "./js/pwa.js?v=1.12.0";
 
     let usuarioLogado = null;
@@ -126,6 +129,33 @@
     const cacheSugestoes = new Map();
     const catalogoDivisoes = new Set();
     const resolvedoresHistorico = [];
+
+    const carregarPagina = criarCarregadorPaginas({
+      obterUsuario: () => usuarioLogado,
+      modulos: {
+        patrimonios: criarCarregadorPatrimonios({
+          obterUsuario: () => usuarioLogado,
+          carregarDashboard,
+          carregarCatalogoDivisoes,
+          carregarRelacaoPatrimonial,
+          temOuvinteTransferencias: () => unsubscribeTransferencias.length > 0,
+          iniciarOuvinteTransferencias,
+          carregarProgressoInventarios,
+          carregarHistoricoInventarios,
+          carregarHistoricoGeral,
+          atualizarEstadoDivisaoInventario
+        })
+      },
+      comuns: {
+        usuarios: async () => {
+          await carregarUsuarios();
+          await carregarCatalogoDivisoes();
+        },
+        divisoes: carregarGestaoDivisoes,
+        funcoes: carregarGestaoFuncoes,
+        perfil: atualizarDadosTelaPerfil
+      }
+    });
 
     const controladorCamera = criarControladorCamera({
       limparPlaqueta,
@@ -1430,23 +1460,19 @@
     });
 
     async function alternarAba(abaAtiva, { registrarHistorico = true, substituirHistorico = false } = {}) {
-      if (usuarioLogado && usuarioLogado.perfil === 'conferente') {
-        if (abaAtiva === 'transferencias' || abaAtiva === 'usuarios' || abaAtiva === 'divisoes' || abaAtiva === 'funcoes') {
-          return;
-        }
-      }
+      if (!podeAbrirPagina(usuarioLogado, abaAtiva)) return;
 
       if (registrarHistorico) registrarAbaHistorico(abaAtiva, { substituir: substituirHistorico });
       abaAtual = abaAtiva;
       ativarPagina(abaAtiva);
-      document.getElementById('escopo-barra').classList.toggle('hidden', !['dashboard', 'lista'].includes(abaAtiva));
+      document.getElementById('escopo-barra').classList.toggle('hidden', !obterPagina(abaAtiva).exibeEscopo);
       fecharNavegacaoMovel();
 
       if (abaAtiva !== 'scanner' && controladorCamera.estaAtiva()) {
         await controladorCamera.desligar({ retomarAposSalvar: true });
       }
 
-      ['dashboard', 'scanner', 'transferencias', 'usuarios', 'divisoes', 'funcoes', 'inventarios', 'lista', 'perfil'].forEach(aba => {
+      listarIdsPaginas().forEach(aba => {
         const sec = document.getElementById(`sec-${aba}`);
         if (sec) sec.classList.toggle('hidden', aba !== abaAtiva);
       });
@@ -1461,22 +1487,7 @@
       }
 
       try {
-        if (abaAtiva === 'dashboard') await carregarDashboard();
-        if (abaAtiva === 'scanner') await carregarCatalogoDivisoes();
-        if (abaAtiva === 'transferencias' && unsubscribeTransferencias.length === 0) iniciarOuvinteTransferencias();
-        if (abaAtiva === 'usuarios') {
-          await carregarUsuarios();
-          await carregarCatalogoDivisoes();
-        }
-        if (abaAtiva === 'divisoes') await carregarGestaoDivisoes();
-        if (abaAtiva === 'funcoes') await carregarGestaoFuncoes();
-        if (abaAtiva === 'inventarios') {
-          await carregarCatalogoDivisoes();
-          await Promise.all([carregarProgressoInventarios(), carregarHistoricoInventarios(), carregarHistoricoGeral()]);
-          if (usuarioLogado.perfil !== 'conferente') await atualizarEstadoDivisaoInventario();
-        }
-        if (abaAtiva === 'perfil') atualizarDadosTelaPerfil();
-        if (abaAtiva === 'lista') await carregarRelacaoPatrimonial();
+        await carregarPagina(abaAtiva);
       } catch (erro) {
         console.error(`Erro ao carregar a aba ${abaAtiva}:`, erro);
         notificarMensagem("Não foi possível carregar os dados desta tela. Verifique sua conexão e tente novamente.", 'erro');
@@ -3696,3 +3707,4 @@
       suggestionsBox.innerHTML = '';
       suggestionsBox.classList.add('hidden');
     }
+

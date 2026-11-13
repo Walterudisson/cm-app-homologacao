@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
+import { obterPagina, moduloDaPagina } from '../js/platform/modules.js';
 
 const raiz = new URL('../', import.meta.url);
 const [html, css, app, controlador, navegacao, feedback, firebase, perfilService, pwa] = await Promise.all([
@@ -69,8 +70,8 @@ test('o aviso pausado duplicado é ocultado quando o resultado está visível', 
   assert.match(controlador, /camera-status-result/);
 });
 
-test('a interface identifica a versão v1.13.9-H', () => {
-  assert.match(html, /v1\.13\.9-H • HOMOLOGAÇÃO/);
+test('a interface identifica a versão v1.14.0-H.1', () => {
+  assert.match(html, /v1\.14\.0-H\.1 • HOMOLOGAÇÃO/);
 });
 
 test('Gestão separa usuários e inventários em telas próprias', () => {
@@ -82,8 +83,8 @@ test('Gestão separa usuários e inventários em telas próprias', () => {
   const painelCiclo = html.indexOf('id="panel-gestao-ciclo"');
   assert.ok(inicioUsuarios >= 0 && inicioUsuarios < inicioInventarios);
   assert.ok(inicioInventarios < painelCiclo);
-  assert.match(navegacao, /inventarios: \{ titulo: 'Inventários'/);
-  assert.match(app, /abaAtiva === 'inventarios'/);
+  assert.equal(obterPagina('inventarios').titulo, 'Inventários');
+  assert.equal(moduloDaPagina('inventarios').id, 'patrimonios');
 });
 
 test('Conferente acessa progresso dos inventários sem ações de reinício', () => {
@@ -160,7 +161,8 @@ test('os resultados observados nos testes manuais usam tipos explícitos', () =>
 test('a tela de perfil reúne foto, abrangência e alteração de senha', () => {
   ['sec-perfil', 'profile-avatar', 'input-foto-perfil', 'perfil-divisoes', 'form-alterar-senha']
     .forEach(id => assert.match(html, new RegExp(`id=["']${id}["']`)));
-  assert.match(navegacao, /perfil: \{ titulo: 'Meu perfil'/);
+  assert.equal(obterPagina('perfil').titulo, 'Meu perfil');
+  assert.equal(moduloDaPagina('perfil'), null);
   assert.match(app, /reauthenticateWithCredential/);
   assert.match(app, /updatePassword/);
 });
@@ -185,3 +187,4 @@ test('a troca de senha preserva o formulário antes das operações assíncronas
   assert.match(app, /formulario\.reset\(\)/);
   assert.doesNotMatch(app, /evento\.currentTarget\.reset\(\)/);
 });
+

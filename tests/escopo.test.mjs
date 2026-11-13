@@ -34,8 +34,9 @@ test('a Relação usa o mesmo foco do Painel e bloqueia consulta sem escolha', a
   assert.doesNotMatch(app, /getElementById\('filtro-divisao'\)/);
 });
 
-test('a atualização do PWA inclui o módulo de escopo no shell v1.13.9', async () => {
+test('a atualização do PWA inclui o módulo de escopo no shell atual', async () => {
   const worker = await readFile(new URL('../service-worker.js', import.meta.url), 'utf8');
-  assert.match(worker, /const VERSAO = 'v1\.13\.9-homologacao'/);
+  assert.match(worker, /const VERSAO = 'v1\.14\.0-h\.1-homologacao'/);
   assert.match(worker, /'\.\/js\/core\/escopo\.js'/);
 });
+
