@@ -34,8 +34,8 @@ Usuários sem Patrimônios não iniciam suas consultas e ouvintes durante o logi
 
 1. Recuperar o pacote interno **CMAPP-v1.14.1-H.1-internal.zip** e abri-lo no Cloud Shell.
 2. Conferir que o projeto de destino é `cm-app-homologacao`.
-3. Na pasta do pacote, executar `npm --prefix functions install`.
-4. Publicar somente `functions:definirModulosUsuario,firestore:rules` no projeto HML.
+3. Na pasta do pacote, executar `bash publicar-hml.sh`.
+4. O script confere as Rules atuais, salva backup e só publica a nova função e as Rules se a base for compatível. Havendo diferenças ou falha de consulta, interrompe antes do deploy.
 5. Integrar o PR da Sprint 2 no repositório de homologação e aguardar o Pages.
 6. Confirmar v1.14.1-H.1 e executar a homologação abaixo com contas de teste.
 
