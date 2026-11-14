@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { internalFile } from './internal-source.mjs';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
@@ -10,8 +11,8 @@ const [app, html, css, config, servico, worker, regras, backend] = await Promise
   readFile(new URL('js/config/firebase.js', raiz), 'utf8'),
   readFile(new URL('js/services/usuarios.service.js', raiz), 'utf8'),
   readFile(new URL('service-worker.js', raiz), 'utf8'),
-  readFile(new URL('../../cm-app-v1.13.9-internal/firestore.rules', import.meta.url), 'utf8'),
-  readFile(new URL('../../cm-app-v1.13.9-internal/functions/index.js', import.meta.url), 'utf8')
+  readFile(internalFile('firestore.rules'), 'utf8'),
+  readFile(internalFile('functions/index.js'), 'utf8')
 ]);
 
 test('usa Cloud Functions no projeto regional e remove cadastro privilegiado do navegador', () => {
@@ -57,3 +58,4 @@ test('gestor consulta e Administrador mantém as ações de acesso', () => {
   assert.match(app, /Visualização disponível; alterações são exclusivas de Administradores/);
   assert.match(backend, /O Administrador não pode desativar a própria conta|Use Meu perfil/);
 });
+
