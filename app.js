@@ -15,9 +15,10 @@
       getCountFromServer
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
     import { auth, db } from "./js/config/firebase.js";
-    import { listarIdsPaginas, obterPagina, podeAbrirPagina } from "./js/platform/modules.js?v=1.14.0-h.1";
-    import { criarCarregadorPaginas } from "./js/platform/pages.js?v=1.14.0-h.1";
-    import { criarCarregadorPatrimonios } from "./js/modules/patrimonios/pages.js?v=1.14.0-h.1";
+    import { listarIdsPaginas, obterPagina, podeAbrirPagina, paginaInicialUsuario, modulosDoUsuario } from "./js/platform/modules.js?v=1.14.1-h.1";
+    import { criarInterfaceModulos } from "./js/ui/modules.js?v=1.14.1-h.1";
+    import { criarCarregadorPaginas } from "./js/platform/pages.js?v=1.14.1-h.1";
+    import { criarCarregadorPatrimonios } from "./js/modules/patrimonios/pages.js?v=1.14.1-h.1";
     import {
       ehPerfilValidador,
       prepararAtualizacaoPatrimonio,
@@ -41,7 +42,7 @@
       consultarEncerramentoGeral
     } from "./js/services/inventarios.service.js?v=1.13.6";
     import { obterUrlFotoPerfil, removerFotoPerfil, salvarFotoPerfil } from "./js/services/perfil.service.js";
-    import { alterarEstadoUsuario, atualizarUsuarioSeguro, criarUsuarioSeguro } from "./js/services/usuarios.service.js?v=1.13.7";
+    import { alterarEstadoUsuario, atualizarUsuarioSeguro, criarUsuarioSeguro, definirModulosUsuario } from "./js/services/usuarios.service.js?v=1.14.1-h.1";
     import {
       configurarHistoricoFeedback,
       confirmarAcao,
@@ -56,10 +57,11 @@
       fecharCamadasNavegacao,
       fecharNavegacaoMovel,
       inicializarNavegacao
-    } from "./js/ui/navigation.js?v=1.14.0-h.1";
+    } from "./js/ui/navigation.js?v=1.14.1-h.1";
     import { inicializarPwa } from "./js/pwa.js?v=1.12.0";
 
     let usuarioLogado = null;
+    let unsubscribeUsuario = null;
     let bancoPatrimonio = [];
     let bancoUsuarios = [];
     let bancoDivisoes = [];
@@ -133,6 +135,7 @@
     const carregarPagina = criarCarregadorPaginas({
       obterUsuario: () => usuarioLogado,
       modulos: {
+        dsips: async () => true,
         patrimonios: criarCarregadorPatrimonios({
           obterUsuario: () => usuarioLogado,
           carregarDashboard,
@@ -147,6 +150,7 @@
         })
       },
       comuns: {
+        modulos: () => interfaceModulos.carregar(),
         usuarios: async () => {
           await carregarUsuarios();
           await carregarCatalogoDivisoes();
@@ -155,6 +159,15 @@
         funcoes: carregarGestaoFuncoes,
         perfil: atualizarDadosTelaPerfil
       }
+    });
+
+    const interfaceModulos = criarInterfaceModulos({
+      obterUsuario: () => usuarioLogado,
+      navegar: aba => alternarAba(aba),
+      carregarUsuarios: () => carregarUsuarios(true),
+      salvarAcessos: definirModulosUsuario,
+      confirmar: confirmarAcao,
+      notificar: notificarMensagem
     });
 
     const controladorCamera = criarControladorCamera({
@@ -652,8 +665,10 @@
     });
 
     onAuthStateChanged(auth, async (user) => {
+      if (unsubscribeUsuario) { unsubscribeUsuario(); unsubscribeUsuario = null; }
       if (user) {
         const userDoc = await getDoc(doc(db, "usuarios", user.uid));
+        if (auth.currentUser?.uid !== user.uid) return;
         if (!userDoc.exists()) {
           await signOut(auth);
           return;
@@ -665,22 +680,36 @@
           notificarMensagem('Este acesso está desativado. Procure um Administrador.', 'erro');
           return;
         }
+        const assinaturaAcesso = dados => JSON.stringify([dados?.perfil, dados?.ativo, dados?.modulos]);
+        const assinaturaInicial = assinaturaAcesso(usuarioLogado);
+        unsubscribeUsuario = onSnapshot(doc(db, 'usuarios', user.uid), snapshot => {
+          if (usuarioLogado?.uid !== user.uid) return;
+          if (!snapshot.exists() || assinaturaAcesso(snapshot.data()) !== assinaturaInicial) {
+            notificarMensagem('Seu acesso foi atualizado. Entre novamente.', 'aviso');
+            signOut(auth);
+          }
+        }, erro => console.warn('Não foi possível acompanhar as alterações de acesso.', erro));
         
         document.getElementById('view-login').classList.add('hidden');
         document.getElementById('view-app').classList.remove('hidden');
         atualizarCabecalhoUsuario();
-        try { await carregarCatalogoDivisoes(); }
-        catch (erro) { console.warn('Catálogo indisponível ao abrir o aplicativo.', erro); }
-        inicializarEscopoVisualizacao();
+        const possuiPatrimonios = modulosDoUsuario(usuarioLogado).some(modulo => modulo.id === 'patrimonios');
+        if (possuiPatrimonios) {
+          try { await carregarCatalogoDivisoes(); }
+          catch (erro) { console.warn('Catálogo indisponível ao abrir o aplicativo.', erro); }
+          inicializarEscopoVisualizacao();
+        }
         await carregarFotoPerfilAtual();
-        atualizarCarrossel();
-        if (usuarioLogado.perfil !== 'conferente') iniciarOuvinteTransferencias();
-        await alternarAba('dashboard', { substituirHistorico: true });
-        agendarTutorialConferente();
+        if (auth.currentUser?.uid !== user.uid) return;
+        if (possuiPatrimonios) atualizarCarrossel();
+        if (possuiPatrimonios && usuarioLogado.perfil !== 'conferente') iniciarOuvinteTransferencias();
+        await alternarAba(paginaInicialUsuario(usuarioLogado), { substituirHistorico: true });
+        if (possuiPatrimonios) agendarTutorialConferente();
       } else {
         encerrarOuvinteTransferencias();
         if (controladorCamera.estaAtiva()) await controladorCamera.desligar({ limparResultado: true });
         usuarioLogado = null;
+        interfaceModulos.limpar();
         escopoVisualizacao = '';
         revisaoEscopo++;
         bancoPatrimonio = [];
@@ -1465,6 +1494,7 @@
       if (registrarHistorico) registrarAbaHistorico(abaAtiva, { substituir: substituirHistorico });
       abaAtual = abaAtiva;
       ativarPagina(abaAtiva);
+      interfaceModulos.sincronizar(abaAtiva);
       document.getElementById('escopo-barra').classList.toggle('hidden', !obterPagina(abaAtiva).exibeEscopo);
       fecharNavegacaoMovel();
 

@@ -26,8 +26,10 @@ O carregador de um módulo recebe as dependências por parâmetro. A plataforma 
 Firestore ou serviços de inventário. Telas comuns recebem carregadores próprios.
 Os erros continuam chegando ao tratamento de erro existente no ponto de entrada.
 
-DSIPS tem estado `planejado`, sem páginas. Não aparece como opção operacional e não recebe consultas.
-Nenhuma regra de negócio de Materiais foi implementada nesta sprint.
+Na Sprint 2, DSIPS passa a ter uma entrada de apresentação, identificada como Em preparação.
+O seletor e os menus por contexto usam o catálogo. Nenhuma regra de negócio de Materiais está implementada.
+Atribuições usam o campo protegido modulos do usuário, com função administrativa auditada e Rules por módulo.
+Detalhes de implantação e validação: SPRINT-2-MODULOS.md.
 
 ## Acesso e compatibilidade
 
@@ -37,8 +39,8 @@ acessíveis a Administrador e Gestor; Funções e permissões apenas a Administr
 conforme os controles de menu existentes. Conferente mantém as telas operacionais e Meu perfil.
 
 Essa guarda organiza a interface e não substitui autorização nas regras do Firestore e backend.
-O catálogo de módulos ativos não concede permissões de acesso a dados.
-Permissões adicionais existentes e regras de escrita não foram modificadas.
+O catálogo de módulos ativos não concede permissões de acesso a dados; a atribuição do usuário é verificada na interface e no backend.
+Permissões adicionais existentes foram preservadas. As Rules acrescentam a exigência de acesso a Patrimônios às coleções desse módulo.
 Não há migração de contas, divisões ou patrimônios, nem mudança de projeto Firebase.
 
 ## Extração gradual
@@ -50,8 +52,8 @@ Não se deve tratar esse adaptador como isolamento de dados ou de implantação.
 
 ## Próximas entregas
 
-1. Base modular: esta entrega, sujeita à homologação operacional.
-2. Seleção/troca de módulos e autorização de acesso por módulo, com validação no backend.
+1. Base modular: homologada pelo usuário.
+2. Seleção/troca de módulos e autorização de acesso: entrega candidata v1.14.1-H.1, com backend pendente de deploy e homologação.
 3. Cadastros e estoque do DSIPS; separar destinatários de materiais de contas operadoras.
 4. Cautelas com vários itens, devoluções totais/parciais e consulta por responsável.
 5. Conferências, ajustes/estornos auditáveis e consistência sob operações simultâneas.

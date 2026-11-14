@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { internalFile } from './internal-source.mjs';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
@@ -8,13 +9,13 @@ const [app, html, css, worker, storage, firebase] = await Promise.all([
   readFile(new URL('index.html', raiz), 'utf8'),
   readFile(new URL('app.css', raiz), 'utf8'),
   readFile(new URL('service-worker.js', raiz), 'utf8'),
-  readFile(new URL('../../cm-app-v1.13.9-internal/storage.rules', import.meta.url), 'utf8'),
-  readFile(new URL('../../cm-app-v1.13.9-internal/firebase.json', import.meta.url), 'utf8')
+  readFile(internalFile('storage.rules'), 'utf8'),
+  readFile(internalFile('firebase.json'), 'utf8')
 ]);
 
 test('preserva os ajustes da revisão corretiva anterior', () => {
-  assert.match(html, /v1\.13\.9-H/);
-  assert.match(worker, /v1\.13\.9-homologacao/);
+  assert.match(html, /v1\.14\.1-H\.1/);
+  assert.match(worker, /v1\.14\.1-h\.1-homologacao/);
 });
 
 test('lista permite ordenar pelos cabeçalhos e por seletor responsivo', () => {
@@ -47,3 +48,4 @@ test('regras do Storage permitem foto ao titular e leitura administrativa', () =
   assert.match(storage, /request\.resource\.size <= 2 \* 1024 \* 1024/);
   assert.match(storage, /request\.resource\.contentType\.matches\('image\/\.\*'\)/);
 });
+
