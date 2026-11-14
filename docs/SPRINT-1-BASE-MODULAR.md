@@ -1,5 +1,8 @@
 # Sprint 1 — Base modular do CMAPP
 
+Status: homologação funcional concluída pelo usuário, MOD-01 a MOD-13.
+O ajuste visual da faixa HML sobre a marca foi encaminhado para a Sprint 2.
+
 Versão candidata: **v1.14.0-H.1**. Ambiente exclusivo: HML.
 Base: `Walterudisson/cm-app-homologacao`, commit `330fb23b542707ee4e611b7301e815060cf72f4f`.
 

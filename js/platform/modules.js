@@ -1,4 +1,5 @@
 import { MODULO_PATRIMONIOS } from '../modules/patrimonios/module.js';
+import { MODULO_DSIPS } from '../modules/dsips/module.js';
 
 const perfisGestao = Object.freeze(['admin', 'gestor']);
 const comum = (titulo, area, nome, perfis) => Object.freeze({
@@ -8,6 +9,7 @@ const comum = (titulo, area, nome, perfis) => Object.freeze({
 });
 
 export const PAGINAS_COMUNS = Object.freeze({
+  modulos: comum('Módulos', 'Plataforma', 'Módulos'),
   usuarios: comum('Gestão de usuários', 'Gestão', 'Usuários', perfisGestao),
   divisoes: comum('Gestão de divisões', 'Gestão', 'Divisões', perfisGestao),
   funcoes: comum('Funções e permissões', 'Gestão', 'Funções', Object.freeze(['admin'])),
@@ -16,8 +18,7 @@ export const PAGINAS_COMUNS = Object.freeze({
 
 export const MODULOS = Object.freeze({
   patrimonios: MODULO_PATRIMONIOS,
-  // Planejado: sem telas, consultas, permissões ou operação nesta entrega.
-  dsips: Object.freeze({ id: 'dsips', nome: 'DSIPS', estado: 'planejado', paginas: Object.freeze({}) })
+  dsips: MODULO_DSIPS
 });
 
 export function listarModulosAtivos() {
@@ -40,11 +41,26 @@ export function listarIdsPaginas() {
   return [...Object.keys(PAGINAS_COMUNS), ...listarModulosAtivos().flatMap(modulo => Object.keys(modulo.paginas))];
 }
 
-// Guarda de navegação, não substitui as regras de autorização do backend.
-// A atribuição de módulos aos usuários será introduzida na Sprint 2.
+export function modulosDoUsuario(usuario) {
+  if (!usuario || usuario.ativo === false || !['admin', 'gestor', 'conferente'].includes(usuario.perfil)) return [];
+  if (usuario.perfil === 'admin') return listarModulosAtivos();
+  // Compatibilidade: ausência do campo mantém somente Patrimônios.
+  const ids = Object.hasOwn(usuario, 'modulos') ? usuario.modulos : ['patrimonios'];
+  if (!Array.isArray(ids)) return [];
+  return listarModulosAtivos().filter(modulo => ids.includes(modulo.id));
+}
+
+export function paginaInicialUsuario(usuario) {
+  const modulos = modulosDoUsuario(usuario);
+  return modulos.length === 1 ? modulos[0].paginaInicial : 'modulos';
+}
+
+// A mesma atribuição deve ser aplicada pelas Rules e pela função administrativa.
 export function podeAbrirPagina(usuario, id) {
   const pagina = obterPagina(id);
   if (!pagina || !usuario || usuario.ativo === false) return false;
   if (!['admin', 'gestor', 'conferente'].includes(usuario.perfil)) return false;
+  const modulo = moduloDaPagina(id);
+  if (modulo && !modulosDoUsuario(usuario).some(item => item.id === modulo.id)) return false;
   return !pagina.perfis || pagina.perfis.includes(usuario.perfil);
 }

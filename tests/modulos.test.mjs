@@ -12,9 +12,10 @@ const admin = { perfil: 'admin' };
 const gestor = { perfil: 'gestor' };
 const conferente = { perfil: 'conferente' };
 
-test('Patrimônios é o único módulo ativo; DSIPS planejado não tem rota', () => {
-  assert.deepEqual(listarModulosAtivos().map(modulo => modulo.id), ['patrimonios']);
-  assert.equal(MODULOS.dsips.estado, 'planejado');
+test('DSIPS tem entrada em preparação, sem rota de estoque ou cautela', () => {
+  assert.deepEqual(listarModulosAtivos().map(modulo => modulo.id), ['patrimonios', 'dsips']);
+  assert.equal(MODULOS.dsips.emPreparacao, true);
+  assert.ok(obterPagina('dsips-inicio'));
   assert.equal(obterPagina('dsips'), null);
   assert.equal(podeAbrirPagina(admin, 'dsips'), false);
 });

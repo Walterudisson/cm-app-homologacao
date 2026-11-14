@@ -1,4 +1,6 @@
 import test from 'node:test';
+import { situacaoPatrimonio } from '../js/core/relacao.js';
+import { internalFile } from './internal-source.mjs';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import {
@@ -10,7 +12,7 @@ const raiz = new URL('../', import.meta.url);
 const [app, html, regras] = await Promise.all([
   readFile(new URL('app.js', raiz), 'utf8'),
   readFile(new URL('index.html', raiz), 'utf8'),
-  readFile(new URL('../../cm-app-v1.13.9-internal/firestore.rules', import.meta.url), 'utf8')
+  readFile(internalFile('firestore.rules'), 'utf8')
 ]);
 
 const item = {
@@ -65,7 +67,7 @@ test('interface e fila distinguem sugestão de transferência física', () => {
 });
 
 test('revisão homologada mantém sugestão como pendente comum na Relação', () => {
-  assert.doesNotMatch(app, /PENDENTE · DESTINO SUGERIDO/);
+  assert.equal(situacaoPatrimonio({ sugestaoDestinoStatus: 'pendente', localizado: false }), 'pendentes');
   assert.match(app, /item\.sugestaoDestinoStatus === 'pendente' \? `<div>📍 Destino indicado/);
 });
 
@@ -79,7 +81,7 @@ test('Relação inicia expandida e oferece controles globais', () => {
 test('busca oculta sugestões e fila começa a contar no login', () => {
   assert.match(app, /function ocultarSugestoesPlaqueta\(\)/);
   assert.match(app, /async function buscarEExibirItem[\s\S]*?ocultarSugestoesPlaqueta\(\)/);
-  assert.match(app, /if \(usuarioLogado\.perfil !== 'conferente'\) iniciarOuvinteTransferencias\(\)/);
+  assert.match(app, /if \(possuiPatrimonios && usuarioLogado\.perfil !== 'conferente'\) iniciarOuvinteTransferencias\(\)/);
 });
 
 test('regras autorizam criação e resolução estritas da sugestão', () => {
@@ -88,3 +90,4 @@ test('regras autorizam criação e resolução estritas da sugestão', () => {
   assert.match(regras, /sugestaoDestinoPor\.uid == request\.auth\.uid/);
   assert.match(regras, /request\.resource\.data\.localizado == false/);
 });
+

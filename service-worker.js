@@ -1,4 +1,4 @@
-const VERSAO = 'v1.14.0-h.1-homologacao';
+const VERSAO = 'v1.14.1-h.1-homologacao';
 const CACHE_SHELL = `cmapp-shell-${VERSAO}`;
 const CACHE_RUNTIME = `cmapp-runtime-${VERSAO}`;
 const PREFIXO_CACHE = 'cmapp-';
@@ -20,6 +20,8 @@ const ARQUIVOS_SHELL = [
   './js/platform/pages.js',
   './js/modules/patrimonios/module.js',
   './js/modules/patrimonios/pages.js',
+  './js/modules/dsips/module.js',
+  './js/ui/modules.js',
   './js/controllers/camera.controller.js',
   './js/core/camera.js',
   './js/core/movimentacao.js',

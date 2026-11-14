@@ -36,7 +36,7 @@ test('a Relação usa o mesmo foco do Painel e bloqueia consulta sem escolha', a
 
 test('a atualização do PWA inclui o módulo de escopo no shell atual', async () => {
   const worker = await readFile(new URL('../service-worker.js', import.meta.url), 'utf8');
-  assert.match(worker, /const VERSAO = 'v1\.14\.0-h\.1-homologacao'/);
+  assert.match(worker, /const VERSAO = 'v1\.14\.1-h\.1-homologacao'/);
   assert.match(worker, /'\.\/js\/core\/escopo\.js'/);
 });
 

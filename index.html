@@ -21,10 +21,10 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.14.0-h.1">
+  <link rel="stylesheet" href="./app.css?v=1.14.1-h.1">
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
-  <div style="position:fixed;top:0;left:0;right:0;z-index:9999;background:#b45309;color:white;text-align:center;font:700 12px/28px system-ui,sans-serif;letter-spacing:.08em;pointer-events:none" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
+<body class="hml-env bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
+  <div class="hml-banner" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
 
   <!-- TELA DE LOGIN -->
   <div id="view-login" class="fixed inset-0 bg-slate-950 z-50 flex flex-col items-center justify-center p-4">
@@ -54,7 +54,7 @@
 
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.14.0-H.1 • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.14.1-H.1 • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -67,7 +67,7 @@
         <div class="brand-mark" aria-hidden="true">CM</div>
         <div class="sidebar-label">
           <strong>CM APP</strong>
-          <span>Patrimônios</span>
+          <span id="sidebar-module-name">Plataforma</span>
         </div>
       </div>
 
@@ -80,13 +80,17 @@
       </div>
 
       <nav class="sidebar-nav">
-        <span class="sidebar-section-label sidebar-label">Visão geral</span>
+        <button type="button" class="nav-item" data-nav-page="modulos">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4V4Zm10 0h6v6h-6V4ZM4 14h6v6H4v-6Zm10 0h6v6h-6v-6Z"/></svg>
+          <span class="sidebar-label">Módulos</span>
+        </button>
+        <span class="sidebar-section-label sidebar-label" data-module-context="patrimonios">Visão geral</span>
         <button id="tab-btn-dashboard" type="button" class="nav-item active" data-nav-page="dashboard">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13h6V4H4v9Zm0 7h6v-5H4v5Zm10 0h6v-9h-6v9Zm0-16v5h6V4h-6Z"/></svg>
           <span class="sidebar-label">Painel</span>
         </button>
 
-        <span class="sidebar-section-label sidebar-label">Patrimônios</span>
+        <span class="sidebar-section-label sidebar-label" data-module-context="patrimonios">Patrimônios</span>
         <button id="tab-btn-scanner" type="button" class="nav-item" data-nav-page="scanner">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7V4h3M17 4h3v3M20 17v3h-3M7 20H4v-3M7 9h10v6H7V9Z"/></svg>
           <span class="sidebar-label">Leitura</span>
@@ -100,12 +104,17 @@
           <span class="sidebar-label">Inventários</span>
         </button>
 
-        <span class="sidebar-section-label sidebar-label" data-perfis="admin,gestor">Gestão</span>
+        <span class="sidebar-section-label sidebar-label" data-module-context="dsips">DSIPS</span>
+        <button type="button" class="nav-item" data-nav-page="dsips-inicio">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16v13H4V7Zm2-3h12l2 3H4l2-3Z"/></svg>
+          <span class="sidebar-label">Início DSIPS</span>
+        </button>
         <button id="tab-btn-transferencias" type="button" class="nav-item" data-nav-page="transferencias" data-perfis="admin,gestor">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 3-3 3 3M10 4v10M17 17l-3 3-3-3M14 20V10"/></svg>
           <span class="sidebar-label">Fila de aprovação</span>
           <span id="badge-fila-count" class="hidden nav-badge sidebar-label">0</span>
         </button>
+        <span class="sidebar-section-label sidebar-label" data-perfis="admin,gestor">Administração</span>
         <button id="tab-btn-usuarios" type="button" class="nav-item" data-nav-page="usuarios" data-perfis="admin,gestor">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm7 8a7 7 0 0 0-14 0M19 8v6M16 11h6"/></svg>
           <span class="sidebar-label">Usuários</span>
@@ -121,7 +130,7 @@
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.14.0-H.1</span>
+        <span>v1.14.1-H.1</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -175,6 +184,32 @@
           </div>
           <select id="escopo-divisao" aria-describedby="escopo-descricao"></select>
         </div>
+
+      <section id="sec-modulos" class="hidden module-page">
+        <div><h2>Módulos do CM APP</h2><p>Escolha o módulo em que deseja trabalhar.</p></div>
+        <div id="module-cards" class="module-cards"></div>
+        <p id="module-empty" class="hidden">Nenhum módulo operacional atribuído. Procure o Administrador. Meu perfil continua disponível no menu da conta.</p>
+        <section id="module-access-panel" class="hidden module-access-panel" aria-labelledby="module-access-title">
+          <h3 id="module-access-title">Acesso aos módulos</h3>
+          <p>Defina os módulos disponíveis para cada usuário. Administradores têm acesso a todos os módulos.</p>
+          <form id="module-access-form">
+            <label for="module-access-user">Usuário</label>
+            <select id="module-access-user"><option value="">Selecione um usuário</option></select>
+            <fieldset><legend>Módulos permitidos</legend>
+              <label><input type="checkbox" value="patrimonios" data-module-grant disabled> Patrimônios</label>
+              <label><input type="checkbox" value="dsips" data-module-grant disabled> DSIPS — em preparação</label>
+            </fieldset>
+            <button id="module-access-save" type="submit" class="app-button app-button-primary" disabled>Salvar acessos</button>
+          </form>
+        </section>
+      </section>
+      <section id="sec-dsips-inicio" class="hidden module-page">
+        <div><h2>DSIPS</h2><p>Materiais e cautelas</p></div>
+        <div class="module-access-panel"><h3>Em preparação</h3>
+          <p>O espaço do módulo está pronto. Os cadastros e o estoque serão disponibilizados nas próximas entregas.</p>
+        </div>
+        <button type="button" class="app-button app-button-secondary" data-nav-page="modulos">Ver módulos</button>
+      </section>
 
       <!-- ABA 0: DASHBOARD -->
       <section id="sec-dashboard" class="space-y-5">
@@ -706,8 +741,8 @@
       </main>
 
       <footer class="app-footer">
-        <span>CM APP · Patrimônios</span>
-        <span>v1.14.0-H.1 · HOMOLOGAÇÃO</span>
+        <span id="footer-module-name">CM APP</span>
+        <span>v1.14.1-H.1 · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -908,7 +943,7 @@
   </div>
 
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.5.0/dist/driver.js.iife.js"></script>
-    <script type="module" src="./app.js?v=1.14.0-h.1"></script>
+    <script type="module" src="./app.js?v=1.14.1-h.1"></script>
 </body>
 </html>
 

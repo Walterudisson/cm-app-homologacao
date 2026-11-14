@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { internalFile } from './internal-source.mjs';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
@@ -8,7 +9,7 @@ const [app, html, css, worker, regras] = await Promise.all([
   readFile(new URL('index.html', raiz), 'utf8'),
   readFile(new URL('app.css', raiz), 'utf8'),
   readFile(new URL('service-worker.js', raiz), 'utf8'),
-  readFile(new URL('../../cm-app-v1.13.9-internal/firestore.rules', import.meta.url), 'utf8')
+  readFile(internalFile('firestore.rules'), 'utf8')
 ]);
 
 test('integra Driver.js de forma versionada e disponível no PWA', () => {
@@ -46,3 +47,4 @@ test('cards de usuários funcionam como filtros sincronizados', () => {
   assert.match(app, /cardUsuarioCorrespondente/);
   assert.match(css, /\.users-stats button\.is-selected/);
 });
+

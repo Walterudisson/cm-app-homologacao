@@ -1,4 +1,22 @@
-CM APP v1.14.0-H.1 — ambiente de homologação
+CM APP v1.14.1-H.1 — ambiente de homologação
+
+Sprint 2 — Navegação e acesso aos módulos:
+- seleção/troca de módulos pelo menu Módulos;
+- entrada direta para usuário com um módulo e seleção para usuários com dois;
+- Patrimônios e DSIPS com menus próprios; gestão e conta compartilhadas;
+- DSIPS possui somente uma página de apresentação, identificada como Em preparação;
+- gestão de atribuições por Administrador na tela Módulos;
+- usuários legados mantêm Patrimônios; Administradores acessam todos os módulos;
+- concessões e revogações dependem da função administrativa auditada no backend;
+- mudanças de acesso encerram a sessão para aplicar a nova autorização;
+- correção da sobreposição da faixa de HML no cabeçalho/menu móvel.
+
+ANTES de integrar esta versão ao HML, publicar o backend interno v1.14.1-H.1:
+functions:definirModulosUsuario e firestore:rules, projeto cm-app-homologacao.
+O pacote interno foi preparado a partir de CM-APP-v1.13.11-H-internal.zip.
+Roteiro e limites: docs/SPRINT-2-MODULOS.md.
+
+Referência da Sprint 1, homologada pelo usuário (MOD-01 a MOD-13):
 
 Sprint 1 — Base modular:
 - catálogo de módulos e páginas da plataforma em js/platform;

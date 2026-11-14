@@ -14,3 +14,8 @@ export function atualizarUsuarioSeguro(dados) {
 export function alterarEstadoUsuario(uid, ativo) {
   return chamar('alterarEstadoUsuario', { uid, ativo });
 }
+
+export function definirModulosUsuario(dados) {
+  return chamar('definirModulosUsuario', dados);
+}
+
