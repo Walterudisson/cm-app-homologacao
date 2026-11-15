@@ -21,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.15.0-h.1">
+  <link rel="stylesheet" href="./app.css?v=1.16.0-h.1">
 </head>
 <body class="hml-env bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div class="hml-banner" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -54,7 +54,7 @@
 
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.15.0-H.1 • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.16.0-H.1 • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -112,6 +112,8 @@
         <button type="button" class="nav-item" data-nav-page="dsips-materiais"><span aria-hidden="true">▣</span><span class="sidebar-label">Materiais</span></button>
         <button type="button" class="nav-item" data-nav-page="dsips-cadastros"><span aria-hidden="true">▤</span><span class="sidebar-label">Cadastros DSIPS</span></button>
         <button type="button" class="nav-item" data-nav-page="dsips-estoque"><span aria-hidden="true">▦</span><span class="sidebar-label">Estoque</span></button>
+        <button type="button" class="nav-item" data-nav-page="dsips-cautelas"><span aria-hidden="true">↔</span><span class="sidebar-label">Cautelas e devoluções</span></button>
+        <button type="button" class="nav-item" data-nav-page="dsips-posse"><span aria-hidden="true">♙</span><span class="sidebar-label">Quem está com o quê</span></button>
         <button type="button" class="nav-item" data-nav-page="dsips-historico" data-perfis="admin,gestor"><span aria-hidden="true">↺</span><span class="sidebar-label">Histórico DSIPS</span></button>
         <button id="tab-btn-transferencias" type="button" class="nav-item" data-nav-page="transferencias" data-perfis="admin,gestor">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 3-3 3 3M10 4v10M17 17l-3 3-3-3M14 20V10"/></svg>
@@ -134,7 +136,7 @@
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.15.0-H.1</span>
+        <span>v1.16.0-H.1</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -215,8 +217,9 @@
           <button type="button" class="module-card" data-nav-page="dsips-materiais"><strong>Materiais</strong><span>Cadastro e identificação dos materiais</span></button>
           <button type="button" class="module-card" data-nav-page="dsips-cadastros"><strong>Cadastros</strong><span>Categorias, locais e responsáveis</span></button>
           <button type="button" class="module-card" data-nav-page="dsips-estoque"><strong>Estoque</strong><span>Saldo inicial e unidades identificadas</span></button>
+          <button type="button" class="module-card" data-nav-page="dsips-cautelas"><strong>Cautelas e devoluções</strong><span>Entregar materiais e registrar o retorno</span></button>
+          <button type="button" class="module-card" data-nav-page="dsips-posse"><strong>Quem está com o quê</strong><span>Materiais pendentes por responsável</span></button>
         </div>
-        <p>Cautelas e devoluções serão disponibilizadas na próxima entrega.</p>
       </section>
       <section id="sec-dsips-materiais" class="hidden module-page">
         <div class="dsips-heading"><div><h2>Materiais</h2><p>Controle por quantidade ou por identificação individual.</p></div><button type="button" class="app-button app-button-secondary" data-dsips-refresh>Atualizar</button></div>
@@ -274,6 +277,37 @@
         <div class="dsips-heading"><div><h2>Histórico DSIPS</h2><p>Últimos 30 registros de cadastro e saldo inicial.</p></div><button type="button" class="app-button app-button-secondary" data-dsips-refresh>Atualizar</button></div>
         <p class="dsips-status" role="status" aria-live="polite"></p>
         <div id="dsips-event-list" class="dsips-list"></div>
+      </section>
+      <section id="sec-dsips-cautelas" class="hidden module-page">
+        <div class="dsips-heading"><div><h2>Cautelas e devoluções</h2><p>Saída e retorno de materiais, com atualização do estoque.</p></div><button type="button" class="app-button app-button-secondary" data-movement-refresh>Atualizar</button></div>
+        <p class="movement-status" role="status" aria-live="polite"></p>
+        <form id="dsips-cautela-form" class="module-access-panel dsips-form" data-movement-write>
+          <h3>Registrar cautela</h3>
+          <label>Responsável<select name="responsavelId" required></select></label>
+          <div id="dsips-cautela-rows" class="dsips-list"></div>
+          <button id="dsips-add-material" type="button" class="app-button app-button-secondary">Adicionar material</button>
+          <label>Observações<textarea name="observacoes" maxlength="500" rows="2"></textarea></label>
+          <button type="submit" class="app-button app-button-primary">Registrar cautela</button>
+        </form>
+        <form id="dsips-devolucao-form" class="hidden module-access-panel dsips-form">
+          <h3 id="dsips-devolucao-title">Registrar devolução</h3>
+          <p>Informe somente o que está retornando. O restante permanece em cautela.</p>
+          <div id="dsips-devolucao-rows" class="dsips-list"></div>
+          <button id="dsips-devolver-tudo" type="button" class="app-button app-button-secondary">Selecionar tudo pendente</button>
+          <label>Observações<textarea name="observacoes" maxlength="500" rows="2"></textarea></label>
+          <div class="dsips-actions"><button type="submit" class="app-button app-button-primary">Registrar devolução</button><button id="dsips-cancelar-devolucao" type="button" class="app-button app-button-secondary">Cancelar</button></div>
+        </form>
+        <div class="dsips-form-grid">
+          <label class="dsips-search">Pesquisar responsável ou material<input id="dsips-cautela-search" type="search"></label>
+          <label class="dsips-search">Situação<select id="dsips-cautela-status"><option value="pendentes">Em aberto</option><option value="todas">Todas</option><option value="aberta">Aberta</option><option value="parcial">Parcialmente devolvida</option><option value="encerrada">Encerrada</option></select></label>
+        </div>
+        <div id="dsips-cautela-list" class="dsips-list"></div>
+      </section>
+      <section id="sec-dsips-posse" class="hidden module-page">
+        <div class="dsips-heading"><div><h2>Quem está com o quê</h2><p>Somente materiais ainda pendentes de devolução.</p></div><button type="button" class="app-button app-button-secondary" data-movement-refresh>Atualizar</button></div>
+        <p class="movement-status" role="status" aria-live="polite"></p>
+        <label class="dsips-search">Pesquisar responsável, matrícula, material ou identificação<input id="dsips-posse-search" type="search"></label>
+        <div id="dsips-posse-list" class="dsips-list"></div>
       </section>
 
       <!-- ABA 0: DASHBOARD -->
@@ -807,7 +841,7 @@
 
       <footer class="app-footer">
         <span id="footer-module-name">CM APP</span>
-        <span>v1.15.0-H.1 · HOMOLOGAÇÃO</span>
+        <span>v1.16.0-H.1 · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -1008,7 +1042,7 @@
   </div>
 
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.5.0/dist/driver.js.iife.js"></script>
-    <script type="module" src="./app.js?v=1.15.0-h.1"></script>
+    <script type="module" src="./app.js?v=1.16.0-h.1"></script>
 </body>
 </html>
 

@@ -1,7 +1,7 @@
 # CMAPP — base modular
 
 Decisão: CMAPP reúne funcionalidades comuns e módulos de negócio no mesmo domínio.
-O primeiro módulo é Patrimônios; DSIPS começa futuramente por Materiais e Cautelas.
+O primeiro módulo é Patrimônios; DSIPS possui Materiais, estoque, Cautelas e devoluções na Sprint 4 (v1.16.0-H.1).
 
 ## Responsabilidades
 

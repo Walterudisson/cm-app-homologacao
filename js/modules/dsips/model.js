@@ -4,12 +4,13 @@ export const podeGerenciarDsips = usuario => ['admin', 'gestor'].includes(usuari
 export function identificadoresDoTexto(texto) {
   return String(texto || '').split(/\r?\n/).map(item => item.trim()).filter(Boolean);
 }
-export function resumoDsips({ materiais = [], estoque = [], responsaveis = [] }) {
+export function resumoDsips({ materiais = [], estoque = [], responsaveis = [], cautelas = [] }) {
   return {
     materiais: materiais.filter(item => item.ativo !== false).length,
     comSaldo: estoque.filter(item => item.total > 0).length,
     semSaldo: materiais.filter(item => item.ativo !== false && !item.saldoInicialRegistrado).length,
-    responsaveis: responsaveis.filter(item => item.ativo !== false).length
+    responsaveis: responsaveis.filter(item => item.ativo !== false).length,
+    cautelas: cautelas.filter(item => ['aberta', 'parcial'].includes(item.status)).length
   };
 }
 export function filtrarPorNome(itens, termo) {

@@ -12,13 +12,14 @@ const admin = { perfil: 'admin' };
 const gestor = { perfil: 'gestor' };
 const conferente = { perfil: 'conferente' };
 
-test('DSIPS possui cadastros e estoque, mantendo cautelas para a próxima entrega', () => {
+test('DSIPS possui cadastros, estoque e cautelas', () => {
   assert.deepEqual(listarModulosAtivos().map(modulo => modulo.id), ['patrimonios', 'dsips']);
   assert.equal(MODULOS.dsips.emPreparacao, undefined);
   assert.ok(obterPagina('dsips-inicio'));
   assert.ok(obterPagina('dsips-estoque'));
   assert.ok(obterPagina('dsips-materiais'));
-  assert.equal(obterPagina('dsips-cautelas'), null);
+  assert.ok(obterPagina('dsips-cautelas'));
+  assert.ok(obterPagina('dsips-posse'));
   assert.equal(obterPagina('dsips'), null);
   assert.equal(podeAbrirPagina(admin, 'dsips'), false);
 });

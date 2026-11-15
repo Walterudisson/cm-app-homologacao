@@ -1,82 +1,12 @@
-CM APP v1.15.0-H.1 — ambiente de homologação
+CM APP v1.16.0-H.1 — ambiente de homologação
 
-Sprint 3 — Cadastros e estoque do DSIPS:
-- materiais com controle por quantidade ou identificação individual;
-- categorias, locais e responsáveis independentes de contas de login;
-- sugestões de divisão/setor reaproveitam o cadastro comum de Divisões;
-- pesquisa, edição e inativação de cadastros, sem exclusão de histórico;
-- saldo inicial único por material, com local, quantidade, identificações e justificativa;
-- unidades identificadas, posição de estoque e histórico auditável;
-- gravações transacionais pelo backend, idempotência e proteção contra duplicidade;
-- Conferente consulta; Administrador e Gestor DSIPS gerenciam.
+Sprint 4 — Cautelas e devoluções DSIPS.
+Retirada com vários materiais; seleção de unidades identificadas; devolução parcial ou total;
+consulta Quem está com o quê; estoque e auditoria atualizados na mesma transação.
+Conferente consulta; Administrador e Gestor DSIPS registram movimentações.
 
-ANTES de integrar esta versão ao HML, publicar o pacote interno v1.15.0-H.1.
-Funções novas: dsipsSalvarCadastro, dsipsRegistrarSaldoInicial; atualizar firestore:rules.
-O script interno verifica as Rules atuais e executa os testes no Emulator Suite antes do deploy.
-138 verificações frontend, 14 cenários de integração e cinco testes de concessão aprovados.
-Roteiro de homologação em quatro blocos: docs/SPRINT-3-DSIPS.md.
-
-Referência da Sprint 2, funcionalmente homologada pelo usuário:
-
-Sprint 2 — Navegação e acesso aos módulos:
-- seleção/troca de módulos pelo menu Módulos;
-- entrada direta para usuário com um módulo e seleção para usuários com dois;
-- Patrimônios e DSIPS com menus próprios; gestão e conta compartilhadas;
-- DSIPS possui somente uma página de apresentação, identificada como Em preparação;
-- gestão de atribuições por Administrador na tela Módulos;
-- usuários legados mantêm Patrimônios; Administradores acessam todos os módulos;
-- concessões e revogações dependem da função administrativa auditada no backend;
-- mudanças de acesso encerram a sessão para aplicar a nova autorização;
-- correção da sobreposição da faixa de HML no cabeçalho/menu móvel.
-
-ANTES de integrar esta versão ao HML, publicar o backend interno v1.14.1-H.1:
-functions:definirModulosUsuario e firestore:rules, projeto cm-app-homologacao.
-O pacote interno foi preparado a partir de CM-APP-v1.13.11-H-internal.zip.
-Roteiro e limites: docs/SPRINT-2-MODULOS.md.
-
-Referência da Sprint 1, homologada pelo usuário (MOD-01 a MOD-13):
-
-Sprint 1 — Base modular:
-- catálogo de módulos e páginas da plataforma em js/platform;
-- Patrimônios identificado como módulo ativo, com declaração e carregador próprios;
-- usuários, divisões, funções e perfil identificados como páginas comuns;
-- DSIPS registrado como planejado, sem tela ou operação disponível;
-- navegação valida páginas conhecidas e perfis antes de alterar a tela;
-- carregamento de Inventários e ouvintes de transferências preservado pelo adaptador;
-- interface e cache PWA identificados com a nova versão.
-
-Esta entrega não exige alterações de regras, Functions, Storage ou documentos existentes.
-Não executar migração ou importar a planilha nesta sprint.
-Roteiro, limites da validação e reversão: docs/SPRINT-1-BASE-MODULAR.md.
-Arquitetura e próximos passos: docs/ARQUITETURA-MODULAR.md.
-
-O seletor de módulos e as atribuições de acesso serão implementados na Sprint 2.
-O app.js ainda integra estado, eventos e serviços existentes; a extração é gradual.
-
-Referência da base anterior (v1.13.11-H):
-
-Projeto Firebase: cm-app-homologacao
-Firestore: (default)
-Este pacote contém apenas dados de configuração públicos do aplicativo Web. Não concede acesso ao projeto sem as credenciais e regras publicadas.
-
-Antes dos arquivos do site, publique firestore.rules da entrega interna v1.13.10 no projeto cm-app-homologacao.
-Depois, publique o conteúdo desta pasta no repositório GitHub Pages exclusivo de homologação. Não substitua os arquivos do repositório de produção.
-Cloud Functions e Storage permanecem inalterados e não precisam de novo deploy.
-Crie usuários e dados fictícios antes dos testes operacionais.
-
-Escopo v1.13.11-H:
-- nova tela Gestão de Divisões para Administradores e Gestores;
-- cadastro de divisão e manutenção de situação ativa/inativa;
-- definição de responsável principal e substituto a partir dos usuários ativos;
-- pesquisa, filtro e indicadores gerenciais das divisões;
-- cards e abas sincronizados como filtros, ordenação desktop/mobile e paginação;
-- Administrador altera; Gestor possui acesso somente para consulta;
-- nome de divisão existente é imutável para preservar patrimônios e históricos;
-- trilha de auditoria registrada no próprio documento da divisão;
-- catálogo inicial de permissões para futura Matriz de Funções e Permissões;
-- manutenção integral das funcionalidades homologadas até a v1.13.9-H.2.
-- Gestão de Funções com matriz de permissões e funções nativas protegidas;
-- funções personalizadas com perfil-base, descrição, estado e auditoria;
-- associação de funções personalizadas no cadastro e edição de usuários;
-- desativação e reativação de divisões por botão com confirmação.
-
+Publicar primeiro o pacote interno CMAPP-v1.16.0-H.1-internal.zip.
+Novas funções: dsipsRegistrarCautela e dsipsRegistrarDevolucao, com firestore:rules.
+O script compara as Rules publicadas com a base, cria backup e testa no emulador antes do deploy HML.
+Roteiro em quatro blocos: docs/SPRINT-4-CAUTELAS.md.
+Produção permanece na versão anterior.

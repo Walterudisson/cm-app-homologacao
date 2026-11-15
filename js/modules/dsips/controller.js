@@ -1,5 +1,6 @@
 import { podeGerenciarDsips, identificadoresDoTexto, resumoDsips, filtrarPorNome } from './model.js';
 import { modulosDoUsuario } from '../../platform/modules.js';
+import { descricaoItens } from './cautelas-model.js';
 
 export function criarInterfaceDsips({ obterUsuario, servicos, confirmar, notificar }) {
   const porId = id => document.getElementById(id);
@@ -101,7 +102,7 @@ export function criarInterfaceDsips({ obterUsuario, servicos, confirmar, notific
       const unidades = await servicos.listarUnidades(id);
       if (usuarioUid !== obterUsuario()?.uid || atual !== revisao || pagina !== 'dsips-estoque') return;
       const container = porId('dsips-unit-list'); container.replaceChildren();
-      for (const unidade of unidades) linha(container, unidade.identificacao, `${nome('materiais', id)} · ${unidade.situacao} · ${nome('locais', unidade.localId)}`);
+      for (const unidade of unidades) linha(container, unidade.identificacao, `${nome('materiais', id)} · ${{ disponivel: 'Disponível', em_cautela: 'Em cautela' }[unidade.situacao] || unidade.situacao} · ${nome('locais', unidade.localId)}`);
       listaVazia(container); container.scrollIntoView({ block: 'nearest' });
     } catch (erro) { notificar(erro.message || 'Não foi possível consultar as unidades.', 'erro'); }
   }
@@ -121,7 +122,7 @@ export function criarInterfaceDsips({ obterUsuario, servicos, confirmar, notific
   function renderizarInicio() {
     const container = porId('dsips-kpis'); container.replaceChildren();
     const resumo = resumoDsips(dados);
-    for (const [chave, titulo] of Object.entries({ materiais: 'Materiais ativos', comSaldo: 'Materiais com estoque', semSaldo: 'Aguardando saldo inicial', responsaveis: 'Responsáveis ativos' })) {
+    for (const [chave, titulo] of Object.entries({ materiais: 'Materiais ativos', comSaldo: 'Materiais com estoque', semSaldo: 'Aguardando saldo inicial', responsaveis: 'Responsáveis ativos', cautelas: 'Cautelas em aberto' })) {
       const card = document.createElement('div'); card.className = 'module-access-panel';
       const forte = document.createElement('strong'); forte.textContent = String(resumo[chave]);
       const texto = document.createElement('span'); texto.textContent = titulo; card.append(forte, texto); container.appendChild(card);
@@ -132,6 +133,11 @@ export function criarInterfaceDsips({ obterUsuario, servicos, confirmar, notific
     for (const evento of eventos) {
       const data = evento.registradoEm?.toDate?.();
       const inicial = evento.tipo === 'saldo_inicial_registrado';
+      if (['cautela_registrada', 'devolucao_registrada'].includes(evento.tipo)) {
+        linha(container, `${evento.tipo === 'cautela_registrada' ? 'Cautela' : 'Devolução'} · ${evento.dados.responsavelNome}`,
+          [descricaoItens(evento.dados.itens), evento.operadorNome, data ? data.toLocaleString('pt-BR') : '', evento.dados.observacoes].filter(Boolean).join(' · '));
+        continue;
+      }
       const titulo = inicial ? `${evento.dados.materialNome || 'Material'} · Saldo inicial: ${evento.dados.quantidade} ${evento.dados.unidade || ''}` : `Cadastro · ${evento.dados.nome || ''}`;
       const descricao = [evento.operadorNome, data ? data.toLocaleString('pt-BR') : '', inicial ? evento.dados.localNome : '', inicial ? evento.dados.motivo : evento.dados.tipo].filter(Boolean).join(' · ');
       linha(container, titulo, descricao);
@@ -152,7 +158,7 @@ export function criarInterfaceDsips({ obterUsuario, servicos, confirmar, notific
       } else {
         const tipos = destino === 'dsips-materiais' ? ['materiais', 'categorias']
           : destino === 'dsips-cadastros' ? ['categorias', 'locais', 'responsaveis']
-          : destino === 'dsips-estoque' ? ['materiais', 'locais', 'estoque'] : ['materiais', 'estoque', 'responsaveis'];
+          : destino === 'dsips-estoque' ? ['materiais', 'locais', 'estoque'] : ['materiais', 'estoque', 'responsaveis', 'cautelas'];
         const resultado = await Promise.all(tipos.map(async tipo => [tipo, await servicos.listar(tipo)]));
         if (token !== revisao || uid !== obterUsuario()?.uid) return false;
         dados = { ...dados, ...Object.fromEntries(resultado) };
