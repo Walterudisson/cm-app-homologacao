@@ -55,7 +55,7 @@ export function criarInterfaceModulos({ obterUsuario, navegar, carregarUsuarios,
       const lista = await carregarUsuarios();
       // Uma resposta de outra sessão não pode popular o formulário administrativo.
       if (paginaAtual !== 'modulos' || obterUsuario()?.perfil !== 'admin' || obterUsuario()?.uid !== uid) return;
-      usuarios = lista.filter(item => item.perfil !== 'admin' && item.ativo !== false);
+      usuarios = lista.filter(item => ['gestor','conferente'].includes(item.perfil) && item.ativo !== false);
       const seletor = document.getElementById('module-access-user');
       seletor.replaceChildren(new Option('Selecione um usuário', ''));
       for (const item of usuarios) seletor.add(new Option(`${item.nome} · ${item.email || item.uid}`, item.uid));

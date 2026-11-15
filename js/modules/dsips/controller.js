@@ -11,7 +11,7 @@ export function criarInterfaceDsips({ obterUsuario, servicos, confirmar, notific
   const pendentes = new Map();
   const campos = form => form.elements;
   const tipoCatalogo = () => porId('dsips-catalog-type').value;
-  const chaveCatalogo = () => ({ categoria: 'categorias', local: 'locais', responsavel: 'responsaveis' })[tipoCatalogo()];
+  const chaveCatalogo = () => ({ categoria: 'categorias', local: 'locais' })[tipoCatalogo()];
   const nome = (tipo, id) => dados[tipo]?.find(item => item.id === id)?.nome || 'Cadastro não disponível';
   const autorizado = () => modulosDoUsuario(obterUsuario()).some(item => item.id === 'dsips');
   const podeEscrever = () => podeGerenciarDsips(obterUsuario());
@@ -47,7 +47,7 @@ export function criarInterfaceDsips({ obterUsuario, servicos, confirmar, notific
     porId('dsips-material-title').textContent = 'Novo material';
   }
   function editarMaterial(item) {
-    for (const chave of ['id', 'nome', 'categoriaId', 'controle', 'unidade', 'observacoes']) campos(formMaterial)[chave].value = item[chave] || '';
+    for (const chave of ['id', 'nome', 'categoriaId', 'controle', 'unidade', 'observacoes', 'icone', 'cor']) campos(formMaterial)[chave].value = item[chave] || ({ icone: 'caixa', cor: 'azul' })[chave] || '';
     campos(formMaterial).ativo.checked = item.ativo !== false;
     campos(formMaterial).controle.disabled = Boolean(item.saldoInicialRegistrado);
     campos(formMaterial).unidade.disabled = Boolean(item.saldoInicialRegistrado);
@@ -66,10 +66,6 @@ export function criarInterfaceDsips({ obterUsuario, servicos, confirmar, notific
   }
   function novoCatalogo() {
     formCatalogo.reset(); campos(formCatalogo).id.value = '';
-    const responsavel = tipoCatalogo() === 'responsavel';
-    porId('dsips-responsavel-fields').classList.toggle('hidden', !responsavel);
-    campos(formCatalogo).matricula.required = responsavel;
-    campos(formCatalogo).matricula.readOnly = false;
     porId('dsips-catalog-title').textContent = 'Novo cadastro';
   }
   function renderizarCatalogo() {
@@ -80,9 +76,6 @@ export function criarInterfaceDsips({ obterUsuario, servicos, confirmar, notific
         novoCatalogo(); campos(formCatalogo).id.value = item.id;
         campos(formCatalogo).nome.value = item.nome;
         campos(formCatalogo).ativo.checked = item.ativo !== false;
-        campos(formCatalogo).matricula.value = item.matricula || '';
-        campos(formCatalogo).matricula.readOnly = true;
-        campos(formCatalogo).setor.value = item.setor || '';
         porId('dsips-catalog-title').textContent = 'Editar cadastro';
         campos(formCatalogo).nome.focus();
       } : null);
@@ -122,7 +115,7 @@ export function criarInterfaceDsips({ obterUsuario, servicos, confirmar, notific
   function renderizarInicio() {
     const container = porId('dsips-kpis'); container.replaceChildren();
     const resumo = resumoDsips(dados);
-    for (const [chave, titulo] of Object.entries({ materiais: 'Materiais ativos', comSaldo: 'Materiais com estoque', semSaldo: 'Aguardando saldo inicial', responsaveis: 'Responsáveis ativos', cautelas: 'Cautelas em aberto' })) {
+    for (const [chave, titulo] of Object.entries({ materiais: 'Materiais ativos', comSaldo: 'Materiais com estoque', semSaldo: 'Aguardando saldo inicial', cautelas: 'Cautelas em aberto' })) {
       const card = document.createElement('div'); card.className = 'module-access-panel';
       const forte = document.createElement('strong'); forte.textContent = String(resumo[chave]);
       const texto = document.createElement('span'); texto.textContent = titulo; card.append(forte, texto); container.appendChild(card);
@@ -157,8 +150,8 @@ export function criarInterfaceDsips({ obterUsuario, servicos, confirmar, notific
         renderizarHistorico(eventos);
       } else {
         const tipos = destino === 'dsips-materiais' ? ['materiais', 'categorias']
-          : destino === 'dsips-cadastros' ? ['categorias', 'locais', 'responsaveis']
-          : destino === 'dsips-estoque' ? ['materiais', 'locais', 'estoque'] : ['materiais', 'estoque', 'responsaveis', 'cautelas'];
+          : destino === 'dsips-cadastros' ? ['categorias', 'locais']
+          : destino === 'dsips-estoque' ? ['materiais', 'locais', 'estoque'] : ['materiais', 'estoque', 'cautelas'];
         const resultado = await Promise.all(tipos.map(async tipo => [tipo, await servicos.listar(tipo)]));
         if (token !== revisao || uid !== obterUsuario()?.uid) return false;
         dados = { ...dados, ...Object.fromEntries(resultado) };
@@ -166,9 +159,6 @@ export function criarInterfaceDsips({ obterUsuario, servicos, confirmar, notific
         if (destino === 'dsips-materiais') renderizarMateriais();
         if (destino === 'dsips-cadastros') {
           novoCatalogo(); renderizarCatalogo();
-          const divisoes = await servicos.listarDivisoes();
-          if (token !== revisao || uid !== obterUsuario()?.uid) return false;
-          porId('dsips-divisoes').replaceChildren(...divisoes.nomes.map(nome => new Option(nome, nome)));
         }
         if (destino === 'dsips-estoque') { porId('dsips-unit-list').replaceChildren(); renderizarEstoque(); }
       }
@@ -210,14 +200,14 @@ export function criarInterfaceDsips({ obterUsuario, servicos, confirmar, notific
   formMaterial.addEventListener('submit', evento => {
     evento.preventDefault(); const f = campos(formMaterial); if (!f.id.value) f.id.value = crypto.randomUUID();
     void gravar(formMaterial, { tipo: 'material', id: f.id.value, dados: {
-      nome: f.nome.value, categoriaId: f.categoriaId.value, controle: f.controle.value, unidade: f.unidade.value,
+      nome: f.nome.value, categoriaId: f.categoriaId.value, icone: f.icone.value, cor: f.cor.value, controle: f.controle.value, unidade: f.unidade.value,
       observacoes: f.observacoes.value, ativo: f.ativo.checked
     } }, servicos.salvar, 'Material salvo.');
   });
   formCatalogo.addEventListener('submit', evento => {
     evento.preventDefault(); const f = campos(formCatalogo); if (!f.id.value) f.id.value = crypto.randomUUID();
     void gravar(formCatalogo, { tipo: tipoCatalogo(), id: f.id.value, dados: {
-      nome: f.nome.value, ativo: f.ativo.checked, ...(tipoCatalogo() === 'responsavel' ? { matricula: f.matricula.value, setor: f.setor.value } : {})
+      nome: f.nome.value, ativo: f.ativo.checked
     } }, servicos.salvar, 'Cadastro salvo.');
   });
   formSaldo.addEventListener('submit', evento => {

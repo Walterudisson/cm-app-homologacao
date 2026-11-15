@@ -62,3 +62,11 @@ Não se deve tratar esse adaptador como isolamento de dados ou de implantação.
 
 Inicialmente, o domínio e o login permanecem únicos. Subdomínio é uma decisão futura
 de hospedagem e sessão, independente da organização dos módulos.
+
+## Revisão DSIPS v1.16.1-H.1
+
+O atendimento em cards e cesta é a entrada do módulo. Responsáveis de novas cautelas são contas
+`usuarios/{uid}`; não há cadastro separado. O perfil nativo `usuario` abre somente `perfil`, sem módulos
+operacionais, independentemente de campos extras legados. Lista reduzida de usuários é fornecida
+por callable exclusiva da gestão DSIPS, preservando as Rules de consulta da coleção de usuários.
+Pré-cautela e consulta de disponibilidade por usuário básico permanecem no roadmap.
