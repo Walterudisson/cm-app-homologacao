@@ -40,6 +40,29 @@
     .module-access-panel label { display: flex; align-items: center; gap: .5rem; font-size: .8rem; }
     .module-access-panel button { justify-self: start; }
     .module-access-panel button:disabled { opacity: .5; cursor: not-allowed; }
+    .dsips-heading { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+    .dsips-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr)); gap: .8rem; }
+    .dsips-kpis strong { font-size: 1.7rem; color: #fff; }
+    .dsips-kpis span { color: var(--app-muted); font-size: .75rem; }
+    .dsips-form label, .dsips-search { display: grid; gap: .4rem; color: #cbd5e1; font-size: .8rem; }
+    .dsips-form input:not([type="checkbox"]), .dsips-form textarea, .dsips-search input, .dsips-search select { min-width: 0; width: 100%; border: 1px solid var(--app-border); border-radius: .6rem; padding: .65rem; background: var(--app-bg); color: var(--app-text); }
+    .dsips-form input:read-only { color: var(--app-muted); }
+    .dsips-form textarea { resize: vertical; }
+    .dsips-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .85rem; }
+    .dsips-form .dsips-check { display: flex; align-items: center; gap: .5rem; }
+    .dsips-actions { display: flex; flex-wrap: wrap; gap: .6rem; }
+    .dsips-list { display: grid; gap: .6rem; }
+    .dsips-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem; border: 1px solid var(--app-border); border-radius: .8rem; background: var(--app-surface); }
+    .dsips-row div { min-width: 0; overflow-wrap: anywhere; }
+    .dsips-row strong { color: #fff; font-size: .85rem; }
+    .dsips-row p { margin-top: .35rem; font-size: .75rem; }
+    .dsips-row button { flex-shrink: 0; }
+    .dsips-status:empty { display: none; }
+    @media (max-width: 639px) {
+      .dsips-form-grid { grid-template-columns: minmax(0, 1fr); }
+      .dsips-row { align-items: stretch; flex-direction: column; }
+      .dsips-row button { align-self: flex-start; }
+    }
     html { min-height: 100%; background: var(--app-bg); }
     body { min-height: 100dvh; background: var(--app-bg); color: var(--app-text); padding-bottom: env(safe-area-inset-bottom, 0px); }
     body.modal-open { overflow: hidden; }

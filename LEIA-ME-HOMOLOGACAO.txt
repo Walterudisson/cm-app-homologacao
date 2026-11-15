@@ -1,4 +1,22 @@
-CM APP v1.14.1-H.1 — ambiente de homologação
+CM APP v1.15.0-H.1 — ambiente de homologação
+
+Sprint 3 — Cadastros e estoque do DSIPS:
+- materiais com controle por quantidade ou identificação individual;
+- categorias, locais e responsáveis independentes de contas de login;
+- sugestões de divisão/setor reaproveitam o cadastro comum de Divisões;
+- pesquisa, edição e inativação de cadastros, sem exclusão de histórico;
+- saldo inicial único por material, com local, quantidade, identificações e justificativa;
+- unidades identificadas, posição de estoque e histórico auditável;
+- gravações transacionais pelo backend, idempotência e proteção contra duplicidade;
+- Conferente consulta; Administrador e Gestor DSIPS gerenciam.
+
+ANTES de integrar esta versão ao HML, publicar o pacote interno v1.15.0-H.1.
+Funções novas: dsipsSalvarCadastro, dsipsRegistrarSaldoInicial; atualizar firestore:rules.
+O script interno verifica as Rules atuais e executa os testes no Emulator Suite antes do deploy.
+138 verificações frontend, 14 cenários de integração e cinco testes de concessão aprovados.
+Roteiro de homologação em quatro blocos: docs/SPRINT-3-DSIPS.md.
+
+Referência da Sprint 2, funcionalmente homologada pelo usuário:
 
 Sprint 2 — Navegação e acesso aos módulos:
 - seleção/troca de módulos pelo menu Módulos;

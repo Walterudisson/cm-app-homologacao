@@ -59,7 +59,7 @@ test('seleção apresenta apenas módulos permitidos e o card abre o destino cor
     const cards = f.ids['module-cards'].children;
     assert.equal(cards.length, 1);
     assert.equal(cards[0].children[0].textContent, 'DSIPS');
-    assert.match(cards[0].children[2].textContent, /Em preparação/);
+    assert.match(cards[0].children[2].textContent, /Abrir módulo/);
     cards[0].listeners.click();
     assert.deepEqual(f.destinos, ['dsips-inicio']);
     assert.ok(f.ids['module-access-panel'].classes.has('hidden'));

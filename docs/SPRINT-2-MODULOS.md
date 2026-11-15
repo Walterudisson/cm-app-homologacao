@@ -1,5 +1,9 @@
 # Sprint 2 — Módulos e acessos
 
+Status: cenários funcionais homologados pelo usuário. As verificações técnicas de leitura
+direta, autoatribuição e concessão indevida foram executadas com sucesso no Emulator Suite
+durante a Sprint 3, incluindo as novas Rules. Isso não representa teste direto em HML.
+
 Versão candidata: **v1.14.1-H.1**. Destino: HML, após publicação do backend.
 A Sprint 1 (v1.14.0-H.1) foi homologada pelo usuário, MOD-01 a MOD-13.
 

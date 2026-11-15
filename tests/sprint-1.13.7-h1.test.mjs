@@ -14,8 +14,8 @@ const [app, html, css, worker, storage, firebase] = await Promise.all([
 ]);
 
 test('preserva os ajustes da revisão corretiva anterior', () => {
-  assert.match(html, /v1\.14\.1-H\.1/);
-  assert.match(worker, /v1\.14\.1-h\.1-homologacao/);
+  assert.match(html, /v1\.15\.0-H\.1/);
+  assert.match(worker, /v1\.15\.0-h\.1-homologacao/);
 });
 
 test('lista permite ordenar pelos cabeçalhos e por seletor responsivo', () => {

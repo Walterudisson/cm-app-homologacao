@@ -26,8 +26,9 @@ O carregador de um módulo recebe as dependências por parâmetro. A plataforma 
 Firestore ou serviços de inventário. Telas comuns recebem carregadores próprios.
 Os erros continuam chegando ao tratamento de erro existente no ponto de entrada.
 
-Na Sprint 2, DSIPS passa a ter uma entrada de apresentação, identificada como Em preparação.
-O seletor e os menus por contexto usam o catálogo. Nenhuma regra de negócio de Materiais está implementada.
+Na Sprint 3, DSIPS passa a ter início, materiais, cadastros, estoque e histórico.
+O seletor e os menus por contexto usam o catálogo. As gravações DSIPS passam por funções
+transacionais auditadas, com validação de módulo/perfil e regras que negam escrita direta.
 Atribuições usam o campo protegido modulos do usuário, com função administrativa auditada e Rules por módulo.
 Detalhes de implantação e validação: SPRINT-2-MODULOS.md.
 
@@ -53,8 +54,8 @@ Não se deve tratar esse adaptador como isolamento de dados ou de implantação.
 ## Próximas entregas
 
 1. Base modular: homologada pelo usuário.
-2. Seleção/troca de módulos e autorização de acesso: entrega candidata v1.14.1-H.1, com backend pendente de deploy e homologação.
-3. Cadastros e estoque do DSIPS; separar destinatários de materiais de contas operadoras.
+2. Seleção/troca de módulos e autorização de acesso: v1.14.1-H.1 publicada e funcionalmente homologada; checagens negativas executadas na Sprint 3 em emulador.
+3. Cadastros e estoque DSIPS: candidata v1.15.0-H.1, com responsáveis independentes de contas; detalhes em SPRINT-3-DSIPS.md.
 4. Cautelas com vários itens, devoluções totais/parciais e consulta por responsável.
 5. Conferências, ajustes/estornos auditáveis e consistência sob operações simultâneas.
 6. Painel, relatórios, avaliação da importação e homologação para produção.

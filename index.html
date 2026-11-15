@@ -21,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.14.1-h.1">
+  <link rel="stylesheet" href="./app.css?v=1.15.0-h.1">
 </head>
 <body class="hml-env bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div class="hml-banner" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -54,7 +54,7 @@
 
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.14.1-H.1 • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.15.0-H.1 • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -109,6 +109,10 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16v13H4V7Zm2-3h12l2 3H4l2-3Z"/></svg>
           <span class="sidebar-label">Início DSIPS</span>
         </button>
+        <button type="button" class="nav-item" data-nav-page="dsips-materiais"><span aria-hidden="true">▣</span><span class="sidebar-label">Materiais</span></button>
+        <button type="button" class="nav-item" data-nav-page="dsips-cadastros"><span aria-hidden="true">▤</span><span class="sidebar-label">Cadastros DSIPS</span></button>
+        <button type="button" class="nav-item" data-nav-page="dsips-estoque"><span aria-hidden="true">▦</span><span class="sidebar-label">Estoque</span></button>
+        <button type="button" class="nav-item" data-nav-page="dsips-historico" data-perfis="admin,gestor"><span aria-hidden="true">↺</span><span class="sidebar-label">Histórico DSIPS</span></button>
         <button id="tab-btn-transferencias" type="button" class="nav-item" data-nav-page="transferencias" data-perfis="admin,gestor">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 3-3 3 3M10 4v10M17 17l-3 3-3-3M14 20V10"/></svg>
           <span class="sidebar-label">Fila de aprovação</span>
@@ -130,7 +134,7 @@
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.14.1-H.1</span>
+        <span>v1.15.0-H.1</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -197,18 +201,79 @@
             <select id="module-access-user"><option value="">Selecione um usuário</option></select>
             <fieldset><legend>Módulos permitidos</legend>
               <label><input type="checkbox" value="patrimonios" data-module-grant disabled> Patrimônios</label>
-              <label><input type="checkbox" value="dsips" data-module-grant disabled> DSIPS — em preparação</label>
+              <label><input type="checkbox" value="dsips" data-module-grant disabled> DSIPS</label>
             </fieldset>
             <button id="module-access-save" type="submit" class="app-button app-button-primary" disabled>Salvar acessos</button>
           </form>
         </section>
       </section>
       <section id="sec-dsips-inicio" class="hidden module-page">
-        <div><h2>DSIPS</h2><p>Materiais e cautelas</p></div>
-        <div class="module-access-panel"><h3>Em preparação</h3>
-          <p>O espaço do módulo está pronto. Os cadastros e o estoque serão disponibilizados nas próximas entregas.</p>
+        <div class="dsips-heading"><div><h2>DSIPS</h2><p>Materiais e posição inicial de estoque.</p></div><button type="button" class="app-button app-button-secondary" data-dsips-refresh>Atualizar</button></div>
+        <p class="dsips-status" role="status" aria-live="polite"></p>
+        <div class="dsips-kpis" id="dsips-kpis"></div>
+        <div class="module-cards">
+          <button type="button" class="module-card" data-nav-page="dsips-materiais"><strong>Materiais</strong><span>Cadastro e identificação dos materiais</span></button>
+          <button type="button" class="module-card" data-nav-page="dsips-cadastros"><strong>Cadastros</strong><span>Categorias, locais e responsáveis</span></button>
+          <button type="button" class="module-card" data-nav-page="dsips-estoque"><strong>Estoque</strong><span>Saldo inicial e unidades identificadas</span></button>
         </div>
-        <button type="button" class="app-button app-button-secondary" data-nav-page="modulos">Ver módulos</button>
+        <p>Cautelas e devoluções serão disponibilizadas na próxima entrega.</p>
+      </section>
+      <section id="sec-dsips-materiais" class="hidden module-page">
+        <div class="dsips-heading"><div><h2>Materiais</h2><p>Controle por quantidade ou por identificação individual.</p></div><button type="button" class="app-button app-button-secondary" data-dsips-refresh>Atualizar</button></div>
+        <p class="dsips-status" role="status" aria-live="polite"></p>
+        <form id="dsips-material-form" class="module-access-panel dsips-form" data-dsips-write>
+          <h3 id="dsips-material-title">Novo material</h3><input type="hidden" name="id">
+          <div class="dsips-form-grid">
+            <label>Nome<input name="nome" required maxlength="120"></label>
+            <label>Categoria<select name="categoriaId" required></select></label>
+            <label>Controle<select name="controle"><option value="quantidade">Por quantidade</option><option value="individualizado">Individualizado</option></select></label>
+            <label>Unidade de medida<select name="unidade"><option value="un">Unidade</option><option value="par">Par</option><option value="caixa">Caixa</option><option value="kit">Kit</option></select></label>
+          </div>
+          <label>Observações<textarea name="observacoes" maxlength="500" rows="2"></textarea></label>
+          <label class="dsips-check"><input type="checkbox" name="ativo" checked> Material ativo</label>
+          <div class="dsips-actions"><button type="submit" class="app-button app-button-primary">Salvar material</button><button type="button" class="app-button app-button-secondary" id="dsips-material-new">Limpar formulário</button></div>
+        </form>
+        <label class="dsips-search">Pesquisar material<input type="search" id="dsips-material-search" placeholder="Nome do material"></label>
+        <div id="dsips-material-list" class="dsips-list"></div>
+      </section>
+      <section id="sec-dsips-cadastros" class="hidden module-page">
+        <div class="dsips-heading"><div><h2>Cadastros DSIPS</h2><p>Responsáveis por materiais não precisam ter conta no CM APP.</p></div><button type="button" class="app-button app-button-secondary" data-dsips-refresh>Atualizar</button></div>
+        <p class="dsips-status" role="status" aria-live="polite"></p>
+        <label class="dsips-search">Tipo de cadastro<select id="dsips-catalog-type"><option value="categoria">Categorias</option><option value="local">Locais de estoque</option><option value="responsavel">Responsáveis</option></select></label>
+        <form id="dsips-catalog-form" class="module-access-panel dsips-form" data-dsips-write>
+          <h3 id="dsips-catalog-title">Novo cadastro</h3><input type="hidden" name="id">
+          <label>Nome<input name="nome" required maxlength="120"></label>
+          <div id="dsips-responsavel-fields" class="hidden dsips-form-grid">
+            <label>Matrícula funcional<input name="matricula" maxlength="60"></label>
+            <label>Divisão / setor<input name="setor" maxlength="120" list="dsips-divisoes"><datalist id="dsips-divisoes"></datalist></label>
+          </div>
+          <label class="dsips-check"><input type="checkbox" name="ativo" checked> Cadastro ativo</label>
+          <div class="dsips-actions"><button type="submit" class="app-button app-button-primary">Salvar cadastro</button><button type="button" class="app-button app-button-secondary" id="dsips-catalog-new">Limpar formulário</button></div>
+        </form>
+        <label class="dsips-search">Pesquisar cadastro<input type="search" id="dsips-catalog-search" placeholder="Nome, matrícula ou setor"></label>
+        <div id="dsips-catalog-list" class="dsips-list"></div>
+      </section>
+      <section id="sec-dsips-estoque" class="hidden module-page">
+        <div class="dsips-heading"><div><h2>Estoque</h2><p>Posição inicial por material e local.</p></div><button type="button" class="app-button app-button-secondary" data-dsips-refresh>Atualizar</button></div>
+        <p class="dsips-status" role="status" aria-live="polite"></p>
+        <form id="dsips-saldo-form" class="module-access-panel dsips-form" data-dsips-write>
+          <h3>Registrar saldo inicial</h3><p>Um lançamento por material, com justificativa. Confira os dados: este registro não pode ser editado.</p>
+          <div class="dsips-form-grid">
+            <label>Material<select name="materialId" required></select></label>
+            <label>Local de estoque<select name="localId" required></select></label>
+            <label>Quantidade<input name="quantidade" type="number" min="0" max="1000000" step="1" required></label>
+          </div>
+          <label id="dsips-identificadores-field" class="hidden">Patrimônio ou série — uma identificação por linha (até 200)<textarea name="identificadores" rows="5" placeholder="Informe uma identificação por unidade"></textarea></label>
+          <label>Justificativa<textarea name="motivo" required maxlength="500" rows="2" placeholder="Ex.: conferência física do acervo em…"></textarea></label>
+          <button type="submit" class="app-button app-button-primary">Registrar saldo inicial</button>
+        </form>
+        <div id="dsips-stock-list" class="dsips-list"></div>
+        <div id="dsips-unit-list" class="dsips-list" aria-live="polite"></div>
+      </section>
+      <section id="sec-dsips-historico" class="hidden module-page">
+        <div class="dsips-heading"><div><h2>Histórico DSIPS</h2><p>Últimos 30 registros de cadastro e saldo inicial.</p></div><button type="button" class="app-button app-button-secondary" data-dsips-refresh>Atualizar</button></div>
+        <p class="dsips-status" role="status" aria-live="polite"></p>
+        <div id="dsips-event-list" class="dsips-list"></div>
       </section>
 
       <!-- ABA 0: DASHBOARD -->
@@ -742,7 +807,7 @@
 
       <footer class="app-footer">
         <span id="footer-module-name">CM APP</span>
-        <span>v1.14.1-H.1 · HOMOLOGAÇÃO</span>
+        <span>v1.15.0-H.1 · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -943,7 +1008,7 @@
   </div>
 
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.5.0/dist/driver.js.iife.js"></script>
-    <script type="module" src="./app.js?v=1.14.1-h.1"></script>
+    <script type="module" src="./app.js?v=1.15.0-h.1"></script>
 </body>
 </html>
 
