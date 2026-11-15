@@ -107,3 +107,7 @@ Reverter o frontend para a Sprint 2 mantém a interface anterior. Preservar dado
 autorizações do backend; não apagar estoques ou recibos para tentar corrigir lançamentos.
 Não reabrir escritas diretas nas coleções DSIPS. Comparar o backup antes de qualquer
 reversão das Rules, preservando o bloqueio de acesso por módulo.
+
+## Resultado da homologação
+
+Os quatro blocos foram aprovados pelo usuário em HML. Backend e frontend v1.15.0-H.1 publicados.

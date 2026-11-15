@@ -2,7 +2,7 @@ import { collection, getDocs, query, where, orderBy, limit } from 'https://www.g
 import { httpsCallable } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-functions.js';
 import { db, functions } from '../../config/firebase.js';
 
-const colecoes = Object.freeze({ categorias: 'dsipsCategorias', locais: 'dsipsLocais', responsaveis: 'dsipsResponsaveis', materiais: 'dsipsMateriais', estoque: 'dsipsEstoque' });
+const colecoes = Object.freeze({ categorias: 'dsipsCategorias', locais: 'dsipsLocais', responsaveis: 'dsipsResponsaveis', materiais: 'dsipsMateriais', estoque: 'dsipsEstoque', cautelas: 'dsipsCautelas' });
 export async function listarCadastroDsips(tipo) {
   if (!Object.hasOwn(colecoes, tipo)) throw new Error('Consulta inválida.');
   const snapshot = await getDocs(collection(db, colecoes[tipo]));
@@ -18,3 +18,5 @@ export async function listarUnidadesDsips(materialId) {
 }
 export const salvarCadastroDsips = dados => httpsCallable(functions, 'dsipsSalvarCadastro')(dados).then(result => result.data);
 export const registrarSaldoInicialDsips = dados => httpsCallable(functions, 'dsipsRegistrarSaldoInicial')(dados).then(result => result.data);
+export const registrarCautelaDsips = dados => httpsCallable(functions, 'dsipsRegistrarCautela')(dados).then(result => result.data);
+export const registrarDevolucaoDsips = dados => httpsCallable(functions, 'dsipsRegistrarDevolucao')(dados).then(result => result.data);

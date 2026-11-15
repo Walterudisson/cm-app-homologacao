@@ -15,12 +15,13 @@
       getCountFromServer
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
     import { auth, db } from "./js/config/firebase.js";
-    import { listarIdsPaginas, obterPagina, podeAbrirPagina, paginaInicialUsuario, modulosDoUsuario } from "./js/platform/modules.js?v=1.15.0-h.1";
-    import { criarInterfaceModulos } from "./js/ui/modules.js?v=1.15.0-h.1";
-    import { criarInterfaceDsips } from "./js/modules/dsips/controller.js?v=1.15.0-h.1";
-    import { listarCadastroDsips, listarEventosDsips, listarUnidadesDsips, salvarCadastroDsips, registrarSaldoInicialDsips } from "./js/modules/dsips/service.js?v=1.15.0-h.1";
-    import { criarCarregadorPaginas } from "./js/platform/pages.js?v=1.15.0-h.1";
-    import { criarCarregadorPatrimonios } from "./js/modules/patrimonios/pages.js?v=1.15.0-h.1";
+    import { listarIdsPaginas, obterPagina, podeAbrirPagina, paginaInicialUsuario, modulosDoUsuario } from "./js/platform/modules.js?v=1.16.0-h.1";
+    import { criarInterfaceModulos } from "./js/ui/modules.js?v=1.16.0-h.1";
+    import { criarInterfaceDsips } from "./js/modules/dsips/controller.js?v=1.16.0-h.1";
+    import { criarInterfaceCautelas } from "./js/modules/dsips/cautelas-controller.js?v=1.16.0-h.1";
+    import { listarCadastroDsips, listarEventosDsips, listarUnidadesDsips, salvarCadastroDsips, registrarSaldoInicialDsips, registrarCautelaDsips, registrarDevolucaoDsips } from "./js/modules/dsips/service.js?v=1.16.0-h.1";
+    import { criarCarregadorPaginas } from "./js/platform/pages.js?v=1.16.0-h.1";
+    import { criarCarregadorPatrimonios } from "./js/modules/patrimonios/pages.js?v=1.16.0-h.1";
     import {
       ehPerfilValidador,
       prepararAtualizacaoPatrimonio,
@@ -44,7 +45,7 @@
       consultarEncerramentoGeral
     } from "./js/services/inventarios.service.js?v=1.13.6";
     import { obterUrlFotoPerfil, removerFotoPerfil, salvarFotoPerfil } from "./js/services/perfil.service.js";
-    import { alterarEstadoUsuario, atualizarUsuarioSeguro, criarUsuarioSeguro, definirModulosUsuario } from "./js/services/usuarios.service.js?v=1.15.0-h.1";
+    import { alterarEstadoUsuario, atualizarUsuarioSeguro, criarUsuarioSeguro, definirModulosUsuario } from "./js/services/usuarios.service.js?v=1.16.0-h.1";
     import {
       configurarHistoricoFeedback,
       confirmarAcao,
@@ -59,7 +60,7 @@
       fecharCamadasNavegacao,
       fecharNavegacaoMovel,
       inicializarNavegacao
-    } from "./js/ui/navigation.js?v=1.15.0-h.1";
+    } from "./js/ui/navigation.js?v=1.16.0-h.1";
     import { inicializarPwa } from "./js/pwa.js?v=1.12.0";
 
     let usuarioLogado = null;
@@ -137,7 +138,7 @@
     const carregarPagina = criarCarregadorPaginas({
       obterUsuario: () => usuarioLogado,
       modulos: {
-        dsips: pagina => interfaceDsips.carregar(pagina),
+        dsips: pagina => ['dsips-cautelas', 'dsips-posse'].includes(pagina) ? interfaceCautelas.carregar(pagina) : interfaceDsips.carregar(pagina),
         patrimonios: criarCarregadorPatrimonios({
           obterUsuario: () => usuarioLogado,
           carregarDashboard,
@@ -177,6 +178,10 @@
         listar: listarCadastroDsips, listarEventos: listarEventosDsips, listarUnidades: listarUnidadesDsips,
         listarDivisoes: listarDivisoesAtivas, salvar: salvarCadastroDsips, saldoInicial: registrarSaldoInicialDsips
       }
+    });
+    const interfaceCautelas = criarInterfaceCautelas({
+      obterUsuario: () => usuarioLogado, confirmar: confirmarAcao, notificar: notificarMensagem,
+      servicos: { listar: listarCadastroDsips, listarUnidades: listarUnidadesDsips, registrarCautela: registrarCautelaDsips, registrarDevolucao: registrarDevolucaoDsips }
     });
 
     const controladorCamera = criarControladorCamera({
@@ -720,6 +725,7 @@
         usuarioLogado = null;
         interfaceModulos.limpar();
         interfaceDsips.limpar();
+        interfaceCautelas.limpar();
         escopoVisualizacao = '';
         revisaoEscopo++;
         bancoPatrimonio = [];
@@ -1501,6 +1507,7 @@
     async function alternarAba(abaAtiva, { registrarHistorico = true, substituirHistorico = false } = {}) {
       if (!podeAbrirPagina(usuarioLogado, abaAtiva)) return;
       interfaceDsips.sairDaPagina();
+      interfaceCautelas.sairDaPagina();
 
       if (registrarHistorico) registrarAbaHistorico(abaAtiva, { substituir: substituirHistorico });
       abaAtual = abaAtiva;
