@@ -48,3 +48,9 @@ Ajustes, estornos e conferência ficam para Sprint 5; relatórios e importação
 Consultas ainda carregam os registros necessários integralmente; paginação será necessária com crescimento.
 Reverter frontend mantém os dados e histórico. Não apagar recibos nem reabrir escritas diretas para corrigir
 lançamentos. Reversão de Rules exige comparação do backup para preservar o isolamento por módulo.
+
+## Homologação da entrega original
+
+Em 15/11/2026, o usuário confirmou a realização e aprovação dos testes informados para v1.16.0-H.1.
+Os requisitos posteriores de responsáveis vinculados a contas e atendimento PDV são tratados na revisão
+v1.16.1-H.1, com homologação própria. A aprovação anterior não se estende à nova revisão.

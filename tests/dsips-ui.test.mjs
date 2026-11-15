@@ -51,18 +51,12 @@ test('material usa categoria existente e renderiza nomes como texto, sem HTML ex
     assert.match(f.porId('dsips-material-list').textContent, /<img src=x/);
   } finally { f.fechar(); }
 });
-test('responsável não exige conta e reaproveita sugestões de divisão', async () => {
-  const f = ambiente();
-  try {
+test('cadastros DSIPS mantêm apenas categorias e locais, reaproveitando usuários nas cautelas', async () => {
+  const f = ambiente(); try {
     await f.ui.carregar('dsips-cadastros');
-    assert.match(f.porId('dsips-divisoes').innerHTML, /Divisão compartilhada/);
-    const tipo = f.porId('dsips-catalog-type'); tipo.value = 'responsavel';
-    tipo.dispatchEvent(new f.dom.window.Event('change'));
-    const form = f.porId('dsips-catalog-form'); form.elements.nome.value = 'Pessoa sem login';
-    form.elements.matricula.value = '123'; form.elements.setor.value = 'Divisão compartilhada';
-    f.enviar(form); await aguardar();
-    assert.equal(f.chamadas[0].tipo, 'responsavel'); assert.equal(f.chamadas[0].dados.matricula, '123');
-    assert.equal(f.chamadas[0].dados.uid, undefined);
+    assert.deepEqual([...f.porId('dsips-catalog-type').options].map(item=>item.value),['categoria','local']);
+    const form=f.porId('dsips-catalog-form');form.elements.nome.value='Nova categoria';f.enviar(form);await aguardar();
+    assert.equal(f.chamadas[0].tipo,'categoria');assert.equal(f.chamadas[0].dados.nome,'Nova categoria');
   } finally { f.fechar(); }
 });
 test('saldo individualizado conta linhas, confirma e atualiza a posição de estoque', async () => {

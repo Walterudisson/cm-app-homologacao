@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile, access } from 'node:fs/promises';
 import {
   MODULOS, listarModulosAtivos, listarIdsPaginas, obterPagina,
-  moduloDaPagina, podeAbrirPagina
+  moduloDaPagina, podeAbrirPagina, paginaInicialUsuario, modulosDoUsuario
 } from '../js/platform/modules.js';
 import { criarCarregadorPaginas } from '../js/platform/pages.js';
 import { criarCarregadorPatrimonios } from '../js/modules/patrimonios/pages.js';
@@ -172,4 +172,11 @@ test('todos os novos módulos fazem parte do shell PWA e seus imports locais exi
       await access(new URL(importacao, arquivo));
     }
   }
+});
+
+test('Usuário básico abre somente Meu perfil, mesmo com módulos operacionais indevidamente gravados',()=>{
+ const user={perfil:'usuario',ativo:true,modulos:['dsips','patrimonios']};
+ assert.equal(paginaInicialUsuario(user),'perfil');assert.deepEqual(modulosDoUsuario(user),[]);
+ for(const id of listarIdsPaginas())assert.equal(podeAbrirPagina(user,id),id==='perfil',id);
+ assert.equal(podeAbrirPagina({...user,ativo:false},'perfil'),false);
 });

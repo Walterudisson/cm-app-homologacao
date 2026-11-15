@@ -51,6 +51,7 @@ export function modulosDoUsuario(usuario) {
 }
 
 export function paginaInicialUsuario(usuario) {
+  if (usuario?.perfil === 'usuario') return 'perfil';
   const modulos = modulosDoUsuario(usuario);
   return modulos.length === 1 ? modulos[0].paginaInicial : 'modulos';
 }
@@ -59,6 +60,7 @@ export function paginaInicialUsuario(usuario) {
 export function podeAbrirPagina(usuario, id) {
   const pagina = obterPagina(id);
   if (!pagina || !usuario || usuario.ativo === false) return false;
+  if (usuario.perfil === 'usuario') return id === 'perfil';
   if (!['admin', 'gestor', 'conferente'].includes(usuario.perfil)) return false;
   const modulo = moduloDaPagina(id);
   if (modulo && !modulosDoUsuario(usuario).some(item => item.id === modulo.id)) return false;

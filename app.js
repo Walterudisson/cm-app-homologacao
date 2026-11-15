@@ -15,13 +15,13 @@
       getCountFromServer
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
     import { auth, db } from "./js/config/firebase.js";
-    import { listarIdsPaginas, obterPagina, podeAbrirPagina, paginaInicialUsuario, modulosDoUsuario } from "./js/platform/modules.js?v=1.16.0-h.1";
-    import { criarInterfaceModulos } from "./js/ui/modules.js?v=1.16.0-h.1";
-    import { criarInterfaceDsips } from "./js/modules/dsips/controller.js?v=1.16.0-h.1";
-    import { criarInterfaceCautelas } from "./js/modules/dsips/cautelas-controller.js?v=1.16.0-h.1";
-    import { listarCadastroDsips, listarEventosDsips, listarUnidadesDsips, salvarCadastroDsips, registrarSaldoInicialDsips, registrarCautelaDsips, registrarDevolucaoDsips } from "./js/modules/dsips/service.js?v=1.16.0-h.1";
-    import { criarCarregadorPaginas } from "./js/platform/pages.js?v=1.16.0-h.1";
-    import { criarCarregadorPatrimonios } from "./js/modules/patrimonios/pages.js?v=1.16.0-h.1";
+    import { listarIdsPaginas, obterPagina, podeAbrirPagina, paginaInicialUsuario, modulosDoUsuario } from "./js/platform/modules.js?v=1.16.1-h.1";
+    import { criarInterfaceModulos } from "./js/ui/modules.js?v=1.16.1-h.1";
+    import { criarInterfaceDsips } from "./js/modules/dsips/controller.js?v=1.16.1-h.1";
+    import { criarInterfaceCautelas } from "./js/modules/dsips/cautelas-controller.js?v=1.16.1-h.1";
+    import { listarCadastroDsips, listarEventosDsips, listarUnidadesDsips, salvarCadastroDsips, registrarSaldoInicialDsips, registrarCautelaDsips, registrarDevolucaoDsips } from "./js/modules/dsips/service.js?v=1.16.1-h.1";
+    import { criarCarregadorPaginas } from "./js/platform/pages.js?v=1.16.1-h.1";
+    import { criarCarregadorPatrimonios } from "./js/modules/patrimonios/pages.js?v=1.16.1-h.1";
     import {
       ehPerfilValidador,
       prepararAtualizacaoPatrimonio,
@@ -45,7 +45,7 @@
       consultarEncerramentoGeral
     } from "./js/services/inventarios.service.js?v=1.13.6";
     import { obterUrlFotoPerfil, removerFotoPerfil, salvarFotoPerfil } from "./js/services/perfil.service.js";
-    import { alterarEstadoUsuario, atualizarUsuarioSeguro, criarUsuarioSeguro, definirModulosUsuario } from "./js/services/usuarios.service.js?v=1.16.0-h.1";
+    import { alterarEstadoUsuario, atualizarUsuarioSeguro, criarUsuarioSeguro, definirModulosUsuario } from "./js/services/usuarios.service.js?v=1.16.1-h.1";
     import {
       configurarHistoricoFeedback,
       confirmarAcao,
@@ -60,7 +60,7 @@
       fecharCamadasNavegacao,
       fecharNavegacaoMovel,
       inicializarNavegacao
-    } from "./js/ui/navigation.js?v=1.16.0-h.1";
+    } from "./js/ui/navigation.js?v=1.16.1-h.1";
     import { inicializarPwa } from "./js/pwa.js?v=1.12.0";
 
     let usuarioLogado = null;
@@ -802,7 +802,7 @@
           btnFuncoes?.classList.remove('hidden');
           btnInventarios.classList.remove('hidden');
           campoPerfil.classList.remove('hidden');
-          tituloCad.innerText = "👥 Cadastrar Novo Gestor ou Conferente";
+          tituloCad.innerText = "👥 Cadastrar usuário";
         }
       }
 
@@ -813,13 +813,13 @@
       document.getElementById('perfil-nome').textContent = usuarioLogado.nome || 'Usuário';
       document.getElementById('perfil-editar-nome').value = usuarioLogado.nome || '';
       document.getElementById('perfil-email').textContent = usuarioLogado.email || 'Não informado';
-      document.getElementById('perfil-papel').textContent = usuarioLogado.perfil || 'Não informado';
+      document.getElementById('perfil-papel').textContent = usuarioLogado.perfil === 'usuario' ? 'Usuário básico' : usuarioLogado.perfil || 'Não informado';
       const divisoes = usuarioLogado.perfil === 'conferente'
         ? [...new Set(usuarioLogado.divisoesAtribuidas || [])].sort((a, b) => a.localeCompare(b, 'pt-BR'))
         : [];
       document.getElementById('perfil-divisoes').textContent = divisoes.length
         ? divisoes.join(', ')
-        : 'Abrangência global no módulo de patrimônio';
+        : usuarioLogado.perfil === 'usuario' ? 'Acesso ao próprio perfil' : 'Abrangência global no módulo de patrimônio';
       document.getElementById('btn-remover-foto')?.classList.toggle('hidden', !fotoPerfilUrl);
     }
 
@@ -1225,7 +1225,7 @@
       });
     }
 
-    const ROTULOS_PERFIL = { admin: 'Administrador', gestor: 'Gestor', conferente: 'Conferente' };
+    const ROTULOS_PERFIL = { admin: 'Administrador', gestor: 'Gestor', conferente: 'Conferente', usuario: 'Usuário básico' };
 
     function funcoesNativas() {
       return Object.entries(FUNCOES_NATIVAS).map(([id, permissoes]) => ({
@@ -2393,14 +2393,14 @@
       paginaUsuarios = Math.min(paginaUsuarios, totalPaginas);
       const inicio = (paginaUsuarios - 1) * porPagina;
       const pagina = usuariosFinais.slice(inicio, inicio + porPagina);
-      const rotuloPerfil = { admin: 'Administrador', gestor: 'Gestor', conferente: 'Conferente' };
+      const rotuloPerfil = { admin: 'Administrador', gestor: 'Gestor', conferente: 'Conferente', usuario: 'Usuário básico' };
       container.innerHTML = pagina.map(u => {
         const ativo = u.ativo !== false;
         const divisoes = u.divisoesAtribuidas || u.divisaoAtribuidas || [];
         return `<article class="user-row ${ativo ? '' : 'is-inactive'}" role="button" tabindex="0" data-user-details="${escaparHtml(u.uid)}" aria-label="Abrir detalhes de ${escaparHtml(u.nome)}">
           <div class="user-identity"><span class="user-avatar" data-user-avatar="${escaparHtml(u.uid)}">${escaparHtml(iniciaisUsuario(u.nome))}</span><div><strong>${escaparHtml(u.nome)}</strong><small>${escaparHtml(u.email)}</small></div></div>
           <div data-label="Perfil"><span class="user-role role-${u.perfil}">${escaparHtml(u.funcaoNome || rotuloPerfil[u.perfil] || u.perfil)}</span></div>
-          <div data-label="Divisões" class="user-divisions">${u.perfil === 'conferente' ? escaparHtml(divisoes.join(', ') || 'Nenhuma') : 'Acesso global'}</div>
+          <div data-label="Divisões" class="user-divisions">${u.perfil === 'usuario' ? 'Próprio perfil' : u.perfil === 'conferente' ? escaparHtml(divisoes.join(', ') || 'Nenhuma') : 'Acesso global'}</div>
           <div data-label="Status"><span class="user-status ${ativo ? 'active' : 'inactive'}">${ativo ? 'Ativo' : 'Inativo'}</span></div>
           <div data-label="Cadastro" class="user-date">${formatarDataUsuario(u.criadoEm)}</div>
           <div data-label="Detalhes"><span class="user-open-details">Abrir perfil →</span></div>
@@ -2482,7 +2482,7 @@
       usuarioDetalhadoUid = uid;
       const ativo = usuario.ativo !== false;
       const divisoes = usuario.divisoesAtribuidas || usuario.divisaoAtribuidas || [];
-      const rotuloPerfil = { admin: 'Administrador', gestor: 'Gestor', conferente: 'Conferente' };
+      const rotuloPerfil = { admin: 'Administrador', gestor: 'Gestor', conferente: 'Conferente', usuario: 'Usuário básico' };
       const avatar = document.getElementById('detalhes-usuario-avatar');
       avatar.textContent = iniciaisUsuario(usuario.nome);
       document.getElementById('detalhes-usuario-nome').textContent = usuario.nome || 'Sem nome';
@@ -2492,7 +2492,7 @@
       document.getElementById('detalhes-usuario-status').innerHTML = `<span class="user-status ${ativo ? 'active' : 'inactive'}">${ativo ? 'Ativo' : 'Inativo'}</span>`;
       document.getElementById('detalhes-usuario-divisoes').textContent = usuario.perfil === 'conferente'
         ? (divisoes.join(', ') || 'Nenhuma divisão atribuída')
-        : 'Acesso global';
+        : usuario.perfil === 'usuario' ? 'Próprio perfil' : 'Acesso global';
       document.getElementById('detalhes-usuario-cadastro').textContent = formatarDataUsuario(usuario.criadoEm);
       const acoes = document.getElementById('detalhes-usuario-acoes');
       acoes.innerHTML = usuarioLogado.perfil === 'admin'

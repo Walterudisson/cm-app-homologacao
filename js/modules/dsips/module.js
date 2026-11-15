@@ -1,6 +1,6 @@
 export const MODULO_DSIPS = Object.freeze({
   id: 'dsips', nome: 'DSIPS', estado: 'ativo',
-  descricao: 'Materiais e cautelas', paginaInicial: 'dsips-inicio',
+  descricao: 'Materiais e cautelas', paginaInicial: 'dsips-cautelas',
   paginas: Object.freeze({
     'dsips-inicio': Object.freeze({ titulo: 'DSIPS', trilha: Object.freeze(['CM APP', 'DSIPS', 'Início']) }),
     'dsips-materiais': Object.freeze({ titulo: 'Materiais', trilha: Object.freeze(['CM APP', 'DSIPS', 'Materiais']) }),

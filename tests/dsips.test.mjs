@@ -12,7 +12,7 @@ test('resumo conta materiais ativos, materiais com estoque e saldos ainda não r
   assert.deepEqual(resumoDsips({ materiais: [
     { ativo: true, saldoInicialRegistrado: true }, { ativo: true }, { ativo: false }
   ], estoque: [{ total: 50 }, { total: 0 }], responsaveis: [{ ativo: true }, { ativo: false }] }),
-  { materiais: 2, comSaldo: 1, semSaldo: 1, responsaveis: 1, cautelas: 0 });
+  { materiais: 2, comSaldo: 1, semSaldo: 1, cautelas: 0 });
 });
 test('busca por nome, matrícula e setor ignora acentos sem alterar os registros', () => {
   const pessoas = [{ nome: 'João Teste', matricula: '123', setor: 'Divisão A' }, { nome: 'Maria', matricula: '456' }];

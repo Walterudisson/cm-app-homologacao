@@ -1006,3 +1006,24 @@
       .transfer-group-chevron { transition: none; }
     }
 
+
+/* Atendimento DSIPS: cards e cesta com a identidade visual do CMAPP. */
+.pdv-toolbar,.pdv-recipient,.pdv-quantity { display:flex;align-items:center;gap:1rem;justify-content:space-between; }
+.pdv-toolbar { flex-wrap:wrap; }.pdv-recipient>label { flex:1;min-width:0; }
+.pdv-layout { display:grid;grid-template-columns:minmax(0,1.4fr) minmax(280px,1fr);gap:1.5rem;align-items:start; }
+.pdv-catalog,.pdv-basket { min-width:0; }.pdv-catalog h4,.pdv-basket h4 { font-size:1.1rem;font-weight:700;margin-bottom:1rem; }
+.pdv-cards { display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:.8rem;margin-top:1rem; }
+.pdv-material { min-height:160px;text-align:left;border:1px solid #334155;border-top:3px solid #3b82f6;border-radius:16px;background:#172235;color:#f8fafc;padding:1rem;display:flex;flex-direction:column;gap:.45rem;cursor:pointer;overflow-wrap:anywhere; }
+.pdv-material:focus-visible { outline:3px solid #93c5fd;outline-offset:3px; }.pdv-material:hover:not(:disabled) { background:#223352;transform:translateY(-2px); }
+.pdv-material:disabled { opacity:.45;cursor:default; }.pdv-material[data-cor=verde]{border-top-color:#10b981;}.pdv-material[data-cor=roxo]{border-top-color:#a78bfa;}.pdv-material[data-cor=ambar]{border-top-color:#f59e0b;}
+.pdv-icon { font-size:2rem;color:#93c5fd; }.pdv-material[data-cor=verde] .pdv-icon {color:#6ee7b7;}.pdv-material[data-cor=roxo] .pdv-icon {color:#c4b5fd;}.pdv-material[data-cor=ambar] .pdv-icon {color:#fcd34d;}
+.pdv-material small,.pdv-material>span:not(.pdv-icon),#dsips-pdv-resumo,#dsips-pdv-operador { color:#cbd5e1;font-size:.85rem; }
+.pdv-basket { padding:1rem;background:#0f172a;border:1px solid #334155;border-radius:16px;display:grid;gap:.8rem;position:sticky;top:1rem; }
+.pdv-quantity .app-button { min-width:44px;min-height:44px;font-size:1.3rem; }.pdv-quantity label { flex:1;min-width:0; }.pdv-quantity input { width:100%; }
+body.dsips-quiosque .app-sidebar,body.dsips-quiosque .app-topbar,body.dsips-quiosque .app-footer { display:none!important; }
+body.dsips-quiosque .app-workspace { margin-left:0!important;width:100%; }.dsips-quiosque .pdv-toolbar { position:sticky;top:3rem;z-index:20;background:#0f172a;padding:.75rem;border-radius:12px; }
+@media(max-width:800px) { .pdv-layout { grid-template-columns:1fr; }.pdv-recipient { flex-direction:column;align-items:stretch; }.pdv-basket { position:static; }.pdv-cards { grid-template-columns:repeat(2,minmax(0,1fr)); }.pdv-material { min-height:145px; }.dsips-quiosque .pdv-toolbar { top:2.5rem; } }
+
+body.dsips-quiosque .app-shell { grid-template-columns:minmax(0,1fr)!important; }
+
+.role-usuario { background:rgb(100 116 139 / .2);color:#cbd5e1; }

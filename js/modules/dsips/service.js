@@ -2,8 +2,9 @@ import { collection, getDocs, query, where, orderBy, limit } from 'https://www.g
 import { httpsCallable } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-functions.js';
 import { db, functions } from '../../config/firebase.js';
 
-const colecoes = Object.freeze({ categorias: 'dsipsCategorias', locais: 'dsipsLocais', responsaveis: 'dsipsResponsaveis', materiais: 'dsipsMateriais', estoque: 'dsipsEstoque', cautelas: 'dsipsCautelas' });
+const colecoes = Object.freeze({ categorias: 'dsipsCategorias', locais: 'dsipsLocais', materiais: 'dsipsMateriais', estoque: 'dsipsEstoque', cautelas: 'dsipsCautelas' });
 export async function listarCadastroDsips(tipo) {
+  if (tipo === 'responsaveis') return httpsCallable(functions, 'dsipsListarResponsaveis')({}).then(result => result.data.usuarios);
   if (!Object.hasOwn(colecoes, tipo)) throw new Error('Consulta inválida.');
   const snapshot = await getDocs(collection(db, colecoes[tipo]));
   return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })).sort((a, b) => (a.nome || a.materialId || '').localeCompare(b.nome || b.materialId || '', 'pt-BR'));

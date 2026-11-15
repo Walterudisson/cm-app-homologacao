@@ -28,7 +28,8 @@ export const FUNCOES_NATIVAS = Object.freeze({
 });
 
 export function usuarioPode(usuario, permissao) {
-  if (!usuario || usuario.ativo === false) return false;
+  if (!usuario || usuario.ativo === false || usuario.perfil === 'usuario') return false;
   const adicionais = Array.isArray(usuario.permissoes) ? usuario.permissoes : [];
   return [...(FUNCOES_NATIVAS[usuario.perfil] || []), ...adicionais].includes(permissao);
 }
+

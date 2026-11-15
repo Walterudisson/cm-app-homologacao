@@ -1,12 +1,11 @@
-CM APP v1.16.0-H.1 — ambiente de homologação
+CM APP v1.16.1-H.1 — ambiente de homologação
 
-Sprint 4 — Cautelas e devoluções DSIPS.
-Retirada com vários materiais; seleção de unidades identificadas; devolução parcial ou total;
-consulta Quem está com o quê; estoque e auditoria atualizados na mesma transação.
-Conferente consulta; Administrador e Gestor DSIPS registram movimentações.
+Revisão da Sprint 4: atendimento PDV, usuários como responsáveis e perfil básico.
+Sprint 4 original (v1.16.0-H.1) homologada pelo usuário. Nova revisão aguarda homologação.
+Cards com ícone/cor personalizáveis, cesta, modo quiosque e filtros sem sobreposição.
+Usuário básico acessa somente Meu perfil. Pré-cautela permanece futura.
 
-Publicar primeiro o pacote interno CMAPP-v1.16.0-H.1-internal.zip.
-Novas funções: dsipsRegistrarCautela e dsipsRegistrarDevolucao, com firestore:rules.
-O script compara as Rules publicadas com a base, cria backup e testa no emulador antes do deploy HML.
-Roteiro em quatro blocos: docs/SPRINT-4-CAUTELAS.md.
-Produção permanece na versão anterior.
+Publicar CMAPP-v1.16.1-H.1-internal.zip antes de integrar o frontend.
+Script testa no emulador e compara Rules atuais antes de publicar exclusivamente HML.
+198 verificações aprovadas. Roteiro de quatro blocos em docs/REVISAO-DSIPS-PDV.md.
+PRD permanece inalterado.
