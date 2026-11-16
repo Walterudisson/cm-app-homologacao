@@ -1,0 +1,4 @@
+/* Preferência visual compartilhada. Não lê ou altera dados de autenticação. */
+(()=>{const key='cmapp.previa.tema',allowed=['automatico','claro','escuro'];const media=window.matchMedia?.('(prefers-color-scheme: dark)');let mode='automatico';try{mode=localStorage.getItem(key)||mode;}catch{}if(!allowed.includes(mode))mode='automatico';
+ const apply=()=>{document.documentElement.dataset.theme=mode==='escuro'||mode==='automatico'&&media?.matches?'dark':'light';document.documentElement.style.colorScheme=document.documentElement.dataset.theme;document.dispatchEvent(new CustomEvent('cmapp:tema',{detail:{modo:mode,efetivo:document.documentElement.dataset.theme}}));};
+ window.cmappTema={obter:()=>mode,definir:v=>{mode=allowed.includes(v)?v:'automatico';try{localStorage.setItem(key,mode);}catch{}apply();}};media?.addEventListener?.('change',()=>{if(mode==='automatico')apply();});apply();})();
