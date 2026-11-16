@@ -1,6 +1,7 @@
 # Proposta navegável — Usuários, permissões e temas
 
-Data: 16/11/2026. Proposta isolada: propostas/gestao-acessos/index.html.
+Data: 16/11/2026. **Proposta visual aprovada pelo usuário em 16/11/2026.**
+Proposta isolada: propostas/gestao-acessos/index.html.
 Não importa o aplicativo, Firebase ou a autenticação; todos os dados são fictícios.
 Não substitui as telas publicadas e não altera autorização, regras ou banco de dados.
 
@@ -47,3 +48,11 @@ precisam de revisão. Não aplicar filtro CSS de inversão de cores nem importar
 
 A proposta não implementa a nova matriz como segurança, não migra perfis legados e não avança os
 módulos futuros. Publicação eventual em HML ocorre apenas no caminho isolado de propostas; PRD intacto.
+
+## Aprovação e limite da aprovação
+
+Aprovadas a composição de Usuários (Dados/Acessos/Histórico), a matriz por funcionalidade e papel
+e a aparência Claro/Escuro com seleção Automático. A aprovação visual não equivale à migração dos
+usuários nem à aprovação de permissões efetivas ainda não implementadas.
+A interface demonstrativa continuará separada até a entrega funcional correspondente.
+Plano de implementação: PLANO-GESTAO-ACESSOS.md.
