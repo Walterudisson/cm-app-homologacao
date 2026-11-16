@@ -10,3 +10,8 @@ export const listarDsipsV2=pagina=>chamar('cmappDsipsListar',pagina);
 export const listarResponsaveisDsipsV2=(pagina={})=>chamar('cmappDsipsListarResponsaveis',pagina);
 export const listarEventosDsipsV2=(pagina={})=>chamar('cmappDsipsListarEventos',pagina);
 export const consultarPatrimonioV2=id=>chamar('cmappConsultarPatrimonio',{id});
+export const listarPatrimoniosV2=pagina=>chamar('cmappPatrimoniosListar',pagina);
+export const conferirPatrimonioV2=dados=>chamar('cmappPatrimoniosConferir',dados);
+export const sugerirDestinoPatrimonioV2=dados=>chamar('cmappPatrimoniosSugerirDestino',dados);
+export const resolverTransferenciaPatrimonioV2=dados=>chamar('cmappPatrimoniosResolverTransferencia',dados);
+export const resolverSugestaoPatrimonioV2=dados=>chamar('cmappPatrimoniosResolverSugestao',dados);

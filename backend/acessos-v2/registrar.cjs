@@ -6,6 +6,7 @@ module.exports = function registrarAcessosV2({ onCall, db, auth, FieldValue, Htt
   const api=criarServicoAcessos({db,FieldValue,HttpsError,politicaUrl:pathToFileURL(path.join(__dirname,'politica/politica.mjs')).href});
   const contas=require('./contas.cjs').criarContasV2({db,auth,FieldValue,HttpsError,contexto:api.contexto});
   const negocio=require('../operacoes-v2/servico.cjs').criarOperacoesV2({db,FieldValue,HttpsError,contexto:api.contexto});
+  const patrimonios=require('../operacoes-v2/patrimonios.cjs').criarPatrimoniosV2({db,FieldValue,HttpsError,contexto:api.contexto});
   return Object.fromEntries(Object.entries({
     cmappMeusAcessos:api.consultarMeusAcessos,cmappConsultarAcessos:api.consultarAcessos,
     cmappListarUsuariosAcesso:api.listarUsuarios,cmappListarDivisoesAcesso:api.listarDivisoes,cmappConsultarAuditoriaAcesso:api.consultarAuditoria,
@@ -15,6 +16,9 @@ module.exports = function registrarAcessosV2({ onCall, db, auth, FieldValue, Htt
     cmappDsipsRegistrarCautela:negocio.registrarCautela,cmappDsipsRegistrarDevolucao:negocio.registrarDevolucao,
     cmappDsipsListar:negocio.listarDsips,cmappDsipsListarResponsaveis:negocio.listarResponsaveis,
     cmappDsipsListarEventos:negocio.listarEventos,cmappConsultarPatrimonio:negocio.consultarPatrimonio,
+    cmappPatrimoniosListar:patrimonios.listar,cmappPatrimoniosConferir:patrimonios.conferir,
+    cmappPatrimoniosSugerirDestino:patrimonios.sugerir,cmappPatrimoniosResolverTransferencia:patrimonios.resolverTransferencia,
+    cmappPatrimoniosResolverSugestao:patrimonios.resolverSugestao,
     cmappCriarConta:contas.criar,cmappAtualizarConta:contas.atualizar,cmappAlterarEstadoConta:contas.alterarEstado,cmappPrepararRecuperacao:contas.recuperar
   }).map(([nome,handler])=>[nome,onCall({region:regiao,enforceAppCheck:false},handler)]));
 };

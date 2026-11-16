@@ -5,7 +5,8 @@ aos controladores compartilhados; as telas publicadas continuam na versão homol
 
 ## Entrega
 
-Oito endpoints adicionados ao registro local de Functions (21 no total):
+Os oito endpoints DSIPS/consulta individual abaixo permanecem no registro. A continuação de
+Patrimônios acrescenta cinco operações, totalizando 26 endpoints de gestão e negócio:
 
 | Endpoint | Ação exigida | Comportamento |
 | --- | --- | --- |
@@ -45,12 +46,12 @@ As consultas e a autorização também compartilham transação.
 
 A consulta patrimonial determina a divisão por localizacaoAtual, depois divisaoOrigem e divisao.
 Não usa lotação do usuário, parâmetros de divisão ou o perfil antigo. A localização histórica de origem
-não dá visibilidade sobre um bem hoje situado fora da abrangência. Ainda não há consulta de listagem,
-conferência, aprovação, sugestão ou gestão de inventários v2; essas operações permanecem bloqueadas.
+não dá visibilidade sobre um bem hoje situado fora da abrangência. Listagem, conferência, sugestão e decisões estão preparadas na continuação descrita em PATRIMONIOS.md.
+Gestão dos ciclos de inventário e conexão das telas patrimoniais ainda não foram concluídas.
 
 ## Validação e pendências de ativação
 
-Validação: 208 testes frontend/política/pacote/DOM e 46 cenários de contas, concessões e operação DSIPS
+Validação: 211 testes frontend/política/pacote/DOM e 62 cenários de contas, concessões e operação DSIPS
 no Firestore Emulator. Novos cenários
 cobrem estoque e unidades individualizadas, concorrência de saídas, retornos parciais, revogação antes
 da autorização transacional, reenvio, contas inativas, projeções, histórico filtrado e alçada patrimonial.
@@ -90,3 +91,8 @@ ordenação e autoridade, mas não substitui a criação do índice no serviço 
 
 Permanecem: homologação visual Android/desktop, testes com Authentication real, cache/PWA e release,
 reconciliação de contas e migração. Os testes de DOM não são verificação visual em navegador.
+
+## Continuação patrimonial
+
+Contratos, transações, alçadas, revisão e preparação do índice de localização estão em PATRIMONIOS.md.
+As marcas de preparação/ativação não foram aplicadas. A mudança não altera a prévia pública.

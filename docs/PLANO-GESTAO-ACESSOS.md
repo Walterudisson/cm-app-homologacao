@@ -86,7 +86,7 @@ seleção de divisões do servidor, histórico e Claro/Escuro/Automático.
 
 Treze endpoints implementam consultas, concessões/delegações e ciclo de contas; proteções dos nove
 endpoints antigos e preparador de Rules de transição estão disponíveis localmente. Testes: 196 no
-frontend/política/pacote, 46 no Firestore Emulator. Ver backend/acessos-v2/README.md para limites.
+frontend/política/pacote, 62 no Firestore Emulator. Ver backend/acessos-v2/README.md para limites.
 
 Faltam aplicar política às operações e Rules dos módulos, reconciliação de Authentication, revisar dados
 reais e preparar migração/backup/reversão, homologar telas em dispositivos e ampliar temas ao sistema.
@@ -109,3 +109,12 @@ com limite explícito para catálogos, histórico cronológico com carregamento 
 respostas tardias, limpeza na saída e temas Claro/Escuro/Automático. A gestão oferece link conforme
 consulta operacional. Código no PR de desenvolvimento; ainda sem publicação ou migração real.
 Detalhes, limites de volume e índice necessário em backend/operacoes-v2/README.md.
+
+### Backend de operações patrimoniais — 16/11/2026
+
+Cinco endpoints adicionais preparados: listagem por divisão, conferência, sugestão de destino e
+aprovação/rejeição de transferência ou sugestão. Há 26 endpoints no empacotamento local. Fonte atual,
+política e revisão do bem são lidas na transação, com histórico/evento/recibo atômicos. A listagem exige
+preparação integral da localização efetiva; o corte do módulo bloqueia caminhos legados para impedir
+escritores que não mantenham o índice. Não foram aplicadas marcas, migrados dados ou publicados serviços.
+Ver backend/operacoes-v2/PATRIMONIOS.md. Restam controladores patrimoniais, ciclos de inventário e migração.

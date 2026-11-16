@@ -107,7 +107,7 @@ sessão e dados reais, acompanha revisão e oferece perfil próprio ao usuário 
 As proteções de transição bloqueiam uso de privilégios legados por contas versionadas; elas não
 substituem a migração nem habilitam o negócio v2. Descritores corrompidos não liberam gestão.
 
-Validação atual: 208 testes frontend/política/pacote e 46 cenários no Firestore Emulator. Incluem
+Validação atual: 211 testes frontend/política/pacote e 62 cenários no Firestore Emulator. Incluem
 ciclo de contas, falha de sincronização Auth, reenvio antigo, limites de gestor e Rules de transição.
 Permanecem migração com UID inicial explícito, backup/reversão, reconciliação Auth/Firestore,
 homologação visual e extensão de temas ao restante do sistema. Nenhum usuário real foi alterado.
@@ -128,3 +128,12 @@ com limite explícito para catálogos, histórico cronológico com carregamento 
 respostas tardias, limpeza na saída e temas Claro/Escuro/Automático. A gestão oferece link conforme
 consulta operacional. Código no PR de desenvolvimento; ainda sem publicação ou migração real.
 Detalhes, limites de volume e índice necessário em backend/operacoes-v2/README.md.
+
+### Backend de operações patrimoniais — 16/11/2026
+
+Cinco endpoints adicionais preparados: listagem por divisão, conferência, sugestão de destino e
+aprovação/rejeição de transferência ou sugestão. Há 26 endpoints no empacotamento local. Fonte atual,
+política e revisão do bem são lidas na transação, com histórico/evento/recibo atômicos. A listagem exige
+preparação integral da localização efetiva; o corte do módulo bloqueia caminhos legados para impedir
+escritores que não mantenham o índice. Não foram aplicadas marcas, migrados dados ou publicados serviços.
+Ver backend/operacoes-v2/PATRIMONIOS.md. Restam controladores patrimoniais, ciclos de inventário e migração.

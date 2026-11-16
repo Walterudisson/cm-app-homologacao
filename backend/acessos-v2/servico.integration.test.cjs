@@ -85,7 +85,7 @@ test('delegação não é operação: designação/revogação exige autoridade 
  await api.removerDelegacao(request({uid:'alvo',id:r.id}));await negar(api.conceder(request({uid:'ti',atribuicao:grant('consulta')},'alvo')));
 });
 test('Rules publicadas já impedem escrita/leitura direta de acessos, eventos e recibos, inclusive por admin legado',async()=>{
- const client=env.authenticatedContext('super').firestore();for(const c of ['cmappAcessos','cmappAcessosEventos','cmappAcessosOperacoes']){await assertFails(setDoc(doc(client,c+'/novo'),{papelPlataforma:'superadmin'}));await assertFails(getDoc(doc(client,c+'/super')));}
+ const client=env.authenticatedContext('super').firestore();for(const c of ['cmappAcessos','cmappAcessosEventos','cmappAcessosOperacoes','patrimoniosEventos','patrimoniosOperacoes']){await assertFails(setDoc(doc(client,c+'/novo'),{papelPlataforma:'superadmin'}));await assertFails(getDoc(doc(client,c+'/super')));}
  await assertFails(updateDoc(doc(client,'usuarios/super'),{autorizacaoVersao:3}));
 });
 test('documento v2 ausente ou versão inválida não recorre ao admin legado; falha não grava parte da operação',async()=>{
@@ -142,7 +142,7 @@ test('catálogo de divisões usa dados reais ativos e restringe gestor ao própr
 });
 test('Rules de transição bloqueiam admin marcado no legado e preservam leitura do próprio perfil',async()=>{
  const{mkdtempSync,writeFileSync,readFileSync,rmSync}=require('node:fs');const{tmpdir}=require('node:os');const{execFileSync}=require('node:child_process');const dir=mkdtempSync(path.join(tmpdir(),'cmapp-rules-'));const file=path.join(dir,'firestore.rules');const original=readFileSync(path.resolve(process.env.CMAPP_INTERNAL_ROOT,'firestore.rules'),'utf8');
- try{writeFileSync(file,original);execFileSync(process.execPath,['scripts/preparar-rules-transicao-v2.mjs',file]);const preparado=await initializeTestEnvironment({projectId,firestore:{host:'127.0.0.1',port:8088,rules:readFileSync(file,'utf8')}});await preparado.cleanup();const client=env.authenticatedContext('super').firestore();await getDoc(doc(client,'usuarios/super'));await assertFails(getDoc(doc(client,'usuarios/alvo')));await assertFails(getDoc(doc(client,'patrimonios/exemplo')));const legado=env.authenticatedContext('legacy').firestore();await getDoc(doc(legado,'usuarios/alvo'));}finally{const restaurado=await initializeTestEnvironment({projectId,firestore:{host:'127.0.0.1',port:8088,rules:original}});await restaurado.cleanup();rmSync(dir,{recursive:true});}
+ try{writeFileSync(file,original);execFileSync(process.execPath,['scripts/preparar-rules-transicao-v2.mjs',file]);const preparado=await initializeTestEnvironment({projectId,firestore:{host:'127.0.0.1',port:8088,rules:readFileSync(file,'utf8')}});await preparado.cleanup();const client=env.authenticatedContext('super').firestore();await getDoc(doc(client,'usuarios/super'));await assertFails(getDoc(doc(client,'usuarios/alvo')));await assertFails(getDoc(doc(client,'patrimonios/exemplo')));const legado=env.authenticatedContext('legacy').firestore();await getDoc(doc(legado,'usuarios/alvo'));await getDoc(doc(legado,'patrimonios/exemplo'));await db.doc('cmappConfiguracao/acessos').set({patrimoniosOperacaoVersao:2});await assertFails(getDoc(doc(legado,'patrimonios/exemplo')));await assertFails(getDoc(doc(legado,'inventarios/DA')));await getDoc(doc(legado,'dsipsMateriais/exemplo'));}finally{const restaurado=await initializeTestEnvironment({projectId,firestore:{host:'127.0.0.1',port:8088,rules:original}});await restaurado.cleanup();rmSync(dir,{recursive:true});}
 });
 
 const negocio=()=>require('../operacoes-v2/servico.cjs').criarOperacoesV2({db,FieldValue,HttpsError,contexto:api.contexto});
@@ -199,4 +199,56 @@ test('histórico DSIPS pagina por data decrescente com desempate por ID sem expo
 });
 test('cursor cronológico desempata eventos com a mesma data sem repetir ou perder linhas',async()=>{
  const b=negocio();for(const id of ['a','b','c'])await db.doc('dsipsEventos/'+id).set({tipo:'cautela_registrada',registradoEm:new Date(1000)});const a=await b.listarEventos(reqSemOp({limite:2}));assert.deepEqual(a.registros.map(e=>e.id),['c','b']);const r=await b.listarEventos(reqSemOp({limite:2,cursor:a.proximoCursor}));assert.deepEqual(r.registros.map(e=>e.id),['a']);
+});
+
+const patApi=()=>require('../operacoes-v2/patrimonios.cjs').criarPatrimoniosV2({db,FieldValue,HttpsError,contexto:api.contexto});
+async function prepararPat(){await db.doc('divisoes/da').set({nome:'DA',ativo:true});await db.doc('divisoes/gab').set({nome:'Gabinete',ativo:true});await db.doc('cmappConfiguracao/acessos').set({patrimoniosIndiceVersao:2,patrimoniosOperacaoVersao:2});await db.doc('patrimonios/p1').set({descricao:'Bem de teste',divisao:'DA',localizacaoAtual:'DA',localizacaoEfetivaV2:'DA',localizado:false,historico:[],revisaoOperacionalV2:0});await api.conceder(request({uid:'alvo',atribuicao:patrimonio()}));return patApi();}
+const conferencia=(mais={})=>({id:'p1',destino:'DA',metodoLocalizacao:'digitacao',observacao:'Conferência física',revisaoEsperada:0,...mais});
+test('Patrimônios: consulta por divisão não usa lotação, perfil antigo ou delegação de gestão',async()=>{
+ const p=await prepararPat();await db.doc('patrimonios/p2').set({divisao:'Gabinete',localizacaoAtual:'Gabinete',localizacaoEfetivaV2:'Gabinete'});const r=await p.listar(reqSemOp({divisao:'DA'},'alvo'));assert.deepEqual(r.registros.map(x=>x.id),['p1']);await negar(p.listar(reqSemOp({},'alvo')));await negar(p.listar(reqSemOp({divisao:'Gabinete'},'alvo')));await negar(p.listar(reqSemOp({divisao:'DA'},'ti')));await negar(p.listar(reqSemOp({divisao:'DA'},'pat')));
+});
+test('Patrimônios: preparação incompleta ou índice divergente falha, sem total parcial',async()=>{
+ const p=await prepararPat();await db.doc('cmappConfiguracao/acessos').update({patrimoniosIndiceVersao:1});await negar(p.listar(reqSemOp({divisao:'DA'},'alvo')),'failed-precondition');await db.doc('cmappConfiguracao/acessos').update({patrimoniosIndiceVersao:2});await db.doc('patrimonios/p1').update({localizacaoAtual:'Gabinete'});await negar(p.listar(reqSemOp({divisao:'DA'},'alvo')),'failed-precondition');
+});
+test('Patrimônios: conferência usa autor/data de servidor e grava histórico, evento e recibo atomicamente',async()=>{
+ const p=await prepararPat(),r=request(conferencia(),'alvo');const a=await p.conferir(r);assert.deepEqual(await p.conferir(r),a);const b=(await db.doc('patrimonios/p1').get()).data();assert.equal(b.localizado,true);assert.equal(b.conferidoPor,'alvo@exemplo.invalid');assert.equal(b.revisaoOperacionalV2,1);assert.equal(b.historico.length,1);assert.equal(b.historico[0].metodoLocalizacao,'digitacao');assert.equal((await db.collection('patrimoniosEventos').get()).size,1);assert.equal((await db.collection('patrimoniosOperacoes').get()).size,1);
+});
+test('Patrimônios: conta TI e consulta não conferem, campos privilegiados e método forjado são rejeitados',async()=>{
+ const p=await prepararPat();await api.conceder(request({uid:'operador',atribuicao:patrimonio('consulta')}));for(const uid of ['ti','operador','pat'])await negar(p.conferir(request(conferencia(),uid)));await negar(p.conferir(request({...conferencia(),perfil:'admin'},'alvo')),'invalid-argument');await negar(p.conferir(request(conferencia({metodoLocalizacao:'automatico'}),'alvo')),'invalid-argument');assert.equal((await db.doc('patrimonios/p1').get()).data().historico.length,0);
+});
+test('Patrimônios: conferência em destino fora da abrangência é negada, sugestão não concede acesso ao destino',async()=>{
+ const p=await prepararPat();await negar(p.conferir(request(conferencia({destino:'Gabinete'}),'alvo')));await p.sugerir(request({id:'p1',destino:'Gabinete',revisaoEsperada:0,observacao:'Verificar destino'},'alvo'));const b=(await db.doc('patrimonios/p1').get()).data();assert.equal(b.localizado,false);assert.equal(b.localizacaoAtual,'DA');assert.equal(b.sugestaoDestinoStatus,'pendente');await db.doc('patrimonios/p2').set({localizacaoAtual:'Gabinete'});await negar(negocio().consultarPatrimonio(reqSemOp({id:'p2'},'alvo')));
+});
+test('Patrimônios: aprovação de sugestão muda destino sem declarar conferência física',async()=>{
+ const p=await prepararPat();await p.sugerir(request({id:'p1',destino:'Gabinete',revisaoEsperada:0},'alvo'));await p.resolverSugestao(request({id:'p1',decisao:'aprovar',revisaoEsperada:1}));const b=(await db.doc('patrimonios/p1').get()).data();assert.equal(b.localizado,false);assert.equal(b.localizacaoAtual,'Gabinete');assert.equal(b.localizacaoEfetivaV2,'Gabinete');assert.equal(b.sugestaoDestinoStatus,'aprovada');assert.equal(b.historico.length,2);await negar(negocio().consultarPatrimonio(reqSemOp({id:'p1'},'alvo')));
+});
+test('Patrimônios: aprovação exige atribuição em ambas divisões, além de papel operacional',async()=>{
+ const p=await prepararPat();await p.sugerir(request({id:'p1',destino:'Gabinete',revisaoEsperada:0},'alvo'));await api.conceder(request({uid:'pat',atribuicao:patrimonio('gestor')}));await negar(p.resolverSugestao(request({id:'p1',decisao:'aprovar',revisaoEsperada:1},'pat')));await api.conceder(request({uid:'pat',atribuicao:patrimonio('gestor',['Gabinete'])}));await p.resolverSugestao(request({id:'p1',decisao:'aprovar',revisaoEsperada:1},'pat'));assert.equal((await db.doc('patrimonios/p1').get()).data().localizacaoAtual,'Gabinete');
+});
+test('Patrimônios: transferência mantém local até decisão; rejeição conserva origem',async()=>{
+ const p=await prepararPat();await p.conferir(request(conferencia({destino:'Gabinete'})));let b=(await db.doc('patrimonios/p1').get()).data();assert.equal(b.statusTransferencia,'pendente');assert.equal(b.localizacaoEfetivaV2,'DA');await p.resolverTransferencia(request({id:'p1',decisao:'rejeitar',revisaoEsperada:1}));b=(await db.doc('patrimonios/p1').get()).data();assert.equal(b.localizacaoAtual,'DA');assert.equal(b.statusTransferencia,'rejeitado');assert.equal(b.localizado,true);
+});
+test('Patrimônios: revisão antiga não resolve uma solicitação posterior',async()=>{
+ const p=await prepararPat();await p.sugerir(request({id:'p1',destino:'Gabinete',revisaoEsperada:0},'alvo'));const antigo=request({id:'p1',decisao:'aprovar',revisaoEsperada:1});await p.resolverSugestao(request({id:'p1',decisao:'rejeitar',revisaoEsperada:1}));await p.sugerir(request({id:'p1',destino:'Gabinete',revisaoEsperada:2},'alvo'));await negar(p.resolverSugestao(antigo),'aborted');assert.equal((await db.doc('patrimonios/p1').get()).data().sugestaoDestinoStatus,'pendente');
+});
+test('Patrimônios: inventário bloqueado em origem ou destino impede operação sem gravações parciais',async()=>{
+ const p=await prepararPat();await db.doc('inventarios/DA').set({estado:'encerrado'});await negar(p.conferir(request(conferencia(),'alvo')),'failed-precondition');await db.doc('inventarios/DA').delete();await db.doc('inventarios/Gabinete').set({estado:'encerrando'});await negar(p.sugerir(request({id:'p1',destino:'Gabinete',revisaoEsperada:0},'alvo')),'failed-precondition');assert.equal((await db.collection('patrimoniosEventos').get()).size,0);
+});
+test('Patrimônios: destino inativo ou duplicado e solicitação paralela são bloqueados',async()=>{
+ const p=await prepararPat();await db.doc('divisoes/gab').update({ativo:false});await negar(p.sugerir(request({id:'p1',destino:'Gabinete',revisaoEsperada:0},'alvo')),'failed-precondition');await db.doc('divisoes/gab').update({ativo:true});await db.doc('divisoes/gab2').set({nome:'Gabinete',ativo:true});await negar(p.sugerir(request({id:'p1',destino:'Gabinete',revisaoEsperada:0},'alvo')),'failed-precondition');await db.doc('divisoes/gab2').delete();await p.sugerir(request({id:'p1',destino:'Gabinete',revisaoEsperada:0},'alvo'));await negar(p.conferir(request(conferencia({revisaoEsperada:1}),'alvo')),'failed-precondition');
+});
+test('Patrimônios: duas conferências concorrentes da mesma revisão confirmam somente uma',async()=>{
+ const p=await prepararPat();const r=await Promise.allSettled([p.conferir(request(conferencia(),'alvo')),p.conferir(request(conferencia(),'alvo'))]);assert.equal(r.filter(x=>x.status==='fulfilled').length,1);assert.equal((await db.doc('patrimonios/p1').get()).data().historico.length,1);assert.equal((await db.collection('patrimoniosEventos').get()).size,1);
+});
+test('Patrimônios: reenvio não permite permissão revogada ou reutilização do ID com conteúdo diferente',async()=>{
+ const p=await prepararPat(),r=request(conferencia(),'alvo');await p.conferir(r);await negar(p.conferir({...r,data:{...r.data,observacao:'Outra'}}),'already-exists');await db.doc('cmappAcessos/alvo').update({atribuicoes:[]});await negar(p.conferir(r));assert.equal((await db.doc('patrimonios/p1').get()).data().historico.length,1);
+});
+test('Patrimônios: paginação por divisão preserva registros, incluindo páginas filtradas vazias',async()=>{
+ const p=await prepararPat();await db.doc('patrimonios/p2').set({divisao:'DA',localizacaoEfetivaV2:'DA',statusTransferencia:'pendente'});const a=await p.listar(reqSemOp({divisao:'DA',limite:1,somentePendentes:true},'alvo'));assert.equal(a.registros.length,0);assert.equal(a.proximoCursor,'p1');const b=await p.listar(reqSemOp({divisao:'DA',limite:1,somentePendentes:true,cursor:a.proximoCursor},'alvo'));assert.deepEqual(b.registros.map(x=>x.id),['p2']);assert.equal(b.proximoCursor,null);await negar(p.listar(reqSemOp({divisao:'DA',limite:51},'alvo')),'invalid-argument');
+});
+test('Patrimônios: replay concorrente confirma um histórico e rejeição de sugestão preserva não localizado',async()=>{
+ const p=await prepararPat(),r=request({id:'p1',destino:'Gabinete',revisaoEsperada:0},'alvo');const[a,b]=await Promise.all([p.sugerir(r),p.sugerir(r)]);assert.deepEqual(a,b);await p.resolverSugestao(request({id:'p1',decisao:'rejeitar',revisaoEsperada:1}));const item=(await db.doc('patrimonios/p1').get()).data();assert.equal(item.localizado,false);assert.equal(item.localizacaoAtual,'DA');assert.equal(item.historico.length,2);
+});
+test('Patrimônios: transferência aprovada atualiza índice e mantém a origem histórica',async()=>{
+ const p=await prepararPat();await p.conferir(request(conferencia({destino:'Gabinete'})));await p.resolverTransferencia(request({id:'p1',decisao:'aprovar',revisaoEsperada:1}));const item=(await db.doc('patrimonios/p1').get()).data();assert.equal(item.divisaoOrigem,'DA');assert.equal(item.localizacaoAtual,'Gabinete');assert.equal(item.localizacaoEfetivaV2,'Gabinete');assert.equal(item.statusTransferencia,'aprovado');assert.equal((await p.listar(reqSemOp({divisao:'DA'},'alvo'))).registros.length,0);
 });
