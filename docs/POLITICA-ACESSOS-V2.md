@@ -62,7 +62,7 @@ ou Superadmin, não altera sua própria autorização e não amplia o escopo del
 
 Superadmin ou administrador com gestores.designar pode designar gestão/delegação. Administrador com
 acessos.conceder pode conceder acessos operacionais; isso é atribuição explícita separada de contas.gerenciar.
-Conceder acesso a alguém inativo é negado. Administração de contas pode reativar uma conta comum inativa,
+Conceder acesso a alguém inativo é negado; revogar uma atribuição existente de conta inativa é permitido à autoridade competente. Administração de contas pode reativar uma conta comum inativa,
 mas um administrador comum não modifica Superadmin; edição própria fica no fluxo Meu perfil.
 
 Revogação avaliada aqui remove uma atribuição inteira dentro do limite do autor. Se uma atribuição
@@ -92,7 +92,7 @@ Essa simulação não representa inventário dos usuários reais de HML ou PRD.
 
 ## Validação e próximos passos
 
-22 cenários específicos cobrem negação por padrão, Superadmin, TI, Conferente, Operador, múltiplas
+24 cenários específicos cobrem negação por padrão, Superadmin, TI, Conferente, Operador, múltiplas
 atribuições, delegação por módulo/funcionalidade, escopo, autoelevação e análise de legado.
 Rodar também a suíte frontend existente com CMAPP_INTERNAL_ROOT apontando ao pacote interno de teste.
 
@@ -104,3 +104,10 @@ revogação em sessão, regras de consultas ou homologação funcional.
 Próxima entrega: adaptadores seguros para administração de contas, leitura de acessos, concessão e
 revogação auditadas, catálogo da matriz real e integração das telas aprovadas. Depois, migração simulada
 com dados reais do ambiente, comparação de acessos e ativação controlada, sem união legado+v2.
+
+## Serviço de gestão preparado
+
+Endpoints e empacotamento local estão em backend/acessos-v2/README.md. A política continua sendo
+uma referência isolada da operação publicada: os novos endpoints foram testados em emulador e ainda
+não foram publicados ou ligados ao aplicativo. Descritores de delegação agora têm validação comum,
+inclusive para consultas de diretório; registros corrompidos não liberam leitura administrativa.

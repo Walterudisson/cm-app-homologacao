@@ -82,3 +82,10 @@ aprovação desta proposta.
 Base isolada de catálogo, avaliador e análise local implementada. Ver POLITICA-ACESSOS-V2.md.
 Ainda faltam adaptadores, Functions/Rules, análise de usuários reais, migração e telas funcionais.
 Nenhum usuário foi migrado, nem a versão operacional alterada.
+
+### Backend de concessões — 16/11/2026
+
+Serviço transacional e oito endpoints preparados; projeções de leitura, auditoria, recibos e preparação
+local do pacote implementados. Ver backend/acessos-v2/README.md. A ativação ainda depende de migrar
+os caminhos administrativos legados, operações de negócio/Rules e sessão; não publicar marcadores v2
+ou migrar usuários reais antes dessa integração. Telas funcionais ainda não conectadas.

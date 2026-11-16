@@ -90,3 +90,11 @@ test('comparação de abrangência rejeita formas inválidas mesmo com limite gl
  for(const escopo of [null,{tipo:'futuro'},{tipo:'divisoes',ids:[]},{tipo:'todos',ids:[]}])assert.equal(escopoContem({tipo:'todos'},escopo),false);
  assert.equal(escopoContem({tipo:'divisoes',ids:['DA','Gabinete']},{tipo:'divisoes',ids:['DA']}),true);
 });
+
+test('revogar conta inativa não concede acesso novo nem permite autoelevação',()=>{
+ const g=pessoa('g',{delegacoes:[delegacao()]});const alvo=pessoa('b',{ativo:false});
+ assert.equal(podeRevogar(g,alvo,atrib()),true);assert.equal(podeConceder(g,alvo,atrib()),false);assert.equal(podeRevogar(g,g,atrib()),false);
+});
+test('delegação malformada não é aproveitada parcialmente para conceder acesso',()=>{
+ const d=delegacao(['consulta','conferente','inexistente']);const g=pessoa('g',{delegacoes:[d]});assert.equal(podeConceder(g,pessoa('b'),atrib()),false);
+});

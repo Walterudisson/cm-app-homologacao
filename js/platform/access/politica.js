@@ -49,7 +49,7 @@ export function podeConceder(autor, alvo, atribuicao) {
   if (alvo.papelPlataforma === 'superadmin') return false;
   if (atribuicao.papelId === 'gestor') return podeNaPlataforma(autor, 'gestores.designar');
   if (podeNaPlataforma(autor, 'acessos.conceder')) return true;
-  return Array.isArray(autor.delegacoes) && autor.delegacoes.some(d => d && ['modulo', 'funcionalidade'].includes(d.nivel)
+  return Array.isArray(autor.delegacoes) && autor.delegacoes.some(d => delegacaoValida(d)
     && d.moduloId === atribuicao.moduloId
     && (d.nivel === 'modulo' || d.funcionalidadeId === atribuicao.funcionalidadeId)
     && Array.isArray(d.limites) && d.limites.some(l => l?.funcionalidadeId === atribuicao.funcionalidadeId
@@ -57,15 +57,13 @@ export function podeConceder(autor, alvo, atribuicao) {
       && escopoValido(l.escopo, d.moduloId, l.funcionalidadeId) && escopoContem(l.escopo, atribuicao.escopo)));
 }
 // Revoga a atribuição inteira; revogação parcial deve gerar uma substituição auditada no servidor.
-export const podeRevogar = podeConceder;
+export function podeRevogar(autor, alvo, atribuicao) {
+  return identidadeRegistrada(alvo) && podeConceder(autor, {...alvo, ativo: true}, atribuicao);
+}
 export function podeDesignarDelegacao(autor, alvo, delegacao) {
   if (!identidadeValida(autor) || !identidadeValida(alvo) || autor.uid === alvo.uid || alvo.papelPlataforma === 'superadmin'
     || !(superadmin(autor) || podeNaPlataforma(autor, 'gestores.designar'))) return false;
-  if (!delegacao || !['modulo', 'funcionalidade'].includes(delegacao.nivel) || !Array.isArray(delegacao.limites) || !delegacao.limites.length) return false;
-  return delegacao.limites.every(l => l && (delegacao.nivel !== 'funcionalidade' || l.funcionalidadeId === delegacao.funcionalidadeId)
-    && Array.isArray(l.papeis) && l.papeis.length > 0 && new Set(l.papeis).size === l.papeis.length
-    && l.papeis.every(p => p !== 'gestor' && obterPapel(delegacao.moduloId, l.funcionalidadeId, p))
-    && escopoValido(l.escopo, delegacao.moduloId, l.funcionalidadeId));
+  return delegacaoValida(delegacao);
 }
 
 export function podeGerenciarConta(autor, alvo, acao) {
@@ -73,4 +71,12 @@ export function podeGerenciarConta(autor, alvo, acao) {
     || !podeNaPlataforma(autor, acao)) return false;
   if (superadmin(autor)) return acao !== 'contas.gerenciar' || autor.uid !== alvo.uid;
   return acao === 'contas.consultar' || alvo.papelPlataforma !== 'superadmin' && autor.uid !== alvo.uid;
+}
+
+export function delegacaoValida(delegacao) {
+  if (!delegacao || !['modulo', 'funcionalidade'].includes(delegacao.nivel) || !Array.isArray(delegacao.limites) || !delegacao.limites.length || delegacao.limites.length > 20 || new Set(delegacao.limites.map(l => l?.funcionalidadeId)).size !== delegacao.limites.length) return false;
+  return delegacao.limites.every(l => l && (delegacao.nivel !== 'funcionalidade' || l.funcionalidadeId === delegacao.funcionalidadeId)
+    && Array.isArray(l.papeis) && l.papeis.length > 0 && new Set(l.papeis).size === l.papeis.length
+    && l.papeis.every(p => p !== 'gestor' && obterPapel(delegacao.moduloId, l.funcionalidadeId, p))
+    && escopoValido(l.escopo, delegacao.moduloId, l.funcionalidadeId));
 }
