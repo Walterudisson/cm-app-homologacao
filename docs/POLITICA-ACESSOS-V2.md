@@ -1,0 +1,106 @@
+# Base de autorização v2 — primeira entrega
+
+Data: 16/11/2026. Implementação isolada, sem importação no app.js, sem alteração de Rules, Functions,
+PWA ou versão operacional. O CMAPP publicado continua aplicando os acessos legados.
+Não é uma migração concluída nem um backend de autorização publicado.
+
+## Componentes
+
+- js/platform/access/catalogo.js: ações, papéis padronizados e escopos suportados.
+- js/platform/access/politica.js: avaliador puro para operação, plataforma e delegação.
+- js/platform/access/legado.js: análise de candidatos legados, sem gravação.
+- scripts/analisar-acessos-legados.mjs: CLI de leitura local e relatório JSON no stdout.
+- fixtures/acessos-legados-exemplo.json: seis identidades fictícias, sem dados reais.
+
+Não há wildcard para apagar registros ou histórico. Inativação e operações de negócio têm ações próprias.
+Superadmin cobre as ações declaradas no catálogo, inclusive leitura global; identificadores inexistentes
+continuam negados. Administradores só recebem permissões de plataforma expressamente registradas.
+Lotação, modulos e perfil legados nunca são usados pelo avaliador v2 como fallback.
+
+## Contrato de referência
+
+O avaliador recebe um objeto autenticado e carregado do servidor com:
+
+```json
+{
+  "uid": "exemplo-conferente",
+  "versao": 2,
+  "ativo": true,
+  "papelPlataforma": "usuario",
+  "permissoesPlataforma": [],
+  "atribuicoes": [{
+    "moduloId": "da", "funcionalidadeId": "patrimonios", "papelId": "conferente",
+    "escopo": {"tipo": "divisoes", "ids": ["DA", "Gabinete"]}
+  }],
+  "delegacoes": []
+}
+```
+
+Esse objeto não pode vir do body da requisição. O UID vem da autenticação; situação e concessões vêm
+somente da fonte administrativa protegida. O armazenamento definitivo e os adaptadores de leitura
+serão definidos na integração com Functions/Rules; este DTO não autoriza mover todos os dados para
+um documento de perfil consultável por outros usuários.
+
+Para Patrimônios, os escopos são todos ou divisoes com lista explícita (até 100 IDs/nomeadores nesta base).
+A denominação atual das divisões é preservada na análise; adoção de IDs organizacionais estáveis exige
+mapeamento posterior. Para DSIPS, o escopo inicial é todos dentro de Materiais e Cautelas.
+Consulta de listagem deve gerar consultas compatíveis com a abrangência; não baixar tudo e ocultar depois.
+Em operações sobre recurso, divisaoId deve ser obtido do recurso no servidor. Durante transferências,
+o adaptador precisará verificar origem, destino e invariantes do fluxo, não só um campo fornecido pelo cliente.
+Operações de lote/ciclo exigem verificação de todos os recursos e divisões afetadas.
+
+Acúmulo de papéis é união de atribuições completas: a ação e o recurso devem caber na mesma atribuição.
+Não combinar uma ação de uma divisão com o escopo de outra para obter privilégio novo.
+
+## Operação, gestão e delegação
+
+Papel operacional gestor não implica poder para conceder acessos. Delegações separadas possuem nível
+modulo ou funcionalidade e limites explícitos por funcionalidade, papel operacional e escopo.
+Um gestor de módulo não recebe automaticamente concessão sobre funcionalidades futuras.
+Ele seleciona qualquer usuário ativo, sem requisito de mesma lotação. Não concede gestor, administrador
+ou Superadmin, não altera sua própria autorização e não amplia o escopo delegado.
+
+Superadmin ou administrador com gestores.designar pode designar gestão/delegação. Administrador com
+acessos.conceder pode conceder acessos operacionais; isso é atribuição explícita separada de contas.gerenciar.
+Conceder acesso a alguém inativo é negado. Administração de contas pode reativar uma conta comum inativa,
+mas um administrador comum não modifica Superadmin; edição própria fica no fluxo Meu perfil.
+
+Revogação avaliada aqui remove uma atribuição inteira dentro do limite do autor. Se uma atribuição
+abranger áreas fora da delegação, um gestor local não pode removê-la inteira. Alteração parcial exige
+substituição auditada na integração, preservando as áreas fora do seu alcance.
+
+## Migração: somente análise nesta etapa
+
+```bash
+node scripts/analisar-acessos-legados.mjs fixtures/acessos-legados-exemplo.json
+```
+
+Entrada obrigatória: ambiente hml/prd explícito e lista de usuários com UID. UID duplicado interrompe.
+Relatório inclui situação por UID, candidato de atribuições e pontos de revisão. Nenhum candidato é aplicado.
+Não há conexão Firebase, credencial, SDK administrativo ou modo de escrita nesse script.
+Relatórios com usuários reais devem permanecer privados; não subir exportações reais no repositório.
+
+Admin legado exige designação manual: nunca promovê-lo automaticamente. Gestor legado pode ter acessos
+comuns a usuários e divisões; sua conversão não é equivalência simples. Conferente tem diferenças de
+leitura direta e histórico entre o modelo antigo e o novo. Auditoria de cadastros/saldo DSIPS precisa
+ser separada do histórico de movimentações antes de liberar este último ao Operador.
+Funções personalizadas e permissões adicionais exigem análise, não descarte. Documento já v2 não é
+reconvertido; versões desconhecidas não recorrem ao perfil antigo. Conta inativa continua inativa.
+
+Os exemplos demonstram: admin com designação manual, quatro casos com revisão e básico sem operação.
+Essa simulação não representa inventário dos usuários reais de HML ou PRD.
+
+## Validação e próximos passos
+
+22 cenários específicos cobrem negação por padrão, Superadmin, TI, Conferente, Operador, múltiplas
+atribuições, delegação por módulo/funcionalidade, escopo, autoelevação e análise de legado.
+Rodar também a suíte frontend existente com CMAPP_INTERNAL_ROOT apontando ao pacote interno de teste.
+
+A política pura ainda precisa ser aplicada e testada em Functions e Rules. Bibliotecas administrativas
+não obedecem às Rules; cada operação deverá buscar e validar a autorização atual no servidor.
+Testes desta base não substituem Emulator Suite, atomicidade/auditoria das concessões, verificação de
+revogação em sessão, regras de consultas ou homologação funcional.
+
+Próxima entrega: adaptadores seguros para administração de contas, leitura de acessos, concessão e
+revogação auditadas, catálogo da matriz real e integração das telas aprovadas. Depois, migração simulada
+com dados reais do ambiente, comparação de acessos e ativação controlada, sem união legado+v2.

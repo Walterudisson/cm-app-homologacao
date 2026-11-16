@@ -76,3 +76,9 @@ A proposta visual aprovada é referência, não versão funcional pronta. A entr
 são impostos pelo servidor e Rules, a migração conserva os acessos aprovados, os temas cobrem o aplicativo
 e os fluxos existentes continuam funcionando. A homologação pendente do PDV não é substituída pela
 aprovação desta proposta.
+
+## Andamento — 16/11/2026
+
+Base isolada de catálogo, avaliador e análise local implementada. Ver POLITICA-ACESSOS-V2.md.
+Ainda faltam adaptadores, Functions/Rules, análise de usuários reais, migração e telas funcionais.
+Nenhum usuário foi migrado, nem a versão operacional alterada.

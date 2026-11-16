@@ -1,0 +1,11 @@
+{
+  "ambiente": "hml",
+  "usuarios": [
+    {"uid":"exemplo-admin","perfil":"admin","ativo":true},
+    {"uid":"exemplo-conferente","perfil":"conferente","ativo":true,"modulos":["patrimonios"],"divisoesAtribuidas":["DA","Gabinete"]},
+    {"uid":"exemplo-gestor-dsips","perfil":"gestor","ativo":true,"modulos":["dsips"]},
+    {"uid":"exemplo-basico","perfil":"usuario","ativo":true,"modulos":[]},
+    {"uid":"exemplo-personalizado","perfil":"gestor","modulos":["dsips"],"funcaoId":"funcao-antiga","permissoes":["usuarios.gerenciar"]},
+    {"uid":"exemplo-inativo","perfil":"conferente","ativo":false,"modulos":["dsips"]}
+  ]
+}
