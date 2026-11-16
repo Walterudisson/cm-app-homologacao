@@ -22,8 +22,8 @@ A sessão demonstrativa representa um Superadmin; não simula autorização real
 
 ## Temas
 
-Claro, Escuro e Sistema. Padrão: Sistema. Preferência explícita prevalece sobre o dispositivo.
-Modo Sistema acompanha mudanças de preferência do dispositivo. Aplicação inicial no head reduz a troca
+Dois temas visuais: Claro e Escuro. Seleção Automático acompanha o dispositivo e é o padrão. Preferência explícita prevalece sobre o dispositivo.
+Modo Automático acompanha mudanças de preferência do dispositivo. Aplicação inicial no head reduz a troca
 visível de cores ao abrir a página. Armazenamento bloqueado não impede a proposta de funcionar.
 Tokens semânticos de fundo, superfície, texto, borda, ação e status; inputs e seletores acompanham
 color-scheme. Status têm texto além da cor. Layout prevê celular, tablet e desktop, abas operáveis por
