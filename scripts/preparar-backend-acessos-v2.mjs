@@ -8,6 +8,8 @@ else try{
  const pasta=join(destino,'acessos-v2');await mkdir(join(pasta,'politica'),{recursive:true});
  for(const f of ['servico.cjs','registrar.cjs','contas.cjs','legado.cjs'])await copyFile(join(raiz,'backend/acessos-v2',f),join(pasta,f));
  for(const f of ['catalogo','politica']){const source=await readFile(join(raiz,'js/platform/access',f+'.js'),'utf8');await writeFile(join(pasta,'politica',f+'.mjs'),source.replaceAll("'./catalogo.js'","'./catalogo.mjs'"));}
+ const negocio=join(destino,'operacoes-v2');await mkdir(negocio,{recursive:true});
+ for(const f of ['servico.cjs','dsips-base.cjs','cautelas-base.cjs'])await copyFile(join(raiz,'backend/operacoes-v2',f),join(negocio,f));
  const marker='// CMAPP-ACESSOS-V2: registro de endpoints';
  const registro="Object.assign(exports, require('./acessos-v2/registrar.cjs')({onCall, db, auth, FieldValue, HttpsError, regiao: REGIAO}));";
  let atualizado=index.replace("Object.assign(exports, require('./acessos-v2/registrar.cjs')({onCall, db, FieldValue, HttpsError, regiao: REGIAO}));",registro);

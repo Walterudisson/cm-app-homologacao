@@ -62,7 +62,7 @@ autoritativa e impedir fallback quando a conta estiver em v2.
 ## Preparação de pacote local
 
 Requer Node 22. O código de política é único: js/platform/access/catalogo.js e politica.js.
-O preparador copia a política para .mjs dentro do pacote Functions e registra os treze endpoints:
+O preparador copia a política para .mjs dentro do pacote Functions e registra os 21 endpoints (13 de gestão e oito operacionais):
 
 ```bash
 node scripts/preparar-backend-acessos-v2.mjs /caminho/para/pacote/functions
@@ -78,7 +78,7 @@ Não é necessário executar esse comando no ambiente do usuário nesta etapa.
 CMAPP_INTERNAL_ROOT deve apontar ao pacote interno de teste com dependências e Rules legadas.
 Firestore Emulator local em 127.0.0.1:8088, projeto exclusivo demo-cmapp-acessos-v2; o teste recusa rodar
 sem esse emulador. Java é necessário. Rodar o arquivo servico.integration.test.cjs por emulators:exec.
-30 cenários de integração incluem autenticação, campos forjados, escopos, perfil TI, revogação em sessão,
+44 cenários de integração incluem autenticação, campos forjados, escopos, perfil TI, revogação em sessão,
 conta inativa, idempotência, duplicidade, concorrência, projeções, paginação, auditoria filtrada e Rules.
 196 verificações frontend/política/preparação de pacote continuam aprovadas.
 
@@ -130,3 +130,9 @@ HTML interpolado. Seleção de divisões usa catálogo do servidor. Usuário bá
 Tema Claro/Escuro/Automático está implementado na nova gestão, com preferência local; a adaptação dos
 estilos do restante do CMAPP permanece pendente. Testes de DOM não substituem homologação visual em
 Android/desktop. A publicação final também requer revisão do cache/PWA e identificação de versão.
+
+## Operações de negócio — continuação
+
+Backend DSIPS v2 e consulta patrimonial por ID preparados em ../operacoes-v2/README.md. A política
+é verificada dentro da transação de estoque, cautela, devolução e recibo; consultas são paginadas e
+filtradas. Restam mutações/listagem patrimoniais, inventários e conexão das telas operacionais.

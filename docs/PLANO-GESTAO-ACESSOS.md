@@ -86,9 +86,17 @@ seleção de divisões do servidor, histórico e Claro/Escuro/Automático.
 
 Treze endpoints implementam consultas, concessões/delegações e ciclo de contas; proteções dos nove
 endpoints antigos e preparador de Rules de transição estão disponíveis localmente. Testes: 196 no
-frontend/política/pacote, 30 no Firestore Emulator. Ver backend/acessos-v2/README.md para limites.
+frontend/política/pacote, 44 no Firestore Emulator. Ver backend/acessos-v2/README.md para limites.
 
 Faltam aplicar política às operações e Rules dos módulos, reconciliação de Authentication, revisar dados
 reais e preparar migração/backup/reversão, homologar telas em dispositivos e ampliar temas ao sistema.
 A proteção de transição nega acesso legado das contas marcadas; não ativa o negócio novo. Não migrar
 usuários antes de resolver essas dependências. Nenhum usuário foi migrado ou publicação realizada.
+
+### Continuação operacional — 16/11/2026
+
+Oito endpoints operacionais preparados: cadastros/saldo/cautelas/devoluções DSIPS, consultas paginadas
+e consulta patrimonial por ID. Autorização e dados são verificados na mesma transação. Operador não
+administra cadastros e seu histórico não expõe auditoria cadastral. Há 21 endpoints no preparador local.
+Ver backend/operacoes-v2/README.md. Restam integração de telas/PDV e operações patrimoniais/inventários;
+nenhum módulo completo foi habilitado ou usuário real migrado nesta etapa.

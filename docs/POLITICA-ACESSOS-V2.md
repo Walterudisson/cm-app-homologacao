@@ -107,7 +107,15 @@ sessão e dados reais, acompanha revisão e oferece perfil próprio ao usuário 
 As proteções de transição bloqueiam uso de privilégios legados por contas versionadas; elas não
 substituem a migração nem habilitam o negócio v2. Descritores corrompidos não liberam gestão.
 
-Validação atual: 196 testes frontend/política/pacote e 30 cenários no Firestore Emulator. Incluem
+Validação atual: 196 testes frontend/política/pacote e 44 cenários no Firestore Emulator. Incluem
 ciclo de contas, falha de sincronização Auth, reenvio antigo, limites de gestor e Rules de transição.
 Permanecem migração com UID inicial explícito, backup/reversão, reconciliação Auth/Firestore,
 homologação visual e extensão de temas ao restante do sistema. Nenhum usuário real foi alterado.
+
+### Continuação operacional — 16/11/2026
+
+Oito endpoints operacionais preparados: cadastros/saldo/cautelas/devoluções DSIPS, consultas paginadas
+e consulta patrimonial por ID. Autorização e dados são verificados na mesma transação. Operador não
+administra cadastros e seu histórico não expõe auditoria cadastral. Há 21 endpoints no preparador local.
+Ver backend/operacoes-v2/README.md. Restam integração de telas/PDV e operações patrimoniais/inventários;
+nenhum módulo completo foi habilitado ou usuário real migrado nesta etapa.
