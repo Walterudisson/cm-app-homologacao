@@ -35,9 +35,12 @@ function criarOperacoesV2({db,FieldValue,HttpsError,contexto:c}){
     if(!audita)q=q.where('tipo','in',['cautela_registrada','devolucao_registrada']);
    }
    if(materialId!==undefined){if(tipo!=='cadastro'||request.data.tipo!=='unidades')erro('invalid-argument','Filtro não suportado.');q=q.where('materialId','==',materialId);}
-   q=q.orderBy('__name__').limit(limite+1);if(cursor)q=q.startAfter(cursor);const snap=await tx.get(q),docs=snap.docs.slice(0,limite);
+   if(tipo==='eventos'){
+    q=q.orderBy('registradoEm','desc').orderBy('__name__','desc').limit(limite+1);
+    if(cursor){const anterior=await tx.get(db.doc('dsipsEventos/'+cursor));const p=await c.politicaPromise;const audita=p.podeExecutar(autor,{moduloId:'dsips',funcionalidadeId:'materiais_cautelas',acao:'alterar'});if(!anterior.exists||!anterior.data().registradoEm||!audita&&!['cautela_registrada','devolucao_registrada'].includes(anterior.data().tipo))erro('invalid-argument','Cursor indisponível. Atualize o histórico.');q=q.startAfter(anterior);}
+   }else{q=q.orderBy('__name__').limit(limite+1);if(cursor)q=q.startAfter(cursor);}const snap=await tx.get(q),docs=snap.docs.slice(0,limite);
    const registros=docs.filter(d=>tipo!=='responsaveis'||d.data().ativo!==false).map(d=>tipo==='responsaveis'?{id:d.id,nome:d.data().nome||'Usuário',matricula:d.data().matricula||'',ativo:true}:{...d.data(),id:d.id});
-   return{registros,proximoCursor:snap.size>limite?docs.at(-1).id:null,ordenacao:'id'};
+   return{registros,proximoCursor:snap.size>limite?docs.at(-1).id:null,ordenacao:tipo==='eventos'?'registradoEm_desc':'id'};
   });
  }
  const divisaoDoBem=b=>b.localizacaoAtual||b.divisaoOrigem||b.divisao||'';

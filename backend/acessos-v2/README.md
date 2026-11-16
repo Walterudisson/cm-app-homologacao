@@ -78,9 +78,9 @@ Não é necessário executar esse comando no ambiente do usuário nesta etapa.
 CMAPP_INTERNAL_ROOT deve apontar ao pacote interno de teste com dependências e Rules legadas.
 Firestore Emulator local em 127.0.0.1:8088, projeto exclusivo demo-cmapp-acessos-v2; o teste recusa rodar
 sem esse emulador. Java é necessário. Rodar o arquivo servico.integration.test.cjs por emulators:exec.
-44 cenários de integração incluem autenticação, campos forjados, escopos, perfil TI, revogação em sessão,
+46 cenários de integração incluem autenticação, campos forjados, escopos, perfil TI, revogação em sessão,
 conta inativa, idempotência, duplicidade, concorrência, projeções, paginação, auditoria filtrada e Rules.
-196 verificações frontend/política/preparação de pacote continuam aprovadas.
+208 verificações frontend/política/preparação de pacote continuam aprovadas.
 
 ## Bloqueios de ativação — obrigatórios antes de migrar qualquer usuário real
 
@@ -121,13 +121,14 @@ vida de contas em produção. O sinal sincronizado=false é explícito na respos
 
 scripts/preparar-rules-transicao-v2.mjs prepara somente um arquivo local compatível de Rules. Ele bloqueia
 privilégios legados de contas com qualquer autorizacaoVersao, preservando consulta do próprio perfil.
-Não concede acesso v2 ao negócio: até portar operações e Rules de Patrimônios/DSIPS, uma conta v2 terá
-somente gestão por callable e perfil próprio. Não executar migração real nessa situação.
+Não concede acesso direto aos dados de negócio. DSIPS v2 usa os adaptadores callable; Patrimônios
+ainda depende da conclusão das operações e navegação. Não executar migração real antes de homologar
+integralmente os módulos necessários à conta.
 
 O bootstrap legado redireciona contas v2 para gestao-v2/ e não interpreta seu perfil antigo. A interface
 consulta diretório paginado, escopos e histórico reais, distingue conta não migrada e mantém dados fora de
 HTML interpolado. Seleção de divisões usa catálogo do servidor. Usuário básico recebe Meu perfil.
-Tema Claro/Escuro/Automático está implementado na nova gestão, com preferência local; a adaptação dos
+Tema Claro/Escuro/Automático está implementado na nova gestão e na rota DSIPS v2, com preferência local; a adaptação dos
 estilos do restante do CMAPP permanece pendente. Testes de DOM não substituem homologação visual em
 Android/desktop. A publicação final também requer revisão do cache/PWA e identificação de versão.
 
@@ -135,4 +136,13 @@ Android/desktop. A publicação final também requer revisão do cache/PWA e ide
 
 Backend DSIPS v2 e consulta patrimonial por ID preparados em ../operacoes-v2/README.md. A política
 é verificada dentro da transação de estoque, cautela, devolução e recibo; consultas são paginadas e
-filtradas. Restam mutações/listagem patrimoniais, inventários e conexão das telas operacionais.
+filtradas. Restam mutações/listagem patrimoniais, inventários e conexão das telas patrimoniais.
+
+### Atendimento DSIPS integrado na rota v2 — 16/11/2026
+
+A rota operacoes-v2/ está conectada ao cliente operacional e aos controladores compartilhados de
+cadastros, estoque e PDV. Autorização é injetada por ação, sem perfil fictício de admin. Há paginação
+com limite explícito para catálogos, histórico cronológico com carregamento anterior, cancelamento de
+respostas tardias, limpeza na saída e temas Claro/Escuro/Automático. A gestão oferece link conforme
+consulta operacional. Código no PR de desenvolvimento; ainda sem publicação ou migração real.
+Detalhes, limites de volume e índice necessário em backend/operacoes-v2/README.md.

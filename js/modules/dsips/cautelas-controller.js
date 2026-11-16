@@ -1,14 +1,16 @@
 import { modulosDoUsuario } from '../../platform/modules.js';
 import { podeGerenciarDsips } from './model.js';
+import { dataDoServidor, milissegundosDoServidor } from '../../ui/datas.js';
 import { pendente, unidadesPendentes, resumirPosse } from './cautelas-model.js';
 
-export function criarInterfaceCautelas({ obterUsuario, servicos, confirmar, notificar }) {
+export function criarInterfaceCautelas({ obterUsuario, servicos, confirmar, notificar, pode = null, aoAtualizar = null }) {
   const porId = id => document.getElementById(id);
   const form = porId('dsips-cautela-form'); const retorno = porId('dsips-devolucao-form');
-  let dados = {}; let pagina = ''; let revisao = 0; let gravando = false;
+  let geracao = 0; let dados = {}; let pagina = ''; let revisao = 0; let gravando = false;
   let linhas = []; let linhasRetorno = []; let cautelaRetorno = null;
   const operacoes = new Map();
-  const podeEscrever = () => podeGerenciarDsips(obterUsuario());
+  const permitido = acao => pode ? Boolean(pode(acao)) : acao === 'consultar' ? modulosDoUsuario(obterUsuario()).some(item => item.id === 'dsips') : podeGerenciarDsips(obterUsuario());
+  const podeEscrever = (tipo = 'cautela') => permitido(tipo === 'devolucao' ? 'devolver' : 'cautelar');
   const texto = (tag, valor) => { const node = document.createElement(tag); node.textContent = valor; return node; };
   const normalizar = valor => String(valor).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
   function status(valor) { document.querySelectorAll('.movement-status').forEach(node => { node.textContent = valor; }); }
@@ -94,7 +96,7 @@ export function criarInterfaceCautelas({ obterUsuario, servicos, confirmar, noti
   }
   function cancelarRetorno() { retorno.classList.add('hidden'); cautelaRetorno = null; linhasRetorno = []; porId('dsips-devolucao-rows').replaceChildren(); retorno.reset(); }
   function prepararRetorno(cautela) {
-    if (!podeEscrever()) return;
+    if (!podeEscrever('devolucao')) return;
     cancelarRetorno(); cautelaRetorno = cautela; retorno.classList.remove('hidden');
     porId('dsips-devolucao-title').textContent = `Devolução · ${cautela.responsavelNome} · ${cautela.id.slice(0, 10)}`;
     for (const item of cautela.itens.filter(item => pendente(item) > 0)) {
@@ -112,15 +114,15 @@ export function criarInterfaceCautelas({ obterUsuario, servicos, confirmar, noti
   function renderizarCautelas() {
     const container = porId('dsips-cautela-list'); container.replaceChildren();
     const filtro = porId('dsips-cautela-status').value; const busca = normalizar(porId('dsips-cautela-search').value);
-    const lista = [...(dados.cautelas || [])].sort((a, b) => (b.criadoEm?.toMillis?.() || 0) - (a.criadoEm?.toMillis?.() || 0));
+    const lista = [...(dados.cautelas || [])].sort((a, b) => milissegundosDoServidor(b.criadoEm) - milissegundosDoServidor(a.criadoEm));
     for (const cautela of lista) {
       if (filtro !== 'todas' && cautela.status !== filtro) continue;
       if (!normalizar(`${cautela.responsavelNome} ${cautela.responsavelMatricula} ${cautela.itens.map(item => item.nome).join(' ')}`).includes(busca)) continue;
       const card = document.createElement('article'); card.className = 'module-access-panel';
-      card.append(texto('h3', `${cautela.responsavelNome} · ${rotulo(cautela)}`), texto('p', `${cautela.id.slice(0, 10)} · Matrícula ${cautela.responsavelMatricula || 'não informada'}${cautela.criadoEm?.toDate ? ' · ' + cautela.criadoEm.toDate().toLocaleString('pt-BR') : ''}`));
+      card.append(texto('h3', `${cautela.responsavelNome} · ${rotulo(cautela)}`), texto('p', `${cautela.id.slice(0, 10)} · Matrícula ${cautela.responsavelMatricula || 'não informada'}${dataDoServidor(cautela.criadoEm) ? ' · ' + dataDoServidor(cautela.criadoEm).toLocaleString('pt-BR') : ''}`));
       for (const item of cautela.itens) card.appendChild(texto('p', `${item.nome}: ${item.quantidade} ${item.unidade} entregues · ${item.devolvida} devolvidos · ${pendente(item)} pendentes${unidadesPendentes(item).length ? ' · ' + unidadesPendentes(item).map(unidade => unidade.identificacao).join(', ') : ''}`));
       if (cautela.observacoes) card.appendChild(texto('p', cautela.observacoes));
-      if (cautela.status !== 'encerrada' && podeEscrever()) {
+      if (cautela.status !== 'encerrada' && podeEscrever('devolucao')) {
         const botao = texto('button', 'Registrar devolução'); botao.type = 'button'; botao.className = 'app-button app-button-primary';
         botao.addEventListener('click', () => prepararRetorno(cautela)); card.appendChild(botao);
       }
@@ -141,7 +143,7 @@ export function criarInterfaceCautelas({ obterUsuario, servicos, confirmar, noti
   }
   async function carregar(destino) {
     pagina = destino; const token = ++revisao; const uid = obterUsuario()?.uid;
-    if (!modulosDoUsuario(obterUsuario()).some(item => item.id === 'dsips')) return false;
+    if (!permitido('consultar')) return false;
     status('Carregando…'); cancelarRetorno();
     document.querySelectorAll('[data-movement-write]').forEach(node => node.classList.toggle('hidden', !podeEscrever()));
     try {
@@ -161,8 +163,8 @@ export function criarInterfaceCautelas({ obterUsuario, servicos, confirmar, noti
     } catch (erro) { if (token === revisao && uid === obterUsuario()?.uid) { status('Falha ao consultar. Use Atualizar para tentar novamente.'); notificar(erro.message, 'erro'); } return false; }
   }
   async function gravar(tipo, payload, funcao, formEnvio) {
-    if (gravando || !podeEscrever()) return;
-    gravando = true; const uid = obterUsuario()?.uid; const destino = pagina;
+    if (gravando || !podeEscrever(tipo)) return;
+    gravando = true; const epoca = geracao; const uid = obterUsuario()?.uid; const destino = pagina;
     const serializado = JSON.stringify(payload); const anterior = operacoes.get(tipo);
     const operacaoId = anterior?.serializado === serializado ? anterior.id : crypto.randomUUID(); operacoes.set(tipo, { serializado, id: operacaoId });
     const botao = formEnvio.querySelector('button[type="submit"]'); botao.disabled = true;
@@ -170,13 +172,14 @@ export function criarInterfaceCautelas({ obterUsuario, servicos, confirmar, noti
       const pessoa = tipo === 'cautela' ? dados.responsaveis?.find(item => item.id === payload.responsavelId)?.nome : cautelaRetorno?.responsavelNome;
       const itensResumo = payload.itens.map(item => { const material = dados.materiais?.find(atual => atual.id === item.materialId); return `${material?.nome || item.materialId}: ${item.quantidade}${item.unidadeIds.length ? ' · ' + item.unidadeIds.length + ' identificação(ões)' : ''}`; }).join('; ');
       if (!await confirmar({ titulo: tipo === 'cautela' ? 'Confirmar entrega dos materiais?' : 'Confirmar devolução?', mensagem: `${pessoa || 'Responsável'} — ${itensResumo}. Confirme a entrega física. O estoque e o histórico serão atualizados.`, confirmarTexto: 'Confirmar registro' })) return;
-      if (uid !== obterUsuario()?.uid || !podeEscrever()) return;
-      await funcao({ ...payload, operacaoId }); operacoes.delete(tipo);
-      if (uid !== obterUsuario()?.uid) return;
+      if (epoca !== geracao || uid !== obterUsuario()?.uid || !podeEscrever(tipo)) return;
+      await funcao({ ...payload, operacaoId });
+      if (epoca !== geracao || uid !== obterUsuario()?.uid) return;
+      operacoes.delete(tipo);
       notificar(tipo === 'cautela' ? 'Cautela registrada.' : 'Devolução registrada.', 'sucesso');
       if (destino === pagina) await carregar(destino);
-    } catch (erro) { if (uid === obterUsuario()?.uid) notificar(erro.message || 'Não foi possível registrar a operação.', 'erro'); }
-    finally { gravando = false; botao.disabled = false; }
+    } catch (erro) { if (epoca === geracao && uid === obterUsuario()?.uid) notificar(erro.message || 'Não foi possível registrar a operação.', 'erro'); }
+    finally { if (epoca === geracao) { gravando = false; botao.disabled = false; } }
   }
   form.addEventListener('submit', evento => {
     evento.preventDefault();
@@ -211,9 +214,11 @@ export function criarInterfaceCautelas({ obterUsuario, servicos, confirmar, noti
   porId('dsips-cautela-search').addEventListener('input', renderizarCautelas);
   porId('dsips-cautela-status').addEventListener('change', renderizarCautelas);
   porId('dsips-posse-search').addEventListener('input', renderizarPosse);
-  document.querySelectorAll('[data-movement-refresh]').forEach(botao => botao.addEventListener('click', () => carregar(pagina)));
+  document.querySelectorAll('[data-movement-refresh]').forEach(botao => botao.addEventListener('click', () => aoAtualizar ? aoAtualizar() : carregar(pagina)));
   return { carregar, sairDaPagina() { ++revisao; pagina = ''; sairQuiosque(); }, limpar() {
-    sairQuiosque(); ++revisao; pagina = ''; dados = {}; linhas = []; operacoes.clear(); cancelarRetorno(); form.reset(); status('');
+    ++geracao; gravando = false; sairQuiosque(); ++revisao; pagina = ''; dados = {}; linhas = []; operacoes.clear(); cancelarRetorno(); form.reset(); status('');
+    form.elements.responsavelId.replaceChildren(); porId('dsips-pdv-categoria').replaceChildren(); porId('dsips-pdv-operador').textContent = '';
+    porId('dsips-pdv-cards').replaceChildren(); form.querySelector('button[type=submit]').disabled = false; retorno.querySelector('button[type=submit]').disabled = false;
     for (const id of ['dsips-cautela-rows','dsips-cautela-list','dsips-posse-list']) porId(id).replaceChildren();
   } };
 }

@@ -1,20 +1,22 @@
 import { podeGerenciarDsips, identificadoresDoTexto, resumoDsips, filtrarPorNome } from './model.js';
 import { modulosDoUsuario } from '../../platform/modules.js';
+import { dataDoServidor } from '../../ui/datas.js';
 import { descricaoItens } from './cautelas-model.js';
 
-export function criarInterfaceDsips({ obterUsuario, servicos, confirmar, notificar }) {
+export function criarInterfaceDsips({ obterUsuario, servicos, confirmar, notificar, pode = null, aoAtualizar = null }) {
   const porId = id => document.getElementById(id);
   const formMaterial = porId('dsips-material-form');
   const formCatalogo = porId('dsips-catalog-form');
   const formSaldo = porId('dsips-saldo-form');
-  let dados = {}; let pagina = ''; let revisao = 0; let gravando = false;
+  let geracao = 0; let dados = {}; let pagina = ''; let revisao = 0; let gravando = false;
   const pendentes = new Map();
   const campos = form => form.elements;
   const tipoCatalogo = () => porId('dsips-catalog-type').value;
   const chaveCatalogo = () => ({ categoria: 'categorias', local: 'locais' })[tipoCatalogo()];
   const nome = (tipo, id) => dados[tipo]?.find(item => item.id === id)?.nome || 'Cadastro não disponível';
-  const autorizado = () => modulosDoUsuario(obterUsuario()).some(item => item.id === 'dsips');
-  const podeEscrever = () => podeGerenciarDsips(obterUsuario());
+  const permitido = acao => pode ? Boolean(pode(acao)) : acao === 'consultar' ? modulosDoUsuario(obterUsuario()).some(item => item.id === 'dsips') : podeGerenciarDsips(obterUsuario());
+  const autorizado = () => permitido('consultar');
+  const podeEscrever = () => permitido(pagina === 'dsips-estoque' ? 'saldo_inicial' : 'cadastrar');
 
   function status(mensagem) {
     document.querySelectorAll('.dsips-status').forEach(elemento => { elemento.textContent = mensagem; });
@@ -124,7 +126,7 @@ export function criarInterfaceDsips({ obterUsuario, servicos, confirmar, notific
   function renderizarHistorico(eventos) {
     const container = porId('dsips-event-list'); container.replaceChildren();
     for (const evento of eventos) {
-      const data = evento.registradoEm?.toDate?.();
+      const data = dataDoServidor(evento.registradoEm);
       const inicial = evento.tipo === 'saldo_inicial_registrado';
       if (['cautela_registrada', 'devolucao_registrada'].includes(evento.tipo)) {
         linha(container, `${evento.tipo === 'cautela_registrada' ? 'Cautela' : 'Devolução'} · ${evento.dados.responsavelNome}`,
@@ -174,7 +176,7 @@ export function criarInterfaceDsips({ obterUsuario, servicos, confirmar, notific
   async function gravar(form, payload, salvar, mensagem, precisaConfirmar = false) {
     if (gravando || !podeEscrever()) return;
     gravando = true;
-    const uid = obterUsuario()?.uid;
+    const epoca = geracao; const uid = obterUsuario()?.uid;
     const paginaEnvio = pagina;
     const serializado = JSON.stringify(payload);
     const chaveOperacao = form.id;
@@ -184,18 +186,18 @@ export function criarInterfaceDsips({ obterUsuario, servicos, confirmar, notific
     const botao = form.querySelector('button[type="submit"]'); botao.disabled = true;
     try {
       if (precisaConfirmar && !await confirmar({ titulo: 'Confirmar saldo inicial?', mensagem: 'O saldo inicial será registrado com sua identificação e não poderá ser editado. Confirme o material, o local e a quantidade.', confirmarTexto: 'Registrar saldo' })) return;
-      if (uid !== obterUsuario()?.uid || !podeEscrever()) return;
+      if (epoca !== geracao || uid !== obterUsuario()?.uid || !podeEscrever()) return;
       await salvar({ ...payload, operacaoId });
+      if (epoca !== geracao || uid !== obterUsuario()?.uid) return;
       pendentes.delete(chaveOperacao);
-      if (uid !== obterUsuario()?.uid) return;
       if (form === formMaterial) novoMaterial();
       else if (form === formCatalogo) novoCatalogo();
       else formSaldo.reset();
       notificar(mensagem, 'sucesso');
       if (pagina === paginaEnvio) await carregar(paginaEnvio);
     } catch (erro) {
-      if (uid === obterUsuario()?.uid) notificar(erro.message || 'Não foi possível salvar. Tente novamente.', 'erro');
-    } finally { gravando = false; botao.disabled = false; }
+      if (epoca === geracao && uid === obterUsuario()?.uid) notificar(erro.message || 'Não foi possível salvar. Tente novamente.', 'erro');
+    } finally { if (epoca === geracao) { gravando = false; botao.disabled = false; } }
   }
   formMaterial.addEventListener('submit', evento => {
     evento.preventDefault(); const f = campos(formMaterial); if (!f.id.value) f.id.value = crypto.randomUUID();
@@ -225,10 +227,12 @@ export function criarInterfaceDsips({ obterUsuario, servicos, confirmar, notific
   porId('dsips-catalog-search').addEventListener('input', renderizarCatalogo);
   campos(formSaldo).materialId.addEventListener('change', atualizarIdentificadores);
   campos(formSaldo).identificadores.addEventListener('input', atualizarIdentificadores);
-  document.querySelectorAll('[data-dsips-refresh]').forEach(botao => botao.addEventListener('click', () => carregar(pagina)));
+  document.querySelectorAll('[data-dsips-refresh]').forEach(botao => botao.addEventListener('click', () => aoAtualizar ? aoAtualizar() : carregar(pagina)));
   return { carregar, sairDaPagina() { ++revisao; pagina = ''; }, limpar() {
-    ++revisao; pagina = ''; dados = {}; pendentes.clear(); status('');
+    ++geracao; gravando = false; ++revisao; pagina = ''; dados = {}; pendentes.clear(); status('');
     novoMaterial(); novoCatalogo(); formSaldo.reset();
+    for (const campo of [campos(formMaterial).categoriaId,campos(formSaldo).materialId,campos(formSaldo).localId]) campo.replaceChildren();
+    for (const form of [formMaterial,formCatalogo,formSaldo]) form.querySelector('button[type=submit]').disabled = false;
     for (const id of ['dsips-material-list', 'dsips-catalog-list', 'dsips-stock-list', 'dsips-unit-list', 'dsips-event-list', 'dsips-kpis']) porId(id).replaceChildren();
   } };
 }

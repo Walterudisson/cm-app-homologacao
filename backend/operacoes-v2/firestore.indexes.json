@@ -1,0 +1,9 @@
+{
+  "indexes": [
+    {"collectionGroup":"dsipsEventos","queryScope":"COLLECTION","fields":[
+      {"fieldPath":"tipo","order":"ASCENDING"},
+      {"fieldPath":"registradoEm","order":"DESCENDING"}
+    ]}
+  ],
+  "fieldOverrides": []
+}

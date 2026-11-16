@@ -1,3 +1,4 @@
+import {podeExecutar} from '../js/platform/access/politica.js';
 import {auth,db} from '../js/config/firebase.js';
 import {onAuthStateChanged,signOut,sendPasswordResetEmail,updateProfile} from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
 import {doc,getDocFromServer,onSnapshot,updateDoc} from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
@@ -14,7 +15,7 @@ const ui=criarGestaoV2({obterSessao:()=>sessao,confirmar,notificar,servicos:{
 for(const n of ['logout','gate-logout'])id(n).addEventListener('click',()=>void signOut(auth));
 id('theme').value=window.cmappTema.obter();id('theme').addEventListener('change',e=>window.cmappTema.definir(e.target.value));document.addEventListener('cmapp:tema',()=>{id('theme').value=window.cmappTema.obter();});id('switch-theme').addEventListener('click',()=>window.cmappTema.definir(document.documentElement.dataset.theme==='dark'?'claro':'escuro'));
 onAuthStateChanged(auth,async user=>{
- const token=++revisao;if(parar){parar();parar=null;}sessao=null;ui.limpar();
+ const token=++revisao;if(parar){parar();parar=null;}sessao=null;ui.limpar();id('open-dsips').classList.add('hidden');
  if(!user){mensagem('Entre no CMAPP para acessar sua conta.');return;}
  mensagem('Validando a sessão e os acessos no servidor…');
  try{const snap=await getDocFromServer(doc(db,'usuarios',user.uid));if(token!==revisao||user.uid!==auth.currentUser?.uid)return;
@@ -23,6 +24,7 @@ onAuthStateChanged(auth,async user=>{
   const acesso=await api.consultarMeusAcessosV2();if(token!==revisao||user.uid!==auth.currentUser?.uid)return;sessao={conta:{...snap.data(),uid:user.uid},acesso};
   const versao=snap.data().autorizacaoVersao,rev=snap.data().autorizacaoRevisao??0;
   parar=onSnapshot(doc(db,'usuarios',user.uid),s=>{if(token!==revisao)return;const u=s.data();if(!s.exists()||u.ativo===false||u.autorizacaoVersao!==versao||(u.autorizacaoRevisao??0)!==rev){sessao=null;ui.limpar();mensagem('Sua autorização foi alterada. Entre novamente.');void signOut(auth);}},()=>{sessao=null;ui.limpar();mensagem('Não foi possível acompanhar a autorização. Entre novamente.');void signOut(auth);});
+  id('open-dsips').classList.toggle('hidden',!podeExecutar(acesso,{moduloId:'dsips',funcionalidadeId:'materiais_cautelas',acao:'consultar'}));
   await ui.iniciar();if(token!==revisao||!sessao)return;id('session-gate').classList.add('hidden');id('management-shell').classList.remove('hidden');
  }catch(e){if(token===revisao){sessao=null;ui.limpar();mensagem(e.code?.includes('not-found')?'A gestão v2 ainda não está disponível neste ambiente.':(e.message||'Não foi possível validar seus acessos.'));}}
 });

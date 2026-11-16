@@ -1,0 +1,102 @@
+<!doctype html><html lang="pt-BR" data-theme="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark light"><title>CMAPP · DSIPS</title><link rel="stylesheet" href="../gestao-v2/style.css"><link rel="stylesheet" href="./style.css"><script src="../js/ui/tema.js"></script></head><body>
+<div class="demo">HOMOLOGAÇÃO · DSIPS V2 · DADOS REAIS</div>
+<section id="session-gate" class="panel session-gate"><h1>DSIPS</h1><p id="session-message" role="status">Validando sessão…</p><div class="actions"><a href="../gestao-v2/">Minha conta</a><a href="../login.html">Entrar no CMAPP</a><button id="gate-logout" type="button">Sair</button></div></section>
+<div id="operation-shell" class="shell hidden"><aside class="sidebar"><div class="brand"><span class="logo">CM</span><div><strong>CMAPP</strong><small>DSIPS · Materiais e Cautelas</small></div></div><nav class="nav" aria-label="DSIPS">
+<button type="button" data-nav-page="dsips-cautelas">Atendimento</button><button type="button" data-nav-page="dsips-posse">Quem está com o quê</button><button type="button" data-nav-page="dsips-inicio">Visão geral</button><button type="button" data-nav-page="dsips-materiais">Materiais</button><button type="button" data-nav-page="dsips-cadastros">Categorias e locais</button><button type="button" data-nav-page="dsips-estoque">Estoque</button><button type="button" data-nav-page="dsips-historico">Histórico</button></nav><a href="../gestao-v2/">Minha conta e acessos</a></aside><div class="workspace"><header class="topbar"><div><strong id="operation-title">DSIPS</strong><small id="operation-user"></small></div><div class="top-actions"><label>Tema<select id="theme" aria-label="Selecionar tema"><option value="automatico">Automático</option><option value="claro">Claro</option><option value="escuro">Escuro</option></select></label><button type="button" id="logout">Sair</button></div></header><main class="content">      <section id="sec-dsips-inicio" class="hidden module-page">
+        <div class="dsips-heading"><div><h2>DSIPS</h2><p>Materiais e posição inicial de estoque.</p></div><button type="button" class="app-button app-button-secondary" data-dsips-refresh>Atualizar</button></div>
+        <p class="dsips-status" role="status" aria-live="polite"></p>
+        <div class="dsips-kpis" id="dsips-kpis"></div>
+        <div class="module-cards">
+          <button type="button" class="module-card" data-nav-page="dsips-materiais"><strong>Materiais</strong><span>Cadastro e identificação dos materiais</span></button>
+          <button type="button" class="module-card" data-nav-page="dsips-cadastros"><strong>Cadastros</strong><span>Categorias e locais de estoque</span></button>
+          <button type="button" class="module-card" data-nav-page="dsips-estoque"><strong>Estoque</strong><span>Saldo inicial e unidades identificadas</span></button>
+          <button type="button" class="module-card" data-nav-page="dsips-cautelas"><strong>Cautelas e devoluções</strong><span>Entregar materiais e registrar o retorno</span></button>
+          <button type="button" class="module-card" data-nav-page="dsips-posse"><strong>Quem está com o quê</strong><span>Materiais pendentes por responsável</span></button>
+        </div>
+      </section>
+      <section id="sec-dsips-materiais" class="hidden module-page">
+        <div class="dsips-heading"><div><h2>Materiais</h2><p>Controle por quantidade ou por identificação individual.</p></div><button type="button" class="app-button app-button-secondary" data-dsips-refresh>Atualizar</button></div>
+        <p class="dsips-status" role="status" aria-live="polite"></p>
+        <form id="dsips-material-form" class="module-access-panel dsips-form" data-dsips-write>
+          <h3 id="dsips-material-title">Novo material</h3><input type="hidden" name="id">
+          <div class="dsips-form-grid">
+            <label>Nome<input name="nome" required maxlength="120"></label>
+            <label>Categoria<select name="categoriaId" required></select></label>
+            <label>Ícone do card<select name="icone"><option value="caixa">Caixa</option><option value="escudo">Escudo</option><option value="radio">Rádio</option><option value="chave">Chave</option><option value="maleta">Maleta</option><option value="colete">Colete</option></select></label>
+            <label>Cor do card<select name="cor"><option value="azul">Azul CMAPP</option><option value="verde">Verde</option><option value="roxo">Roxo</option><option value="ambar">Âmbar</option></select></label>
+            <label>Controle<select name="controle"><option value="quantidade">Por quantidade</option><option value="individualizado">Individualizado</option></select></label>
+            <label>Unidade de medida<select name="unidade"><option value="un">Unidade</option><option value="par">Par</option><option value="caixa">Caixa</option><option value="kit">Kit</option></select></label>
+          </div>
+          <label>Observações<textarea name="observacoes" maxlength="500" rows="2"></textarea></label>
+          <label class="dsips-check"><input type="checkbox" name="ativo" checked> Material ativo</label>
+          <div class="dsips-actions"><button type="submit" class="app-button app-button-primary">Salvar material</button><button type="button" class="app-button app-button-secondary" id="dsips-material-new">Limpar formulário</button></div>
+        </form>
+        <label class="dsips-search">Pesquisar material<input type="search" id="dsips-material-search" placeholder="Nome do material"></label>
+        <div id="dsips-material-list" class="dsips-list"></div>
+      </section>
+      <section id="sec-dsips-cadastros" class="hidden module-page">
+        <div class="dsips-heading"><div><h2>Cadastros DSIPS</h2><p>Categorias e locais de estoque. Os responsáveis são usuários cadastrados no CM APP.</p></div><button type="button" class="app-button app-button-secondary" data-dsips-refresh>Atualizar</button></div>
+        <p class="dsips-status" role="status" aria-live="polite"></p>
+        <label class="dsips-search">Tipo de cadastro<select id="dsips-catalog-type"><option value="categoria">Categorias</option><option value="local">Locais de estoque</option></select></label>
+        <form id="dsips-catalog-form" class="module-access-panel dsips-form" data-dsips-write>
+          <h3 id="dsips-catalog-title">Novo cadastro</h3><input type="hidden" name="id">
+          <label>Nome<input name="nome" required maxlength="120"></label>
+          <label class="dsips-check"><input type="checkbox" name="ativo" checked> Cadastro ativo</label>
+          <div class="dsips-actions"><button type="submit" class="app-button app-button-primary">Salvar cadastro</button><button type="button" class="app-button app-button-secondary" id="dsips-catalog-new">Limpar formulário</button></div>
+        </form>
+        <label class="dsips-search">Pesquisar cadastro<input type="search" id="dsips-catalog-search" placeholder="Nome do cadastro"></label>
+        <div id="dsips-catalog-list" class="dsips-list"></div>
+      </section>
+      <section id="sec-dsips-estoque" class="hidden module-page">
+        <div class="dsips-heading"><div><h2>Estoque</h2><p>Posição inicial por material e local.</p></div><button type="button" class="app-button app-button-secondary" data-dsips-refresh>Atualizar</button></div>
+        <p class="dsips-status" role="status" aria-live="polite"></p>
+        <form id="dsips-saldo-form" class="module-access-panel dsips-form" data-dsips-write>
+          <h3>Registrar saldo inicial</h3><p>Um lançamento por material, com justificativa. Confira os dados: este registro não pode ser editado.</p>
+          <div class="dsips-form-grid">
+            <label>Material<select name="materialId" required></select></label>
+            <label>Local de estoque<select name="localId" required></select></label>
+            <label>Quantidade<input name="quantidade" type="number" min="0" max="1000000" step="1" required></label>
+          </div>
+          <label id="dsips-identificadores-field" class="hidden">Patrimônio ou série — uma identificação por linha (até 200)<textarea name="identificadores" rows="5" placeholder="Informe uma identificação por unidade"></textarea></label>
+          <label>Justificativa<textarea name="motivo" required maxlength="500" rows="2" placeholder="Ex.: conferência física do acervo em…"></textarea></label>
+          <button type="submit" class="app-button app-button-primary">Registrar saldo inicial</button>
+        </form>
+        <div id="dsips-stock-list" class="dsips-list"></div>
+        <div id="dsips-unit-list" class="dsips-list" aria-live="polite"></div>
+      </section>
+      <section id="sec-dsips-historico" class="hidden module-page">
+        <div class="dsips-heading"><div><h2>Histórico DSIPS</h2><p>Movimentações e eventos permitidos ao seu acesso, dos mais recentes aos mais antigos.</p></div><button type="button" class="app-button app-button-secondary" data-dsips-refresh>Atualizar</button></div>
+        <p class="dsips-status" role="status" aria-live="polite"></p>
+        <div id="dsips-event-list" class="dsips-list"></div>
+      </section>
+      <section id="sec-dsips-cautelas" class="hidden module-page">
+        <div class="dsips-heading"><div><h2>Cautelas e devoluções</h2><p>Saída e retorno de materiais, com atualização do estoque.</p></div><button type="button" class="app-button app-button-secondary" data-movement-refresh>Atualizar</button></div>
+        <p class="movement-status" role="status" aria-live="polite"></p>
+        <form id="dsips-cautela-form" class="module-access-panel dsips-form" data-movement-write>
+          <div class="pdv-toolbar"><div><h3>Atendimento DSIPS</h3><p id="dsips-pdv-operador"></p></div><div class="dsips-actions"><button id="dsips-pdv-devolucoes" type="button" class="app-button app-button-secondary">Devoluções</button><button id="dsips-quiosque" type="button" class="app-button app-button-secondary" aria-pressed="false">Modo quiosque</button></div></div>
+          <div class="pdv-recipient"><label>1. Quem vai receber?<input id="dsips-usuario-search" type="search" placeholder="Pesquisar usuário pelo nome" autocomplete="off"></label><label>Usuário do CMAPP<select name="responsavelId" required></select></label></div>
+          <div class="pdv-layout"><div class="pdv-catalog"><h4>2. Toque nos materiais</h4><div class="dsips-form-grid"><label>Pesquisar material<input id="dsips-pdv-search" type="search" placeholder="Nome do material"></label><label>Categoria<select id="dsips-pdv-categoria"><option value="">Todas</option></select></label></div><div id="dsips-pdv-cards" class="pdv-cards"></div></div>
+          <aside class="pdv-basket"><h4>3. Cesta da cautela</h4><p id="dsips-pdv-resumo" role="status" aria-live="polite"></p><div id="dsips-cautela-rows" class="dsips-list"></div><label>Observações<textarea name="observacoes" maxlength="500" rows="2"></textarea></label><button type="submit" class="app-button app-button-primary">Conferir e registrar cautela</button><button id="dsips-pdv-limpar" type="button" class="app-button app-button-secondary">Limpar cesta</button></aside></div>
+        </form>
+        <form id="dsips-devolucao-form" class="hidden module-access-panel dsips-form">
+          <h3 id="dsips-devolucao-title">Registrar devolução</h3>
+          <p>Informe somente o que está retornando. O restante permanece em cautela.</p>
+          <div id="dsips-devolucao-rows" class="dsips-list"></div>
+          <button id="dsips-devolver-tudo" type="button" class="app-button app-button-secondary">Selecionar tudo pendente</button>
+          <label>Observações<textarea name="observacoes" maxlength="500" rows="2"></textarea></label>
+          <div class="dsips-actions"><button type="submit" class="app-button app-button-primary">Registrar devolução</button><button id="dsips-cancelar-devolucao" type="button" class="app-button app-button-secondary">Cancelar</button></div>
+        </form>
+        <div id="dsips-cautelas-consulta" class="dsips-form-grid">
+          <label class="dsips-search">Pesquisar responsável ou material<input id="dsips-cautela-search" type="search"></label>
+          <label class="dsips-search">Situação<select id="dsips-cautela-status"><option value="todas">Todas</option><option value="aberta">Sem devolução</option><option value="parcial">Parcialmente devolvida</option><option value="encerrada">Encerrada</option></select></label>
+        </div>
+        <div id="dsips-cautela-list" class="dsips-list"></div>
+      </section>
+      <section id="sec-dsips-posse" class="hidden module-page">
+        <div class="dsips-heading"><div><h2>Quem está com o quê</h2><p>Somente materiais ainda pendentes de devolução.</p></div><button type="button" class="app-button app-button-secondary" data-movement-refresh>Atualizar</button></div>
+        <p class="movement-status" role="status" aria-live="polite"></p>
+        <label class="dsips-search">Pesquisar responsável, matrícula, material ou identificação<input id="dsips-posse-search" type="search"></label>
+        <div id="dsips-posse-list" class="dsips-list"></div>
+      </section>
+
+<div class="actions"><button id="history-more" type="button" class="hidden">Carregar registros anteriores</button></div></main></div></div><div id="toast" class="toast hidden" role="status" aria-live="polite"></div><script type="module" src="./app.js"></script></body></html>

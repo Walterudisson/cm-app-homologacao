@@ -192,3 +192,11 @@ test('revogação durante abertura da operação é lida na transação antes de
 test('ausência ou versão desconhecida da política nunca usa perfil admin nas operações',async()=>{
  const b=negocio();await db.doc('cmappAcessos/operador').update({versao:99});await negar(b.listarDsips(reqSemOp({tipo:'materiais'})),'failed-precondition');await db.doc('cmappAcessos/operador').delete();await negar(b.listarDsips(reqSemOp({tipo:'materiais'})),'failed-precondition');await negar(b.consultarPatrimonio(reqSemOp({id:'x'})),'failed-precondition');
 });
+test('histórico DSIPS pagina por data decrescente com desempate por ID sem expor auditoria ao Operador',async()=>{
+ const b=negocio();const datas=[['z-antigo','cautela_registrada',1000],['a-novo','devolucao_registrada',3000],['b-meio','cautela_registrada',2000],['c-privado','cadastro_salvo',4000]];for(const[id,tipo,ms]of datas)await db.doc('dsipsEventos/'+id).set({tipo,registradoEm:new Date(ms),dados:{}});
+ const a=await b.listarEventos(reqSemOp({limite:2}));assert.deepEqual(a.registros.map(x=>x.id),['a-novo','b-meio']);assert.equal(a.ordenacao,'registradoEm_desc');const r=await b.listarEventos(reqSemOp({limite:2,cursor:a.proximoCursor}));assert.deepEqual(r.registros.map(x=>x.id),['z-antigo']);assert.equal(r.proximoCursor,null);
+ await negar(b.listarEventos(reqSemOp({cursor:'c-privado'})),'invalid-argument');await negar(b.listarEventos(reqSemOp({cursor:'nao-existe'})),'invalid-argument');const root=await b.listarEventos(reqSemOp({},'super'));assert.equal(root.registros[0].id,'c-privado');
+});
+test('cursor cronológico desempata eventos com a mesma data sem repetir ou perder linhas',async()=>{
+ const b=negocio();for(const id of ['a','b','c'])await db.doc('dsipsEventos/'+id).set({tipo:'cautela_registrada',registradoEm:new Date(1000)});const a=await b.listarEventos(reqSemOp({limite:2}));assert.deepEqual(a.registros.map(e=>e.id),['c','b']);const r=await b.listarEventos(reqSemOp({limite:2,cursor:a.proximoCursor}));assert.deepEqual(r.registros.map(e=>e.id),['a']);
+});

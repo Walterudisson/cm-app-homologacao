@@ -86,7 +86,7 @@ seleção de divisões do servidor, histórico e Claro/Escuro/Automático.
 
 Treze endpoints implementam consultas, concessões/delegações e ciclo de contas; proteções dos nove
 endpoints antigos e preparador de Rules de transição estão disponíveis localmente. Testes: 196 no
-frontend/política/pacote, 44 no Firestore Emulator. Ver backend/acessos-v2/README.md para limites.
+frontend/política/pacote, 46 no Firestore Emulator. Ver backend/acessos-v2/README.md para limites.
 
 Faltam aplicar política às operações e Rules dos módulos, reconciliação de Authentication, revisar dados
 reais e preparar migração/backup/reversão, homologar telas em dispositivos e ampliar temas ao sistema.
@@ -100,3 +100,12 @@ e consulta patrimonial por ID. Autorização e dados são verificados na mesma t
 administra cadastros e seu histórico não expõe auditoria cadastral. Há 21 endpoints no preparador local.
 Ver backend/operacoes-v2/README.md. Restam integração de telas/PDV e operações patrimoniais/inventários;
 nenhum módulo completo foi habilitado ou usuário real migrado nesta etapa.
+
+### Atendimento DSIPS integrado na rota v2 — 16/11/2026
+
+A rota operacoes-v2/ está conectada ao cliente operacional e aos controladores compartilhados de
+cadastros, estoque e PDV. Autorização é injetada por ação, sem perfil fictício de admin. Há paginação
+com limite explícito para catálogos, histórico cronológico com carregamento anterior, cancelamento de
+respostas tardias, limpeza na saída e temas Claro/Escuro/Automático. A gestão oferece link conforme
+consulta operacional. Código no PR de desenvolvimento; ainda sem publicação ou migração real.
+Detalhes, limites de volume e índice necessário em backend/operacoes-v2/README.md.
