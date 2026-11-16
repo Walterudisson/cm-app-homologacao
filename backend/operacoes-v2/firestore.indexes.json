@@ -69,6 +69,52 @@
           "order": "ASCENDING"
         }
       ]
+    },
+    {
+      "collectionGroup": "patrimonios",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "localizado",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "statusTransferencia",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "patrimonios",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "localizacaoEfetivaV2",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "localizado",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "patrimonios",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "localizacaoEfetivaV2",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "localizado",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "statusTransferencia",
+          "order": "ASCENDING"
+        }
+      ]
     }
   ],
   "fieldOverrides": []

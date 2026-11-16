@@ -20,3 +20,4 @@ export const consultarInventarioV2=divisao=>chamar('cmappInventarioConsultar',{d
 export const comandarInventarioV2=dados=>chamar('cmappInventarioComandar',dados);
 export const consolidarInventarioV2=dados=>chamar('cmappInventarioConsolidar',dados);
 export const itensInventarioV2=dados=>chamar('cmappInventarioItens',dados);
+export const resumirPatrimoniosV2=(filtros={})=>chamar('cmappPatrimoniosResumo',filtros);

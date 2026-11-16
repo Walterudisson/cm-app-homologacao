@@ -86,7 +86,7 @@ seleção de divisões do servidor, histórico e Claro/Escuro/Automático.
 
 Treze endpoints implementam consultas, concessões/delegações e ciclo de contas; proteções dos nove
 endpoints antigos e preparador de Rules de transição estão disponíveis localmente. Testes: 196 no
-frontend/política/pacote, 74 no Firestore Emulator. Ver backend/acessos-v2/README.md para limites.
+frontend/política/pacote, 78 no Firestore Emulator. Ver backend/acessos-v2/README.md para limites.
 
 Faltam aplicar política às operações e Rules dos módulos, reconciliação de Authentication, revisar dados
 reais e preparar migração/backup/reversão, homologar telas em dispositivos e ampliar temas ao sistema.
@@ -137,3 +137,13 @@ A relação pode ser exportada em CSV com permissão verificada por página, lim
 arquivo parcial após erro ou troca de sessão. Ver backend/operacoes-v2/LEITURA-RELACAO.md.
 Restam indicadores/ordenações/filtros avançados e relatórios oficiais, homologação de hardware e conta
 real, reconciliação Auth e migração/backup/reversão. Não há deploy operacional nesta etapa.
+
+### Indicadores e CSV da Relação comparados ao legado — 16/11/2026
+
+O resumo da abrangência usa agregações no servidor, com autorização/preparação na mesma transação,
+independentemente da paginação. Foram reproduzidos CSV geral, pendentes e filtrado, com os sete campos
+legados. Busca numérica usa prefixo no banco; grupos da relação têm Expandir/Recolher. Há 32 endpoints
+e oito índices preparados. A comparação não encontrou PDF/XLSX nesse fluxo legado; não criar uma
+pendência de “relatórios oficiais” adicional sem formato confirmado. Ver PARIDADE-RELACAO.md.
+Restam reconciliação Auth, migração/backup/reversão, conferência final de recursos de plataforma e
+homologação real/desempenho/cache/PWA. Não houve deploy operacional ou migração nesta etapa.

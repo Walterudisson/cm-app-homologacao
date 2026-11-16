@@ -78,9 +78,9 @@ Não é necessário executar esse comando no ambiente do usuário nesta etapa.
 CMAPP_INTERNAL_ROOT deve apontar ao pacote interno de teste com dependências e Rules legadas.
 Firestore Emulator local em 127.0.0.1:8088, projeto exclusivo demo-cmapp-acessos-v2; o teste recusa rodar
 sem esse emulador. Java é necessário. Rodar o arquivo servico.integration.test.cjs por emulators:exec.
-74 cenários de integração incluem autenticação, campos forjados, escopos, perfil TI, revogação em sessão,
+78 cenários de integração incluem autenticação, campos forjados, escopos, perfil TI, revogação em sessão,
 conta inativa, idempotência, duplicidade, concorrência, projeções, paginação, auditoria filtrada e Rules.
-227 verificações frontend/política/preparação de pacote continuam aprovadas.
+230 verificações frontend/política/preparação de pacote continuam aprovadas.
 
 ## Bloqueios de ativação — obrigatórios antes de migrar qualquer usuário real
 
@@ -174,3 +174,13 @@ A relação pode ser exportada em CSV com permissão verificada por página, lim
 arquivo parcial após erro ou troca de sessão. Ver backend/operacoes-v2/LEITURA-RELACAO.md.
 Restam indicadores/ordenações/filtros avançados e relatórios oficiais, homologação de hardware e conta
 real, reconciliação Auth e migração/backup/reversão. Não há deploy operacional nesta etapa.
+
+### Indicadores e CSV da Relação comparados ao legado — 16/11/2026
+
+O resumo da abrangência usa agregações no servidor, com autorização/preparação na mesma transação,
+independentemente da paginação. Foram reproduzidos CSV geral, pendentes e filtrado, com os sete campos
+legados. Busca numérica usa prefixo no banco; grupos da relação têm Expandir/Recolher. Há 32 endpoints
+e oito índices preparados. A comparação não encontrou PDF/XLSX nesse fluxo legado; não criar uma
+pendência de “relatórios oficiais” adicional sem formato confirmado. Ver PARIDADE-RELACAO.md.
+Restam reconciliação Auth, migração/backup/reversão, conferência final de recursos de plataforma e
+homologação real/desempenho/cache/PWA. Não houve deploy operacional ou migração nesta etapa.

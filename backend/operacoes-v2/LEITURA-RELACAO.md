@@ -46,7 +46,7 @@ A ação exportar controla o serviço e a UI; não impede cópia externa de dado
 
 ## Status
 
-227 testes locais e 74 cenários no Firestore Emulator aprovados: barras, OCR atrasado, inicialização
+230 testes locais e 78 cenários no Firestore Emulator aprovados: barras, OCR atrasado, inicialização
 pendente, método de leitura, CSV/filtros/paginação, cancelamento e permissão de exportação por divisão.
 Não equivalem à homologação visual ou de hardware. Permanecem indicadores globais, ordenações/filtros
 avançados e relatórios oficiais do legado, reconciliação de contas/Auth, migração integral com backup e
@@ -54,3 +54,13 @@ reversão, revisão de cache/PWA e homologação com contas/dispositivos reais.
 
 Mutações patrimoniais também exigem as duas marcas de preparação/transição antes de qualquer recibo
 ou gravação. Isso impede uso antecipado dos escritores v2 em paralelo com escritas patrimoniais legadas.
+
+### Indicadores e CSV da Relação comparados ao legado — 16/11/2026
+
+O resumo da abrangência usa agregações no servidor, com autorização/preparação na mesma transação,
+independentemente da paginação. Foram reproduzidos CSV geral, pendentes e filtrado, com os sete campos
+legados. Busca numérica usa prefixo no banco; grupos da relação têm Expandir/Recolher. Há 32 endpoints
+e oito índices preparados. A comparação não encontrou PDF/XLSX nesse fluxo legado; não criar uma
+pendência de “relatórios oficiais” adicional sem formato confirmado. Ver PARIDADE-RELACAO.md.
+Restam reconciliação Auth, migração/backup/reversão, conferência final de recursos de plataforma e
+homologação real/desempenho/cache/PWA. Não houve deploy operacional ou migração nesta etapa.

@@ -17,7 +17,7 @@ module.exports = function registrarAcessosV2({ onCall, db, auth, FieldValue, Htt
     cmappDsipsRegistrarCautela:negocio.registrarCautela,cmappDsipsRegistrarDevolucao:negocio.registrarDevolucao,
     cmappDsipsListar:negocio.listarDsips,cmappDsipsListarResponsaveis:negocio.listarResponsaveis,
     cmappDsipsListarEventos:negocio.listarEventos,cmappConsultarPatrimonio:negocio.consultarPatrimonio,
-    cmappPatrimoniosCatalogo:patrimonios.catalogo,cmappPatrimoniosListar:patrimonios.listar,cmappPatrimoniosConferir:patrimonios.conferir,
+    cmappPatrimoniosResumo:patrimonios.resumir,cmappPatrimoniosCatalogo:patrimonios.catalogo,cmappPatrimoniosListar:patrimonios.listar,cmappPatrimoniosConferir:patrimonios.conferir,
     cmappPatrimoniosSugerirDestino:patrimonios.sugerir,cmappPatrimoniosResolverTransferencia:patrimonios.resolverTransferencia,
     cmappPatrimoniosResolverSugestao:patrimonios.resolverSugestao,
     cmappInventarioConsultar:inventarios.consultar,cmappInventarioComandar:inventarios.comandar,

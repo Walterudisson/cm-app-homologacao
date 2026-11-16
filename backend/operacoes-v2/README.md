@@ -51,7 +51,7 @@ Gestão dos ciclos de inventário e conexão das telas patrimoniais ainda não f
 
 ## Validação e pendências de ativação
 
-Validação: 227 testes frontend/política/pacote/DOM e 74 cenários de contas, concessões e operação DSIPS
+Validação: 230 testes frontend/política/pacote/DOM e 78 cenários de contas, concessões e operação DSIPS
 no Firestore Emulator. Novos cenários
 cobrem estoque e unidades individualizadas, concorrência de saídas, retornos parciais, revogação antes
 da autorização transacional, reenvio, contas inativas, projeções, histórico filtrado e alçada patrimonial.
@@ -115,3 +115,13 @@ A relação pode ser exportada em CSV com permissão verificada por página, lim
 arquivo parcial após erro ou troca de sessão. Ver backend/operacoes-v2/LEITURA-RELACAO.md.
 Restam indicadores/ordenações/filtros avançados e relatórios oficiais, homologação de hardware e conta
 real, reconciliação Auth e migração/backup/reversão. Não há deploy operacional nesta etapa.
+
+### Indicadores e CSV da Relação comparados ao legado — 16/11/2026
+
+O resumo da abrangência usa agregações no servidor, com autorização/preparação na mesma transação,
+independentemente da paginação. Foram reproduzidos CSV geral, pendentes e filtrado, com os sete campos
+legados. Busca numérica usa prefixo no banco; grupos da relação têm Expandir/Recolher. Há 32 endpoints
+e oito índices preparados. A comparação não encontrou PDF/XLSX nesse fluxo legado; não criar uma
+pendência de “relatórios oficiais” adicional sem formato confirmado. Ver PARIDADE-RELACAO.md.
+Restam reconciliação Auth, migração/backup/reversão, conferência final de recursos de plataforma e
+homologação real/desempenho/cache/PWA. Não houve deploy operacional ou migração nesta etapa.
