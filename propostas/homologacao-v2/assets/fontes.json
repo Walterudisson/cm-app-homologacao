@@ -1,0 +1,16 @@
+[
+  "gestao-v2/controller.js",
+  "js/ui/datas.js",
+  "js/platform/access/catalogo.js",
+  "js/platform/access/politica.js",
+  "operacoes-v2/controller.js",
+  "js/modules/dsips/controller.js",
+  "js/modules/dsips/model.js",
+  "js/platform/modules.js",
+  "js/modules/patrimonios/module.js",
+  "js/modules/dsips/module.js",
+  "js/modules/dsips/cautelas-model.js",
+  "js/modules/dsips/cautelas-controller.js",
+  "operacoes-v2/servicos.js",
+  "js/ui/tema.js"
+]
