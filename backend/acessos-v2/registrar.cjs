@@ -22,6 +22,6 @@ module.exports = function registrarAcessosV2({ onCall, db, auth, FieldValue, Htt
     cmappPatrimoniosResolverSugestao:patrimonios.resolverSugestao,
     cmappInventarioConsultar:inventarios.consultar,cmappInventarioComandar:inventarios.comandar,
     cmappInventarioConsolidar:inventarios.consolidar,cmappInventarioItens:inventarios.itens,
-    cmappCriarConta:contas.criar,cmappAtualizarConta:contas.atualizar,cmappAlterarEstadoConta:contas.alterarEstado,cmappPrepararRecuperacao:contas.recuperar
+    cmappConsultarSincronizacaoConta:contas.consultarSincronizacao,cmappReconciliarConta:contas.reconciliar,cmappCriarConta:contas.criar,cmappAtualizarConta:contas.atualizar,cmappAlterarEstadoConta:contas.alterarEstado,cmappPrepararRecuperacao:contas.recuperar
   }).map(([nome,handler])=>[nome,onCall({region:regiao,enforceAppCheck:false},handler)]));
 };

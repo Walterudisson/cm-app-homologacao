@@ -17,3 +17,6 @@ export const alterarEstadoContaV2=dados=>chamar('cmappAlterarEstadoConta',dados)
 export const prepararRecuperacaoV2=uid=>chamar('cmappPrepararRecuperacao',{uid});
 
 export const listarDivisoesAcessoV2=()=>chamar('cmappListarDivisoesAcesso');
+
+export const consultarSincronizacaoContaV2=uid=>chamar('cmappConsultarSincronizacaoConta',{uid});
+export const reconciliarContaV2=uid=>chamar('cmappReconciliarConta',{uid});

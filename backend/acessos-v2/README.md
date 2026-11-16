@@ -184,3 +184,49 @@ e oito índices preparados. A comparação não encontrou PDF/XLSX nesse fluxo l
 pendência de “relatórios oficiais” adicional sem formato confirmado. Ver PARIDADE-RELACAO.md.
 Restam reconciliação Auth, migração/backup/reversão, conferência final de recursos de plataforma e
 homologação real/desempenho/cache/PWA. Não houve deploy operacional ou migração nesta etapa.
+
+
+### Reconciliação de contas — 16/11/2026
+
+Há 33 callables. `cmappReconciliarConta({uid})` exige gestão atual sobre o alvo e registra a
+solicitação na auditoria. Alterações cadastrais e de situação gravam uma pendência durável em
+`cmappContasSincronizacao/{uid}` na mesma transação. A sincronização lê nome e situação atuais,
+bloqueia Auth quando conta ou política estão inativas e revoga tokens de contas bloqueadas.
+Uma geração detecta alterações concorrentes e uma concessão de execução de 120 segundos evita
+execuções simultâneas normais. Falha mantém a pendência; reenvio do recibo original não executa
+novamente o efeito antigo. A reparação usa o endpoint próprio e sempre o estado atual.
+
+Novas identidades Auth nascem desabilitadas; só são habilitadas após a confirmação dos documentos
+básicos. Uma falha antes dessa confirmação deixa uma reserva desabilitada, retomável pelo mesmo
+operador/operação, sem associar identidade existente por e-mail nem excluir usuário automaticamente.
+
+Limite: Auth não oferece compare-and-swap nem transação com Firestore. Uma execução suspensa além
+da concessão pode produzir divergência temporária; a reparação deve ser retomada após seu término.
+Não há worker periódico, painel de pendências ou limpeza de reservas nesta etapa. Antes de ativar
+operacionalmente, preparar esses recursos e testar Authentication real. Os testes usam Auth simulado
+e Firestore Emulator; não demonstram atomicidade entre os serviços. Não houve deploy ou migração.
+
+
+### Estado visível na gestão de contas
+
+A tela gestao-v2 consulta `cmappConsultarSincronizacaoConta({uid})` para administradores que
+possam gerenciar o alvo. Distingue pendência, sincronizado e não verificado, sem expor dados
+internos da concessão de execução. O botão de sincronização pede confirmação e usa o estado
+atual. Respostas após troca de seleção/sessão são descartadas. Gestores operacionais não
+consultam nem reparam contas por essa funcionalidade. Há 34 callables preparados. O painel
+está no código em desenvolvimento; a prévia pública anterior ainda não foi atualizada nesta etapa.
+
+
+### Retomada automática e ferramentas de migração
+
+Há 34 callables e um trabalho programado preparado, cmappSincronizarContas, desativado por padrão
+na configuração da aplicação. Retoma até 25 pendências a cada cinco minutos e conserva cursor,
+concessão de execução e pendência após falha. Preparação local inclui o registro do trabalho.
+A configuração manutencaoV2 bloqueia os serviços v2 e as Rules de transição preparadas; o trabalho
+não atua durante manutenção. Criar conta também informa sincronizacao pendente se Auth falhar.
+
+scripts/migrar-acessos-v2.mjs gera snapshot/planejamento e executa aplicação ou reversão com backup,
+checagem transacional de divergências e recibo. Escopo/limites, credenciais, manutenção/drenagem,
+codec e passos de ativação em docs/MIGRACAO-ACESSOS-V2.md. Não confundir o backup dos documentos
+alterados com um export integral de Firestore/Storage/Auth. Não houve deploy, habilitação do trabalho
+ou migração real nesta etapa; o UID inicial real e a equivalência ainda precisam de revisão em HML.

@@ -38,6 +38,7 @@ function criarServicoAcessos({ db, FieldValue, HttpsError, politicaUrl = POLITIC
   // Cada chamada carrega os documentos atuais. Não recebe perfil, concessões ou divisão do cliente.
   async function identidade(uid, tx, permitirInativo=false) {
     const ler=ref=>tx?tx.get(ref):ref.get();
+    if((await ler(db.doc('cmappConfiguracao/acessos'))).data()?.manutencaoV2===true)falhar('unavailable','CMAPP em manutenção. Tente novamente em alguns instantes.');
     const conta=await ler(db.doc('usuarios/'+uid));const acesso=await ler(db.doc('cmappAcessos/'+uid));
     const u=conta.data(),a=acesso.data();
     if(!conta.exists||u.ativo===false&&!permitirInativo)falhar('permission-denied','Conta indisponível.');

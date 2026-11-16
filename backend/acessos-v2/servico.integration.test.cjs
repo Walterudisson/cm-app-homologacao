@@ -110,10 +110,10 @@ test('usuário sem gestão é barrado antes de consultar existência ou versão 
  await negar(api.consultarAcessos(request({uid:'legacy'},'operador')));await negar(api.conceder(request({uid:'legacy',atribuicao:grant()},'operador')));await negar(api.consultarAcessos(request({uid:'nao-existe'},'operador')));
 });
 
-function contasFake(){
- const pessoas=new Map(),chamadas=[];let falhar=false;
- const auth={async createUser(u){chamadas.push(['create',u.uid]);if(pessoas.has(u.uid))throw Object.assign(Error(),{code:'auth/uid-already-exists'});if([...pessoas.values()].some(x=>x.email===u.email))throw Object.assign(Error(),{code:'auth/email-already-exists'});pessoas.set(u.uid,u);return u;},async getUser(uid){return pessoas.get(uid);},async updateUser(uid,d){chamadas.push(['update',uid,d]);if(falhar)throw Error('falha simulada');return{uid,...d};},async revokeRefreshTokens(uid){chamadas.push(['revoke',uid]);}};
- return{api:require('./contas.cjs').criarContasV2({db,auth,FieldValue,HttpsError,contexto:api.contexto}),pessoas,chamadas,falhar(){falhar=true;}};
+function contasFake(opcoes={}){
+ const pessoas=new Map(),chamadas=[];let falhar=false,aoAtualizar=null;
+ const auth={async createUser(u){chamadas.push(['create',u.uid]);if(pessoas.has(u.uid))throw Object.assign(Error(),{code:'auth/uid-already-exists'});if([...pessoas.values()].some(x=>x.email===u.email))throw Object.assign(Error(),{code:'auth/email-already-exists'});pessoas.set(u.uid,u);return u;},async getUser(uid){return pessoas.get(uid);},async updateUser(uid,d){chamadas.push(['update',uid,d]);if(falhar)throw Error('falha simulada');if(aoAtualizar)await aoAtualizar(uid,d);return{uid,...d};},async revokeRefreshTokens(uid){chamadas.push(['revoke',uid]);}};
+ return{api:require('./contas.cjs').criarContasV2({db,auth,FieldValue,HttpsError,contexto:api.contexto,...opcoes}),pessoas,chamadas,falhar(){falhar=true;},reparar(){falhar=false;},aoAtualizar(fn){aoAtualizar=fn;}};
 }
 test('cadastro v2 cria somente conta básica e reenvio não duplica identidade ou evento',async()=>{
  const f=contasFake(),r=request({nome:'Pessoa Nova',email:'nova@exemplo.invalid',lotacao:'Gabinete'},'ti');const a=await f.api.criar(r);assert.deepEqual(await f.api.criar(r),a);assert.equal(f.pessoas.size,1);const p=await dados(a.uid);assert.deepEqual(p.atribuicoes,[]);assert.deepEqual(p.delegacoes,[]);assert.equal(p.papelPlataforma,'usuario');assert.equal(await eventos(),1);
@@ -126,6 +126,41 @@ test('TI altera dados preservando concessões e não administra a própria conta
 });
 test('falha do Authentication não reabre conta bloqueada; replay não repete efeito externo',async()=>{
  const f=contasFake();f.falhar();const r=request({uid:'alvo',ativo:false},'ti');const a=await f.api.alterarEstado(r);assert.equal(a.sincronizado,false);assert.equal((await dados('alvo')).ativo,false);assert.equal((await db.doc('usuarios/alvo').get()).data().ativo,false);const n=f.chamadas.length;const b=await f.api.alterarEstado(r);assert.equal(b.repetida,true);assert.equal(f.chamadas.length,n);assert.equal(await eventos(),1);
+});
+test('reconciliação retoma falha com estado atual e recusa operador sem gestão',async()=>{
+ const f=contasFake();f.falhar();await f.api.alterarEstado(request({uid:'alvo',ativo:false},'ti'));
+ assert.equal((await db.doc('cmappContasSincronizacao/alvo').get()).data().pendente,true);
+ await negar(f.api.reconciliar({auth:{uid:'operador'},data:{uid:'alvo'}}));
+ f.reparar();const r=await f.api.reconciliar({auth:{uid:'ti'},data:{uid:'alvo'}});assert.equal(r.sincronizado,true);
+ assert.equal((await db.doc('cmappContasSincronizacao/alvo').get()).data().pendente,false);
+ assert.equal(f.chamadas.filter(x=>x[0]==='update').at(-1)[2].disabled,true);
+});
+test('alteração concorrente durante sincronização converge para o estado mais recente',async()=>{
+ const f=contasFake();let primeira=true;
+ f.aoAtualizar(async()=>{if(primeira){primeira=false;const r=await f.api.alterarEstado(request({uid:'alvo',ativo:true},'ti'));assert.equal(r.sincronizado,false);}});
+ const r=await f.api.alterarEstado(request({uid:'alvo',ativo:false},'ti'));assert.equal(r.sincronizado,true);
+ assert.equal(f.chamadas.filter(x=>x[0]==='update').at(-1)[2].disabled,false);
+ assert.equal((await dados('alvo')).ativo,true);assert.equal((await db.doc('cmappContasSincronizacao/alvo').get()).data().pendente,false);
+});
+test('consulta de sincronização não revela pendências a gestor operacional',async()=>{
+ const f=contasFake(),r={auth:{uid:'ti'},data:{uid:'alvo'}};
+ assert.equal((await f.api.consultarSincronizacao(r)).estado,'nao_verificado');
+ f.falhar();await f.api.alterarEstado(request({uid:'alvo',ativo:false},'ti'));
+ assert.equal((await f.api.consultarSincronizacao(r)).estado,'pendente');
+ await negar(f.api.consultarSincronizacao({auth:{uid:'operador'},data:{uid:'alvo'}}));
+ f.reparar();await f.api.reconciliar(r);assert.equal((await f.api.consultarSincronizacao(r)).estado,'sincronizado');
+});
+test('trabalho só executa com ativação explícita e retoma pendências sem ação de usuário',async()=>{
+ const f=contasFake();f.falhar();await f.api.alterarEstado(request({uid:'alvo',ativo:false},'ti'));f.reparar();
+ assert.equal((await f.api.processarPendencias()).ativo,false);
+ await db.doc('cmappConfiguracao/acessos').set({sincronizacaoContasAtiva:true});
+ assert.equal((await f.api.processarPendencias()).sincronizadas,1);assert.equal((await f.api.consultarSincronizacao({auth:{uid:'ti'},data:{uid:'alvo'}})).estado,'sincronizado');
+ await db.doc('cmappConfiguracao/acessos').update({manutencaoV2:true});assert.equal((await f.api.processarPendencias()).ativo,false);await negar(api.consultarMeusAcessos(request()),'unavailable');
+});
+test('cursor da retomada não deixa falhas permanentes bloquearem contas posteriores',async()=>{
+ const f=contasFake();const b=db.batch();for(let i=0;i<25;i++)b.set(db.doc('cmappContasSincronizacao/a'+String(i).padStart(2,'0')),{pendente:true,geracao:1});
+ b.set(db.doc('cmappContasSincronizacao/alvo'),{pendente:true,geracao:1});b.set(db.doc('cmappConfiguracao/acessos'),{sincronizacaoContasAtiva:true});await b.commit();
+ assert.equal((await f.api.processarPendencias()).processadas,25);assert.equal((await f.api.processarPendencias()).sincronizadas,1);assert.equal((await db.doc('cmappContasSincronizacao/alvo').get()).data().pendente,false);
 });
 test('replay antigo não desfaz reativação posterior; recibo com outro conteúdo é recusado',async()=>{
  const f=contasFake(),r=request({uid:'alvo',ativo:false},'ti');await f.api.alterarEstado(r);await f.api.alterarEstado(request({uid:'alvo',ativo:true},'ti'));const n=f.chamadas.length;await f.api.alterarEstado(r);assert.equal((await dados('alvo')).ativo,true);assert.equal(f.chamadas.length,n);await negar(f.api.alterarEstado({...r,data:{...r.data,ativo:true}}),'already-exists');assert.equal(f.chamadas.length,n);
@@ -142,7 +177,7 @@ test('catálogo de divisões usa dados reais ativos e restringe gestor ao própr
 });
 test('Rules de transição bloqueiam admin marcado no legado e preservam leitura do próprio perfil',async()=>{
  const{mkdtempSync,writeFileSync,readFileSync,rmSync}=require('node:fs');const{tmpdir}=require('node:os');const{execFileSync}=require('node:child_process');const dir=mkdtempSync(path.join(tmpdir(),'cmapp-rules-'));const file=path.join(dir,'firestore.rules');const original=readFileSync(path.resolve(process.env.CMAPP_INTERNAL_ROOT,'firestore.rules'),'utf8');
- try{writeFileSync(file,original);execFileSync(process.execPath,['scripts/preparar-rules-transicao-v2.mjs',file]);const preparado=await initializeTestEnvironment({projectId,firestore:{host:'127.0.0.1',port:8088,rules:readFileSync(file,'utf8')}});await preparado.cleanup();const client=env.authenticatedContext('super').firestore();await getDoc(doc(client,'usuarios/super'));await assertFails(getDoc(doc(client,'usuarios/alvo')));await assertFails(getDoc(doc(client,'patrimonios/exemplo')));const legado=env.authenticatedContext('legacy').firestore();await getDoc(doc(legado,'usuarios/alvo'));await getDoc(doc(legado,'patrimonios/exemplo'));await db.doc('cmappConfiguracao/acessos').set({patrimoniosOperacaoVersao:2});await assertFails(getDoc(doc(legado,'patrimonios/exemplo')));await assertFails(getDoc(doc(legado,'inventarios/DA')));await getDoc(doc(legado,'dsipsMateriais/exemplo'));}finally{const restaurado=await initializeTestEnvironment({projectId,firestore:{host:'127.0.0.1',port:8088,rules:original}});await restaurado.cleanup();rmSync(dir,{recursive:true});}
+ try{writeFileSync(file,original);execFileSync(process.execPath,['scripts/preparar-rules-transicao-v2.mjs',file]);const preparado=await initializeTestEnvironment({projectId,firestore:{host:'127.0.0.1',port:8088,rules:readFileSync(file,'utf8')}});await preparado.cleanup();const client=env.authenticatedContext('super').firestore();await getDoc(doc(client,'usuarios/super'));await assertFails(getDoc(doc(client,'usuarios/alvo')));await assertFails(getDoc(doc(client,'patrimonios/exemplo')));const legado=env.authenticatedContext('legacy').firestore();await getDoc(doc(legado,'usuarios/alvo'));await getDoc(doc(legado,'patrimonios/exemplo'));await db.doc('cmappConfiguracao/acessos').set({patrimoniosOperacaoVersao:2});await assertFails(getDoc(doc(legado,'patrimonios/exemplo')));await assertFails(getDoc(doc(legado,'inventarios/DA')));await getDoc(doc(legado,'dsipsMateriais/exemplo'));await db.doc('cmappConfiguracao/acessos').update({manutencaoV2:true});await assertFails(getDoc(doc(legado,'dsipsMateriais/exemplo')));await assertFails(updateDoc(doc(client,'usuarios/super'),{nome:'Em manutenção'}));}finally{const restaurado=await initializeTestEnvironment({projectId,firestore:{host:'127.0.0.1',port:8088,rules:original}});await restaurado.cleanup();rmSync(dir,{recursive:true});}
 });
 
 const negocio=()=>require('../operacoes-v2/servico.cjs').criarOperacoesV2({db,FieldValue,HttpsError,contexto:api.contexto});
@@ -271,3 +306,35 @@ test('resumo patrimonial usa contagens de toda a abrangência, sem misturar suge
 test('resumo não é limitado pela paginação e exige preparação integral e autorização atuais',async()=>{const p=await prepararPat(),b=db.batch();for(let i=0;i<60;i++)b.set(db.doc('patrimonios/contagem-'+i),{divisao:'DA',localizacaoEfetivaV2:'DA',localizado:true});await b.commit();assert.equal((await p.resumir(reqSemOp({divisao:'DA'},'alvo'))).total,61);await negar(p.resumir(reqSemOp({divisao:'DA',busca:'texto'},'alvo')),'invalid-argument');await db.doc('cmappConfiguracao/acessos').update({patrimoniosIndiceVersao:1});await negar(p.resumir(reqSemOp({divisao:'DA'},'alvo')),'failed-precondition');await db.doc('cmappConfiguracao/acessos').update({patrimoniosIndiceVersao:2});await db.doc('cmappAcessos/alvo').update({atribuicoes:[]});await negar(p.resumir(reqSemOp({divisao:'DA'},'alvo')));});
 test('relatório de pendências reúne não localizados e transferências, sem incluir conferidos concluídos',async()=>{const p=await prepararPat();await db.doc('patrimonios/ok').set({divisao:'DA',localizacaoEfetivaV2:'DA',localizado:true,statusTransferencia:'concluido'});await db.doc('patrimonios/transf').set({divisao:'DA',localizacaoEfetivaV2:'DA',localizado:true,statusTransferencia:'pendente'});const r=await p.listar(reqSemOp({divisao:'DA',situacao:'nao_concluidos',exportar:true},'super'));assert.deepEqual(r.registros.map(x=>x.id),['p1','transf']);});
 test('busca numérica usa prefixo de plaqueta no banco e rejeita cursor de outro filtro',async()=>{const p=await prepararPat();await db.doc('patrimonios/123001').set({divisao:'DA',localizacaoEfetivaV2:'DA',descricao:'Bem'});await db.doc('patrimonios/912300').set({divisao:'DA',localizacaoEfetivaV2:'DA',descricao:'Modelo 123'});const r=await p.listar(reqSemOp({divisao:'DA',busca:'123'},'alvo'));assert.deepEqual(r.registros.map(x=>x.id),['123001']);await negar(p.listar(reqSemOp({divisao:'DA',busca:'12'},'alvo')),'invalid-argument');await negar(p.listar(reqSemOp({divisao:'DA',busca:'123',cursor:'912300'},'alvo')),'invalid-argument');});
+
+async function planoLegado(){
+ const m=await import('../../scripts/lib/migracao-acessos-v2.mjs');
+ const snapshot={formato:1,ambiente:'hml',projectId:m.PROJETOS.hml,documentos:{'usuarios/legacy':(await db.doc('usuarios/legacy').get()).data()}};
+ const revisao={ambiente:'hml',projectId:m.PROJETOS.hml,superadminUid:'legacy',revisadoPor:'Revisor Teste',contas:[{uid:'legacy',revisado:true,politica:{papelPlataforma:'superadmin',permissoesPlataforma:[],atribuicoes:[],delegacoes:[]}}]};
+ return{m,plano:m.prepararMigracao(snapshot,revisao)};
+}
+test('migração e reversão transacionais preservam dados e reenvios não duplicam eventos',async()=>{
+ const {m,plano}=await planoLegado(),antes=(await db.doc('usuarios/legacy').get()).data();
+ await assert.rejects(m.executarPlano({db,plano,modo:'aplicar'}),/manutenção/);
+ await db.doc('cmappConfiguracao/acessos').set({manutencaoV2:true,legadoBloqueado:true,sincronizacaoContasAtiva:false});
+ assert.equal((await m.executarPlano({db,plano,modo:'aplicar'})).estado,'aplicada');assert.equal((await dados('legacy')).papelPlataforma,'superadmin');
+ assert.equal((await m.executarPlano({db,plano,modo:'aplicar'})).repetida,true);
+ assert.equal((await m.executarPlano({db,plano,modo:'reverter'})).estado,'revertida');assert.deepEqual((await db.doc('usuarios/legacy').get()).data(),antes);assert.equal((await db.doc('cmappAcessos/legacy').get()).exists,false);
+ assert.equal((await m.executarPlano({db,plano,modo:'reverter'})).repetida,true);assert.equal(await eventos(),2);
+});
+test('mudança posterior impede reversão inteira, sem sobrescrever histórico ou conta',async()=>{
+ const {m,plano}=await planoLegado();await db.doc('cmappConfiguracao/acessos').set({manutencaoV2:true,legadoBloqueado:true});await m.executarPlano({db,plano,modo:'aplicar'});
+ await db.doc('usuarios/legacy').update({nome:'Mudança Posterior'});
+ await assert.rejects(m.executarPlano({db,plano,modo:'reverter'}),/Divergência/);assert.equal((await dados('legacy')).papelPlataforma,'superadmin');assert.equal((await db.doc('usuarios/legacy').get()).data().nome,'Mudança Posterior');
+});
+test('novo documento após snapshot completo impede aplicação da migração',async()=>{
+ const {m}=await planoLegado();const snap=await db.collection('usuarios').get();const snapshot={formato:1,ambiente:'hml',projectId:m.PROJETOS.hml,colecoesCompletas:['usuarios'],documentos:Object.fromEntries(snap.docs.map(d=>[d.ref.path,d.data()]))};
+ const plano=m.prepararMigracao(snapshot,{ambiente:'hml',projectId:m.PROJETOS.hml,superadminUid:'legacy',revisadoPor:'Revisor Teste',contas:[{uid:'legacy',revisado:true,politica:{papelPlataforma:'superadmin',permissoesPlataforma:[],atribuicoes:[],delegacoes:[]}}]});
+ await db.doc('usuarios/novo').set({nome:'Posterior'});await db.doc('cmappConfiguracao/acessos').set({manutencaoV2:true,legadoBloqueado:true});
+ await assert.rejects(m.executarPlano({db,plano,modo:'aplicar'}),/Coleção mudou/);assert.equal((await db.doc('cmappAcessos/legacy').get()).exists,false);
+});
+
+test('retomada respeita concessão vigente e recupera trabalho interrompido após expiração',async()=>{
+ let instante=100000;const f=contasFake({agora:()=>instante});await db.doc('cmappConfiguracao/acessos').set({sincronizacaoContasAtiva:true});await db.doc('cmappTrabalhos/sincronizacaoContas').set({token:'interrompido',leaseAte:instante+120000});await db.doc('cmappContasSincronizacao/alvo').set({pendente:true,geracao:1,token:'interrompido',leaseAte:instante+120000});
+ assert.equal((await f.api.processarPendencias()).ocupado,true);assert.equal(f.chamadas.length,0);instante+=120001;assert.equal((await f.api.processarPendencias()).sincronizadas,1);assert.equal((await db.doc('cmappContasSincronizacao/alvo').get()).data().pendente,false);
+});
