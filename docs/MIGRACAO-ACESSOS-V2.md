@@ -115,3 +115,20 @@ reconciliação. Os testes de Auth são simulados; validação real em HML conti
 
 A publicação do job cria recurso no Cloud Scheduler; consultar a documentação oficial antes do deploy:
 https://firebase.google.com/docs/functions/schedule-functions?hl=pt-br
+
+
+## Preparação preliminar de HML com o sistema disponível
+
+`scripts/preparar-plano-hml.mjs caminho/functions revisao-hml.json pasta-nova` faz apenas leituras.
+Valida o UID inicial e seu e-mail/estado no Authentication e na conta CMAPP, lê as cinco coleções raiz
+em transação readOnly e gera snapshot.json, plano.json e resumo.json. O plano contempla somente a
+conta inicial explícita; não ativa Patrimônios nem converte outras contas. PRD é recusado.
+
+Essa análise preliminar dispensa manutenção porque não altera o servidor; a aplicação posterior
+continua exigindo manutenção, drenagem, backup e comparação integral dos dados lidos. Se a base
+mudar, gerar outro plano. Dados reais não fazem parte do código versionado: a revisão com o UID
+informado e os resultados ficam no pacote/ambiente de execução. O resumo omite nomes e e-mails;
+os demais arquivos contêm dados da base e não precisam ser enviados para a conversa nesta etapa.
+
+O codec de backup é compartilhado pelos dois comandos, preservando os tipos retornados pelo SDK.
+Os testes verificam também a precisão efetivamente armazenada dos Timestamps no emulador.

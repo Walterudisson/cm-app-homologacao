@@ -338,3 +338,13 @@ test('retomada respeita concessão vigente e recupera trabalho interrompido apó
  let instante=100000;const f=contasFake({agora:()=>instante});await db.doc('cmappConfiguracao/acessos').set({sincronizacaoContasAtiva:true});await db.doc('cmappTrabalhos/sincronizacaoContas').set({token:'interrompido',leaseAte:instante+120000});await db.doc('cmappContasSincronizacao/alvo').set({pendente:true,geracao:1,token:'interrompido',leaseAte:instante+120000});
  assert.equal((await f.api.processarPendencias()).ocupado,true);assert.equal(f.chamadas.length,0);instante+=120001;assert.equal((await f.api.processarPendencias()).sincronizadas,1);assert.equal((await db.doc('cmappContasSincronizacao/alvo').get()).data().pendente,false);
 });
+
+test('preflight lê snapshot real do emulador e preserva Timestamp no plano sem mutações',async()=>{
+ const {prepararHml}=await import('../../scripts/lib/preflight-hml-v2.mjs');const{criarCodecFirestore}=await import('../../scripts/lib/codec-firestore-v2.mjs');const{Timestamp,GeoPoint}=req('firebase-admin/firestore');
+ await db.doc('usuarios/legacy').update({criadoEm:new Timestamp(100,12345)});const quando=(await db.doc('usuarios/legacy').get()).data().criadoEm;
+ const {encode,decode}=criarCodecFirestore({Timestamp,GeoPoint,db,projectId});
+ const revisao={ambiente:'hml',projectId:'cm-app-homologacao',superadminUid:'legacy',revisadoPor:'Revisor Teste',contas:[{uid:'legacy',revisado:true,politica:{papelPlataforma:'superadmin',permissoesPlataforma:[],atribuicoes:[],delegacoes:[]}}]};
+ const r=await prepararHml({db,auth:{getUser:async uid=>({uid,email:'legacy@exemplo.invalid',disabled:false})},revisao,encode});
+ assert.equal(r.resumo.documentosPropostos,2);assert.equal((await db.doc('usuarios/legacy').get()).data().autorizacaoVersao,undefined);assert.equal((await db.doc('cmappAcessos/legacy').get()).exists,false);
+ const m=await import('../../scripts/lib/migracao-acessos-v2.mjs');await db.doc('cmappConfiguracao/acessos').set({manutencaoV2:true,legadoBloqueado:true});await m.executarPlano({db,plano:r.plano,modo:'aplicar',encode,decode});assert.deepEqual((await db.doc('usuarios/legacy').get()).data().criadoEm,quando);await m.executarPlano({db,plano:r.plano,modo:'reverter',encode,decode});assert.deepEqual((await db.doc('usuarios/legacy').get()).data().criadoEm,quando);
+});
