@@ -10,3 +10,10 @@ export const concederAcessoV2=dados=>chamar('cmappConcederAcesso',dados);
 export const revogarAcessoV2=dados=>chamar('cmappRevogarAcesso',dados);
 export const designarDelegacaoV2=dados=>chamar('cmappDesignarDelegacao',dados);
 export const removerDelegacaoV2=dados=>chamar('cmappRemoverDelegacao',dados);
+
+export const criarContaV2=dados=>chamar('cmappCriarConta',dados);
+export const atualizarContaV2=dados=>chamar('cmappAtualizarConta',dados);
+export const alterarEstadoContaV2=dados=>chamar('cmappAlterarEstadoConta',dados);
+export const prepararRecuperacaoV2=uid=>chamar('cmappPrepararRecuperacao',{uid});
+
+export const listarDivisoesAcessoV2=()=>chamar('cmappListarDivisoesAcesso');

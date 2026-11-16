@@ -96,18 +96,18 @@ Essa simulação não representa inventário dos usuários reais de HML ou PRD.
 atribuições, delegação por módulo/funcionalidade, escopo, autoelevação e análise de legado.
 Rodar também a suíte frontend existente com CMAPP_INTERNAL_ROOT apontando ao pacote interno de teste.
 
-A política pura ainda precisa ser aplicada e testada em Functions e Rules. Bibliotecas administrativas
-não obedecem às Rules; cada operação deverá buscar e validar a autorização atual no servidor.
-Testes desta base não substituem Emulator Suite, atomicidade/auditoria das concessões, verificação de
-revogação em sessão, regras de consultas ou homologação funcional.
+A política já é aplicada nos endpoints de gestão e testada no Firestore Emulator. Bibliotecas
+administrativas não obedecem às Rules; os novos endpoints leem autorização atual no servidor.
+Ainda falta portar as operações e Rules de negócio de Patrimônios/DSIPS antes de ativar contas reais.
 
-Próxima entrega: adaptadores seguros para administração de contas, leitura de acessos, concessão e
-revogação auditadas, catálogo da matriz real e integração das telas aprovadas. Depois, migração simulada
-com dados reais do ambiente, comparação de acessos e ativação controlada, sem união legado+v2.
+## Serviço e interface preparados
 
-## Serviço de gestão preparado
+Treze endpoints e empacotamento local estão em backend/acessos-v2/README.md. A rota gestao-v2/ usa
+sessão e dados reais, acompanha revisão e oferece perfil próprio ao usuário básico. Não foi publicada.
+As proteções de transição bloqueiam uso de privilégios legados por contas versionadas; elas não
+substituem a migração nem habilitam o negócio v2. Descritores corrompidos não liberam gestão.
 
-Endpoints e empacotamento local estão em backend/acessos-v2/README.md. A política continua sendo
-uma referência isolada da operação publicada: os novos endpoints foram testados em emulador e ainda
-não foram publicados ou ligados ao aplicativo. Descritores de delegação agora têm validação comum,
-inclusive para consultas de diretório; registros corrompidos não liberam leitura administrativa.
+Validação atual: 196 testes frontend/política/pacote e 30 cenários no Firestore Emulator. Incluem
+ciclo de contas, falha de sincronização Auth, reenvio antigo, limites de gestor e Rules de transição.
+Permanecem migração com UID inicial explícito, backup/reversão, reconciliação Auth/Firestore,
+homologação visual e extensão de temas ao restante do sistema. Nenhum usuário real foi alterado.

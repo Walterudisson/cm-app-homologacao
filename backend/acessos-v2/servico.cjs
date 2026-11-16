@@ -68,6 +68,15 @@ function criarServicoAcessos({ db, FieldValue, HttpsError, politicaUrl = POLITIC
     const snap=await q.get();const docs=snap.docs.slice(0,limite);
     return{usuarios:docs.filter(d=>admin||d.data().ativo!==false).map(d=>{const u=d.data();return{uid:d.id,nome:u.nome||'',ativo:u.ativo!==false,lotacao:u.lotacao||'',acessosProntos:u.autorizacaoVersao===2,...(admin?{email:u.email||''}:{})};}),proximoCursor:snap.size>limite?docs.at(-1).id:null};
   }
+  async function listarDivisoes(request){
+    const autor=await identidade(uidDoPedido(request));ativo(autor);const p=await politicaPromise;
+    if(!gerenciaPermitida(autor,p))falhar('permission-denied','Sem acesso ao catálogo de abrangências.');
+    const global=p.podeNaPlataforma(autor,'acessos.conceder')||p.podeNaPlataforma(autor,'gestores.designar');
+    const limites=(autor.delegacoes||[]).filter(p.delegacaoValida).filter(d=>d.moduloId==='da').flatMap(d=>d.limites.filter(l=>l.funcionalidadeId==='patrimonios'));
+    const amplo=global||limites.some(l=>l.escopo.tipo==='todos');const ids=new Set(limites.flatMap(l=>l.escopo.ids||[]));
+    const snap=await db.collection('divisoes').limit(1001).get();
+    return{divisoes:snap.docs.slice(0,1000).filter(d=>d.data().ativo!==false).map(d=>({id:d.id,codigo:d.data().nome||d.id,nome:d.data().nome||d.id})).filter(d=>amplo||ids.has(d.codigo)).sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR')),truncado:snap.size>1000};
+  }
   async function mutacao(request,tipo){
     const autorUid=uidDoPedido(request);campos(request.data,['uid','operacaoId',tipo==='conceder'?'atribuicao':tipo==='designar'?'delegacao':'id']);
     const alvoUid=validarId(request.data.uid,'Alvo');const operacaoId=validarId(request.data.operacaoId,'Operação');
@@ -104,14 +113,15 @@ function criarServicoAcessos({ db, FieldValue, HttpsError, politicaUrl = POLITIC
   async function consultarAuditoria(request){
     const autor=await identidade(uidDoPedido(request));ativo(autor);const p=await politicaPromise;const alvoUid=request.data?.uid;if(alvoUid!==undefined)validarId(alvoUid,'Alvo');
     const global=p.podeNaPlataforma(autor,'auditoria.consultar');
-    if(!global&&!(autor.delegacoes||[]).some(p.delegacaoValida)&&!p.podeNaPlataforma(autor,'acessos.conceder')&&!p.podeNaPlataforma(autor,'gestores.designar'))falhar('permission-denied','Sem acesso à auditoria.');
+    if(!global&&!p.podeNaPlataforma(autor,'contas.consultar')&&!(autor.delegacoes||[]).some(p.delegacaoValida)&&!p.podeNaPlataforma(autor,'acessos.conceder')&&!p.podeNaPlataforma(autor,'gestores.designar'))falhar('permission-denied','Sem acesso à auditoria.');
     const snap=await db.collection('cmappAcessosEventos').orderBy('registradoEm','desc').limit(100).get();
     const eventos=snap.docs.map(d=>({id:d.id,...d.data()})).filter(e=>{
       if(alvoUid&&e.alvoUid!==alvoUid)return false;if(global)return true;
       const alvo={uid:e.alvoUid,versao:2,ativo:true,papelPlataforma:'usuario'};
+      if(e.tipo.startsWith('conta_')||e.tipo==='recuperacao_solicitada')return p.podeNaPlataforma(autor,'contas.consultar');
       return ['conceder','revogar'].includes(e.tipo)?p.podeConceder(autor,alvo,e.objeto):p.podeDesignarDelegacao(autor,alvo,e.objeto);
     });return{eventos,janelaConsultada:100};
   }
-  return{consultarMeusAcessos,consultarAcessos,listarUsuarios,consultarAuditoria,conceder:request=>mutacao(request,'conceder'),revogar:request=>mutacao(request,'revogar'),designarDelegacao:request=>mutacao(request,'designar'),removerDelegacao:request=>mutacao(request,'remover_delegacao')};
+  return{contexto:{identidade,politicaPromise,campos,validarId,uidDoPedido,dto,ativo,hash},consultarMeusAcessos,consultarAcessos,listarUsuarios,listarDivisoes,consultarAuditoria,conceder:request=>mutacao(request,'conceder'),revogar:request=>mutacao(request,'revogar'),designarDelegacao:request=>mutacao(request,'designar'),removerDelegacao:request=>mutacao(request,'remover_delegacao')};
 }
 module.exports={criarServicoAcessos};

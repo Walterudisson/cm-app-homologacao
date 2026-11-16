@@ -79,13 +79,16 @@ aprovação desta proposta.
 
 ## Andamento — 16/11/2026
 
-Base isolada de catálogo, avaliador e análise local implementada. Ver POLITICA-ACESSOS-V2.md.
-Ainda faltam adaptadores, Functions/Rules, análise de usuários reais, migração e telas funcionais.
-Nenhum usuário foi migrado, nem a versão operacional alterada.
+Catálogo, avaliador, análise local do legado e backend de gestão preparados. Ver POLITICA-ACESSOS-V2.md.
+A rota gestao-v2/ conecta a composição visual aprovada aos serviços reais de usuários/acessos, sem
+cadastros de demonstração. Inclui perfil próprio, matriz do catálogo, atribuição e delegação distintas,
+seleção de divisões do servidor, histórico e Claro/Escuro/Automático.
 
-### Backend de concessões — 16/11/2026
+Treze endpoints implementam consultas, concessões/delegações e ciclo de contas; proteções dos nove
+endpoints antigos e preparador de Rules de transição estão disponíveis localmente. Testes: 196 no
+frontend/política/pacote, 30 no Firestore Emulator. Ver backend/acessos-v2/README.md para limites.
 
-Serviço transacional e oito endpoints preparados; projeções de leitura, auditoria, recibos e preparação
-local do pacote implementados. Ver backend/acessos-v2/README.md. A ativação ainda depende de migrar
-os caminhos administrativos legados, operações de negócio/Rules e sessão; não publicar marcadores v2
-ou migrar usuários reais antes dessa integração. Telas funcionais ainda não conectadas.
+Faltam aplicar política às operações e Rules dos módulos, reconciliação de Authentication, revisar dados
+reais e preparar migração/backup/reversão, homologar telas em dispositivos e ampliar temas ao sistema.
+A proteção de transição nega acesso legado das contas marcadas; não ativa o negócio novo. Não migrar
+usuários antes de resolver essas dependências. Nenhum usuário foi migrado ou publicação realizada.

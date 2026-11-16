@@ -109,3 +109,38 @@ test('atribuição com identificador legado diferente não é duplicada por equi
 test('usuário sem gestão é barrado antes de consultar existência ou versão da conta alvo',async()=>{
  await negar(api.consultarAcessos(request({uid:'legacy'},'operador')));await negar(api.conceder(request({uid:'legacy',atribuicao:grant()},'operador')));await negar(api.consultarAcessos(request({uid:'nao-existe'},'operador')));
 });
+
+function contasFake(){
+ const pessoas=new Map(),chamadas=[];let falhar=false;
+ const auth={async createUser(u){chamadas.push(['create',u.uid]);if(pessoas.has(u.uid))throw Object.assign(Error(),{code:'auth/uid-already-exists'});if([...pessoas.values()].some(x=>x.email===u.email))throw Object.assign(Error(),{code:'auth/email-already-exists'});pessoas.set(u.uid,u);return u;},async getUser(uid){return pessoas.get(uid);},async updateUser(uid,d){chamadas.push(['update',uid,d]);if(falhar)throw Error('falha simulada');return{uid,...d};},async revokeRefreshTokens(uid){chamadas.push(['revoke',uid]);}};
+ return{api:require('./contas.cjs').criarContasV2({db,auth,FieldValue,HttpsError,contexto:api.contexto}),pessoas,chamadas,falhar(){falhar=true;}};
+}
+test('cadastro v2 cria somente conta básica e reenvio não duplica identidade ou evento',async()=>{
+ const f=contasFake(),r=request({nome:'Pessoa Nova',email:'nova@exemplo.invalid',lotacao:'Gabinete'},'ti');const a=await f.api.criar(r);assert.deepEqual(await f.api.criar(r),a);assert.equal(f.pessoas.size,1);const p=await dados(a.uid);assert.deepEqual(p.atribuicoes,[]);assert.deepEqual(p.delegacoes,[]);assert.equal(p.papelPlataforma,'usuario');assert.equal(await eventos(),1);
+ await negar(f.api.criar(request({nome:'Pessoa Nova',email:'outra@exemplo.invalid',lotacao:'Gabinete',papelPlataforma:'superadmin'},'ti')),'invalid-argument');
+ await negar(f.api.criar(request({nome:'Pessoa Nova',email:'outra@exemplo.invalid',lotacao:'Gabinete'},'operador')));
+});
+test('TI altera dados preservando concessões e não administra a própria conta ou Superadmin',async()=>{
+ const f=contasFake();await api.conceder(request({uid:'alvo',atribuicao:grant()}));await f.api.atualizar(request({uid:'alvo',nome:'Nome Atualizado',lotacao:'Gabinete'},'ti'));assert.equal((await dados('alvo')).atribuicoes.length,1);
+ for(const uid of ['super','ti'])await negar(f.api.alterarEstado(request({uid,ativo:false},'ti')));assert.equal((await dados('super')).ativo,true);
+});
+test('falha do Authentication não reabre conta bloqueada; replay não repete efeito externo',async()=>{
+ const f=contasFake();f.falhar();const r=request({uid:'alvo',ativo:false},'ti');const a=await f.api.alterarEstado(r);assert.equal(a.sincronizado,false);assert.equal((await dados('alvo')).ativo,false);assert.equal((await db.doc('usuarios/alvo').get()).data().ativo,false);const n=f.chamadas.length;const b=await f.api.alterarEstado(r);assert.equal(b.repetida,true);assert.equal(f.chamadas.length,n);assert.equal(await eventos(),1);
+});
+test('replay antigo não desfaz reativação posterior; recibo com outro conteúdo é recusado',async()=>{
+ const f=contasFake(),r=request({uid:'alvo',ativo:false},'ti');await f.api.alterarEstado(r);await f.api.alterarEstado(request({uid:'alvo',ativo:true},'ti'));const n=f.chamadas.length;await f.api.alterarEstado(r);assert.equal((await dados('alvo')).ativo,true);assert.equal(f.chamadas.length,n);await negar(f.api.alterarEstado({...r,data:{...r.data,ativo:true}}),'already-exists');assert.equal(f.chamadas.length,n);
+});
+test('recuperação exige capacidade específica, alvo ativo e registra somente intenção',async()=>{
+ const f=contasFake();await negar(f.api.recuperar({auth:{uid:'ti'},data:{uid:'alvo'}}));await db.doc('cmappAcessos/ti').update({permissoesPlataforma:['contas.consultar','contas.gerenciar','contas.recuperar']});const a=await f.api.recuperar({auth:{uid:'ti'},data:{uid:'alvo'}});assert.equal(a.email,'alvo@exemplo.invalid');assert.equal(f.chamadas.length,0);await negar(f.api.recuperar({auth:{uid:'ti'},data:{uid:'inativo'}}));const e=await api.consultarAuditoria(request({},'ti'));assert.equal(e.eventos.length,1);assert.equal(e.eventos[0].tipo,'recuperacao_solicitada');
+});
+test('proteção legada bloqueia ator/alvo versionado e manutenção; preserva chamada legada válida',async()=>{
+ let n=0;const guard=require('./legado.cjs')({db,HttpsError,regiao:'southamerica-east1',onCall:(_,fn)=>fn,exportsAtuais:{atualizarUsuario:{run:async()=>++n}}}).atualizarUsuario;
+ await negar(guard(request({uid:'alvo'},'super')));await negar(guard(request({uid:'alvo'},'legacy')));await guard(request({uid:'legacy'},'legacy'));assert.equal(n,1);await db.doc('cmappConfiguracao/acessos').set({legadoBloqueado:true});await negar(guard(request({uid:'legacy'},'legacy')),'failed-precondition');assert.equal(n,1);
+});
+test('catálogo de divisões usa dados reais ativos e restringe gestor ao próprio escopo',async()=>{
+ await db.doc('divisoes/da').set({nome:'DA',ativo:true});await db.doc('divisoes/gab').set({nome:'Gabinete',ativo:true});await db.doc('divisoes/old').set({nome:'Antiga',ativo:false});const r=await api.listarDivisoes(request({},'pat'));assert.deepEqual(r.divisoes.map(x=>x.codigo),['DA']);await negar(api.listarDivisoes(request({},'operador')));
+});
+test('Rules de transição bloqueiam admin marcado no legado e preservam leitura do próprio perfil',async()=>{
+ const{mkdtempSync,writeFileSync,readFileSync,rmSync}=require('node:fs');const{tmpdir}=require('node:os');const{execFileSync}=require('node:child_process');const dir=mkdtempSync(path.join(tmpdir(),'cmapp-rules-'));const file=path.join(dir,'firestore.rules');const original=readFileSync(path.resolve(process.env.CMAPP_INTERNAL_ROOT,'firestore.rules'),'utf8');
+ try{writeFileSync(file,original);execFileSync(process.execPath,['scripts/preparar-rules-transicao-v2.mjs',file]);const preparado=await initializeTestEnvironment({projectId,firestore:{host:'127.0.0.1',port:8088,rules:readFileSync(file,'utf8')}});await preparado.cleanup();const client=env.authenticatedContext('super').firestore();await getDoc(doc(client,'usuarios/super'));await assertFails(getDoc(doc(client,'usuarios/alvo')));await assertFails(getDoc(doc(client,'patrimonios/exemplo')));const legado=env.authenticatedContext('legacy').firestore();await getDoc(doc(legado,'usuarios/alvo'));}finally{const restaurado=await initializeTestEnvironment({projectId,firestore:{host:'127.0.0.1',port:8088,rules:original}});await restaurado.cleanup();rmSync(dir,{recursive:true});}
+});

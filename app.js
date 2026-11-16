@@ -687,6 +687,16 @@
           await signOut(auth);
           return;
         }
+        // Conta versionada não pode continuar no carregador de privilégios legados.
+        if (Object.hasOwn(userDoc.data(), 'autorizacaoVersao')) {
+          if (userDoc.data().autorizacaoVersao === 2 && userDoc.data().ativo !== false) {
+            location.replace(new URL('./gestao-v2/', location.href).href);
+          } else {
+            await signOut(auth);
+            notificarMensagem('Versão de autorização indisponível. Procure a administração.', 'erro');
+          }
+          return;
+        }
         usuarioLogado = { uid: user.uid, email: user.email, ...userDoc.data() };
         restaurarPausaTutorialLocal();
         if (usuarioLogado.ativo === false) {
@@ -694,7 +704,7 @@
           notificarMensagem('Este acesso está desativado. Procure um Administrador.', 'erro');
           return;
         }
-        const assinaturaAcesso = dados => JSON.stringify([dados?.perfil, dados?.ativo, dados?.modulos]);
+        const assinaturaAcesso = dados => JSON.stringify([dados?.perfil, dados?.ativo, dados?.modulos, dados?.autorizacaoVersao, dados?.autorizacaoRevisao]);
         const assinaturaInicial = assinaturaAcesso(usuarioLogado);
         unsubscribeUsuario = onSnapshot(doc(db, 'usuarios', user.uid), snapshot => {
           if (usuarioLogado?.uid !== user.uid) return;
