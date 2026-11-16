@@ -51,7 +51,7 @@ Gestão dos ciclos de inventário e conexão das telas patrimoniais ainda não f
 
 ## Validação e pendências de ativação
 
-Validação: 217 testes frontend/política/pacote/DOM e 71 cenários de contas, concessões e operação DSIPS
+Validação: 227 testes frontend/política/pacote/DOM e 74 cenários de contas, concessões e operação DSIPS
 no Firestore Emulator. Novos cenários
 cobrem estoque e unidades individualizadas, concorrência de saídas, retornos parciais, revogação antes
 da autorização transacional, reenvio, contas inativas, projeções, histórico filtrado e alçada patrimonial.
@@ -105,3 +105,13 @@ justificada, consolidação de todas as divisões e fotografia/CSV conforme perm
 DSIPS e Patrimônios compartilham o bootstrap de sessão. Ver backend/operacoes-v2/INVENTARIOS.md.
 Restam paridade dos recursos patrimoniais legados (câmera/OCR, filtros/indicadores e relatórios completos),
 reconciliação Auth, migração/backup/reversão e homologação real. Não há deploy ou ativação nesta etapa.
+
+### Leitor, filtros e relação CSV preparados — 16/11/2026
+
+A área patrimonios-v2 reutiliza o controlador homologado de câmera/barras/OCR, com invalidação de
+capturas atrasadas por geração/contexto. Método de reconhecimento é preservado na conferência.
+Busca e situação são filtradas na página autorizada; indicadores identificam os registros carregados.
+A relação pode ser exportada em CSV com permissão verificada por página, limites explícitos e sem
+arquivo parcial após erro ou troca de sessão. Ver backend/operacoes-v2/LEITURA-RELACAO.md.
+Restam indicadores/ordenações/filtros avançados e relatórios oficiais, homologação de hardware e conta
+real, reconciliação Auth e migração/backup/reversão. Não há deploy operacional nesta etapa.

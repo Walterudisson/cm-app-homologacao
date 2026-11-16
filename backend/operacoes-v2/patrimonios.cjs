@@ -12,19 +12,20 @@ function criarPatrimoniosV2({db,FieldValue,HttpsError,contexto:c}) {
   async function abertas(tx,divisoes){for(const d of new Set(divisoes)){if(!d)falhar('failed-precondition','Bem sem localização efetiva; revisão cadastral necessária.');const s=await tx.get(db.doc('inventarios/'+chaveDivisao(d)));if(s.exists&&s.data().estado!=='aberto')falhar('failed-precondition','A divisão está bloqueada pelo ciclo de inventário.');}}
   async function destinoAtivo(tx,nome){const s=await tx.get(db.collection('divisoes').where('nome','==',nome).limit(2));if(s.size!==1||s.docs[0].data().ativo===false)falhar('failed-precondition','Destino inexistente, inativo ou duplicado no catálogo de divisões.');}
   async function listar(request){
-    const uid=c.uidDoPedido(request);c.campos(request.data,['divisao','limite','cursor','somentePendentes']);
+    const uid=c.uidDoPedido(request);c.campos(request.data,['divisao','limite','cursor','somentePendentes','situacao','busca','exportar']);
     const divisao=request.data.divisao===undefined?undefined:texto(request.data.divisao,'Divisão');const limite=request.data.limite??30;
     if(!Number.isInteger(limite)||limite<1||limite>50)falhar('invalid-argument','Limite entre 1 e 50.');
     const cursor=request.data.cursor;if(cursor!==undefined)c.validarId(cursor,'Cursor');if(request.data.somentePendentes!==undefined&&typeof request.data.somentePendentes!=='boolean')falhar('invalid-argument','Filtro inválido.');
+    const situacao=request.data.situacao??'todos',busca=request.data.busca??'';if(!['todos','localizados','nao_localizados','aguardando'].includes(situacao)||typeof busca!=='string'||busca.length>120||request.data.exportar!==undefined&&typeof request.data.exportar!=='boolean')falhar('invalid-argument','Filtros inválidos.');const normalizar=v=>String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();const termo=normalizar(busca.trim());const acao=request.data.exportar===true?'exportar':'consultar';
     return db.runTransaction(async tx=>{
       const autor=await c.identidade(uid,tx);c.ativo(autor);const p=await c.politicaPromise;
-      if(!permitir(p,autor,'consultar',divisao))falhar('permission-denied','Selecione uma divisão dentro da abrangência de consulta.');
+      if(!permitir(p,autor,acao,divisao))falhar('permission-denied','Selecione uma divisão dentro da abrangência de consulta.');
       const preparo=await tx.get(db.doc('cmappConfiguracao/acessos'));
       if(preparo.data()?.patrimoniosIndiceVersao!==2||preparo.data()?.patrimoniosOperacaoVersao!==2)falhar('failed-precondition','Listagem v2 depende da preparação integral da base e da transição dos operadores.');
       let q=db.collection('patrimonios');if(divisao)q=q.where('localizacaoEfetivaV2','==',divisao);q=q.orderBy('__name__').limit(limite+1);if(cursor)q=q.startAfter(cursor);
       const s=await tx.get(q),docs=s.docs.slice(0,limite);
-      for(const doc of docs){const d=doc.data();if(!localEfetivo(d)||d.localizacaoEfetivaV2!==localEfetivo(d))falhar('failed-precondition','Índice de localização v2 inconsistente; conclua a preparação da base.');exigir(p,autor,'consultar',[localEfetivo(d)]);}
-      const registros=docs.filter(d=>!request.data.somentePendentes||d.data().statusTransferencia==='pendente'||d.data().sugestaoDestinoStatus==='pendente').map(d=>({...d.data(),id:d.id,revisaoOperacionalV2:d.data().revisaoOperacionalV2??0}));
+      for(const doc of docs){const d=doc.data();if(!localEfetivo(d)||d.localizacaoEfetivaV2!==localEfetivo(d))falhar('failed-precondition','Índice de localização v2 inconsistente; conclua a preparação da base.');exigir(p,autor,acao,[localEfetivo(d)]);}
+      const registros=docs.filter(doc=>{const d=doc.data(),transferencia=d.statusTransferencia==='pendente';return(!request.data.somentePendentes||transferencia||d.sugestaoDestinoStatus==='pendente')&&(situacao==='todos'||situacao==='aguardando'&&transferencia||situacao==='localizados'&&d.localizado===true&&!transferencia||situacao==='nao_localizados'&&d.localizado!==true&&!transferencia)&&(!termo||normalizar([doc.id,d.descricao,d.marca,d.modelo,d.localizacaoAtual,d.divisaoOrigem,d.divisao].join(' ')).includes(termo));}).map(d=>({...d.data(),id:d.id,revisaoOperacionalV2:d.data().revisaoOperacionalV2??0}));
       return{registros,proximoCursor:s.size>limite?docs.at(-1).id:null,ordenacao:'id',filtroAplicado:request.data.somentePendentes===true?'pendencias':'todos'};
     });
   }
@@ -46,6 +47,7 @@ function criarPatrimoniosV2({db,FieldValue,HttpsError,contexto:c}) {
     return db.runTransaction(async tx=>{
       const autor=await c.identidade(uid,tx);c.ativo(autor);const p=await c.politicaPromise,acao=ACOES[tipo];
       if(!temAcao(p,autor,acao))falhar('permission-denied','Sem atribuição operacional para esta ação.');
+      const preparo=await tx.get(db.doc('cmappConfiguracao/acessos'));if(preparo.data()?.patrimoniosIndiceVersao!==2||preparo.data()?.patrimoniosOperacaoVersao!==2)falhar('failed-precondition','A operação exige a preparação integral e o corte dos escritores legados.');
       const recibo=await tx.get(reciboRef);
       if(recibo.exists){const r=recibo.data();if(r.fingerprint!==fingerprint)falhar('already-exists','Operação já utilizada com outro conteúdo.');exigir(p,autor,acao,r.contextos);return r.resultado;}
       const snap=await tx.get(ref);if(!snap.exists)falhar('not-found','Patrimônio não encontrado.');const item=snap.data(),origem=localEfetivo(item);

@@ -1,1 +1,76 @@
-<!doctype html><html lang="pt-BR" data-theme="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CMAPP · Patrimônios</title><link rel="stylesheet" href="../gestao-v2/style.css"><link rel="stylesheet" href="./style.css"><script src="../js/ui/tema.js"></script></head><body><div class="demo">HOMOLOGAÇÃO · PATRIMÔNIOS V2 · DADOS REAIS</div><section id="session-gate" class="panel session-gate"><h1>Patrimônios</h1><p id="session-message" role="status">Validando sessão…</p><div class="actions"><a href="../gestao-v2/">Minha conta</a><a href="../login.html">Entrar no CMAPP</a><button id="gate-logout" type="button">Sair</button></div></section><div id="operation-shell" class="shell hidden"><aside class="sidebar"><div class="brand"><span class="logo">CM</span><div><strong>CMAPP</strong><small>DA · Patrimônios</small></div></div><nav class="nav" aria-label="Patrimônios"><button data-pat-page="lista">Relação</button><button data-pat-page="leitura">Consultar / Conferir</button><button data-pat-page="fila">Fila de aprovação</button><button data-pat-page="inventarios">Inventários</button></nav><a href="../gestao-v2/">Minha conta e acessos</a></aside><div class="workspace"><header class="topbar"><strong>Patrimônios</strong><div class="top-actions"><label>Tema<select id="theme"><option value="automatico">Automático</option><option value="claro">Claro</option><option value="escuro">Escuro</option></select></label><button id="logout" type="button">Sair</button></div></header><main class="content"><p id="pat-status" class="notice" role="status"></p><form id="pat-filter" class="fields"><label>Divisão<select id="pat-division"></select></label><button type="submit" class="primary">Consultar</button></form><section id="pat-lista"><h1>Relação de patrimônios</h1><p>Resultados da divisão e página selecionadas.</p><div id="pat-list" class="pat-list"></div><button id="pat-more" class="hidden" type="button">Carregar mais</button></section><section id="pat-leitura" class="hidden"><h1>Consultar / Conferir</h1><form id="pat-find" class="fields"><label>Plaqueta<input name="plaqueta" required maxlength="128" autocomplete="off"></label><button type="submit" class="primary">Consultar bem</button></form><article id="pat-detail" class="panel hidden"><h2 id="pat-description"></h2><p id="pat-location"></p><p id="pat-state"></p><form id="pat-operation"><div class="fields"><label>Ação<select name="acao"><option value="conferir">Registrar conferência física</option><option value="sugerir">Sugerir destino sem localizar</option></select></label><label>Destino<select name="destino" required></select></label><label id="pat-method-label">Método<select name="metodo"><option value="digitacao">Digitação da plaqueta</option></select></label><label class="full">Observação<textarea name="observacao" maxlength="500" rows="2"></textarea></label></div><div class="actions"><button id="pat-save" type="submit" class="primary">Conferir dados e registrar</button></div></form><h3>Histórico do bem</h3><ul id="pat-history" class="timeline"></ul></article></section><section id="pat-fila" class="hidden"><h1>Fila de aprovação</h1><p>A consulta considera a localização atual do bem. Uma decisão exige abrangência nas duas divisões envolvidas.</p><div id="pat-queue" class="pat-list"></div><button id="queue-more" type="button" class="hidden">Carregar mais da fila</button></section><section id="pat-inventarios" class="hidden"><h1>Inventários</h1><label>Divisão<select id="inventory-division"></select></label><button id="inventory-refresh" type="button">Atualizar inventário</button><p id="inventory-state" role="status"></p><div id="inventory-actions" class="actions"></div><div id="inventory-history" class="pat-list"></div></section></main></div></div><div id="toast" class="toast hidden" role="status"></div><script type="module" src="./app.js"></script></body></html>
+<!doctype html><html lang="pt-BR" data-theme="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CMAPP · Patrimônios</title><link rel="stylesheet" href="../gestao-v2/style.css"><link rel="stylesheet" href="./style.css"><script src="../js/ui/tema.js"></script><script defer src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script><script defer src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script></head><body><div class="demo">HOMOLOGAÇÃO · PATRIMÔNIOS V2 · DADOS REAIS</div><section id="session-gate" class="panel session-gate"><h1>Patrimônios</h1><p id="session-message" role="status">Validando sessão…</p><div class="actions"><a href="../gestao-v2/">Minha conta</a><a href="../login.html">Entrar no CMAPP</a><button id="gate-logout" type="button">Sair</button></div></section><div id="operation-shell" class="shell hidden"><aside class="sidebar"><div class="brand"><span class="logo">CM</span><div><strong>CMAPP</strong><small>DA · Patrimônios</small></div></div><nav class="nav" aria-label="Patrimônios"><button data-pat-page="lista">Relação</button><button data-pat-page="leitura">Consultar / Conferir</button><button data-pat-page="fila">Fila de aprovação</button><button data-pat-page="inventarios">Inventários</button></nav><a href="../gestao-v2/">Minha conta e acessos</a></aside><div class="workspace"><header class="topbar"><strong>Patrimônios</strong><div class="top-actions"><label>Tema<select id="theme"><option value="automatico">Automático</option><option value="claro">Claro</option><option value="escuro">Escuro</option></select></label><button id="logout" type="button">Sair</button></div></header><main class="content"><p id="pat-status" class="notice" role="status"></p><form id="pat-filter" class="fields"><label>Divisão<select id="pat-division"></select></label><label>Situação<select id="pat-situation"><option value="todos">Todas</option><option value="localizados">Localizados</option><option value="nao_localizados">Não localizados</option><option value="aguardando">Aguardando transferência</option></select></label><label>Buscar plaqueta ou descrição<input id="pat-search" type="search" maxlength="120"></label><button type="submit" class="primary">Aplicar filtros</button></form><section id="pat-lista"><h1>Relação de patrimônios</h1><p>Resultados da divisão e página selecionadas.</p><p id="pat-kpis" role="status"></p><button id="pat-export" type="button" class="hidden">Exportar seleção em CSV</button><div id="pat-list" class="pat-list"></div><button id="pat-more" class="hidden" type="button">Carregar mais</button></section><section id="pat-leitura" class="hidden"><h1>Consultar / Conferir</h1>        <div id="scanner-camera-card" class="bg-slate-800 rounded-xl p-4 border border-slate-700 shadow-lg space-y-3 scroll-mt-4">
+          <div class="flex flex-wrap justify-between items-center gap-2">
+            <div>
+              <span class="text-xs font-semibold text-slate-300 block">LEITOR DE BARRAS & OCR</span>
+              <span class="text-[10px] text-slate-500">A câmera só é ativada quando você solicitar.</span>
+            </div>
+            <button id="btn-toggle-cam" type="button" class="text-xs bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700 disabled:text-slate-400 text-white font-bold px-3 py-1.5 rounded-lg">Ligar Câmera</button>
+          </div>
+
+          <div id="camera-status" role="status" aria-live="polite" class="camera-status camera-status-idle">
+            <span id="camera-status-icon" aria-hidden="true">📷</span>
+            <span id="camera-status-text">Câmera desligada. A digitação manual continua disponível.</span>
+          </div>
+
+          <div id="camera-controls-bar" class="hidden camera-controls bg-slate-900 p-2.5 rounded-lg border border-slate-700 text-xs">
+            <label class="camera-control camera-control-wide">
+              <span>Câmera</span>
+              <select id="select-camera" class="bg-slate-800 border border-slate-600 rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500" aria-label="Selecionar câmera">
+                <option value="">Câmera em uso</option>
+              </select>
+            </label>
+            <label class="camera-control">
+              <span>Zoom <strong id="camera-zoom-value" class="text-blue-300">1x</strong></span>
+              <input id="camera-zoom" type="range" min="1" max="4" step="0.1" value="1" class="camera-range" aria-label="Zoom da câmera">
+            </label>
+            <div class="camera-control camera-action-row">
+              <span>Recursos</span>
+              <div class="flex gap-1.5">
+                <button id="btn-camera-torch" type="button" class="hidden camera-action-button" aria-pressed="false">🔦 Lanterna</button>
+                <span id="camera-focus-status" class="camera-capability-badge" title="Estado do foco da câmera">Foco automático</span>
+              </div>
+            </div>
+          </div>
+
+          <div id="reader-container" class="relative w-full bg-black rounded-lg overflow-hidden min-h-[240px] flex items-center justify-center text-slate-500 text-xs">
+            <div class="scanner-laser"></div>
+            <div class="camera-guide" aria-hidden="true"></div>
+            <div id="reader" class="w-full h-full">Câmera desligada</div>
+          </div>
+          <div id="camera-feedback" class="hidden camera-feedback" role="status" aria-live="assertive"></div>
+          <div id="camera-assistance" class="hidden camera-assistance" role="status" aria-live="polite">
+            <div>
+              <strong class="block text-amber-200 text-xs">Está difícil reconhecer a etiqueta?</strong>
+              <span class="text-[10px] text-amber-100/80">A câmera continuará tentando enquanto você escolhe uma alternativa.</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-1.5">
+              <button id="btn-ajuda-ocr" type="button" class="camera-assistance-button">🔍 Usar OCR</button>
+              <button id="btn-ajuda-manual" type="button" class="camera-assistance-button">⌨️ Digitar plaqueta</button>
+              <button id="btn-ajuda-continuar" type="button" class="camera-assistance-button camera-assistance-secondary">Continuar tentando</button>
+            </div>
+          </div>
+          <button id="btn-retomar-leitura" type="button" class="hidden w-full bg-blue-700 hover:bg-blue-600 text-white font-bold py-2 rounded-lg text-xs border border-blue-500/30">
+            ▶️ Ler outra plaqueta
+          </button>
+          <button id="btn-capturar-frame" type="button" class="hidden w-full bg-purple-700 hover:bg-purple-600 disabled:bg-slate-700 disabled:text-slate-400 text-white font-bold py-2 rounded-lg text-xs border border-purple-500/30 flex items-center justify-center gap-1">
+            🔍 Ler via OCR (Numeração Impressa)
+          </button>
+          <div id="ocr-status" class="hidden text-[11px] text-purple-300 text-center font-semibold" role="status" aria-live="polite">Processando OCR na imagem...</div>
+          <p class="text-[10px] leading-relaxed text-slate-500">Aponte a câmera para o código. Se ele estiver ilegível, use o OCR; a digitação manual permanece disponível abaixo.</p>
+        </div>
+
+          <div id="leitura-resultado" class="hidden leitura-resultado scroll-mt-4" tabindex="-1" role="status" aria-live="polite">
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <span id="leitura-resultado-origem" class="text-[10px] font-bold uppercase tracking-wide text-blue-300">LEITURA CONCLUÍDA</span>
+                <strong id="leitura-resultado-codigo" class="block text-lg text-white">---</strong>
+              </div>
+              <span class="bg-emerald-950 text-emerald-300 border border-emerald-500/30 rounded-full px-2.5 py-1 text-[10px] font-bold">RECONHECIDO</span>
+            </div>
+            <div class="leitura-preview-container">
+              <canvas id="leitura-preview" class="w-full" role="img" aria-label="Imagem congelada da região reconhecida"></canvas>
+            </div>
+            <p id="leitura-resultado-texto" class="text-xs text-slate-200 leading-relaxed">Confira os dados antes de salvar.</p>
+          </div>
+
+<form id="pat-find" class="fields"><label>Plaqueta<input name="plaqueta" id="input-plaqueta" required maxlength="128" autocomplete="off"></label><button type="submit" class="primary">Consultar bem</button></form><article id="pat-detail" class="panel hidden"><h2 id="pat-description"></h2><p id="pat-location"></p><p id="pat-state"></p><form id="pat-operation"><div class="fields"><label>Ação<select name="acao"><option value="conferir">Registrar conferência física</option><option value="sugerir">Sugerir destino sem localizar</option></select></label><label>Destino<select name="destino" required></select></label><label id="pat-method-label">Método<select name="metodo"><option value="digitacao">Digitação da plaqueta</option></select></label><label class="full">Observação<textarea name="observacao" maxlength="500" rows="2"></textarea></label></div><div class="actions"><button id="pat-save" type="submit" class="primary">Conferir dados e registrar</button></div></form><h3>Histórico do bem</h3><ul id="pat-history" class="timeline"></ul></article></section><section id="pat-fila" class="hidden"><h1>Fila de aprovação</h1><p>A consulta considera a localização atual do bem. Uma decisão exige abrangência nas duas divisões envolvidas.</p><div id="pat-queue" class="pat-list"></div><button id="queue-more" type="button" class="hidden">Carregar mais da fila</button></section><section id="pat-inventarios" class="hidden"><h1>Inventários</h1><label>Divisão<select id="inventory-division"></select></label><button id="inventory-refresh" type="button">Atualizar inventário</button><p id="inventory-state" role="status"></p><div id="inventory-actions" class="actions"></div><div id="inventory-history" class="pat-list"></div></section></main></div></div><div id="toast" class="toast hidden" role="status"></div><script type="module" src="./app.js"></script></body></html>

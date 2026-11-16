@@ -86,7 +86,7 @@ seleção de divisões do servidor, histórico e Claro/Escuro/Automático.
 
 Treze endpoints implementam consultas, concessões/delegações e ciclo de contas; proteções dos nove
 endpoints antigos e preparador de Rules de transição estão disponíveis localmente. Testes: 196 no
-frontend/política/pacote, 71 no Firestore Emulator. Ver backend/acessos-v2/README.md para limites.
+frontend/política/pacote, 74 no Firestore Emulator. Ver backend/acessos-v2/README.md para limites.
 
 Faltam aplicar política às operações e Rules dos módulos, reconciliação de Authentication, revisar dados
 reais e preparar migração/backup/reversão, homologar telas em dispositivos e ampliar temas ao sistema.
@@ -127,3 +127,13 @@ justificada, consolidação de todas as divisões e fotografia/CSV conforme perm
 DSIPS e Patrimônios compartilham o bootstrap de sessão. Ver backend/operacoes-v2/INVENTARIOS.md.
 Restam paridade dos recursos patrimoniais legados (câmera/OCR, filtros/indicadores e relatórios completos),
 reconciliação Auth, migração/backup/reversão e homologação real. Não há deploy ou ativação nesta etapa.
+
+### Leitor, filtros e relação CSV preparados — 16/11/2026
+
+A área patrimonios-v2 reutiliza o controlador homologado de câmera/barras/OCR, com invalidação de
+capturas atrasadas por geração/contexto. Método de reconhecimento é preservado na conferência.
+Busca e situação são filtradas na página autorizada; indicadores identificam os registros carregados.
+A relação pode ser exportada em CSV com permissão verificada por página, limites explícitos e sem
+arquivo parcial após erro ou troca de sessão. Ver backend/operacoes-v2/LEITURA-RELACAO.md.
+Restam indicadores/ordenações/filtros avançados e relatórios oficiais, homologação de hardware e conta
+real, reconciliação Auth e migração/backup/reversão. Não há deploy operacional nesta etapa.

@@ -186,6 +186,7 @@
 
     const controladorCamera = criarControladorCamera({
       limparPlaqueta,
+      obterContextoLeitura: () => usuarioLogado,
       aoReconhecerPlaqueta: preencherEConsultarPlaqueta,
       aoPrepararNovaLeitura: limparFormularioLeitura,
       podeManterCamera: () => Boolean(usuarioLogado && abaAtual === 'scanner')

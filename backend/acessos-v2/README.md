@@ -78,9 +78,9 @@ Não é necessário executar esse comando no ambiente do usuário nesta etapa.
 CMAPP_INTERNAL_ROOT deve apontar ao pacote interno de teste com dependências e Rules legadas.
 Firestore Emulator local em 127.0.0.1:8088, projeto exclusivo demo-cmapp-acessos-v2; o teste recusa rodar
 sem esse emulador. Java é necessário. Rodar o arquivo servico.integration.test.cjs por emulators:exec.
-71 cenários de integração incluem autenticação, campos forjados, escopos, perfil TI, revogação em sessão,
+74 cenários de integração incluem autenticação, campos forjados, escopos, perfil TI, revogação em sessão,
 conta inativa, idempotência, duplicidade, concorrência, projeções, paginação, auditoria filtrada e Rules.
-217 verificações frontend/política/preparação de pacote continuam aprovadas.
+227 verificações frontend/política/preparação de pacote continuam aprovadas.
 
 ## Bloqueios de ativação — obrigatórios antes de migrar qualquer usuário real
 
@@ -164,3 +164,13 @@ justificada, consolidação de todas as divisões e fotografia/CSV conforme perm
 DSIPS e Patrimônios compartilham o bootstrap de sessão. Ver backend/operacoes-v2/INVENTARIOS.md.
 Restam paridade dos recursos patrimoniais legados (câmera/OCR, filtros/indicadores e relatórios completos),
 reconciliação Auth, migração/backup/reversão e homologação real. Não há deploy ou ativação nesta etapa.
+
+### Leitor, filtros e relação CSV preparados — 16/11/2026
+
+A área patrimonios-v2 reutiliza o controlador homologado de câmera/barras/OCR, com invalidação de
+capturas atrasadas por geração/contexto. Método de reconhecimento é preservado na conferência.
+Busca e situação são filtradas na página autorizada; indicadores identificam os registros carregados.
+A relação pode ser exportada em CSV com permissão verificada por página, limites explícitos e sem
+arquivo parcial após erro ou troca de sessão. Ver backend/operacoes-v2/LEITURA-RELACAO.md.
+Restam indicadores/ordenações/filtros avançados e relatórios oficiais, homologação de hardware e conta
+real, reconciliação Auth e migração/backup/reversão. Não há deploy operacional nesta etapa.

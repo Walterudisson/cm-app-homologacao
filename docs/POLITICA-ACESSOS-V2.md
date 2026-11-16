@@ -107,7 +107,7 @@ sessão e dados reais, acompanha revisão e oferece perfil próprio ao usuário 
 As proteções de transição bloqueiam uso de privilégios legados por contas versionadas; elas não
 substituem a migração nem habilitam o negócio v2. Descritores corrompidos não liberam gestão.
 
-Validação atual: 217 testes frontend/política/pacote e 71 cenários no Firestore Emulator. Incluem
+Validação atual: 227 testes frontend/política/pacote e 74 cenários no Firestore Emulator. Incluem
 ciclo de contas, falha de sincronização Auth, reenvio antigo, limites de gestor e Rules de transição.
 Permanecem migração com UID inicial explícito, backup/reversão, reconciliação Auth/Firestore,
 homologação visual e extensão de temas ao restante do sistema. Nenhum usuário real foi alterado.
@@ -146,3 +146,13 @@ justificada, consolidação de todas as divisões e fotografia/CSV conforme perm
 DSIPS e Patrimônios compartilham o bootstrap de sessão. Ver backend/operacoes-v2/INVENTARIOS.md.
 Restam paridade dos recursos patrimoniais legados (câmera/OCR, filtros/indicadores e relatórios completos),
 reconciliação Auth, migração/backup/reversão e homologação real. Não há deploy ou ativação nesta etapa.
+
+### Leitor, filtros e relação CSV preparados — 16/11/2026
+
+A área patrimonios-v2 reutiliza o controlador homologado de câmera/barras/OCR, com invalidação de
+capturas atrasadas por geração/contexto. Método de reconhecimento é preservado na conferência.
+Busca e situação são filtradas na página autorizada; indicadores identificam os registros carregados.
+A relação pode ser exportada em CSV com permissão verificada por página, limites explícitos e sem
+arquivo parcial após erro ou troca de sessão. Ver backend/operacoes-v2/LEITURA-RELACAO.md.
+Restam indicadores/ordenações/filtros avançados e relatórios oficiais, homologação de hardware e conta
+real, reconciliação Auth e migração/backup/reversão. Não há deploy operacional nesta etapa.

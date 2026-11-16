@@ -62,7 +62,7 @@ as mesmas variáveis da gestão v2. Nenhuma conta real foi migrada.
 
 ## Validação e dependências
 
-217 testes locais e 71 cenários no Firestore Emulator cobrem escopo, operações, lotes, fotografia,
+227 testes locais e 74 cenários no Firestore Emulator cobrem escopo, operações, lotes, fotografia,
 reenvio, bloqueio, reabertura, consolidação, reinício, revisão, revogação e troca de sessão.
 São testes de DOM/emulador; não equivalem à homologação visual ou com Authentication real.
 
@@ -72,3 +72,13 @@ quatro verificações de pendências patrimoniais). Concluir paridade dos recurs
 incluindo câmera/OCR, filtros/indicadores e relatórios completos, e validar em HML com contas reais.
 O corte de Rules bloqueia o cliente patrimonial antigo: não deve ser ativado antes dessa paridade.
 A prévia pública continua sendo a demonstração anterior de Usuários/DSIPS, com dados fictícios.
+
+### Leitor, filtros e relação CSV preparados — 16/11/2026
+
+A área patrimonios-v2 reutiliza o controlador homologado de câmera/barras/OCR, com invalidação de
+capturas atrasadas por geração/contexto. Método de reconhecimento é preservado na conferência.
+Busca e situação são filtradas na página autorizada; indicadores identificam os registros carregados.
+A relação pode ser exportada em CSV com permissão verificada por página, limites explícitos e sem
+arquivo parcial após erro ou troca de sessão. Ver backend/operacoes-v2/LEITURA-RELACAO.md.
+Restam indicadores/ordenações/filtros avançados e relatórios oficiais, homologação de hardware e conta
+real, reconciliação Auth e migração/backup/reversão. Não há deploy operacional nesta etapa.

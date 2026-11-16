@@ -70,7 +70,7 @@ O bloqueio/drenagem antes da migração continua necessário para chamadas/grava
 
 ## Verificação e trabalho restante
 
-217 testes frontend/política/pacote/DOM e 71 cenários no Firestore Emulator aprovados. Os cenários novos
+227 testes frontend/política/pacote/DOM e 74 cenários no Firestore Emulator aprovados. Os cenários novos
 cobrem listagem por alçada, índice/preparação, conferência, sugestão sem localização física, decisões,
 permissão nas duas divisões, estado do inventário, destino inativo/duplicado, revisão obsoleta,
 concorrência e reenvios. As Rules de transição foram testadas antes/depois do marcador do módulo.
@@ -87,3 +87,13 @@ justificada, consolidação de todas as divisões e fotografia/CSV conforme perm
 DSIPS e Patrimônios compartilham o bootstrap de sessão. Ver backend/operacoes-v2/INVENTARIOS.md.
 Restam paridade dos recursos patrimoniais legados (câmera/OCR, filtros/indicadores e relatórios completos),
 reconciliação Auth, migração/backup/reversão e homologação real. Não há deploy ou ativação nesta etapa.
+
+### Leitor, filtros e relação CSV preparados — 16/11/2026
+
+A área patrimonios-v2 reutiliza o controlador homologado de câmera/barras/OCR, com invalidação de
+capturas atrasadas por geração/contexto. Método de reconhecimento é preservado na conferência.
+Busca e situação são filtradas na página autorizada; indicadores identificam os registros carregados.
+A relação pode ser exportada em CSV com permissão verificada por página, limites explícitos e sem
+arquivo parcial após erro ou troca de sessão. Ver backend/operacoes-v2/LEITURA-RELACAO.md.
+Restam indicadores/ordenações/filtros avançados e relatórios oficiais, homologação de hardware e conta
+real, reconciliação Auth e migração/backup/reversão. Não há deploy operacional nesta etapa.
