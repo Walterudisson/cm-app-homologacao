@@ -86,7 +86,7 @@ seleção de divisões do servidor, histórico e Claro/Escuro/Automático.
 
 Treze endpoints implementam consultas, concessões/delegações e ciclo de contas; proteções dos nove
 endpoints antigos e preparador de Rules de transição estão disponíveis localmente. Testes: 196 no
-frontend/política/pacote, 62 no Firestore Emulator. Ver backend/acessos-v2/README.md para limites.
+frontend/política/pacote, 71 no Firestore Emulator. Ver backend/acessos-v2/README.md para limites.
 
 Faltam aplicar política às operações e Rules dos módulos, reconciliação de Authentication, revisar dados
 reais e preparar migração/backup/reversão, homologar telas em dispositivos e ampliar temas ao sistema.
@@ -118,3 +118,12 @@ política e revisão do bem são lidas na transação, com histórico/evento/rec
 preparação integral da localização efetiva; o corte do módulo bloqueia caminhos legados para impedir
 escritores que não mantenham o índice. Não foram aplicadas marcas, migrados dados ou publicados serviços.
 Ver backend/operacoes-v2/PATRIMONIOS.md. Restam controladores patrimoniais, ciclos de inventário e migração.
+
+### Telas e ciclos patrimoniais preparados — 16/11/2026
+
+A rota patrimonios-v2/ conecta o fluxo essencial por plaqueta digitada, consulta/relação, conferência,
+sugestões e fila aos serviços v2. Inventários têm fechamento e reinício em lotes retomáveis, reabertura
+justificada, consolidação de todas as divisões e fotografia/CSV conforme permissão. Há 31 endpoints.
+DSIPS e Patrimônios compartilham o bootstrap de sessão. Ver backend/operacoes-v2/INVENTARIOS.md.
+Restam paridade dos recursos patrimoniais legados (câmera/OCR, filtros/indicadores e relatórios completos),
+reconciliação Auth, migração/backup/reversão e homologação real. Não há deploy ou ativação nesta etapa.

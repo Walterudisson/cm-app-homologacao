@@ -51,7 +51,7 @@ Gestão dos ciclos de inventário e conexão das telas patrimoniais ainda não f
 
 ## Validação e pendências de ativação
 
-Validação: 211 testes frontend/política/pacote/DOM e 62 cenários de contas, concessões e operação DSIPS
+Validação: 217 testes frontend/política/pacote/DOM e 71 cenários de contas, concessões e operação DSIPS
 no Firestore Emulator. Novos cenários
 cobrem estoque e unidades individualizadas, concorrência de saídas, retornos parciais, revogação antes
 da autorização transacional, reenvio, contas inativas, projeções, histórico filtrado e alçada patrimonial.
@@ -96,3 +96,12 @@ reconciliação de contas e migração. Os testes de DOM não são verificação
 
 Contratos, transações, alçadas, revisão e preparação do índice de localização estão em PATRIMONIOS.md.
 As marcas de preparação/ativação não foram aplicadas. A mudança não altera a prévia pública.
+
+### Telas e ciclos patrimoniais preparados — 16/11/2026
+
+A rota patrimonios-v2/ conecta o fluxo essencial por plaqueta digitada, consulta/relação, conferência,
+sugestões e fila aos serviços v2. Inventários têm fechamento e reinício em lotes retomáveis, reabertura
+justificada, consolidação de todas as divisões e fotografia/CSV conforme permissão. Há 31 endpoints.
+DSIPS e Patrimônios compartilham o bootstrap de sessão. Ver backend/operacoes-v2/INVENTARIOS.md.
+Restam paridade dos recursos patrimoniais legados (câmera/OCR, filtros/indicadores e relatórios completos),
+reconciliação Auth, migração/backup/reversão e homologação real. Não há deploy ou ativação nesta etapa.

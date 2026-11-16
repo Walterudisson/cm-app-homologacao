@@ -16,7 +16,7 @@ ou a administração dos ciclos de inventário. A prévia pública de Usuários/
 As quatro mutações também exigem operacaoId estável por tentativa e revisaoEsperada inteira >=0.
 A consulta por ID cmappConsultarPatrimonio continua disponível, dentro do escopo de localização atual.
 O cliente js/services/operacoes-v2.service.js contém os cinco contratos novos, sem fallback legado.
-O preparador Functions agora registra 26 endpoints e copia patrimonios.cjs.
+O preparador Functions registra 31 endpoints, incluindo a continuação de inventários e copia patrimonios.cjs.
 
 A revisão deve vir do último registro lido (revisaoOperacionalV2, ou zero se ausente). Se outra operação
 alterar o bem, a confirmação antiga falha com aborted e pede atualização; não decide uma nova solicitação
@@ -70,11 +70,20 @@ O bloqueio/drenagem antes da migração continua necessário para chamadas/grava
 
 ## Verificação e trabalho restante
 
-211 testes frontend/política/pacote/DOM e 62 cenários no Firestore Emulator aprovados. Os cenários novos
+217 testes frontend/política/pacote/DOM e 71 cenários no Firestore Emulator aprovados. Os cenários novos
 cobrem listagem por alçada, índice/preparação, conferência, sugestão sem localização física, decisões,
 permissão nas duas divisões, estado do inventário, destino inativo/duplicado, revisão obsoleta,
 concorrência e reenvios. As Rules de transição foram testadas antes/depois do marcador do módulo.
 
-Restam conectar as telas patrimoniais aos contratos, finalizar ciclos/fechamentos/reabertura/exportação,
-preparar migração da base/acessos, reconciliação de Authentication e homologação com contas reais de HML.
+O fluxo essencial das telas e os ciclos estão conectados; ver INVENTARIOS.md. Restam paridade dos recursos
+legados, migração da base/acessos, reconciliação de Authentication e homologação com contas reais de HML.
 Não há deploy de Functions/Rules, alteração de dados reais ou ativação dos marcadores nesta etapa.
+
+### Telas e ciclos patrimoniais preparados — 16/11/2026
+
+A rota patrimonios-v2/ conecta o fluxo essencial por plaqueta digitada, consulta/relação, conferência,
+sugestões e fila aos serviços v2. Inventários têm fechamento e reinício em lotes retomáveis, reabertura
+justificada, consolidação de todas as divisões e fotografia/CSV conforme permissão. Há 31 endpoints.
+DSIPS e Patrimônios compartilham o bootstrap de sessão. Ver backend/operacoes-v2/INVENTARIOS.md.
+Restam paridade dos recursos patrimoniais legados (câmera/OCR, filtros/indicadores e relatórios completos),
+reconciliação Auth, migração/backup/reversão e homologação real. Não há deploy ou ativação nesta etapa.

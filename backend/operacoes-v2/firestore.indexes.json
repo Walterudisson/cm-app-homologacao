@@ -1,9 +1,75 @@
 {
   "indexes": [
-    {"collectionGroup":"dsipsEventos","queryScope":"COLLECTION","fields":[
-      {"fieldPath":"tipo","order":"ASCENDING"},
-      {"fieldPath":"registradoEm","order":"DESCENDING"}
-    ]}
+    {
+      "collectionGroup": "dsipsEventos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "tipo",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "registradoEm",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "patrimonios",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "localizacaoEfetivaV2",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "statusTransferencia",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "patrimonios",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "localizacaoEfetivaV2",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "sugestaoDestinoStatus",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "patrimonios",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "divisaoDestinoSugerida",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "statusTransferencia",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "patrimonios",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "sugestaoDestinoDivisao",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "sugestaoDestinoStatus",
+          "order": "ASCENDING"
+        }
+      ]
+    }
   ],
   "fieldOverrides": []
 }

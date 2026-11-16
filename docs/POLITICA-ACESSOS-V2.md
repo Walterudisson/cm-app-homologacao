@@ -107,7 +107,7 @@ sessão e dados reais, acompanha revisão e oferece perfil próprio ao usuário 
 As proteções de transição bloqueiam uso de privilégios legados por contas versionadas; elas não
 substituem a migração nem habilitam o negócio v2. Descritores corrompidos não liberam gestão.
 
-Validação atual: 211 testes frontend/política/pacote e 62 cenários no Firestore Emulator. Incluem
+Validação atual: 217 testes frontend/política/pacote e 71 cenários no Firestore Emulator. Incluem
 ciclo de contas, falha de sincronização Auth, reenvio antigo, limites de gestor e Rules de transição.
 Permanecem migração com UID inicial explícito, backup/reversão, reconciliação Auth/Firestore,
 homologação visual e extensão de temas ao restante do sistema. Nenhum usuário real foi alterado.
@@ -137,3 +137,12 @@ política e revisão do bem são lidas na transação, com histórico/evento/rec
 preparação integral da localização efetiva; o corte do módulo bloqueia caminhos legados para impedir
 escritores que não mantenham o índice. Não foram aplicadas marcas, migrados dados ou publicados serviços.
 Ver backend/operacoes-v2/PATRIMONIOS.md. Restam controladores patrimoniais, ciclos de inventário e migração.
+
+### Telas e ciclos patrimoniais preparados — 16/11/2026
+
+A rota patrimonios-v2/ conecta o fluxo essencial por plaqueta digitada, consulta/relação, conferência,
+sugestões e fila aos serviços v2. Inventários têm fechamento e reinício em lotes retomáveis, reabertura
+justificada, consolidação de todas as divisões e fotografia/CSV conforme permissão. Há 31 endpoints.
+DSIPS e Patrimônios compartilham o bootstrap de sessão. Ver backend/operacoes-v2/INVENTARIOS.md.
+Restam paridade dos recursos patrimoniais legados (câmera/OCR, filtros/indicadores e relatórios completos),
+reconciliação Auth, migração/backup/reversão e homologação real. Não há deploy ou ativação nesta etapa.

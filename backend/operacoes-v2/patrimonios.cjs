@@ -28,6 +28,10 @@ function criarPatrimoniosV2({db,FieldValue,HttpsError,contexto:c}) {
       return{registros,proximoCursor:s.size>limite?docs.at(-1).id:null,ordenacao:'id',filtroAplicado:request.data.somentePendentes===true?'pendencias':'todos'};
     });
   }
+  async function catalogo(request){
+    const uid=c.uidDoPedido(request);c.campos(request.data,[]);
+    return db.runTransaction(async tx=>{const autor=await c.identidade(uid,tx);c.ativo(autor);const p=await c.politicaPromise;if(!temAcao(p,autor,'consultar'))falhar('permission-denied','Sem consulta patrimonial.');const snap=await tx.get(db.collection('divisoes').limit(1001));if(snap.size>1000)falhar('resource-exhausted','Catálogo excedeu o limite.');const nomes=new Set();const divisoes=snap.docs.map(doc=>{const d=doc.data(),nome=d.nome;if(typeof nome!=='string'||!nome.trim()||nomes.has(nome))falhar('failed-precondition','Catálogo possui nomes inválidos ou duplicados.');nomes.add(nome);return{id:doc.id,nome,ativo:d.ativo!==false,...Object.fromEntries(['consultar','conferir','sugerir','aprovar','inventarios','exportar'].map(a=>[a,permitir(p,autor,a,nome)]))};});return{divisoes:divisoes.sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR')),consultaGlobal:permitir(p,autor,'consultar'),inventarioGlobal:permitir(p,autor,'inventarios')};});
+  }
   async function executar(request,tipo){
     const uid=c.uidDoPedido(request);const resolucao=tipo.startsWith('resolver_');
     c.campos(request.data,['id','operacaoId','revisaoEsperada',...(resolucao?['decisao']:['destino','observacao',...(tipo==='conferir'?['metodoLocalizacao']:[])])]);
@@ -78,6 +82,6 @@ function criarPatrimoniosV2({db,FieldValue,HttpsError,contexto:c}) {
       tx.create(reciboRef,{fingerprint,resultado,contextos,criadoEm:agora});return resultado;
     });
   }
-  return{listar,conferir:r=>executar(r,'conferir'),sugerir:r=>executar(r,'sugerir'),resolverTransferencia:r=>executar(r,'resolver_transferencia'),resolverSugestao:r=>executar(r,'resolver_sugestao')};
+  return{catalogo,contexto:{permitir,temAcao,exigir,localEfetivo,chaveDivisao},listar,conferir:r=>executar(r,'conferir'),sugerir:r=>executar(r,'sugerir'),resolverTransferencia:r=>executar(r,'resolver_transferencia'),resolverSugestao:r=>executar(r,'resolver_sugestao')};
 }
 module.exports={criarPatrimoniosV2,localEfetivo,chaveDivisao};

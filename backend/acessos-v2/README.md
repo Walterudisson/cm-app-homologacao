@@ -78,9 +78,9 @@ Não é necessário executar esse comando no ambiente do usuário nesta etapa.
 CMAPP_INTERNAL_ROOT deve apontar ao pacote interno de teste com dependências e Rules legadas.
 Firestore Emulator local em 127.0.0.1:8088, projeto exclusivo demo-cmapp-acessos-v2; o teste recusa rodar
 sem esse emulador. Java é necessário. Rodar o arquivo servico.integration.test.cjs por emulators:exec.
-62 cenários de integração incluem autenticação, campos forjados, escopos, perfil TI, revogação em sessão,
+71 cenários de integração incluem autenticação, campos forjados, escopos, perfil TI, revogação em sessão,
 conta inativa, idempotência, duplicidade, concorrência, projeções, paginação, auditoria filtrada e Rules.
-211 verificações frontend/política/preparação de pacote continuam aprovadas.
+217 verificações frontend/política/preparação de pacote continuam aprovadas.
 
 ## Bloqueios de ativação — obrigatórios antes de migrar qualquer usuário real
 
@@ -155,3 +155,12 @@ política e revisão do bem são lidas na transação, com histórico/evento/rec
 preparação integral da localização efetiva; o corte do módulo bloqueia caminhos legados para impedir
 escritores que não mantenham o índice. Não foram aplicadas marcas, migrados dados ou publicados serviços.
 Ver backend/operacoes-v2/PATRIMONIOS.md. Restam controladores patrimoniais, ciclos de inventário e migração.
+
+### Telas e ciclos patrimoniais preparados — 16/11/2026
+
+A rota patrimonios-v2/ conecta o fluxo essencial por plaqueta digitada, consulta/relação, conferência,
+sugestões e fila aos serviços v2. Inventários têm fechamento e reinício em lotes retomáveis, reabertura
+justificada, consolidação de todas as divisões e fotografia/CSV conforme permissão. Há 31 endpoints.
+DSIPS e Patrimônios compartilham o bootstrap de sessão. Ver backend/operacoes-v2/INVENTARIOS.md.
+Restam paridade dos recursos patrimoniais legados (câmera/OCR, filtros/indicadores e relatórios completos),
+reconciliação Auth, migração/backup/reversão e homologação real. Não há deploy ou ativação nesta etapa.

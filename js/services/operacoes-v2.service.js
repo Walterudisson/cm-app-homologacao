@@ -15,3 +15,8 @@ export const conferirPatrimonioV2=dados=>chamar('cmappPatrimoniosConferir',dados
 export const sugerirDestinoPatrimonioV2=dados=>chamar('cmappPatrimoniosSugerirDestino',dados);
 export const resolverTransferenciaPatrimonioV2=dados=>chamar('cmappPatrimoniosResolverTransferencia',dados);
 export const resolverSugestaoPatrimonioV2=dados=>chamar('cmappPatrimoniosResolverSugestao',dados);
+export const catalogoPatrimoniosV2=()=>chamar('cmappPatrimoniosCatalogo');
+export const consultarInventarioV2=divisao=>chamar('cmappInventarioConsultar',{divisao});
+export const comandarInventarioV2=dados=>chamar('cmappInventarioComandar',dados);
+export const consolidarInventarioV2=dados=>chamar('cmappInventarioConsolidar',dados);
+export const itensInventarioV2=dados=>chamar('cmappInventarioItens',dados);
