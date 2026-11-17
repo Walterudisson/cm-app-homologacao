@@ -1,4 +1,4 @@
-const VERSAO = 'v1.16.1-h.2-entrada-v2-homologacao';
+const VERSAO = 'v1.13.11-h-recuperacao.1';
 const CACHE_SHELL = `cmapp-shell-${VERSAO}`;
 const CACHE_RUNTIME = `cmapp-runtime-${VERSAO}`;
 const PREFIXO_CACHE = 'cmapp-';
@@ -16,17 +16,6 @@ const ARQUIVOS_SHELL = [
   './assets/icon-maskable-512.png',
   './assets/apple-touch-icon.png',
   './js/config/firebase.js',
-  './js/platform/modules.js',
-  './js/platform/pages.js',
-  './js/modules/patrimonios/module.js',
-  './js/modules/patrimonios/pages.js',
-  './js/modules/dsips/module.js',
-  './js/modules/dsips/model.js',
-  './js/modules/dsips/controller.js',
-  './js/modules/dsips/service.js',
-  './js/modules/dsips/cautelas-model.js',
-  './js/modules/dsips/cautelas-controller.js',
-  './js/ui/modules.js',
   './js/controllers/camera.controller.js',
   './js/core/camera.js',
   './js/core/movimentacao.js',
@@ -145,4 +134,3 @@ self.addEventListener('fetch', evento => {
     && ['script', 'style', 'worker'].includes(requisicao.destination);
   if (dependenciaEstatica) evento.respondWith(cachePrimeiroComAtualizacao(requisicao));
 });
-

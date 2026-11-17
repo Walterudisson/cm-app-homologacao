@@ -21,16 +21,16 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.16.1-h.1">
+  <link rel="stylesheet" href="./app.css?v=1.13.11-h">
 </head>
-<body class="hml-env bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
-  <div class="hml-banner" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
+  <div style="position:fixed;top:0;left:0;right:0;z-index:9999;background:#b45309;color:white;text-align:center;font:700 12px/28px system-ui,sans-serif;letter-spacing:.08em;pointer-events:none" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
 
   <!-- TELA DE LOGIN -->
   <div id="view-login" class="fixed inset-0 bg-slate-950 z-50 flex flex-col items-center justify-center p-4">
     <div class="bg-slate-800 border border-slate-700 w-full max-w-md p-6 rounded-2xl shadow-2xl space-y-5">
       <div class="text-center space-y-1">
-        <h1 class="text-2xl font-bold text-blue-400">CM APP</h1>
+        <h1 class="text-2xl font-bold text-blue-400">📦 Patrimônio CM</h1>
         <p class="text-xs text-slate-400">Entre com sua credencial institucional</p>
       </div>
 
@@ -54,7 +54,7 @@
 
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.16.1-H.1 • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.11-H • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -67,7 +67,7 @@
         <div class="brand-mark" aria-hidden="true">CM</div>
         <div class="sidebar-label">
           <strong>CM APP</strong>
-          <span id="sidebar-module-name">Plataforma</span>
+          <span>Patrimônio</span>
         </div>
       </div>
 
@@ -80,17 +80,13 @@
       </div>
 
       <nav class="sidebar-nav">
-        <button type="button" class="nav-item" data-nav-page="modulos">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4V4Zm10 0h6v6h-6V4ZM4 14h6v6H4v-6Zm10 0h6v6h-6v-6Z"/></svg>
-          <span class="sidebar-label">Módulos</span>
-        </button>
-        <span class="sidebar-section-label sidebar-label" data-module-context="patrimonios">Visão geral</span>
+        <span class="sidebar-section-label sidebar-label">Visão geral</span>
         <button id="tab-btn-dashboard" type="button" class="nav-item active" data-nav-page="dashboard">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13h6V4H4v9Zm0 7h6v-5H4v5Zm10 0h6v-9h-6v9Zm0-16v5h6V4h-6Z"/></svg>
           <span class="sidebar-label">Painel</span>
         </button>
 
-        <span class="sidebar-section-label sidebar-label" data-module-context="patrimonios">Patrimônios</span>
+        <span class="sidebar-section-label sidebar-label">Patrimônio</span>
         <button id="tab-btn-scanner" type="button" class="nav-item" data-nav-page="scanner">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7V4h3M17 4h3v3M20 17v3h-3M7 20H4v-3M7 9h10v6H7V9Z"/></svg>
           <span class="sidebar-label">Leitura</span>
@@ -104,23 +100,12 @@
           <span class="sidebar-label">Inventários</span>
         </button>
 
-        <span class="sidebar-section-label sidebar-label" data-module-context="dsips">DSIPS</span>
-        <button type="button" class="nav-item" data-nav-page="dsips-inicio">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16v13H4V7Zm2-3h12l2 3H4l2-3Z"/></svg>
-          <span class="sidebar-label">Início DSIPS</span>
-        </button>
-        <button type="button" class="nav-item" data-nav-page="dsips-materiais"><span aria-hidden="true">▣</span><span class="sidebar-label">Materiais</span></button>
-        <button type="button" class="nav-item" data-nav-page="dsips-cadastros"><span aria-hidden="true">▤</span><span class="sidebar-label">Cadastros DSIPS</span></button>
-        <button type="button" class="nav-item" data-nav-page="dsips-estoque"><span aria-hidden="true">▦</span><span class="sidebar-label">Estoque</span></button>
-        <button type="button" class="nav-item" data-nav-page="dsips-cautelas"><span aria-hidden="true">↔</span><span class="sidebar-label">Cautelas e devoluções</span></button>
-        <button type="button" class="nav-item" data-nav-page="dsips-posse"><span aria-hidden="true">♙</span><span class="sidebar-label">Quem está com o quê</span></button>
-        <button type="button" class="nav-item" data-nav-page="dsips-historico" data-perfis="admin,gestor"><span aria-hidden="true">↺</span><span class="sidebar-label">Histórico DSIPS</span></button>
+        <span class="sidebar-section-label sidebar-label" data-perfis="admin,gestor">Gestão</span>
         <button id="tab-btn-transferencias" type="button" class="nav-item" data-nav-page="transferencias" data-perfis="admin,gestor">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 3-3 3 3M10 4v10M17 17l-3 3-3-3M14 20V10"/></svg>
           <span class="sidebar-label">Fila de aprovação</span>
           <span id="badge-fila-count" class="hidden nav-badge sidebar-label">0</span>
         </button>
-        <span class="sidebar-section-label sidebar-label" data-perfis="admin,gestor">Administração</span>
         <button id="tab-btn-usuarios" type="button" class="nav-item" data-nav-page="usuarios" data-perfis="admin,gestor">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm7 8a7 7 0 0 0-14 0M19 8v6M16 11h6"/></svg>
           <span class="sidebar-label">Usuários</span>
@@ -136,7 +121,7 @@
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.16.1-H.1</span>
+        <span>v1.13.11-H</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -190,121 +175,6 @@
           </div>
           <select id="escopo-divisao" aria-describedby="escopo-descricao"></select>
         </div>
-
-      <section id="sec-modulos" class="hidden module-page">
-        <div><h2>Módulos do CM APP</h2><p>Escolha o módulo em que deseja trabalhar.</p></div>
-        <div id="module-cards" class="module-cards"></div>
-        <p id="module-empty" class="hidden">Nenhum módulo operacional atribuído. Procure o Administrador. Meu perfil continua disponível no menu da conta.</p>
-        <section id="module-access-panel" class="hidden module-access-panel" aria-labelledby="module-access-title">
-          <h3 id="module-access-title">Acesso aos módulos</h3>
-          <p>Defina os módulos disponíveis para cada usuário. Administradores têm acesso a todos os módulos.</p>
-          <form id="module-access-form">
-            <label for="module-access-user">Usuário</label>
-            <select id="module-access-user"><option value="">Selecione um usuário</option></select>
-            <fieldset><legend>Módulos permitidos</legend>
-              <label><input type="checkbox" value="patrimonios" data-module-grant disabled> Patrimônios</label>
-              <label><input type="checkbox" value="dsips" data-module-grant disabled> DSIPS</label>
-            </fieldset>
-            <button id="module-access-save" type="submit" class="app-button app-button-primary" disabled>Salvar acessos</button>
-          </form>
-        </section>
-      </section>
-      <section id="sec-dsips-inicio" class="hidden module-page">
-        <div class="dsips-heading"><div><h2>DSIPS</h2><p>Materiais e posição inicial de estoque.</p></div><button type="button" class="app-button app-button-secondary" data-dsips-refresh>Atualizar</button></div>
-        <p class="dsips-status" role="status" aria-live="polite"></p>
-        <div class="dsips-kpis" id="dsips-kpis"></div>
-        <div class="module-cards">
-          <button type="button" class="module-card" data-nav-page="dsips-materiais"><strong>Materiais</strong><span>Cadastro e identificação dos materiais</span></button>
-          <button type="button" class="module-card" data-nav-page="dsips-cadastros"><strong>Cadastros</strong><span>Categorias e locais de estoque</span></button>
-          <button type="button" class="module-card" data-nav-page="dsips-estoque"><strong>Estoque</strong><span>Saldo inicial e unidades identificadas</span></button>
-          <button type="button" class="module-card" data-nav-page="dsips-cautelas"><strong>Cautelas e devoluções</strong><span>Entregar materiais e registrar o retorno</span></button>
-          <button type="button" class="module-card" data-nav-page="dsips-posse"><strong>Quem está com o quê</strong><span>Materiais pendentes por responsável</span></button>
-        </div>
-      </section>
-      <section id="sec-dsips-materiais" class="hidden module-page">
-        <div class="dsips-heading"><div><h2>Materiais</h2><p>Controle por quantidade ou por identificação individual.</p></div><button type="button" class="app-button app-button-secondary" data-dsips-refresh>Atualizar</button></div>
-        <p class="dsips-status" role="status" aria-live="polite"></p>
-        <form id="dsips-material-form" class="module-access-panel dsips-form" data-dsips-write>
-          <h3 id="dsips-material-title">Novo material</h3><input type="hidden" name="id">
-          <div class="dsips-form-grid">
-            <label>Nome<input name="nome" required maxlength="120"></label>
-            <label>Categoria<select name="categoriaId" required></select></label>
-            <label>Ícone do card<select name="icone"><option value="caixa">Caixa</option><option value="escudo">Escudo</option><option value="radio">Rádio</option><option value="chave">Chave</option><option value="maleta">Maleta</option><option value="colete">Colete</option></select></label>
-            <label>Cor do card<select name="cor"><option value="azul">Azul CMAPP</option><option value="verde">Verde</option><option value="roxo">Roxo</option><option value="ambar">Âmbar</option></select></label>
-            <label>Controle<select name="controle"><option value="quantidade">Por quantidade</option><option value="individualizado">Individualizado</option></select></label>
-            <label>Unidade de medida<select name="unidade"><option value="un">Unidade</option><option value="par">Par</option><option value="caixa">Caixa</option><option value="kit">Kit</option></select></label>
-          </div>
-          <label>Observações<textarea name="observacoes" maxlength="500" rows="2"></textarea></label>
-          <label class="dsips-check"><input type="checkbox" name="ativo" checked> Material ativo</label>
-          <div class="dsips-actions"><button type="submit" class="app-button app-button-primary">Salvar material</button><button type="button" class="app-button app-button-secondary" id="dsips-material-new">Limpar formulário</button></div>
-        </form>
-        <label class="dsips-search">Pesquisar material<input type="search" id="dsips-material-search" placeholder="Nome do material"></label>
-        <div id="dsips-material-list" class="dsips-list"></div>
-      </section>
-      <section id="sec-dsips-cadastros" class="hidden module-page">
-        <div class="dsips-heading"><div><h2>Cadastros DSIPS</h2><p>Categorias e locais de estoque. Os responsáveis são usuários cadastrados no CM APP.</p></div><button type="button" class="app-button app-button-secondary" data-dsips-refresh>Atualizar</button></div>
-        <p class="dsips-status" role="status" aria-live="polite"></p>
-        <label class="dsips-search">Tipo de cadastro<select id="dsips-catalog-type"><option value="categoria">Categorias</option><option value="local">Locais de estoque</option></select></label>
-        <form id="dsips-catalog-form" class="module-access-panel dsips-form" data-dsips-write>
-          <h3 id="dsips-catalog-title">Novo cadastro</h3><input type="hidden" name="id">
-          <label>Nome<input name="nome" required maxlength="120"></label>
-          <label class="dsips-check"><input type="checkbox" name="ativo" checked> Cadastro ativo</label>
-          <div class="dsips-actions"><button type="submit" class="app-button app-button-primary">Salvar cadastro</button><button type="button" class="app-button app-button-secondary" id="dsips-catalog-new">Limpar formulário</button></div>
-        </form>
-        <label class="dsips-search">Pesquisar cadastro<input type="search" id="dsips-catalog-search" placeholder="Nome do cadastro"></label>
-        <div id="dsips-catalog-list" class="dsips-list"></div>
-      </section>
-      <section id="sec-dsips-estoque" class="hidden module-page">
-        <div class="dsips-heading"><div><h2>Estoque</h2><p>Posição inicial por material e local.</p></div><button type="button" class="app-button app-button-secondary" data-dsips-refresh>Atualizar</button></div>
-        <p class="dsips-status" role="status" aria-live="polite"></p>
-        <form id="dsips-saldo-form" class="module-access-panel dsips-form" data-dsips-write>
-          <h3>Registrar saldo inicial</h3><p>Um lançamento por material, com justificativa. Confira os dados: este registro não pode ser editado.</p>
-          <div class="dsips-form-grid">
-            <label>Material<select name="materialId" required></select></label>
-            <label>Local de estoque<select name="localId" required></select></label>
-            <label>Quantidade<input name="quantidade" type="number" min="0" max="1000000" step="1" required></label>
-          </div>
-          <label id="dsips-identificadores-field" class="hidden">Patrimônio ou série — uma identificação por linha (até 200)<textarea name="identificadores" rows="5" placeholder="Informe uma identificação por unidade"></textarea></label>
-          <label>Justificativa<textarea name="motivo" required maxlength="500" rows="2" placeholder="Ex.: conferência física do acervo em…"></textarea></label>
-          <button type="submit" class="app-button app-button-primary">Registrar saldo inicial</button>
-        </form>
-        <div id="dsips-stock-list" class="dsips-list"></div>
-        <div id="dsips-unit-list" class="dsips-list" aria-live="polite"></div>
-      </section>
-      <section id="sec-dsips-historico" class="hidden module-page">
-        <div class="dsips-heading"><div><h2>Histórico DSIPS</h2><p>Últimos 30 registros de cadastro e saldo inicial.</p></div><button type="button" class="app-button app-button-secondary" data-dsips-refresh>Atualizar</button></div>
-        <p class="dsips-status" role="status" aria-live="polite"></p>
-        <div id="dsips-event-list" class="dsips-list"></div>
-      </section>
-      <section id="sec-dsips-cautelas" class="hidden module-page">
-        <div class="dsips-heading"><div><h2>Cautelas e devoluções</h2><p>Saída e retorno de materiais, com atualização do estoque.</p></div><button type="button" class="app-button app-button-secondary" data-movement-refresh>Atualizar</button></div>
-        <p class="movement-status" role="status" aria-live="polite"></p>
-        <form id="dsips-cautela-form" class="module-access-panel dsips-form" data-movement-write>
-          <div class="pdv-toolbar"><div><h3>Atendimento DSIPS</h3><p id="dsips-pdv-operador"></p></div><div class="dsips-actions"><button id="dsips-pdv-devolucoes" type="button" class="app-button app-button-secondary">Devoluções</button><button id="dsips-quiosque" type="button" class="app-button app-button-secondary" aria-pressed="false">Modo quiosque</button></div></div>
-          <div class="pdv-recipient"><label>1. Quem vai receber?<input id="dsips-usuario-search" type="search" placeholder="Pesquisar usuário pelo nome" autocomplete="off"></label><label>Usuário do CMAPP<select name="responsavelId" required></select></label></div>
-          <div class="pdv-layout"><div class="pdv-catalog"><h4>2. Toque nos materiais</h4><div class="dsips-form-grid"><label>Pesquisar material<input id="dsips-pdv-search" type="search" placeholder="Nome do material"></label><label>Categoria<select id="dsips-pdv-categoria"><option value="">Todas</option></select></label></div><div id="dsips-pdv-cards" class="pdv-cards"></div></div>
-          <aside class="pdv-basket"><h4>3. Cesta da cautela</h4><p id="dsips-pdv-resumo" role="status" aria-live="polite"></p><div id="dsips-cautela-rows" class="dsips-list"></div><label>Observações<textarea name="observacoes" maxlength="500" rows="2"></textarea></label><button type="submit" class="app-button app-button-primary">Conferir e registrar cautela</button><button id="dsips-pdv-limpar" type="button" class="app-button app-button-secondary">Limpar cesta</button></aside></div>
-        </form>
-        <form id="dsips-devolucao-form" class="hidden module-access-panel dsips-form">
-          <h3 id="dsips-devolucao-title">Registrar devolução</h3>
-          <p>Informe somente o que está retornando. O restante permanece em cautela.</p>
-          <div id="dsips-devolucao-rows" class="dsips-list"></div>
-          <button id="dsips-devolver-tudo" type="button" class="app-button app-button-secondary">Selecionar tudo pendente</button>
-          <label>Observações<textarea name="observacoes" maxlength="500" rows="2"></textarea></label>
-          <div class="dsips-actions"><button type="submit" class="app-button app-button-primary">Registrar devolução</button><button id="dsips-cancelar-devolucao" type="button" class="app-button app-button-secondary">Cancelar</button></div>
-        </form>
-        <div id="dsips-cautelas-consulta" class="dsips-form-grid">
-          <label class="dsips-search">Pesquisar responsável ou material<input id="dsips-cautela-search" type="search"></label>
-          <label class="dsips-search">Situação<select id="dsips-cautela-status"><option value="todas">Todas</option><option value="aberta">Sem devolução</option><option value="parcial">Parcialmente devolvida</option><option value="encerrada">Encerrada</option></select></label>
-        </div>
-        <div id="dsips-cautela-list" class="dsips-list"></div>
-      </section>
-      <section id="sec-dsips-posse" class="hidden module-page">
-        <div class="dsips-heading"><div><h2>Quem está com o quê</h2><p>Somente materiais ainda pendentes de devolução.</p></div><button type="button" class="app-button app-button-secondary" data-movement-refresh>Atualizar</button></div>
-        <p class="movement-status" role="status" aria-live="polite"></p>
-        <label class="dsips-search">Pesquisar responsável, matrícula, material ou identificação<input id="dsips-posse-search" type="search"></label>
-        <div id="dsips-posse-list" class="dsips-list"></div>
-      </section>
 
       <!-- ABA 0: DASHBOARD -->
       <section id="sec-dashboard" class="space-y-5">
@@ -628,7 +498,7 @@
                 <button id="btn-limpar-busca-usuarios" type="button" class="search-clear hidden" aria-label="Limpar pesquisa de usuários">×</button>
               </div>
               <select id="filtro-perfil-usuarios" aria-label="Filtrar usuários por perfil">
-                <option value="todos">Todos os perfis</option><option value="usuario">Usuários básicos</option>
+                <option value="todos">Todos os perfis</option>
                 <option value="admin">Administradores</option>
                 <option value="gestor">Gestores</option>
                 <option value="conferente">Conferentes</option>
@@ -836,8 +706,8 @@
       </main>
 
       <footer class="app-footer">
-        <span id="footer-module-name">CM APP</span>
-        <span>v1.16.1-H.1 · HOMOLOGAÇÃO</span>
+        <span>CM APP · Patrimônio</span>
+        <span>v1.13.11-H · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -865,7 +735,7 @@
         <div id="campo-perfil-container">
           <label class="text-[11px] text-slate-400 block mb-1">Perfil de Acesso</label>
           <select id="cad-perfil" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-1.5 text-xs text-white">
-            <option value="usuario">Usuário básico</option><option value="conferente">Conferente</option>
+            <option value="conferente">Conferente</option>
             <option value="gestor">Gestor</option>
             <option value="admin">Administrador</option>
           </select>
@@ -906,7 +776,7 @@
         <div id="edit-campo-perfil-container">
           <label class="text-[11px] text-slate-400 block mb-1">Perfil de Acesso</label>
           <select id="edit-perfil" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-1.5 text-xs text-white">
-            <option value="usuario">Usuário básico</option><option value="conferente">Conferente</option>
+            <option value="conferente">Conferente</option>
             <option value="gestor">Gestor</option>
             <option value="admin">Administrador</option>
           </select>
@@ -1038,7 +908,6 @@
   </div>
 
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.5.0/dist/driver.js.iife.js"></script>
-    <script type="module" src="./app.js?v=1.16.1-h.2"></script>
+    <script type="module" src="./app.js?v=1.13.11-h-recuperacao.1"></script>
 </body>
 </html>
-
