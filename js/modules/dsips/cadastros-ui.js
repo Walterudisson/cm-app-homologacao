@@ -69,7 +69,7 @@ export function criarCadastrosDsips({ obterUsuario, notificar = () => {} }) {
     idRascunho = item?.id || crypto.randomUUID();
     nomeCampo.value = item?.nome || '';
     ativoCampo.checked = item?.ativo !== false;
-    tituloEditor.textContent = item ? 'Editar ' + informacaoTipo().singular : 'Nova ' + informacaoTipo().singular;
+    tituloEditor.textContent = (item ? 'Editar ' : tipo === 'categoria' ? 'Nova ' : 'Novo ') + informacaoTipo().singular;
     editor.classList.remove('hidden');
     editor.scrollIntoView({ behavior: 'smooth', block: 'start' });
     nomeCampo.focus({ preventScroll: true });
