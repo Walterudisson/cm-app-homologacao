@@ -1,4 +1,4 @@
-const VERSAO = 'v1.13.13-h.3-dsips-cards-visuais';
+const VERSAO = 'v1.13.14-h.1-dsips-categorias-locais';
 const CACHE_SHELL = `cmapp-shell-${VERSAO}`;
 const CACHE_RUNTIME = `cmapp-runtime-${VERSAO}`;
 const PREFIXO_CACHE = 'cmapp-';
@@ -22,6 +22,8 @@ const ARQUIVOS_SHELL = [
   './js/modules/dsips/service.js',
   './js/modules/dsips/consulta-materiais-model.js',
   './js/modules/dsips/consulta-materiais-ui.js',
+  './js/modules/dsips/cadastros-model.js',
+  './js/modules/dsips/cadastros-ui.js',
   './js/controllers/camera.controller.js',
   './js/core/camera.js',
   './js/core/movimentacao.js',
