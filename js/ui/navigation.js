@@ -1,5 +1,5 @@
 const PAGINAS = {
-  dashboard: { titulo: 'Painel', trilha: ['CM APP', 'Painel'] },
+  dashboard: { titulo: 'Painel', trilha: ['CM APP', 'Patrimônio', 'Painel'] },
   scanner: { titulo: 'Leitura', trilha: ['CM APP', 'Patrimônio', 'Leitura'] },
   lista: { titulo: 'Relação', trilha: ['CM APP', 'Patrimônio', 'Relação'] },
   transferencias: { titulo: 'Fila de aprovação', trilha: ['CM APP', 'Movimentações', 'Fila'] },
