@@ -348,3 +348,9 @@ test('preflight lê snapshot real do emulador e preserva Timestamp no plano sem 
  assert.equal(r.resumo.documentosPropostos,2);assert.equal((await db.doc('usuarios/legacy').get()).data().autorizacaoVersao,undefined);assert.equal((await db.doc('cmappAcessos/legacy').get()).exists,false);
  const m=await import('../../scripts/lib/migracao-acessos-v2.mjs');await db.doc('cmappConfiguracao/acessos').set({manutencaoV2:true,legadoBloqueado:true});await m.executarPlano({db,plano:r.plano,modo:'aplicar',encode,decode});assert.deepEqual((await db.doc('usuarios/legacy').get()).data().criadoEm,quando);await m.executarPlano({db,plano:r.plano,modo:'reverter',encode,decode});assert.deepEqual((await db.doc('usuarios/legacy').get()).data().criadoEm,quando);
 });
+
+test('migração de legado sem ativo explicita true e reversão restaura ausência original',async()=>{
+ await db.doc('usuarios/legacy').update({ativo:FieldValue.delete()});const {m,plano}=await planoLegado();await db.doc('cmappConfiguracao/acessos').set({manutencaoV2:true,legadoBloqueado:true});
+ assert.equal(Object.hasOwn(plano.mudancas[0].antes,'ativo'),false);await m.executarPlano({db,plano,modo:'aplicar'});assert.equal((await dados('legacy')).ativo,true);assert.equal((await db.doc('usuarios/legacy').get()).data().ativo,true);
+ await m.executarPlano({db,plano,modo:'reverter'});assert.equal(Object.hasOwn((await db.doc('usuarios/legacy').get()).data(),'ativo'),false);assert.equal((await db.doc('cmappAcessos/legacy').get()).exists,false);
+});

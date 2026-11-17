@@ -84,7 +84,9 @@ Arquivo de revisão (exemplo; substituir UID e responsável pelos dados reais de
 }
 ```
 
-Todas as contas selecionadas precisam ter ativo booleano, nome e e-mail válidos. A ferramenta não
+Todas as contas selecionadas precisam ter nome e e-mail válidos. O campo ativo, quando presente,
+precisa ser booleano. Sua ausência no legado significa ativo, conforme o CMAPP existente; o plano
+propõe ativo:true explicitamente e a reversão preserva a ausência original. ativo:false não é reativado. A ferramenta não
 infere concessões a partir da lotação e não altera a situação no Authentication. A equivalência dos
 acessos legados exige revisão humana da análise produzida por analisar-acessos-legados.mjs.
 Não usar UIDs de outros sistemas (por exemplo, Sinal) como identidade do CMAPP.

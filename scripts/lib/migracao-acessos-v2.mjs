@@ -18,7 +18,8 @@ export function prepararMigracao(snapshot,revisao){
  for(const item of revisao.contas){
   exigir(id(item.uid)&&!vistos.has(item.uid)&&item.revisado===true,'Conta duplicada, inválida ou sem revisão explícita.');vistos.add(item.uid);
   const u=docs['usuarios/'+item.uid];exigir(u&&!Object.hasOwn(u,'autorizacaoVersao')&&!docs['cmappAcessos/'+item.uid],'Conta inexistente ou já versionada.');
-  exigir(typeof u.ativo==='boolean'&&typeof u.nome==='string'&&u.nome.trim()&&typeof u.email==='string'&&/^\S+@\S+\.\S+$/.test(u.email),'Revise nome, e-mail e situação explícita da conta.');
+  const ativo=Object.hasOwn(u,'ativo')?u.ativo:true; // Ausência no legado significa ativo; valores explícitos inválidos não são aceitos.
+  exigir(typeof ativo==='boolean'&&typeof u.nome==='string'&&u.nome.trim()&&typeof u.email==='string'&&/^\S+@\S+\.\S+$/.test(u.email),'Revise nome, e-mail e situação da conta.');
   const p=item.politica;exigir(p&&Object.keys(p).every(k=>['papelPlataforma','permissoesPlataforma','atribuicoes','delegacoes'].includes(k)),'Política inválida.');
   exigir(['usuario','administrador','superadmin'].includes(p.papelPlataforma),'Papel inválido.');
   exigir((p.papelPlataforma==='superadmin')===(item.uid===revisao.superadminUid),'Somente o UID inicial explícito pode receber Superadmin.');
@@ -27,10 +28,10 @@ export function prepararMigracao(snapshot,revisao){
   exigir(Array.isArray(p.atribuicoes)&&p.atribuicoes.length<=100&&p.atribuicoes.every(atribuicaoValida),'Atribuições inválidas.');
   exigir(Array.isArray(p.delegacoes)&&p.delegacoes.length<=100&&p.delegacoes.every(delegacaoValida),'Delegações inválidas.');
   const atribuicoes=p.atribuicoes.map((a,i)=>({...a,id:'migracao-'+i})),delegacoes=p.delegacoes.map((a,i)=>({...a,id:'migracao-'+i}));
-  adicionar('usuarios/'+item.uid,{...u,autorizacaoVersao:2,autorizacaoRevisao:0});
-  adicionar('cmappAcessos/'+item.uid,{uid:item.uid,versao:2,ativo:u.ativo,papelPlataforma:p.papelPlataforma,permissoesPlataforma:p.permissoesPlataforma,atribuicoes,delegacoes,revisao:0});
+  adicionar('usuarios/'+item.uid,{...u,ativo,autorizacaoVersao:2,autorizacaoRevisao:0});
+  adicionar('cmappAcessos/'+item.uid,{uid:item.uid,versao:2,ativo,papelPlataforma:p.papelPlataforma,permissoesPlataforma:p.permissoesPlataforma,atribuicoes,delegacoes,revisao:0});
  }
- exigir(vistos.has(revisao.superadminUid)&&docs['usuarios/'+revisao.superadminUid].ativo===true,'Superadmin inicial deve estar ativo e incluído no lote.');
+ exigir(vistos.has(revisao.superadminUid)&&docs['usuarios/'+revisao.superadminUid].ativo!==false,'Superadmin inicial deve estar ativo e incluído no lote.');
  if(revisao.prepararPatrimonios===true){
   exigir(snapshot.colecoesCompletas?.includes('patrimonios')&&snapshot.colecoesCompletas.includes('divisoes'),'Preparação patrimonial exige snapshot completo das coleções.');
   const nomes=new Set();for(const [path,d]of Object.entries(docs).filter(([k])=>k.startsWith('divisoes/'))){exigir(typeof d.nome==='string'&&d.nome.trim()===d.nome&&d.nome.length>0&&!nomes.has(d.nome),'Divisões inválidas ou duplicadas: '+path);nomes.add(d.nome);}

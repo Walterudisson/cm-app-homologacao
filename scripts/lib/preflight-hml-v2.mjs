@@ -10,9 +10,9 @@ export async function prepararHml({db,auth,revisao,encode=x=>x}){
   const docs={};for(const colecao of colecoes){const s=await tx.get(db.collection(colecao).limit(5001));if(s.size>5000)throw Error('Coleção excede limite de análise: '+colecao);for(const d of s.docs)docs[d.ref.path]=encode(d.data());}return docs;
  },{readOnly:true});
  const conta=documentos['usuarios/'+uid];
- if(!conta||conta.ativo!==true||typeof conta.email!=='string'||conta.email.trim().toLowerCase()!==identidade.email.trim().toLowerCase())throw Error('Revise a conta ativa e a correspondência do e-mail entre CMAPP e Authentication.');
+ if(!conta||(Object.hasOwn(conta,'ativo')&&conta.ativo!==true)||typeof conta.email!=='string'||conta.email.trim().toLowerCase()!==identidade.email.trim().toLowerCase())throw Error('Revise a conta ativa e a correspondência do e-mail entre CMAPP e Authentication.');
  const snapshot={formato:1,ambiente:'hml',projectId:PROJETOS.hml,colecoesCompletas:colecoes,documentos};
  const plano=prepararMigracao(snapshot,revisao);
- const resumo={ambiente:'hml',projectId:PROJETOS.hml,superadminUid:uid,contaAuthValidada:true,modo:'somente_leitura',planoId:plano.id,documentosPropostos:plano.mudancas.length,contagens:Object.fromEntries(colecoes.map(c=>[c,Object.keys(documentos).filter(p=>p.startsWith(c+'/')).length])),escopo:'Somente o Superadmin inicial. Demais contas e operação patrimonial não são migradas por este plano.'};
+ const resumo={ambiente:'hml',projectId:PROJETOS.hml,superadminUid:uid,contaAuthValidada:true,ativoLegadoAusente:!Object.hasOwn(conta,'ativo'),modo:'somente_leitura',planoId:plano.id,documentosPropostos:plano.mudancas.length,contagens:Object.fromEntries(colecoes.map(c=>[c,Object.keys(documentos).filter(p=>p.startsWith(c+'/')).length])),escopo:'Somente o Superadmin inicial. Demais contas e operação patrimonial não são migradas por este plano.'};
  return{snapshot,plano,resumo};
 }
