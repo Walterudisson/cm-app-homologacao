@@ -21,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.13.14-h.1">
+  <link rel="stylesheet" href="./app.css?v=1.13.15-h.1">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div id="cmapp-hml-banner" class="cmapp-hml-banner" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -54,7 +54,7 @@
 
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.14-H.1 • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.15-H.1 • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -126,11 +126,15 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h8v7H3zM13 4h8v7h-8zM3 13h8v7H3zM13 13h8v7h-8z"/></svg>
           <span class="sidebar-label">Cadastros</span>
         </button>
+        <button id="tab-btn-dsips-estoque" type="button" class="nav-item hidden" data-nav-page="dsips-estoque">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9 12 4l9 5v11H3V9Zm0 0 9 5 9-5M7 15h3v5M14 15h3v5"/></svg>
+          <span class="sidebar-label">Estoque</span>
+        </button>
 
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.13.14-H.1</span>
+        <span>v1.13.15-H.1</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -576,6 +580,74 @@
         </article>
       </section>
 
+      <!-- SPRINT 1.13.15-H.1: ESTOQUE E SALDO INICIAL DSIPS -->
+      <section id="sec-dsips-estoque" class="hidden space-y-5" aria-label="Estoque DSIPS">
+        <article class="app-card dsips-intro">
+          <div>
+            <span class="eyebrow">DSIPS · Materiais e cautelas</span>
+            <h2>Estoque</h2>
+            <p>Confira o saldo de cada material e registre a posição inicial. Lançamentos são únicos, auditáveis e não podem ser editados.</p>
+          </div>
+          <div class="dsips-intro-actions">
+            <span id="dsips-estoque-mode" class="dsips-readonly" aria-live="polite">Verificando acesso…</span>
+            <button id="dsips-estoque-new" type="button" class="app-button app-button-primary hidden">+ Registrar saldo inicial</button>
+          </div>
+        </article>
+        <div class="dsips-estoque-overview">
+          <article class="app-card dsips-overview-card"><span>Materiais inicializados</span><strong id="dsips-estoque-inicializados">0</strong></article>
+          <article class="app-card dsips-overview-card"><span>Aguardando saldo inicial</span><strong id="dsips-estoque-pendentes">0</strong></article>
+          <article class="app-card dsips-overview-card"><span>Identificações disponíveis</span><strong id="dsips-estoque-identificacoes">0</strong><small>Somente materiais individualizados</small></article>
+        </div>
+        <article id="dsips-estoque-editor" class="app-card dsips-editor hidden" aria-label="Registrar saldo inicial DSIPS">
+          <div class="dsips-editor-heading">
+            <span class="eyebrow">Operação de estoque · HML</span>
+            <h3>Registrar saldo inicial</h3>
+            <p>Selecione um material ainda não inicializado. Confira o local e a quantidade antes de confirmar: esta operação não pode ser alterada.</p>
+          </div>
+          <form id="dsips-estoque-form" class="dsips-editor-form">
+            <div class="dsips-editor-fields">
+              <label>Material
+                <select name="materialId" required><option value="">Selecione um material</option></select>
+              </label>
+              <label>Local de estoque
+                <select name="localId" required><option value="">Selecione um local</option></select>
+              </label>
+              <label>Quantidade
+                <input name="quantidade" type="number" inputmode="numeric" min="0" max="1000000" step="1" required placeholder="Quantidade física">
+              </label>
+            </div>
+            <label id="dsips-estoque-identificadores-box" class="dsips-editor-notes hidden">
+              Patrimônio ou série: uma identificação por linha, até 200
+              <textarea name="identificadores" rows="5" maxlength="25000" placeholder="Ex.: SER-001&#10;SER-002"></textarea>
+            </label>
+            <label class="dsips-editor-notes">Justificativa obrigatória
+              <textarea name="motivo" required maxlength="500" rows="3" placeholder="Ex.: conferência física do acervo em homologação"></textarea>
+            </label>
+            <p id="dsips-estoque-editor-status" class="dsips-editor-status" role="status" aria-live="polite"></p>
+            <div class="dsips-editor-actions">
+              <button id="dsips-estoque-cancel" type="button" class="app-button app-button-secondary">Cancelar</button>
+              <button id="dsips-estoque-save" type="submit" class="app-button app-button-primary">Conferir e registrar saldo</button>
+            </div>
+          </form>
+        </article>
+        <article class="app-card dsips-panel">
+          <div class="dsips-toolbar">
+            <label class="dsips-search-label" for="dsips-estoque-search">
+              <span>Pesquisar posições</span>
+              <input id="dsips-estoque-search" type="search" autocomplete="off" placeholder="Nome do material ou local">
+            </label>
+            <button id="dsips-estoque-refresh" type="button" class="app-button app-button-primary">Atualizar</button>
+          </div>
+          <p id="dsips-estoque-status" class="dsips-state-message" role="status" aria-live="polite">Abra Estoque para consultar as posições.</p>
+          <div id="dsips-estoque-list" class="dsips-estoque-grid" aria-live="polite"></div>
+        </article>
+        <article class="app-card dsips-panel">
+          <h3 class="dsips-estoque-subtitulo">Identificações individuais</h3>
+          <p id="dsips-estoque-unidades-status" class="dsips-state-message" role="status" aria-live="polite">Escolha Ver identificações em um material individualizado.</p>
+          <div id="dsips-estoque-unidades" class="dsips-estoque-unidades-grid" aria-live="polite"></div>
+        </article>
+      </section>
+
       <!-- ABA 2: FILA DE TRANSFERÊNCIAS -->
       <section id="sec-transferencias" class="hidden space-y-4">
         <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-2 shadow-md">
@@ -829,7 +901,7 @@
 
       <footer class="app-footer">
         <span>CM APP</span>
-        <span>v1.13.14-H.1 · HOMOLOGAÇÃO</span>
+        <span>v1.13.15-H.1 · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -1030,6 +1102,6 @@
   </div>
 
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.5.0/dist/driver.js.iife.js"></script>
-    <script type="module" src="./app.js?v=1.13.14-h.1"></script>
+    <script type="module" src="./app.js?v=1.13.15-h.1"></script>
 </body>
 </html>
