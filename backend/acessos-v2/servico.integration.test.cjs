@@ -354,3 +354,28 @@ test('migração de legado sem ativo explicita true e reversão restaura ausênc
  assert.equal(Object.hasOwn(plano.mudancas[0].antes,'ativo'),false);await m.executarPlano({db,plano,modo:'aplicar'});assert.equal((await dados('legacy')).ativo,true);assert.equal((await db.doc('usuarios/legacy').get()).data().ativo,true);
  await m.executarPlano({db,plano,modo:'reverter'});assert.equal(Object.hasOwn((await db.doc('usuarios/legacy').get()).data(),'ativo'),false);assert.equal((await db.doc('cmappAcessos/legacy').get()).exists,false);
 });
+
+const revisaoPiloto=()=>({ambiente:'hml',projectId:'cm-app-homologacao',superadminUid:'legacy',revisadoPor:'Revisor Piloto',contas:[{uid:'legacy',revisado:true,politica:{papelPlataforma:'superadmin',permissoesPlataforma:[],atribuicoes:[],delegacoes:[]}}]});
+async function pilotoFixture(fn){const{mkdtemp,rm}=require('node:fs/promises');const{tmpdir}=require('node:os');const pasta=await mkdtemp(path.join(tmpdir(),'cmapp-piloto-'));const{homologarGestao}=await import('../../scripts/lib/homologacao-gestao-hml.mjs');let esperas=0;const executar=(extras={})=>homologarGestao({db,auth:{getUser:async uid=>({uid,email:'legacy@exemplo.invalid',disabled:false})},revisao:revisaoPiloto(),pasta,esperar:async ms=>{assert.equal(ms,30000);esperas++;},...extras});try{await fn({executar,pasta,esperas:()=>esperas});}finally{await rm(pasta,{recursive:true,force:true});}}
+test('entrega piloto ativa somente Superadmin, restaura flags e repetição não repete migração',async()=>pilotoFixture(async({executar,esperas})=>{
+ const original={patrimoniosIndiceVersao:1,outra:'preservada'};await db.doc('cmappConfiguracao/acessos').set(original);const outro=(await db.doc('usuarios/alvo').get()).data();
+ const r=await executar();assert.equal(r.fase,'concluida');assert.equal(esperas(),4);assert.deepEqual((await db.doc('cmappConfiguracao/acessos').get()).data(),original);assert.equal((await dados('legacy')).papelPlataforma,'superadmin');assert.deepEqual((await db.doc('usuarios/alvo').get()).data(),outro);
+ assert.equal((await executar()).repetida,true);assert.equal(esperas(),4);assert.equal(await eventos(),1);assert.equal((await executar({modo:'reverter'})).fase,'revertida');assert.equal((await db.doc('usuarios/legacy').get()).data().autorizacaoVersao,undefined);assert.equal((await db.doc('cmappAcessos/legacy').get()).exists,false);assert.deepEqual((await db.doc('cmappConfiguracao/acessos').get()).data(),original);
+}));
+test('entrega piloto reverte automaticamente falha após aplicar, sem deixar manutenção',async()=>pilotoFixture(async({executar})=>{
+ await assert.rejects(executar({informar:f=>{if(f==='aplicada')throw Error('Falha simulada após commit');}}),/Falha simulada/);
+ assert.equal((await db.doc('usuarios/legacy').get()).data().autorizacaoVersao,undefined);assert.equal((await db.doc('cmappAcessos/legacy').get()).exists,false);assert.equal((await db.doc('cmappConfiguracao/acessos').get()).exists,false);assert.equal(await eventos(),2);
+}));
+test('entrega piloto não toma manutenção iniciada por outro administrador',async()=>pilotoFixture(async({executar,esperas})=>{
+ const original={manutencaoV2:true,legadoBloqueado:true,migracaoGestaoHml:'outra'};await db.doc('cmappConfiguracao/acessos').set(original);await assert.rejects(executar(),/outra operação/);assert.equal(esperas(),0);assert.deepEqual((await db.doc('cmappConfiguracao/acessos').get()).data(),original);assert.equal((await db.doc('cmappAcessos/legacy').get()).exists,false);
+}));
+test('entrega piloto retoma execução interrompida após commit sem duplicar recibo',async()=>pilotoFixture(async({executar,pasta})=>{
+ const{writeFile}=require('node:fs/promises');const{m,plano}=await planoLegado();const id='execucao-interrompida';await db.doc('cmappConfiguracao/acessos').set({manutencaoV2:true,legadoBloqueado:true,sincronizacaoContasAtiva:false,migracaoGestaoHml:id});await m.executarPlano({db,plano,modo:'aplicar'});
+ for(const[nome,obj]of Object.entries({'estado.json':{id,uid:'legacy',fase:'aplicada'},'config-original.json':{existe:false,dados:null},'plano.json':plano}))await writeFile(path.join(pasta,nome),JSON.stringify(obj));
+ const r=await executar();assert.equal(r.fase,'concluida');assert.equal(r.repetida,true);assert.equal(await eventos(),1);assert.equal((await db.doc('cmappConfiguracao/acessos').get()).exists,false);
+}));
+
+test('entrega piloto reverte se Authentication bloquear a conta durante a habilitação',async()=>pilotoFixture(async({executar})=>{
+ let n=0;await assert.rejects(executar({auth:{getUser:async uid=>({uid,email:'legacy@exemplo.invalid',disabled:++n>1})}}),/Auth mudou/);
+ assert.equal((await db.doc('usuarios/legacy').get()).data().autorizacaoVersao,undefined);assert.equal((await db.doc('cmappAcessos/legacy').get()).exists,false);assert.equal((await db.doc('cmappConfiguracao/acessos').get()).exists,false);
+}));
