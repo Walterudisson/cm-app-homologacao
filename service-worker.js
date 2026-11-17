@@ -1,4 +1,4 @@
-const VERSAO = 'v1.13.12-h.5-fila-patrimonio';
+const VERSAO = 'v1.13.13-h.1-cadastro-materiais';
 const CACHE_SHELL = `cmapp-shell-${VERSAO}`;
 const CACHE_RUNTIME = `cmapp-runtime-${VERSAO}`;
 const PREFIXO_CACHE = 'cmapp-';
