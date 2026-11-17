@@ -1,4 +1,4 @@
-const VERSAO = 'v1.13.12-h.1-dsips-consulta';
+const VERSAO = 'v1.13.12-h.2-dsips-layout';
 const CACHE_SHELL = `cmapp-shell-${VERSAO}`;
 const CACHE_RUNTIME = `cmapp-runtime-${VERSAO}`;
 const PREFIXO_CACHE = 'cmapp-';
