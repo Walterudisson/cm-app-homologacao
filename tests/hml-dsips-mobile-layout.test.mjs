@@ -22,11 +22,19 @@ test('tarja de homologação ocupa espaço próprio antes do cabeçalho', async 
 });
 test('atualização H.2 preserva login único e base HML', async () => {
   const [html, sw, fb, app] = await Promise.all([ler('index.html'), ler('service-worker.js'), ler('js/config/firebase.js'), ler('app.js')]);
-  assert.match(sw, /v1\.13\.12-h\.2-dsips-layout/);
-  assert.match(html, /app\.css\?v=1\.13\.12-h\.2/);
-  assert.match(html, /app\.js\?v=1\.13\.12-h\.2/);
-  assert.match(html, /<span>v1\.13\.12-H\.2<\/span>/);
+  assert.match(sw, /v1\.13\.12-h\.3-skip-link/);
+  assert.match(html, /app\.css\?v=1\.13\.12-h\.3/);
+  assert.match(html, /app\.js\?v=1\.13\.12-h\.3/);
+  assert.match(html, /<span>v1\.13\.12-H\.3<\/span>/);
   assert.match(fb, /projectId: "cm-app-homologacao"/);
   assert.match(app, /!podeConsultarMateriaisDsips\(usuarioLogado\)/);
   assert.doesNotMatch(html, /id="pilot-login"/);
+});
+
+test('atalho Ir para o conteúdo é invisível fora do foco, mas aparece para navegação por teclado', async () => {
+  const css = await ler('app.css');
+  const html = await ler('index.html');
+  assert.match(html, /class="skip-link">Ir para o conteúdo<\/a>/);
+  assert.match(css, /\.skip-link:not\(:focus\)\s*\{\s*clip-path:\s*inset\(50%\)/);
+  assert.match(css, /\.skip-link:focus\s*\{[^}]*clip-path:\s*none/);
 });

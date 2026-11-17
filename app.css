@@ -39,7 +39,9 @@
       font-size: 0.8rem;
       font-weight: 800;
     }
-    .skip-link:focus { transform: translateY(0); }
+    /* O atalho fica acessível ao teclado, mas não vaza acima da faixa HML. */
+    .skip-link:not(:focus) { clip-path: inset(50%); }
+    .skip-link:focus { transform: translateY(0); clip-path: none; }
     .login-offline {
       border: 1px solid rgb(245 158 11 / 0.45);
       border-radius: 0.65rem;
