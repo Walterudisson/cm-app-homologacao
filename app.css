@@ -1003,7 +1003,6 @@
 }
 #view-login { top: var(--hml-banner-height); }
 @media (max-width: 639px) {
-  /* A base flexível de 15rem/12rem era interpretada como ALTURA no mobile. */
   .dsips-toolbar .dsips-search-label,
   .dsips-toolbar .dsips-category-label {
     flex: 0 0 auto;
