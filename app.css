@@ -1089,3 +1089,31 @@
   .dsips-cadastros-tabs button { min-width: 0; font-size: .72rem; padding: .65rem .3rem; }
   .dsips-cadastros-card-footer .app-button { min-width: 5.5rem; }
 }
+
+/* Sprint v1.13.15-H.1: estoque e saldo inicial DSIPS */
+.dsips-estoque-overview { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.85rem; }
+.dsips-estoque-overview small { font-size:.64rem; color:#94a3b8; }
+.dsips-estoque-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,19rem),1fr)); gap:.85rem; }
+.dsips-estoque-card { min-width:0; display:flex; flex-direction:column; gap:.9rem; padding:1rem; background:#111e33; border:1px solid #334155; border-radius:.85rem; }
+.dsips-estoque-card-heading h3 { font-weight:850; font-size:.88rem; color:#f8fafc; overflow-wrap:anywhere; }
+.dsips-estoque-card-heading p { color:#94a3b8; font-size:.72rem; margin-top:.3rem; overflow-wrap:anywhere; }
+.dsips-estoque-card-values { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.4rem; }
+.dsips-estoque-value { display:flex; flex-direction:column; gap:.3rem; border-radius:.55rem; border:1px solid #334155; padding:.55rem; }
+.dsips-estoque-value span { font-size:.62rem; color:#94a3b8; }
+.dsips-estoque-value strong { font-size:1.1rem; color:#f8fafc; font-variant-numeric:tabular-nums; }
+.dsips-estoque-value:nth-child(2) strong { color:#6ee7b7; }
+.dsips-estoque-card-footer { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.65rem; margin-top:auto; }
+.dsips-estoque-unit { color:#94a3b8; font-size:.72rem; }
+.dsips-estoque-subtitulo { font-size:.9rem; font-weight:800; color:#f8fafc; }
+.dsips-estoque-unidades-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,15rem),1fr)); gap:.6rem; }
+.dsips-estoque-unidade { display:flex; flex-direction:column; gap:.35rem; border:1px solid #334155; background:#111e33; border-radius:.7rem; padding:.8rem; min-width:0; }
+.dsips-estoque-unidade strong { color:#f8fafc; overflow-wrap:anywhere; font-size:.8rem; }
+.dsips-estoque-unidade span { color:#6ee7b7; font-size:.72rem; }
+.dsips-estoque-unidade small { color:#94a3b8; font-size:.7rem; }
+#dsips-estoque-editor { scroll-margin-top:calc(var(--hml-banner-height) + var(--topbar-height) + 1rem); }
+#dsips-estoque-form [name="quantidade"]:read-only { background:#243145; color:#bfdbfe; }
+@media(max-width:639px){
+  .dsips-estoque-overview { grid-template-columns:repeat(2,minmax(0,1fr)); gap:.6rem; }
+  .dsips-estoque-overview article:last-child { grid-column:1 / -1; }
+  .dsips-estoque-card-footer button { flex:1 1 auto; }
+}
