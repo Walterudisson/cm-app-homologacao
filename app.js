@@ -55,8 +55,8 @@
       inicializarNavegacao
     } from "./js/ui/navigation.js?v=1.12.0";
     import { inicializarPwa } from "./js/pwa.js?v=1.12.0";
-    import { podeConsultarMateriaisDsips } from "./js/modules/dsips/consulta-materiais-model.js";
-    import { criarConsultaMateriaisDsips } from "./js/modules/dsips/consulta-materiais-ui.js";
+    import { podeConsultarMateriaisDsips } from "./js/modules/dsips/consulta-materiais-model.js?v=1.13.13-h.2";
+    import { criarConsultaMateriaisDsips } from "./js/modules/dsips/consulta-materiais-ui.js?v=1.13.13-h.2";
 
     let usuarioLogado = null;
     let bancoPatrimonio = [];

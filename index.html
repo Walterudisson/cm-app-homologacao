@@ -21,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.13.13-h.1">
+  <link rel="stylesheet" href="./app.css?v=1.13.13-h.2">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div id="cmapp-hml-banner" class="cmapp-hml-banner" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -54,7 +54,7 @@
 
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.13-H.1 • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.13-H.2 • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -67,7 +67,7 @@
         <div class="brand-mark" aria-hidden="true">CM</div>
         <div class="sidebar-label">
           <strong>CM APP</strong>
-          <span>Patrimônio</span>
+          <span>Plataforma</span>
         </div>
       </div>
 
@@ -126,7 +126,7 @@
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.13.13-H.1</span>
+        <span>v1.13.13-H.2</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -468,7 +468,7 @@
             <p>Consulte e mantenha o cadastro de materiais. Estoque, cautelas e modo PDV serão integrados em etapas posteriores.</p>
           </div>
           <div class="dsips-intro-actions">
-            <span id="dsips-material-mode" class="dsips-readonly">Somente consulta</span>
+            <span id="dsips-material-mode" class="dsips-readonly" aria-live="polite">Verificando acesso…</span>
             <button id="dsips-material-new" class="app-button app-button-primary hidden" type="button">+ Novo material</button>
           </div>
         </article>
@@ -769,8 +769,8 @@
       </main>
 
       <footer class="app-footer">
-        <span>CM APP · Patrimônio</span>
-        <span>v1.13.13-H.1 · HOMOLOGAÇÃO</span>
+        <span>CM APP</span>
+        <span>v1.13.13-H.2 · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -971,6 +971,6 @@
   </div>
 
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.5.0/dist/driver.js.iife.js"></script>
-    <script type="module" src="./app.js?v=1.13.13-h.1"></script>
+    <script type="module" src="./app.js?v=1.13.13-h.2"></script>
 </body>
 </html>

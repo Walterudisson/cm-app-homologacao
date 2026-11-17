@@ -1,8 +1,8 @@
-import { listarCadastroDsips, salvarCadastroDsips } from './service.js';
+import { listarCadastroDsips, salvarCadastroDsips } from './service.js?v=1.13.13-h.2';
 import {
   filtrarMateriaisDsips, podeConsultarMateriaisDsips,
   podeGerenciarMateriaisDsips, prepararCadastroMaterialDsips
-} from './consulta-materiais-model.js';
+} from './consulta-materiais-model.js?v=1.13.13-h.2';
 
 export function criarConsultaMateriaisDsips({ obterUsuario, notificar = () => {} }) {
   const porId = id => document.getElementById(id);
