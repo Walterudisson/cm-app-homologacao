@@ -1,4 +1,4 @@
-const VERSAO = 'v1.13.13-h.2-dsips-cache-perfil';
+const VERSAO = 'v1.13.13-h.3-dsips-cards-visuais';
 const CACHE_SHELL = `cmapp-shell-${VERSAO}`;
 const CACHE_RUNTIME = `cmapp-runtime-${VERSAO}`;
 const PREFIXO_CACHE = 'cmapp-';

@@ -1,8 +1,9 @@
-import { listarCadastroDsips, salvarCadastroDsips } from './service.js?v=1.13.13-h.2';
+import { listarCadastroDsips, salvarCadastroDsips } from './service.js?v=1.13.13-h.3';
 import {
   filtrarMateriaisDsips, podeConsultarMateriaisDsips,
-  podeGerenciarMateriaisDsips, prepararCadastroMaterialDsips
-} from './consulta-materiais-model.js?v=1.13.13-h.2';
+  podeGerenciarMateriaisDsips, prepararCadastroMaterialDsips,
+  visualMaterialDsips, ICONES_CARDS_DSIPS
+} from './consulta-materiais-model.js?v=1.13.13-h.3';
 
 export function criarConsultaMateriaisDsips({ obterUsuario, notificar = () => {} }) {
   const porId = id => document.getElementById(id);
@@ -40,6 +41,19 @@ export function criarConsultaMateriaisDsips({ obterUsuario, notificar = () => {}
     if (classe) el.className = classe;
     if (conteudo !== undefined) el.textContent = String(conteudo ?? '');
     return el;
+  }
+  function iconeDoMaterial(nome) {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    for (const [atributo, valor] of Object.entries({
+      viewBox: '0 0 24 24', width: '23', height: '23', fill: 'none', stroke: 'currentColor',
+      'stroke-width': '1.8', 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'aria-hidden': 'true'
+    })) svg.setAttribute(atributo, valor);
+    for (const d of ICONES_CARDS_DSIPS[nome]) {
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', d);
+      svg.append(path);
+    }
+    return svg;
   }
   function vazio(titulo, detalhe) {
     const card = elemento('div', 'dsips-empty app-card');
@@ -134,10 +148,12 @@ export function criarConsultaMateriaisDsips({ obterUsuario, notificar = () => {}
     }
     const nomesCategorias = new Map(categorias.map(item => [item.id, item.nome]));
     for (const material of filtrados) {
-      const card = elemento('article', 'dsips-material-card');
+      const visual = visualMaterialDsips(material);
+      const card = elemento('article', 'dsips-material-card dsips-cor-' + visual.cor);
       const cab = elemento('div', 'dsips-material-head');
-      const simbolo = elemento('span', 'dsips-material-symbol', '▣');
+      const simbolo = elemento('span', 'dsips-material-symbol');
       simbolo.setAttribute('aria-hidden', 'true');
+      simbolo.append(iconeDoMaterial(visual.icone));
       const titulos = elemento('div', 'dsips-material-title');
       titulos.append(elemento('h3', '', material.nome || 'Material sem nome'),
         elemento('p', '', nomesCategorias.get(material.categoriaId) || 'Sem categoria'));
