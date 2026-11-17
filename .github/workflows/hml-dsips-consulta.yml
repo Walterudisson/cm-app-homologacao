@@ -1,0 +1,30 @@
+name: HML - DSIPS consulta (testes)
+on:
+  pull_request:
+    paths:
+      - 'app.js'
+      - 'index.html'
+      - 'app.css'
+      - 'js/modules/dsips/consulta-materiais*'
+      - 'js/ui/navigation.js'
+      - 'tests/hml-dsips-consulta.test.mjs'
+      - '.github/workflows/hml-dsips-consulta.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Conferir sintaxe
+        run: |
+          node --check app.js
+          node --check js/ui/navigation.js
+          node --check js/modules/dsips/consulta-materiais-model.js
+          node --check js/modules/dsips/consulta-materiais-ui.js
+      - name: Executar testes da sprint
+        run: node --test tests/hml-dsips-consulta.test.mjs

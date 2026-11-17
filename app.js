@@ -55,6 +55,8 @@
       inicializarNavegacao
     } from "./js/ui/navigation.js?v=1.12.0";
     import { inicializarPwa } from "./js/pwa.js?v=1.12.0";
+    import { podeConsultarMateriaisDsips } from "./js/modules/dsips/consulta-materiais-model.js";
+    import { criarConsultaMateriaisDsips } from "./js/modules/dsips/consulta-materiais-ui.js";
 
     let usuarioLogado = null;
     let bancoPatrimonio = [];
@@ -143,6 +145,7 @@
       aoFecharCamada: removerCamadaHistorico
     });
     inicializarPwa({ notificarMensagem });
+    const consultaMateriaisDsips = criarConsultaMateriaisDsips({ obterUsuario: () => usuarioLogado });
     inicializarAlternadoresSenha();
     inicializarGestaoDivisoes();
     inicializarGestaoFuncoes();
@@ -622,6 +625,8 @@
     });
 
     onAuthStateChanged(auth, async (user) => {
+      // Descarta dados DSIPS de qualquer sessão anterior antes de validar a nova.
+      consultaMateriaisDsips.limpar();
       if (user) {
         const userDoc = await getDoc(doc(db, "usuarios", user.uid));
         if (!userDoc.exists()) {
@@ -692,6 +697,9 @@
     function atualizarCabecalhoUsuario() {
       atualizarUsuarioNavegacao(usuarioLogado, fotoPerfilUrl);
       atualizarAcessoNavegacao(usuarioLogado.perfil);
+      const podeConsultarDsips = podeConsultarMateriaisDsips(usuarioLogado);
+      document.getElementById('tab-btn-dsips-materiais')?.classList.toggle('hidden', !podeConsultarDsips);
+      document.getElementById('dsips-section-label')?.classList.toggle('hidden', !podeConsultarDsips);
       atualizarEstadoTutorialConferente();
       document.getElementById('profile-menu-name').innerText = usuarioLogado.nome;
       atualizarDadosTelaPerfil();
@@ -1443,6 +1451,11 @@
     });
 
     async function alternarAba(abaAtiva, { registrarHistorico = true, substituirHistorico = false } = {}) {
+      if (!usuarioLogado) return;
+      if (abaAtiva === 'dsips-materiais' && !podeConsultarMateriaisDsips(usuarioLogado)) {
+        notificarMensagem('Você não possui acesso à consulta DSIPS.', 'aviso');
+        return;
+      }
       if (usuarioLogado && usuarioLogado.perfil === 'conferente') {
         if (abaAtiva === 'transferencias' || abaAtiva === 'usuarios' || abaAtiva === 'divisoes' || abaAtiva === 'funcoes') {
           return;
@@ -1459,7 +1472,7 @@
         await controladorCamera.desligar({ retomarAposSalvar: true });
       }
 
-      ['dashboard', 'scanner', 'transferencias', 'usuarios', 'divisoes', 'funcoes', 'inventarios', 'lista', 'perfil'].forEach(aba => {
+      ['dashboard', 'scanner', 'transferencias', 'usuarios', 'divisoes', 'funcoes', 'inventarios', 'lista', 'perfil', 'dsips-materiais'].forEach(aba => {
         const sec = document.getElementById(`sec-${aba}`);
         if (sec) sec.classList.toggle('hidden', aba !== abaAtiva);
       });
@@ -1489,6 +1502,7 @@
           if (usuarioLogado.perfil !== 'conferente') await atualizarEstadoDivisaoInventario();
         }
         if (abaAtiva === 'perfil') atualizarDadosTelaPerfil();
+        if (abaAtiva === 'dsips-materiais') await consultaMateriaisDsips.carregar();
         if (abaAtiva === 'lista') await carregarRelacaoPatrimonial();
       } catch (erro) {
         console.error(`Erro ao carregar a aba ${abaAtiva}:`, erro);

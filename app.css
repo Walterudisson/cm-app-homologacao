@@ -949,3 +949,38 @@
       .app-toast,
       .transfer-group-chevron { transition: none; }
     }
+
+/* Sprint 1.13.12-H.1: consulta DSIPS integrada ao mesmo shell */
+.dsips-intro { display: flex; align-items: start; justify-content: space-between; gap: 1rem; }
+.dsips-intro h2 { font-size: 1.13rem; color: #f8fafc; font-weight: 850; margin-top: 0.45rem; }
+.dsips-intro p { margin-top: 0.4rem; color: #94a3b8; font-size: 0.76rem; line-height: 1.55; max-width: 50rem; }
+.dsips-readonly { white-space: nowrap; border: 1px solid #475569; background: #0f172a; border-radius: 100px; padding: 0.45rem 0.75rem; color: #cbd5e1; font-size: 0.66rem; font-weight: 800; }
+.dsips-overview { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.9rem; }
+.dsips-overview-card { display: flex; flex-direction: column; gap: 0.5rem; }
+.dsips-overview-card span { font-size: 0.7rem; font-weight: 700; color: #94a3b8; }
+.dsips-overview-card strong { font-size: 1.7rem; font-weight: 850; color: #f8fafc; }
+.dsips-toolbar { display: flex; align-items: end; flex-wrap: wrap; gap: 0.75rem; }
+.dsips-toolbar label { display: flex; flex-direction: column; gap: 0.4rem; min-width: 0; }
+.dsips-search-label { flex: 2 1 15rem; }
+.dsips-category-label { flex: 1 1 12rem; }
+.dsips-toolbar label span { color: #cbd5e1; font-size: 0.7rem; font-weight: 800; }
+.dsips-toolbar input, .dsips-toolbar select { width: 100%; min-height: 2.55rem; border: 1px solid #475569; border-radius: 0.65rem; background: #0f172a; color: #f8fafc; font-size: 0.78rem; padding: 0.65rem 0.75rem; }
+.dsips-toolbar input:focus-visible, .dsips-toolbar select:focus-visible { outline: 2px solid #60a5fa; outline-offset: 2px; }
+.dsips-toolbar button:disabled { opacity: 0.55; cursor: wait; }
+.dsips-state-message { margin: 1rem 0; min-height: 1.1rem; color: #94a3b8; font-size: 0.75rem; }
+.dsips-material-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr)); gap: 0.85rem; }
+.dsips-material-card { min-width: 0; display: flex; flex-direction: column; align-items: start; gap: 0.9rem; padding: 1rem; border: 1px solid #334155; border-radius: 0.85rem; background: #111e33; }
+.dsips-material-head { display: flex; align-items: center; gap: 0.75rem; min-width: 0; width: 100%; }
+.dsips-material-symbol { display: grid; place-items: center; flex: none; width: 2.6rem; height: 2.6rem; border-radius: 0.7rem; color: #bfdbfe; background: #1e3a5f; font-size: 1.4rem; }
+.dsips-material-title { min-width: 0; }
+.dsips-material-title h3 { color: #f8fafc; font-size: 0.84rem; line-height: 1.4; font-weight: 800; overflow-wrap: anywhere; }
+.dsips-material-title p { color: #94a3b8; font-size: 0.72rem; margin-top: 0.3rem; overflow-wrap: anywhere; }
+.dsips-material-meta { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.dsips-material-meta span { border: 1px solid #334155; border-radius: 0.5rem; padding: 0.35rem 0.55rem; color: #cbd5e1; font-size: 0.67rem; }
+.dsips-status-active, .dsips-status-inactive { font-size: 0.68rem; font-weight: 800; border-radius: 100px; padding: 0.35rem 0.6rem; }
+.dsips-status-active { color: #a7f3d0; background: #064e3b; }
+.dsips-status-inactive { color: #fecaca; background: #7f1d1d; }
+.dsips-empty { grid-column: 1 / -1; text-align: center; padding: 2rem; }
+.dsips-empty strong { color: #e2e8f0; font-size: 0.83rem; }
+.dsips-empty p { color: #94a3b8; font-size: 0.73rem; margin-top: 0.5rem; }
+@media (max-width: 639px) { .dsips-intro { flex-direction: column; } .dsips-overview { gap: 0.6rem; } .dsips-toolbar { flex-direction: column; align-items: stretch; } .dsips-toolbar label, .dsips-toolbar button { width: 100%; } }

@@ -1,4 +1,4 @@
-const VERSAO = 'v1.13.11-h-recuperacao.1';
+const VERSAO = 'v1.13.12-h.1-dsips-consulta';
 const CACHE_SHELL = `cmapp-shell-${VERSAO}`;
 const CACHE_RUNTIME = `cmapp-runtime-${VERSAO}`;
 const PREFIXO_CACHE = 'cmapp-';
@@ -16,6 +16,12 @@ const ARQUIVOS_SHELL = [
   './assets/icon-maskable-512.png',
   './assets/apple-touch-icon.png',
   './js/config/firebase.js',
+  './js/platform/modules.js',
+  './js/modules/patrimonios/module.js',
+  './js/modules/dsips/module.js',
+  './js/modules/dsips/service.js',
+  './js/modules/dsips/consulta-materiais-model.js',
+  './js/modules/dsips/consulta-materiais-ui.js',
   './js/controllers/camera.controller.js',
   './js/core/camera.js',
   './js/core/movimentacao.js',
