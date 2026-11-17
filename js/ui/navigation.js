@@ -8,6 +8,7 @@ const PAGINAS = {
   funcoes: { titulo: 'Funções e permissões', trilha: ['CM APP', 'Gestão', 'Funções'] },
   inventarios: { titulo: 'Inventários', trilha: ['CM APP', 'Patrimônio', 'Inventários'] },
   'dsips-materiais': { titulo: 'Materiais DSIPS', trilha: ['CM APP', 'DSIPS', 'Materiais'] },
+  'dsips-cadastros': { titulo: 'Cadastros DSIPS', trilha: ['CM APP', 'DSIPS', 'Cadastros'] },
   perfil: { titulo: 'Meu perfil', trilha: ['CM APP', 'Conta', 'Meu perfil'] }
 };
 

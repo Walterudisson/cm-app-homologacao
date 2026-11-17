@@ -57,6 +57,7 @@
     import { inicializarPwa } from "./js/pwa.js?v=1.12.0";
     import { podeConsultarMateriaisDsips } from "./js/modules/dsips/consulta-materiais-model.js?v=1.13.13-h.3";
     import { criarConsultaMateriaisDsips } from "./js/modules/dsips/consulta-materiais-ui.js?v=1.13.13-h.3";
+    import { criarCadastrosDsips } from "./js/modules/dsips/cadastros-ui.js?v=1.13.14-h.1";
 
     let usuarioLogado = null;
     let bancoPatrimonio = [];
@@ -146,6 +147,7 @@
     });
     inicializarPwa({ notificarMensagem });
     const consultaMateriaisDsips = criarConsultaMateriaisDsips({ obterUsuario: () => usuarioLogado, notificar: notificarMensagem });
+    const cadastrosDsips = criarCadastrosDsips({ obterUsuario: () => usuarioLogado, notificar: notificarMensagem });
     inicializarAlternadoresSenha();
     inicializarGestaoDivisoes();
     inicializarGestaoFuncoes();
@@ -627,6 +629,7 @@
     onAuthStateChanged(auth, async (user) => {
       // Descarta dados DSIPS de qualquer sessão anterior antes de validar a nova.
       consultaMateriaisDsips.limpar();
+      cadastrosDsips.limpar();
       if (user) {
         const userDoc = await getDoc(doc(db, "usuarios", user.uid));
         if (!userDoc.exists()) {
@@ -699,6 +702,7 @@
       atualizarAcessoNavegacao(usuarioLogado.perfil);
       const podeConsultarDsips = podeConsultarMateriaisDsips(usuarioLogado);
       document.getElementById('tab-btn-dsips-materiais')?.classList.toggle('hidden', !podeConsultarDsips);
+      document.getElementById('tab-btn-dsips-cadastros')?.classList.toggle('hidden', !podeConsultarDsips);
       document.getElementById('dsips-section-label')?.classList.toggle('hidden', !podeConsultarDsips);
       atualizarEstadoTutorialConferente();
       document.getElementById('profile-menu-name').innerText = usuarioLogado.nome;
@@ -1452,7 +1456,7 @@
 
     async function alternarAba(abaAtiva, { registrarHistorico = true, substituirHistorico = false } = {}) {
       if (!usuarioLogado) return;
-      if (abaAtiva === 'dsips-materiais' && !podeConsultarMateriaisDsips(usuarioLogado)) {
+      if (['dsips-materiais', 'dsips-cadastros'].includes(abaAtiva) && !podeConsultarMateriaisDsips(usuarioLogado)) {
         notificarMensagem('Você não possui acesso à consulta DSIPS.', 'aviso');
         return;
       }
@@ -1472,7 +1476,7 @@
         await controladorCamera.desligar({ retomarAposSalvar: true });
       }
 
-      ['dashboard', 'scanner', 'transferencias', 'usuarios', 'divisoes', 'funcoes', 'inventarios', 'lista', 'perfil', 'dsips-materiais'].forEach(aba => {
+      ['dashboard', 'scanner', 'transferencias', 'usuarios', 'divisoes', 'funcoes', 'inventarios', 'lista', 'perfil', 'dsips-materiais', 'dsips-cadastros'].forEach(aba => {
         const sec = document.getElementById(`sec-${aba}`);
         if (sec) sec.classList.toggle('hidden', aba !== abaAtiva);
       });
@@ -1503,6 +1507,7 @@
         }
         if (abaAtiva === 'perfil') atualizarDadosTelaPerfil();
         if (abaAtiva === 'dsips-materiais') await consultaMateriaisDsips.carregar();
+        if (abaAtiva === 'dsips-cadastros') await cadastrosDsips.carregar();
         if (abaAtiva === 'lista') await carregarRelacaoPatrimonial();
       } catch (erro) {
         console.error(`Erro ao carregar a aba ${abaAtiva}:`, erro);
