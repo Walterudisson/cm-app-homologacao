@@ -1,30 +1,44 @@
-import { listarCadastroDsips } from './service.js';
-import { filtrarMateriaisDsips, podeConsultarMateriaisDsips } from './consulta-materiais-model.js';
+import { listarCadastroDsips, salvarCadastroDsips } from './service.js';
+import {
+  filtrarMateriaisDsips, podeConsultarMateriaisDsips,
+  podeGerenciarMateriaisDsips, prepararCadastroMaterialDsips
+} from './consulta-materiais-model.js';
 
-export function criarConsultaMateriaisDsips({ obterUsuario }) {
-  const lista = document.getElementById('dsips-material-list');
-  const estado = document.getElementById('dsips-material-status');
-  const busca = document.getElementById('dsips-material-search');
-  const categoria = document.getElementById('dsips-material-category');
-  const atualizarBotao = document.getElementById('dsips-material-refresh');
-  const total = document.getElementById('dsips-material-total');
-  const ativos = document.getElementById('dsips-material-active');
+export function criarConsultaMateriaisDsips({ obterUsuario, notificar = () => {} }) {
+  const porId = id => document.getElementById(id);
+  const lista = porId('dsips-material-list');
+  const estado = porId('dsips-material-status');
+  const busca = porId('dsips-material-search');
+  const categoria = porId('dsips-material-category');
+  const atualizarBotao = porId('dsips-material-refresh');
+  const total = porId('dsips-material-total');
+  const ativos = porId('dsips-material-active');
+  const novoBotao = porId('dsips-material-new');
+  const modo = porId('dsips-material-mode');
+  const editor = porId('dsips-material-editor');
+  const formulario = porId('dsips-material-form');
+  const editarTitulo = porId('dsips-material-editor-title');
+  const editarStatus = porId('dsips-material-editor-status');
+  const cancelarBotao = porId('dsips-material-cancel');
+  const salvarBotao = porId('dsips-material-save');
+  const campo = nome => formulario.elements.namedItem(nome);
   let versao = 0;
   let materiais = [];
   let categorias = [];
   let pronto = false;
   let carregando = false;
   let falha = '';
+  let gravando = false;
+  let materialEditando = null;
+  let rascunhoId = '';
+  let pendente = null;
 
   const autorizado = () => podeConsultarMateriaisDsips(obterUsuario());
-  const texto = (elemento, conteudo) => {
-    elemento.textContent = String(conteudo ?? '');
-    return elemento;
-  };
+  const podeGravar = () => podeGerenciarMateriaisDsips(obterUsuario());
   function elemento(tag, classe, conteudo) {
     const el = document.createElement(tag);
     if (classe) el.className = classe;
-    if (conteudo !== undefined) texto(el, conteudo);
+    if (conteudo !== undefined) el.textContent = String(conteudo ?? '');
     return el;
   }
   function vazio(titulo, detalhe) {
@@ -32,13 +46,67 @@ export function criarConsultaMateriaisDsips({ obterUsuario }) {
     card.append(elemento('strong', '', titulo), elemento('p', '', detalhe));
     lista.append(card);
   }
+  function fecharEditor() {
+    editor.classList.add('hidden');
+    formulario.reset();
+    campo('controle').disabled = false;
+    campo('unidade').disabled = false;
+    materialEditando = null;
+    rascunhoId = '';
+    pendente = null;
+    editarStatus.textContent = '';
+  }
+  function preencherCategoriasEditor() {
+    const atual = campo('categoriaId').value;
+    const seletor = campo('categoriaId');
+    seletor.replaceChildren(new Option('Selecione uma categoria', ''));
+    for (const item of categorias.filter(item => item.ativo !== false)) {
+      seletor.add(new Option(item.nome || 'Categoria sem nome', item.id));
+    }
+    if (categorias.some(item => item.id === atual && item.ativo !== false)) seletor.value = atual;
+  }
+  function abrirEditor(material = null) {
+    if (!podeGravar() || carregando || gravando || !pronto) return;
+    fecharEditor();
+    materialEditando = material;
+    rascunhoId = material?.id || crypto.randomUUID();
+    editarTitulo.textContent = material ? 'Editar material' : 'Novo material';
+    preencherCategoriasEditor();
+    if (material) {
+      for (const nome of ['nome', 'categoriaId', 'controle', 'unidade', 'icone', 'cor', 'observacoes']) {
+        campo(nome).value = String(material[nome] || '');
+      }
+      campo('ativo').checked = material.ativo !== false;
+    } else {
+      campo('controle').value = 'quantidade';
+      campo('unidade').value = 'un';
+      campo('icone').value = 'caixa';
+      campo('cor').value = 'azul';
+      campo('ativo').checked = true;
+    }
+    campo('controle').disabled = Boolean(material?.saldoInicialRegistrado);
+    campo('unidade').disabled = Boolean(material?.saldoInicialRegistrado);
+    editor.classList.remove('hidden');
+    if (categorias.every(item => item.ativo === false)) {
+      editarStatus.textContent = 'Não há categorias ativas. Crie uma categoria antes de cadastrar materiais.';
+    } else if (material?.saldoInicialRegistrado) {
+      editarStatus.textContent = 'Controle e unidade bloqueados porque já existe saldo inicial.';
+    }
+    editor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    campo('nome').focus({ preventScroll: true });
+  }
   function renderizar() {
     lista.replaceChildren();
     lista.setAttribute('aria-busy', String(carregando));
     atualizarBotao.disabled = carregando;
+    const edicaoPermitida = podeGravar();
+    novoBotao.classList.toggle('hidden', !edicaoPermitida);
+    modo.textContent = edicaoPermitida ? 'Consulta e cadastro' : 'Somente consulta';
+    if (!edicaoPermitida && !editor.classList.contains('hidden')) fecharEditor();
     if (!autorizado()) {
       estado.textContent = 'Acesso não autorizado.';
-      total.textContent = '0'; ativos.textContent = '0';
+      total.textContent = '0';
+      ativos.textContent = '0';
       return;
     }
     total.textContent = String(materiais.length);
@@ -75,30 +143,43 @@ export function criarConsultaMateriaisDsips({ obterUsuario }) {
         elemento('p', '', nomesCategorias.get(material.categoriaId) || 'Sem categoria'));
       cab.append(simbolo, titulos);
       const informacoes = elemento('div', 'dsips-material-meta');
-      const controle = material.controle === 'individualizado' ? 'Individualizado' : 'Por quantidade';
       informacoes.append(
-        elemento('span', '', controle),
+        elemento('span', '', material.controle === 'individualizado' ? 'Individualizado' : 'Por quantidade'),
         elemento('span', '', material.unidade || 'Unidade não definida')
       );
       const situacao = elemento('span',
         material.ativo === false ? 'dsips-status-inactive' : 'dsips-status-active',
-        material.ativo === false ? 'Inativo' : 'Ativo'
-      );
+        material.ativo === false ? 'Inativo' : 'Ativo');
       card.append(cab, informacoes, situacao);
+      if (edicaoPermitida) {
+        const editar = elemento('button', 'app-button app-button-secondary dsips-material-edit', 'Editar');
+        editar.type = 'button';
+        editar.setAttribute('aria-label', 'Editar material: ' + (material.nome || 'Sem nome'));
+        editar.addEventListener('click', () => abrirEditor(material));
+        card.append(editar);
+      }
       lista.append(card);
     }
   }
   function limpar() {
+    fecharEditor();
     versao++;
-    materiais = []; categorias = []; pronto = false; carregando = false; falha = '';
+    materiais = [];
+    categorias = [];
+    pronto = false;
+    carregando = false;
+    falha = '';
     busca.value = '';
     categoria.replaceChildren(new Option('Todas as categorias', ''));
+    campo('categoriaId').replaceChildren(new Option('Selecione uma categoria', ''));
     renderizar();
   }
   async function carregar() {
     if (!autorizado()) { limpar(); return; }
     const atual = ++versao;
-    carregando = true; pronto = false; falha = '';
+    carregando = true;
+    pronto = false;
+    falha = '';
     renderizar();
     try {
       const [itens, grupos] = await Promise.all([
@@ -114,11 +195,14 @@ export function criarConsultaMateriaisDsips({ obterUsuario }) {
         if (grupo?.id) categoria.add(new Option(grupo.nome || 'Categoria sem nome', grupo.id));
       }
       if (categorias.some(item => item.id === categoriaAnterior)) categoria.value = categoriaAnterior;
+      preencherCategoriasEditor();
       pronto = true;
     } catch (erro) {
       if (atual !== versao || !autorizado()) return;
       console.warn('Falha ao consultar materiais DSIPS no HML.', erro);
-      materiais = []; categorias = []; pronto = false;
+      materiais = [];
+      categorias = [];
+      pronto = false;
       falha = erro?.code === 'permission-denied' || erro?.code === 'functions/permission-denied'
         ? 'Sem permissão para consultar os dados DSIPS. Solicite revisão do acesso.'
         : 'Falha de conexão ou consulta ao DSIPS. Tente atualizar.';
@@ -129,6 +213,59 @@ export function criarConsultaMateriaisDsips({ obterUsuario }) {
       }
     }
   }
+  async function salvarMaterial(evento) {
+    evento.preventDefault();
+    if (gravando || !podeGravar() || editor.classList.contains('hidden') || !pronto) return;
+    if (!formulario.reportValidity()) return;
+    const uid = obterUsuario()?.uid;
+    let pedido;
+    try {
+      pedido = prepararCadastroMaterialDsips({
+        nome: campo('nome').value,
+        categoriaId: campo('categoriaId').value,
+        controle: campo('controle').value,
+        unidade: campo('unidade').value,
+        icone: campo('icone').value,
+        cor: campo('cor').value,
+        observacoes: campo('observacoes').value,
+        ativo: campo('ativo').checked
+      }, { id: rascunhoId, categorias, anterior: materialEditando });
+    } catch (erro) {
+      editarStatus.textContent = erro.message;
+      return;
+    }
+    const assinatura = JSON.stringify(pedido);
+    if (!pendente || pendente.assinatura !== assinatura) {
+      pendente = { assinatura, operacaoId: crypto.randomUUID() };
+    }
+    const operacaoId = pendente.operacaoId;
+    gravando = true;
+    salvarBotao.disabled = true;
+    cancelarBotao.disabled = true;
+    editarStatus.textContent = 'Salvando material no HML…';
+    try {
+      await salvarCadastroDsips({ ...pedido, operacaoId });
+      if (uid !== obterUsuario()?.uid || !podeGravar()) return;
+      fecharEditor();
+      notificar('Material salvo com sucesso no HML.', 'sucesso');
+      await carregar();
+    } catch (erro) {
+      if (uid !== obterUsuario()?.uid || !podeGravar()) return;
+      console.warn('Falha ao salvar material DSIPS.', erro);
+      const negado = erro?.code === 'functions/permission-denied';
+      editarStatus.textContent = negado
+        ? 'Sem permissão para salvar. Seu acesso deve ser revisado.'
+        : 'Não foi possível salvar. Confira os dados e tente novamente.';
+      notificar(negado ? 'Operação não autorizada no DSIPS.' : 'Falha ao salvar material.', 'erro');
+    } finally {
+      gravando = false;
+      salvarBotao.disabled = false;
+      cancelarBotao.disabled = false;
+    }
+  }
+  novoBotao.addEventListener('click', () => abrirEditor());
+  cancelarBotao.addEventListener('click', fecharEditor);
+  formulario.addEventListener('submit', evento => { void salvarMaterial(evento); });
   busca.addEventListener('input', renderizar);
   categoria.addEventListener('change', renderizar);
   atualizarBotao.addEventListener('click', carregar);

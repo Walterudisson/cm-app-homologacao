@@ -145,7 +145,7 @@
       aoFecharCamada: removerCamadaHistorico
     });
     inicializarPwa({ notificarMensagem });
-    const consultaMateriaisDsips = criarConsultaMateriaisDsips({ obterUsuario: () => usuarioLogado });
+    const consultaMateriaisDsips = criarConsultaMateriaisDsips({ obterUsuario: () => usuarioLogado, notificar: notificarMensagem });
     inicializarAlternadoresSenha();
     inicializarGestaoDivisoes();
     inicializarGestaoFuncoes();

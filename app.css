@@ -1011,3 +1011,27 @@
     width: 100%;
   }
 }
+
+/* Sprint 1.13.13-H.1: editor de materiais integrado ao CMAPP. */
+.dsips-intro-actions { flex: 0 0 auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: .65rem; }
+.dsips-editor { scroll-margin-top: calc(var(--hml-banner-height) + var(--topbar-height) + 1rem); }
+.dsips-editor-heading h3 { margin-top: .35rem; font-size: 1rem; font-weight: 850; color: #f8fafc; }
+.dsips-editor-heading p { margin-top: .4rem; color: #94a3b8; font-size: .74rem; line-height: 1.5; }
+.dsips-editor-form { margin-top: 1rem; display: grid; gap: .85rem; }
+.dsips-editor-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; }
+.dsips-editor-fields label, .dsips-editor-notes { display: grid; gap: .35rem; font-size: .69rem; font-weight: 800; color: #cbd5e1; }
+.dsips-editor-fields input, .dsips-editor-fields select, .dsips-editor-notes textarea { width: 100%; min-width: 0; border: 1px solid #475569; border-radius: .6rem; background: #0f172a; color: #f8fafc; padding: .7rem .8rem; font-size: .8rem; }
+.dsips-editor-fields :is(input,select):disabled { opacity: .68; cursor: not-allowed; background: #243145; }
+.dsips-editor-fields :is(input,select):focus-visible, .dsips-editor-notes textarea:focus-visible { outline: 2px solid #60a5fa; outline-offset: 2px; }
+.dsips-editor-toggle { display: inline-flex; align-items: center; width: fit-content; gap: .55rem; color: #e2e8f0; font-size: .76rem; font-weight: 700; }
+.dsips-editor-toggle input { width: 1rem; height: 1rem; accent-color: #2563eb; }
+.dsips-editor-status { color: #fcd34d; font-size: .75rem; min-height: 1rem; }
+.dsips-editor-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: .6rem; }
+.dsips-editor-actions button:disabled { cursor: wait; opacity: .65; }
+.dsips-material-edit { min-height: 2.2rem; align-self: stretch; margin-top: auto; }
+@media (max-width: 639px) {
+  .dsips-intro-actions { align-self: stretch; justify-content: space-between; }
+  .dsips-intro-actions > button { width: 100%; }
+  .dsips-editor-fields { grid-template-columns: minmax(0, 1fr); }
+  .dsips-editor-actions button { flex: 1 1 8rem; }
+}

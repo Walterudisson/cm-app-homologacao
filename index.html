@@ -21,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.13.12-h.5">
+  <link rel="stylesheet" href="./app.css?v=1.13.13-h.1">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div id="cmapp-hml-banner" class="cmapp-hml-banner" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -54,7 +54,7 @@
 
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.12-H.5 • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.13-H.1 • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -126,7 +126,7 @@
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.13.12-H.5</span>
+        <span>v1.13.13-H.1</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -465,9 +465,36 @@
           <div>
             <span class="eyebrow">DSIPS · Materiais e cautelas</span>
             <h2>Consulta de materiais</h2>
-            <p>Consulte o cadastro de materiais da DSIPS. Entregas, devoluções e modo PDV serão integrados em etapas posteriores.</p>
+            <p>Consulte e mantenha o cadastro de materiais. Estoque, cautelas e modo PDV serão integrados em etapas posteriores.</p>
           </div>
-          <span class="dsips-readonly">Somente consulta</span>
+          <div class="dsips-intro-actions">
+            <span id="dsips-material-mode" class="dsips-readonly">Somente consulta</span>
+            <button id="dsips-material-new" class="app-button app-button-primary hidden" type="button">+ Novo material</button>
+          </div>
+        </article>
+        <article id="dsips-material-editor" class="app-card dsips-editor hidden" aria-label="Cadastro de material">
+          <div class="dsips-editor-heading">
+            <span class="eyebrow">Cadastro DSIPS</span>
+            <h3 id="dsips-material-editor-title">Novo material</h3>
+            <p>Informe as características do material. Estoque e quantidade serão tratados em outra etapa.</p>
+          </div>
+          <form id="dsips-material-form" class="dsips-editor-form">
+            <div class="dsips-editor-fields">
+              <label>Nome do material<input name="nome" type="text" required maxlength="120" autocomplete="off" placeholder="Ex.: Rádio portátil"></label>
+              <label>Categoria<select name="categoriaId" required><option value="">Selecione uma categoria</option></select></label>
+              <label>Tipo de controle<select name="controle" required><option value="quantidade">Por quantidade</option><option value="individualizado">Individualizado</option></select></label>
+              <label>Unidade de medida<select name="unidade" required><option value="un">Unidade</option><option value="par">Par</option><option value="caixa">Caixa</option><option value="kit">Kit</option></select></label>
+              <label>Ícone do card<select name="icone"><option value="caixa">Caixa</option><option value="escudo">Escudo</option><option value="radio">Rádio</option><option value="chave">Chave</option><option value="maleta">Maleta</option><option value="colete">Colete</option></select></label>
+              <label>Cor do card<select name="cor"><option value="azul">Azul CMAPP</option><option value="verde">Verde</option><option value="roxo">Roxo</option><option value="ambar">Âmbar</option></select></label>
+            </div>
+            <label class="dsips-editor-notes">Observações<textarea name="observacoes" maxlength="500" rows="3" placeholder="Detalhes ou orientações sobre o material"></textarea></label>
+            <label class="dsips-editor-toggle"><input name="ativo" type="checkbox" checked> Material ativo</label>
+            <p id="dsips-material-editor-status" class="dsips-editor-status" role="status" aria-live="polite"></p>
+            <div class="dsips-editor-actions">
+              <button id="dsips-material-cancel" type="button" class="app-button app-button-secondary">Cancelar</button>
+              <button id="dsips-material-save" type="submit" class="app-button app-button-primary">Salvar material</button>
+            </div>
+          </form>
         </article>
         <div class="dsips-overview">
           <article class="app-card dsips-overview-card"><span>Materiais cadastrados</span><strong id="dsips-material-total">0</strong></article>
@@ -743,7 +770,7 @@
 
       <footer class="app-footer">
         <span>CM APP · Patrimônio</span>
-        <span>v1.13.12-H.5 · HOMOLOGAÇÃO</span>
+        <span>v1.13.13-H.1 · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -944,6 +971,6 @@
   </div>
 
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.5.0/dist/driver.js.iife.js"></script>
-    <script type="module" src="./app.js?v=1.13.12-h.5"></script>
+    <script type="module" src="./app.js?v=1.13.13-h.1"></script>
 </body>
 </html>
