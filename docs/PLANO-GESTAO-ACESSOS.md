@@ -76,3 +76,74 @@ A proposta visual aprovada é referência, não versão funcional pronta. A entr
 são impostos pelo servidor e Rules, a migração conserva os acessos aprovados, os temas cobrem o aplicativo
 e os fluxos existentes continuam funcionando. A homologação pendente do PDV não é substituída pela
 aprovação desta proposta.
+
+## Andamento — 16/11/2026
+
+Catálogo, avaliador, análise local do legado e backend de gestão preparados. Ver POLITICA-ACESSOS-V2.md.
+A rota gestao-v2/ conecta a composição visual aprovada aos serviços reais de usuários/acessos, sem
+cadastros de demonstração. Inclui perfil próprio, matriz do catálogo, atribuição e delegação distintas,
+seleção de divisões do servidor, histórico e Claro/Escuro/Automático.
+
+Treze endpoints implementam consultas, concessões/delegações e ciclo de contas; proteções dos nove
+endpoints antigos e preparador de Rules de transição estão disponíveis localmente. Testes: 196 no
+frontend/política/pacote, 78 no Firestore Emulator. Ver backend/acessos-v2/README.md para limites.
+
+Faltam aplicar política às operações e Rules dos módulos, reconciliação de Authentication, revisar dados
+reais e preparar migração/backup/reversão, homologar telas em dispositivos e ampliar temas ao sistema.
+A proteção de transição nega acesso legado das contas marcadas; não ativa o negócio novo. Não migrar
+usuários antes de resolver essas dependências. Nenhum usuário foi migrado ou publicação realizada.
+
+### Continuação operacional — 16/11/2026
+
+Oito endpoints operacionais preparados: cadastros/saldo/cautelas/devoluções DSIPS, consultas paginadas
+e consulta patrimonial por ID. Autorização e dados são verificados na mesma transação. Operador não
+administra cadastros e seu histórico não expõe auditoria cadastral. Há 21 endpoints no preparador local.
+Ver backend/operacoes-v2/README.md. Restam integração de telas/PDV e operações patrimoniais/inventários;
+nenhum módulo completo foi habilitado ou usuário real migrado nesta etapa.
+
+### Atendimento DSIPS integrado na rota v2 — 16/11/2026
+
+A rota operacoes-v2/ está conectada ao cliente operacional e aos controladores compartilhados de
+cadastros, estoque e PDV. Autorização é injetada por ação, sem perfil fictício de admin. Há paginação
+com limite explícito para catálogos, histórico cronológico com carregamento anterior, cancelamento de
+respostas tardias, limpeza na saída e temas Claro/Escuro/Automático. A gestão oferece link conforme
+consulta operacional. Código no PR de desenvolvimento; ainda sem publicação ou migração real.
+Detalhes, limites de volume e índice necessário em backend/operacoes-v2/README.md.
+
+### Backend de operações patrimoniais — 16/11/2026
+
+Cinco endpoints adicionais preparados: listagem por divisão, conferência, sugestão de destino e
+aprovação/rejeição de transferência ou sugestão. Há 26 endpoints no empacotamento local. Fonte atual,
+política e revisão do bem são lidas na transação, com histórico/evento/recibo atômicos. A listagem exige
+preparação integral da localização efetiva; o corte do módulo bloqueia caminhos legados para impedir
+escritores que não mantenham o índice. Não foram aplicadas marcas, migrados dados ou publicados serviços.
+Ver backend/operacoes-v2/PATRIMONIOS.md. Restam controladores patrimoniais, ciclos de inventário e migração.
+
+### Telas e ciclos patrimoniais preparados — 16/11/2026
+
+A rota patrimonios-v2/ conecta o fluxo essencial por plaqueta digitada, consulta/relação, conferência,
+sugestões e fila aos serviços v2. Inventários têm fechamento e reinício em lotes retomáveis, reabertura
+justificada, consolidação de todas as divisões e fotografia/CSV conforme permissão. Há 31 endpoints.
+DSIPS e Patrimônios compartilham o bootstrap de sessão. Ver backend/operacoes-v2/INVENTARIOS.md.
+Restam paridade dos recursos patrimoniais legados (câmera/OCR, filtros/indicadores e relatórios completos),
+reconciliação Auth, migração/backup/reversão e homologação real. Não há deploy ou ativação nesta etapa.
+
+### Leitor, filtros e relação CSV preparados — 16/11/2026
+
+A área patrimonios-v2 reutiliza o controlador homologado de câmera/barras/OCR, com invalidação de
+capturas atrasadas por geração/contexto. Método de reconhecimento é preservado na conferência.
+Busca e situação são filtradas na página autorizada; indicadores identificam os registros carregados.
+A relação pode ser exportada em CSV com permissão verificada por página, limites explícitos e sem
+arquivo parcial após erro ou troca de sessão. Ver backend/operacoes-v2/LEITURA-RELACAO.md.
+Restam indicadores/ordenações/filtros avançados e relatórios oficiais, homologação de hardware e conta
+real, reconciliação Auth e migração/backup/reversão. Não há deploy operacional nesta etapa.
+
+### Indicadores e CSV da Relação comparados ao legado — 16/11/2026
+
+O resumo da abrangência usa agregações no servidor, com autorização/preparação na mesma transação,
+independentemente da paginação. Foram reproduzidos CSV geral, pendentes e filtrado, com os sete campos
+legados. Busca numérica usa prefixo no banco; grupos da relação têm Expandir/Recolher. Há 32 endpoints
+e oito índices preparados. A comparação não encontrou PDF/XLSX nesse fluxo legado; não criar uma
+pendência de “relatórios oficiais” adicional sem formato confirmado. Ver PARIDADE-RELACAO.md.
+Restam reconciliação Auth, migração/backup/reversão, conferência final de recursos de plataforma e
+homologação real/desempenho/cache/PWA. Não houve deploy operacional ou migração nesta etapa.

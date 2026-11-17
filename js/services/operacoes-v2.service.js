@@ -1,0 +1,23 @@
+// Exclusivo para contas explicitamente v2. Não tenta endpoints legados em caso de erro.
+import {httpsCallable} from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-functions.js';
+import {functions} from '../config/firebase.js';
+const chamar=(nome,dados={})=>httpsCallable(functions,nome)(dados).then(r=>r.data);
+export const salvarCadastroDsipsV2=dados=>chamar('cmappDsipsSalvarCadastro',dados);
+export const registrarSaldoInicialDsipsV2=dados=>chamar('cmappDsipsRegistrarSaldoInicial',dados);
+export const registrarCautelaDsipsV2=dados=>chamar('cmappDsipsRegistrarCautela',dados);
+export const registrarDevolucaoDsipsV2=dados=>chamar('cmappDsipsRegistrarDevolucao',dados);
+export const listarDsipsV2=pagina=>chamar('cmappDsipsListar',pagina);
+export const listarResponsaveisDsipsV2=(pagina={})=>chamar('cmappDsipsListarResponsaveis',pagina);
+export const listarEventosDsipsV2=(pagina={})=>chamar('cmappDsipsListarEventos',pagina);
+export const consultarPatrimonioV2=id=>chamar('cmappConsultarPatrimonio',{id});
+export const listarPatrimoniosV2=pagina=>chamar('cmappPatrimoniosListar',pagina);
+export const conferirPatrimonioV2=dados=>chamar('cmappPatrimoniosConferir',dados);
+export const sugerirDestinoPatrimonioV2=dados=>chamar('cmappPatrimoniosSugerirDestino',dados);
+export const resolverTransferenciaPatrimonioV2=dados=>chamar('cmappPatrimoniosResolverTransferencia',dados);
+export const resolverSugestaoPatrimonioV2=dados=>chamar('cmappPatrimoniosResolverSugestao',dados);
+export const catalogoPatrimoniosV2=()=>chamar('cmappPatrimoniosCatalogo');
+export const consultarInventarioV2=divisao=>chamar('cmappInventarioConsultar',{divisao});
+export const comandarInventarioV2=dados=>chamar('cmappInventarioComandar',dados);
+export const consolidarInventarioV2=dados=>chamar('cmappInventarioConsolidar',dados);
+export const itensInventarioV2=dados=>chamar('cmappInventarioItens',dados);
+export const resumirPatrimoniosV2=(filtros={})=>chamar('cmappPatrimoniosResumo',filtros);

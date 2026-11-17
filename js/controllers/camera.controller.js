@@ -15,8 +15,11 @@ export function criarControladorCamera({
   limparPlaqueta,
   aoReconhecerPlaqueta,
   aoPrepararNovaLeitura = () => {},
+  obterContextoLeitura = () => null,
   podeManterCamera = () => true
 }) {
+  let geracao = 0;
+  const contextoAtual = (token,contexto) => token === geracao && contexto === obterContextoLeitura() && podeManterCamera();
   let scanner = null;
   let cameraAtiva = false;
   let cameraIniciando = false;
@@ -282,10 +285,12 @@ export function criarControladorCamera({
     limparResultado = false,
     retomarAposSalvar = false
   } = {}) {
+    ++geracao;
     const haviaLeituraPendente = cameraPausadaPorLeitura && !porId('leitura-resultado').classList.contains('hidden');
     cameraRetomarAoVoltar = preservarIntento && !haviaLeituraPendente;
     leituraPendenteSemCamera = retomarAposSalvar && haviaLeituraPendente;
     cameraPausadaPorLeitura = false;
+    leituraCameraEmAndamento = false;
     ocrEmAndamento = false;
     esconderAjuda();
     try {
@@ -314,7 +319,8 @@ export function criarControladorCamera({
   }
 
   async function iniciarCamera(cameraSolicitada = '', { centralizar = false, novaTentativa = true } = {}) {
-    if (cameraIniciando || cameraAtiva) return;
+    if (cameraIniciando || cameraAtiva || !podeManterCamera()) return;
+    const token = ++geracao, contexto = obterContextoLeitura();
     cameraRetomarAoVoltar = false;
     leituraPendenteSemCamera = false;
     if (novaTentativa) {
@@ -323,6 +329,7 @@ export function criarControladorCamera({
       await aoPrepararNovaLeitura();
     }
 
+    if(!contextoAtual(token,contexto))return;
     const ambiente = {
       contextoSeguro: window.isSecureContext,
       possuiMediaDevices: Boolean(navigator.mediaDevices?.getUserMedia)
@@ -345,6 +352,7 @@ export function criarControladorCamera({
         camerasDisponiveis,
         cameraSolicitada || obterCameraPreferidaSalva()
       );
+      if (!contextoAtual(token,contexto)) return;
       const origemCamera = preferida?.id || { facingMode: 'environment' };
       const config = {
         fps: 12,
@@ -362,13 +370,13 @@ export function criarControladorCamera({
       await scanner.start(
         origemCamera,
         config,
-        decodedText => processarCodigoDetectado(decodedText),
+        decodedText => { if(contextoAtual(token,contexto)) void processarCodigoDetectado(decodedText); },
         () => {}
       );
 
       cameraAtiva = true;
       cameraIdAtual = preferida?.id || '';
-      if (!podeManterCamera()) {
+      if (!contextoAtual(token,contexto)) {
         await desligarCamera();
         return;
       }
@@ -380,6 +388,7 @@ export function criarControladorCamera({
       atualizarSeletorCameras();
       await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
       await configurarRecursosCamera();
+      if(!contextoAtual(token,contexto))return;
       definirEstadoCamera('running', 'Câmera ativa. Centralize o código dentro da moldura.');
       iniciarTemporizadorAjuda();
       if (centralizar) centralizarCamera();
@@ -389,7 +398,7 @@ export function criarControladorCamera({
       cameraTrack = null;
       try { scanner?.clear(); } catch (_) {}
       scanner = null;
-      definirEstadoCamera('error', descreverErroCamera(erro, ambiente));
+      if(contextoAtual(token,contexto)) definirEstadoCamera('error', descreverErroCamera(erro, ambiente));
     } finally {
       cameraIniciando = false;
     }
@@ -425,6 +434,8 @@ export function criarControladorCamera({
   }
 
   async function processarCodigoDetectado(codigoLido) {
+    const token=geracao, contexto=obterContextoLeitura();
+    if(!cameraAtiva || !contextoAtual(token,contexto))return;
     const codigo = limparPlaqueta(codigoLido);
     const agora = Date.now();
     if (ocrEmAndamento || leituraCameraEmAndamento || codigo.length < 3
@@ -436,22 +447,25 @@ export function criarControladorCamera({
     const quadro = capturarQuadroVideo();
     try {
       await pausarLeituraCamera(`Código ${codigo} reconhecido. Confira os dados antes de salvar.`);
+      if(!contextoAtual(token,contexto))return;
       porId('reader-container').classList.add('camera-success');
       if (navigator.vibrate) navigator.vibrate([80, 40, 100]);
       exibirResultadoLeitura(codigo, 'codigo', quadro);
       try {
         await aoReconhecerPlaqueta(codigo, 'codigo');
       } catch (erro) {
+        if(!contextoAtual(token,contexto))return;
         console.error('Falha ao consultar a plaqueta reconhecida:', erro);
         exibirFeedbackCamera('A plaqueta foi reconhecida, mas a consulta falhou. Verifique a conexão e tente buscar novamente.', 'erro');
       }
     } finally {
-      leituraCameraEmAndamento = false;
+      if(token===geracao)leituraCameraEmAndamento = false;
     }
   }
 
   async function executarOcr() {
-    if (!cameraAtiva || !scanner || ocrEmAndamento) return;
+    if (!cameraAtiva || !scanner || ocrEmAndamento || !podeManterCamera()) return;
+    const token=geracao, contexto=obterContextoLeitura();
     const ocrStatus = porId('ocr-status');
     const btnOcr = porId('btn-capturar-frame');
     ocrEmAndamento = true;
@@ -492,12 +506,13 @@ export function criarControladorCamera({
       }
       const result = await TesseractClass.recognize(canvasOcr, 'eng', {
         logger: progresso => {
-          if (progresso.status === 'recognizing text') {
+          if (contextoAtual(token,contexto) && progresso.status === 'recognizing text') {
             ocrStatus.textContent = `Processando OCR: ${Math.round((progresso.progress || 0) * 100)}%`;
           }
         }
       });
 
+      if(!contextoAtual(token,contexto))return;
       const [numeroReconhecido] = extrairCandidatosOcr(result.data.text);
       if (numeroReconhecido) {
         porId('reader-container').classList.add('camera-success');
@@ -506,9 +521,11 @@ export function criarControladorCamera({
         try {
           await aoReconhecerPlaqueta(numeroReconhecido, 'ocr');
         } catch (erro) {
+          if(!contextoAtual(token,contexto))return;
           console.error('Falha ao consultar a plaqueta reconhecida por OCR:', erro);
           exibirFeedbackCamera('O OCR reconheceu a plaqueta, mas a consulta falhou. Verifique a conexão e tente buscar novamente.', 'erro');
         }
+        if(!contextoAtual(token,contexto))return;
         definirEstadoCamera('paused', `OCR reconheceu ${numeroReconhecido}. Confira os dados antes de salvar.`);
       } else {
         exibirFeedbackCamera('O OCR não encontrou uma numeração clara. Aproxime a etiqueta, melhore a iluminação ou digite a plaqueta.', 'erro');
@@ -516,16 +533,19 @@ export function criarControladorCamera({
         await retomarLeituraCamera({ limparFormulario: false });
       }
     } catch (erro) {
+      if(!contextoAtual(token,contexto))return;
       console.error('Erro durante o OCR:', erro);
       exibirFeedbackCamera(erro.message || 'Não foi possível processar a imagem por OCR.', 'erro');
       ocrEmAndamento = false;
       await retomarLeituraCamera({ limparFormulario: false });
     } finally {
+      if(token===geracao && contexto===obterContextoLeitura()){
       ocrEmAndamento = false;
       btnOcr.disabled = false;
       ocrStatus.classList.add('hidden');
       if (cameraAtiva && cameraPausadaPorLeitura) {
         definirEstadoCamera('paused', porId('camera-status-text').textContent);
+      }
       }
     }
   }
@@ -614,12 +634,14 @@ export function criarControladorCamera({
     porId('btn-ajuda-continuar').addEventListener('click', () => esconderAjuda({ ignorar: true }));
 
     document.addEventListener('visibilitychange', async () => {
-      if (document.hidden && cameraAtiva) {
+      if (document.hidden && (cameraAtiva || cameraIniciando)) {
         await desligarCamera({
           preservarIntento: true,
           mensagem: 'Câmera pausada enquanto o aplicativo está em segundo plano.',
           retomarAposSalvar: true
         });
+      } else if (document.hidden) {
+        ++geracao;
       } else if (!document.hidden && cameraRetomarAoVoltar && podeManterCamera()) {
         const cameraParaRetomar = cameraIdAtual;
         cameraRetomarAoVoltar = false;
@@ -641,7 +663,7 @@ export function criarControladorCamera({
     });
 
     window.addEventListener('pagehide', () => {
-      if (cameraAtiva) desligarCamera();
+      void desligarCamera({limparResultado:true});
     });
   }
 
@@ -654,3 +676,4 @@ export function criarControladorCamera({
     limparResultado: limparResultadoLeitura
   };
 }
+
