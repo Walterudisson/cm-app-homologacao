@@ -48,7 +48,32 @@ test('edição é integrada ao CMAPP original, sem outro login ou backend novo',
   assert.match(ui,/uid !== obterUsuario\(\)\?\.uid/);
   assert.match(app,/notificar: notificarMensagem/);
   assert.match(service,/httpsCallable\(functions, 'dsipsSalvarCadastro'\)/);
-  assert.match(sw,/v1\.13\.13-h\.1-cadastro-materiais/);
+  assert.match(sw,/v1\.13\.13-h\.2-dsips-cache-perfil/);
   assert.match(fb,/projectId: "cm-app-homologacao"/);
   assert.equal((html.match(/id="view-login"/g)||[]).length,1);
+});
+
+test('módulos DSIPS têm URL de versão explícita para impedir misturar UI antiga com HTML novo', async () => {
+  const [app,ui,html,sw] = await Promise.all([ler('app.js'),ler('js/modules/dsips/consulta-materiais-ui.js'),ler('index.html'),ler('service-worker.js')]);
+  assert.match(app,/consulta-materiais-model\.js\?v=1\.13\.13-h\.2/);
+  assert.match(app,/consulta-materiais-ui\.js\?v=1\.13\.13-h\.2/);
+  assert.match(ui,/consulta-materiais-model\.js\?v=1\.13\.13-h\.2/);
+  assert.match(ui,/service\.js\?v=1\.13\.13-h\.2/);
+  assert.match(html,/id="dsips-material-mode"[^>]+>Verificando acesso…<\/span>/);
+  assert.match(html,/app\.js\?v=1\.13\.13-h\.2/);
+  assert.match(sw,/v1\.13\.13-h\.2-dsips-cache-perfil/);
+});
+test('identidade institucional não limita CMAPP a Patrimônio', async () => {
+  const html=await ler('index.html');
+  assert.doesNotMatch(html,/CM APP · Patrimônio/);
+  assert.match(html,/<strong>CM APP<\/strong>\s*<span>Plataforma<\/span>/);
+  assert.match(html,/<span>CM APP<\/span>\s*<span>v1\.13\.13-H\.2 · HOMOLOGAÇÃO<\/span>/);
+  assert.match(html,/<span class="sidebar-section-label sidebar-label">Patrimônio<\/span>/);
+});
+test('controle de gravação não amplia acesso: Admin gerencia, Conferente apenas consulta', () => {
+  assert.equal(podeGerenciarMateriaisDsips({perfil:'admin',ativo:true}),true);
+  assert.equal(podeGerenciarMateriaisDsips({perfil:'gestor',ativo:true,modulos:['dsips']}),true);
+  assert.equal(podeGerenciarMateriaisDsips({perfil:'conferente',ativo:true,modulos:['dsips']}),false);
+  assert.equal(podeGerenciarMateriaisDsips({perfil:'admin',ativo:false}),false);
+  assert.equal(podeGerenciarMateriaisDsips({perfil:'admin',ativo:true,autorizacaoVersao:2}),false);
 });
