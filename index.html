@@ -21,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.13.11-h">
+  <link rel="stylesheet" href="./app.css?v=1.13.12-h.1">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div style="position:fixed;top:0;left:0;right:0;z-index:9999;background:#b45309;color:white;text-align:center;font:700 12px/28px system-ui,sans-serif;letter-spacing:.08em;pointer-events:none" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -118,10 +118,16 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 7v5c0 5 3.4 8 8 9 4.6-1 8-4 8-9V7l-8-4Zm-3 9 2 2 4-5"/></svg>
           <span class="sidebar-label">Funções e permissões</span>
         </button>
+        <span id="dsips-section-label" class="sidebar-section-label sidebar-label hidden">DSIPS</span>
+        <button id="tab-btn-dsips-materiais" type="button" class="nav-item hidden" data-nav-page="dsips-materiais">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8 12 4l8 4v10l-8 4-8-4V8Zm0 0 8 4 8-4M12 12v10"/></svg>
+          <span class="sidebar-label">Materiais</span>
+        </button>
+
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.13.11-H</span>
+        <span>v1.13.12-H.1</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -452,6 +458,37 @@
             <button id="btn-iniciar-tutorial" type="button" class="profile-action profile-action-primary">INICIAR TUTORIAL</button>
           </article>
         </div>
+      </section>
+
+      <!-- SPRINT 1.13.12-H.1: CONSULTA DSIPS DENTRO DO CMAPP ORIGINAL -->
+      <section id="sec-dsips-materiais" class="hidden space-y-5" aria-label="Consulta de materiais DSIPS">
+        <article class="app-card dsips-intro">
+          <div>
+            <span class="eyebrow">DSIPS · Materiais e cautelas</span>
+            <h2>Consulta de materiais</h2>
+            <p>Consulte o cadastro de materiais da DSIPS. Entregas, devoluções e modo PDV serão integrados em etapas posteriores.</p>
+          </div>
+          <span class="dsips-readonly">Somente consulta</span>
+        </article>
+        <div class="dsips-overview">
+          <article class="app-card dsips-overview-card"><span>Materiais cadastrados</span><strong id="dsips-material-total">0</strong></article>
+          <article class="app-card dsips-overview-card"><span>Materiais ativos</span><strong id="dsips-material-active">0</strong></article>
+        </div>
+        <article class="app-card dsips-panel">
+          <div class="dsips-toolbar">
+            <label class="dsips-search-label" for="dsips-material-search">
+              <span>Pesquisar materiais</span>
+              <input id="dsips-material-search" type="search" autocomplete="off" placeholder="Nome do material">
+            </label>
+            <label class="dsips-category-label" for="dsips-material-category">
+              <span>Categoria</span>
+              <select id="dsips-material-category"><option value="">Todas as categorias</option></select>
+            </label>
+            <button id="dsips-material-refresh" class="app-button app-button-primary" type="button">Atualizar</button>
+          </div>
+          <p id="dsips-material-status" class="dsips-state-message" role="status" aria-live="polite">Abra Materiais para consultar os registros.</p>
+          <div id="dsips-material-list" class="dsips-material-grid" aria-live="polite"></div>
+        </article>
       </section>
 
       <!-- ABA 2: FILA DE TRANSFERÊNCIAS -->
@@ -908,6 +945,6 @@
   </div>
 
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.5.0/dist/driver.js.iife.js"></script>
-    <script type="module" src="./app.js?v=1.13.11-h-recuperacao.1"></script>
+    <script type="module" src="./app.js?v=1.13.12-h.1"></script>
 </body>
 </html>
