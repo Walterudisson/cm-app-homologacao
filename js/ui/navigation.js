@@ -2,7 +2,7 @@ const PAGINAS = {
   dashboard: { titulo: 'Painel', trilha: ['CM APP', 'Patrimônio', 'Painel'] },
   scanner: { titulo: 'Leitura', trilha: ['CM APP', 'Patrimônio', 'Leitura'] },
   lista: { titulo: 'Relação', trilha: ['CM APP', 'Patrimônio', 'Relação'] },
-  transferencias: { titulo: 'Fila de aprovação', trilha: ['CM APP', 'Movimentações', 'Fila'] },
+  transferencias: { titulo: 'Fila de aprovação', trilha: ['CM APP', 'Patrimônio', 'Fila de aprovação'] },
   usuarios: { titulo: 'Gestão de usuários', trilha: ['CM APP', 'Gestão', 'Usuários'] },
   divisoes: { titulo: 'Gestão de divisões', trilha: ['CM APP', 'Gestão', 'Divisões'] },
   funcoes: { titulo: 'Funções e permissões', trilha: ['CM APP', 'Gestão', 'Funções'] },

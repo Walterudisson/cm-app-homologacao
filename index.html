@@ -21,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.13.12-h.4">
+  <link rel="stylesheet" href="./app.css?v=1.13.12-h.5">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div id="cmapp-hml-banner" class="cmapp-hml-banner" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -54,7 +54,7 @@
 
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.12-H.4 • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.12-H.5 • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -98,13 +98,13 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16v13H4V7Zm2-3h12l2 3H4l2-3Zm3 7h6M9 15h6"/></svg>
           <span class="sidebar-label">Inventários</span>
         </button>
-
-        <span class="sidebar-section-label sidebar-label" data-perfis="admin,gestor">Gestão</span>
         <button id="tab-btn-transferencias" type="button" class="nav-item" data-nav-page="transferencias" data-perfis="admin,gestor">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 3-3 3 3M10 4v10M17 17l-3 3-3-3M14 20V10"/></svg>
           <span class="sidebar-label">Fila de aprovação</span>
           <span id="badge-fila-count" class="hidden nav-badge sidebar-label">0</span>
         </button>
+
+        <span class="sidebar-section-label sidebar-label" data-perfis="admin,gestor">Gestão</span>
         <button id="tab-btn-usuarios" type="button" class="nav-item" data-nav-page="usuarios" data-perfis="admin,gestor">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm7 8a7 7 0 0 0-14 0M19 8v6M16 11h6"/></svg>
           <span class="sidebar-label">Usuários</span>
@@ -126,7 +126,7 @@
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.13.12-H.4</span>
+        <span>v1.13.12-H.5</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -743,7 +743,7 @@
 
       <footer class="app-footer">
         <span>CM APP · Patrimônio</span>
-        <span>v1.13.12-H.4 · HOMOLOGAÇÃO</span>
+        <span>v1.13.12-H.5 · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -944,6 +944,6 @@
   </div>
 
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.5.0/dist/driver.js.iife.js"></script>
-    <script type="module" src="./app.js?v=1.13.12-h.4"></script>
+    <script type="module" src="./app.js?v=1.13.12-h.5"></script>
 </body>
 </html>

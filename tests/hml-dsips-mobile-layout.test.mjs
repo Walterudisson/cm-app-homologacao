@@ -22,10 +22,10 @@ test('tarja de homologação ocupa espaço próprio antes do cabeçalho', async 
 });
 test('atualização H.2 preserva login único e base HML', async () => {
   const [html, sw, fb, app] = await Promise.all([ler('index.html'), ler('service-worker.js'), ler('js/config/firebase.js'), ler('app.js')]);
-  assert.match(sw, /v1\.13\.12-h\.4-painel-patrimonio/);
-  assert.match(html, /app\.css\?v=1\.13\.12-h\.4/);
-  assert.match(html, /app\.js\?v=1\.13\.12-h\.4/);
-  assert.match(html, /<span>v1\.13\.12-H\.4<\/span>/);
+  assert.match(sw, /v1\.13\.12-h\.5-fila-patrimonio/);
+  assert.match(html, /app\.css\?v=1\.13\.12-h\.5/);
+  assert.match(html, /app\.js\?v=1\.13\.12-h\.5/);
+  assert.match(html, /<span>v1\.13\.12-H\.5<\/span>/);
   assert.match(fb, /projectId: "cm-app-homologacao"/);
   assert.match(app, /!podeConsultarMateriaisDsips\(usuarioLogado\)/);
   assert.doesNotMatch(html, /id="pilot-login"/);
@@ -54,4 +54,25 @@ test('Painel é menu do Patrimônio, continua início e conserva indicadores exi
   assert.match(html, /id="dash-localizados"/);
   assert.match(html, /id="dash-pendentes"/);
   assert.match(html, /id="dash-aguardando"/);
+});
+
+test('Fila de aprovação é funcionalidade patrimonial sem mudar o acesso admin/gestor', async () => {
+  const [html,nav,app] = await Promise.all([ler('index.html'),ler('js/ui/navigation.js'),ler('app.js')]);
+  const inicioMenu = html.indexOf('<nav class="sidebar-nav">');
+  const finalMenu = html.indexOf('</nav>',inicioMenu);
+  const menu = html.slice(inicioMenu,finalMenu);
+  const patrimonio = menu.indexOf('>Patrimônio</span>');
+  const painel = menu.indexOf('id="tab-btn-dashboard"');
+  const inventarios = menu.indexOf('id="tab-btn-inventarios"');
+  const fila = menu.indexOf('id="tab-btn-transferencias"');
+  const gestao = menu.indexOf('>Gestão</span>');
+  const usuarios = menu.indexOf('id="tab-btn-usuarios"');
+  assert.ok(patrimonio>=0 && patrimonio<painel && painel<inventarios && inventarios<fila && fila<gestao && gestao<usuarios);
+  assert.equal((menu.match(/id="tab-btn-transferencias"/g)||[]).length,1);
+  assert.match(menu,/id="tab-btn-transferencias"[^>]*data-perfis="admin,gestor"/);
+  assert.match(menu,/id="badge-fila-count"/);
+  assert.match(nav,/transferencias: \{ titulo: 'Fila de aprovação', trilha: \['CM APP', 'Patrimônio', 'Fila de aprovação'\] \}/);
+  assert.match(app,/usuarioLogado\.perfil === 'conferente'/);
+  assert.match(app,/btnTransf\.classList\.add\('hidden'\)/);
+  assert.match(app,/await alternarAba\('dashboard', \{ substituirHistorico: true \}\)/);
 });
