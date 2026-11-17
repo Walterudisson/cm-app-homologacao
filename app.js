@@ -15,13 +15,6 @@
       getCountFromServer
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
     import { auth, db } from "./js/config/firebase.js";
-    import { listarIdsPaginas, obterPagina, podeAbrirPagina, paginaInicialUsuario, modulosDoUsuario } from "./js/platform/modules.js?v=1.16.1-h.1";
-    import { criarInterfaceModulos } from "./js/ui/modules.js?v=1.16.1-h.1";
-    import { criarInterfaceDsips } from "./js/modules/dsips/controller.js?v=1.16.1-h.1";
-    import { criarInterfaceCautelas } from "./js/modules/dsips/cautelas-controller.js?v=1.16.1-h.1";
-    import { listarCadastroDsips, listarEventosDsips, listarUnidadesDsips, salvarCadastroDsips, registrarSaldoInicialDsips, registrarCautelaDsips, registrarDevolucaoDsips } from "./js/modules/dsips/service.js?v=1.16.1-h.1";
-    import { criarCarregadorPaginas } from "./js/platform/pages.js?v=1.16.1-h.1";
-    import { criarCarregadorPatrimonios } from "./js/modules/patrimonios/pages.js?v=1.16.1-h.1";
     import {
       ehPerfilValidador,
       prepararAtualizacaoPatrimonio,
@@ -45,7 +38,7 @@
       consultarEncerramentoGeral
     } from "./js/services/inventarios.service.js?v=1.13.6";
     import { obterUrlFotoPerfil, removerFotoPerfil, salvarFotoPerfil } from "./js/services/perfil.service.js";
-    import { alterarEstadoUsuario, atualizarUsuarioSeguro, criarUsuarioSeguro, definirModulosUsuario } from "./js/services/usuarios.service.js?v=1.16.1-h.1";
+    import { alterarEstadoUsuario, atualizarUsuarioSeguro, criarUsuarioSeguro } from "./js/services/usuarios.service.js?v=1.13.7";
     import {
       configurarHistoricoFeedback,
       confirmarAcao,
@@ -60,11 +53,10 @@
       fecharCamadasNavegacao,
       fecharNavegacaoMovel,
       inicializarNavegacao
-    } from "./js/ui/navigation.js?v=1.16.1-h.1";
+    } from "./js/ui/navigation.js?v=1.12.0";
     import { inicializarPwa } from "./js/pwa.js?v=1.12.0";
 
     let usuarioLogado = null;
-    let unsubscribeUsuario = null;
     let bancoPatrimonio = [];
     let bancoUsuarios = [];
     let bancoDivisoes = [];
@@ -134,55 +126,6 @@
     const cacheSugestoes = new Map();
     const catalogoDivisoes = new Set();
     const resolvedoresHistorico = [];
-
-    const carregarPagina = criarCarregadorPaginas({
-      obterUsuario: () => usuarioLogado,
-      modulos: {
-        dsips: pagina => ['dsips-cautelas', 'dsips-posse'].includes(pagina) ? interfaceCautelas.carregar(pagina) : interfaceDsips.carregar(pagina),
-        patrimonios: criarCarregadorPatrimonios({
-          obterUsuario: () => usuarioLogado,
-          carregarDashboard,
-          carregarCatalogoDivisoes,
-          carregarRelacaoPatrimonial,
-          temOuvinteTransferencias: () => unsubscribeTransferencias.length > 0,
-          iniciarOuvinteTransferencias,
-          carregarProgressoInventarios,
-          carregarHistoricoInventarios,
-          carregarHistoricoGeral,
-          atualizarEstadoDivisaoInventario
-        })
-      },
-      comuns: {
-        modulos: () => interfaceModulos.carregar(),
-        usuarios: async () => {
-          await carregarUsuarios();
-          await carregarCatalogoDivisoes();
-        },
-        divisoes: carregarGestaoDivisoes,
-        funcoes: carregarGestaoFuncoes,
-        perfil: atualizarDadosTelaPerfil
-      }
-    });
-
-    const interfaceModulos = criarInterfaceModulos({
-      obterUsuario: () => usuarioLogado,
-      navegar: aba => alternarAba(aba),
-      carregarUsuarios: () => carregarUsuarios(true),
-      salvarAcessos: definirModulosUsuario,
-      confirmar: confirmarAcao,
-      notificar: notificarMensagem
-    });
-    const interfaceDsips = criarInterfaceDsips({
-      obterUsuario: () => usuarioLogado, confirmar: confirmarAcao, notificar: notificarMensagem,
-      servicos: {
-        listar: listarCadastroDsips, listarEventos: listarEventosDsips, listarUnidades: listarUnidadesDsips,
-        listarDivisoes: listarDivisoesAtivas, salvar: salvarCadastroDsips, saldoInicial: registrarSaldoInicialDsips
-      }
-    });
-    const interfaceCautelas = criarInterfaceCautelas({
-      obterUsuario: () => usuarioLogado, confirmar: confirmarAcao, notificar: notificarMensagem,
-      servicos: { listar: listarCadastroDsips, listarUnidades: listarUnidadesDsips, registrarCautela: registrarCautelaDsips, registrarDevolucao: registrarDevolucaoDsips }
-    });
 
     const controladorCamera = criarControladorCamera({
       limparPlaqueta,
@@ -679,26 +622,22 @@
     });
 
     onAuthStateChanged(auth, async (user) => {
-      if (unsubscribeUsuario) { unsubscribeUsuario(); unsubscribeUsuario = null; }
       if (user) {
         const userDoc = await getDoc(doc(db, "usuarios", user.uid));
-        if (auth.currentUser?.uid !== user.uid) return;
         if (!userDoc.exists()) {
           await signOut(auth);
           return;
         }
-        // HML: mesma entrada para versões legado e V2; nunca aplicar permissões antigas à conta migrada.
+        // Contas V2 usam exclusivamente a autorização versionada, sem reutilizar o perfil legado.
         if (Object.hasOwn(userDoc.data(), 'autorizacaoVersao')) {
           if (userDoc.data().ativo === false) {
             await signOut(auth);
             notificarMensagem('Este acesso está desativado. Procure um Administrador.', 'erro');
-            return;
-          }
-          if (userDoc.data().autorizacaoVersao === 2) {
+          } else if (userDoc.data().autorizacaoVersao === 2) {
             location.replace(new URL('./homologacao/gestao-acessos/', location.href).href);
           } else {
             await signOut(auth);
-            notificarMensagem('Versão de autorização indisponível. Procure a administração.', 'erro');
+            notificarMensagem('Versão de autorização incompatível. Procure a administração.', 'erro');
           }
           return;
         }
@@ -709,38 +648,22 @@
           notificarMensagem('Este acesso está desativado. Procure um Administrador.', 'erro');
           return;
         }
-        const assinaturaAcesso = dados => JSON.stringify([dados?.perfil, dados?.ativo, dados?.modulos]);
-        const assinaturaInicial = assinaturaAcesso(usuarioLogado);
-        unsubscribeUsuario = onSnapshot(doc(db, 'usuarios', user.uid), snapshot => {
-          if (usuarioLogado?.uid !== user.uid) return;
-          if (!snapshot.exists() || assinaturaAcesso(snapshot.data()) !== assinaturaInicial) {
-            notificarMensagem('Seu acesso foi atualizado. Entre novamente.', 'aviso');
-            signOut(auth);
-          }
-        }, erro => console.warn('Não foi possível acompanhar as alterações de acesso.', erro));
         
         document.getElementById('view-login').classList.add('hidden');
         document.getElementById('view-app').classList.remove('hidden');
         atualizarCabecalhoUsuario();
-        const possuiPatrimonios = modulosDoUsuario(usuarioLogado).some(modulo => modulo.id === 'patrimonios');
-        if (possuiPatrimonios) {
-          try { await carregarCatalogoDivisoes(); }
-          catch (erro) { console.warn('Catálogo indisponível ao abrir o aplicativo.', erro); }
-          inicializarEscopoVisualizacao();
-        }
+        try { await carregarCatalogoDivisoes(); }
+        catch (erro) { console.warn('Catálogo indisponível ao abrir o aplicativo.', erro); }
+        inicializarEscopoVisualizacao();
         await carregarFotoPerfilAtual();
-        if (auth.currentUser?.uid !== user.uid) return;
-        if (possuiPatrimonios) atualizarCarrossel();
-        if (possuiPatrimonios && usuarioLogado.perfil !== 'conferente') iniciarOuvinteTransferencias();
-        await alternarAba(paginaInicialUsuario(usuarioLogado), { substituirHistorico: true });
-        if (possuiPatrimonios) agendarTutorialConferente();
+        atualizarCarrossel();
+        if (usuarioLogado.perfil !== 'conferente') iniciarOuvinteTransferencias();
+        await alternarAba('dashboard', { substituirHistorico: true });
+        agendarTutorialConferente();
       } else {
         encerrarOuvinteTransferencias();
         if (controladorCamera.estaAtiva()) await controladorCamera.desligar({ limparResultado: true });
         usuarioLogado = null;
-        interfaceModulos.limpar();
-        interfaceDsips.limpar();
-        interfaceCautelas.limpar();
         escopoVisualizacao = '';
         revisaoEscopo++;
         bancoPatrimonio = [];
@@ -817,7 +740,7 @@
           btnFuncoes?.classList.remove('hidden');
           btnInventarios.classList.remove('hidden');
           campoPerfil.classList.remove('hidden');
-          tituloCad.innerText = "👥 Cadastrar usuário";
+          tituloCad.innerText = "👥 Cadastrar Novo Gestor ou Conferente";
         }
       }
 
@@ -828,13 +751,13 @@
       document.getElementById('perfil-nome').textContent = usuarioLogado.nome || 'Usuário';
       document.getElementById('perfil-editar-nome').value = usuarioLogado.nome || '';
       document.getElementById('perfil-email').textContent = usuarioLogado.email || 'Não informado';
-      document.getElementById('perfil-papel').textContent = usuarioLogado.perfil === 'usuario' ? 'Usuário básico' : usuarioLogado.perfil || 'Não informado';
+      document.getElementById('perfil-papel').textContent = usuarioLogado.perfil || 'Não informado';
       const divisoes = usuarioLogado.perfil === 'conferente'
         ? [...new Set(usuarioLogado.divisoesAtribuidas || [])].sort((a, b) => a.localeCompare(b, 'pt-BR'))
         : [];
       document.getElementById('perfil-divisoes').textContent = divisoes.length
         ? divisoes.join(', ')
-        : usuarioLogado.perfil === 'usuario' ? 'Acesso ao próprio perfil' : 'Abrangência global no módulo de patrimônio';
+        : 'Abrangência global no módulo de patrimônio';
       document.getElementById('btn-remover-foto')?.classList.toggle('hidden', !fotoPerfilUrl);
     }
 
@@ -1240,7 +1163,7 @@
       });
     }
 
-    const ROTULOS_PERFIL = { admin: 'Administrador', gestor: 'Gestor', conferente: 'Conferente', usuario: 'Usuário básico' };
+    const ROTULOS_PERFIL = { admin: 'Administrador', gestor: 'Gestor', conferente: 'Conferente' };
 
     function funcoesNativas() {
       return Object.entries(FUNCOES_NATIVAS).map(([id, permissoes]) => ({
@@ -1520,22 +1443,23 @@
     });
 
     async function alternarAba(abaAtiva, { registrarHistorico = true, substituirHistorico = false } = {}) {
-      if (!podeAbrirPagina(usuarioLogado, abaAtiva)) return;
-      interfaceDsips.sairDaPagina();
-      interfaceCautelas.sairDaPagina();
+      if (usuarioLogado && usuarioLogado.perfil === 'conferente') {
+        if (abaAtiva === 'transferencias' || abaAtiva === 'usuarios' || abaAtiva === 'divisoes' || abaAtiva === 'funcoes') {
+          return;
+        }
+      }
 
       if (registrarHistorico) registrarAbaHistorico(abaAtiva, { substituir: substituirHistorico });
       abaAtual = abaAtiva;
       ativarPagina(abaAtiva);
-      interfaceModulos.sincronizar(abaAtiva);
-      document.getElementById('escopo-barra').classList.toggle('hidden', !obterPagina(abaAtiva).exibeEscopo);
+      document.getElementById('escopo-barra').classList.toggle('hidden', !['dashboard', 'lista'].includes(abaAtiva));
       fecharNavegacaoMovel();
 
       if (abaAtiva !== 'scanner' && controladorCamera.estaAtiva()) {
         await controladorCamera.desligar({ retomarAposSalvar: true });
       }
 
-      listarIdsPaginas().forEach(aba => {
+      ['dashboard', 'scanner', 'transferencias', 'usuarios', 'divisoes', 'funcoes', 'inventarios', 'lista', 'perfil'].forEach(aba => {
         const sec = document.getElementById(`sec-${aba}`);
         if (sec) sec.classList.toggle('hidden', aba !== abaAtiva);
       });
@@ -1550,7 +1474,22 @@
       }
 
       try {
-        await carregarPagina(abaAtiva);
+        if (abaAtiva === 'dashboard') await carregarDashboard();
+        if (abaAtiva === 'scanner') await carregarCatalogoDivisoes();
+        if (abaAtiva === 'transferencias' && unsubscribeTransferencias.length === 0) iniciarOuvinteTransferencias();
+        if (abaAtiva === 'usuarios') {
+          await carregarUsuarios();
+          await carregarCatalogoDivisoes();
+        }
+        if (abaAtiva === 'divisoes') await carregarGestaoDivisoes();
+        if (abaAtiva === 'funcoes') await carregarGestaoFuncoes();
+        if (abaAtiva === 'inventarios') {
+          await carregarCatalogoDivisoes();
+          await Promise.all([carregarProgressoInventarios(), carregarHistoricoInventarios(), carregarHistoricoGeral()]);
+          if (usuarioLogado.perfil !== 'conferente') await atualizarEstadoDivisaoInventario();
+        }
+        if (abaAtiva === 'perfil') atualizarDadosTelaPerfil();
+        if (abaAtiva === 'lista') await carregarRelacaoPatrimonial();
       } catch (erro) {
         console.error(`Erro ao carregar a aba ${abaAtiva}:`, erro);
         notificarMensagem("Não foi possível carregar os dados desta tela. Verifique sua conexão e tente novamente.", 'erro');
@@ -2408,14 +2347,14 @@
       paginaUsuarios = Math.min(paginaUsuarios, totalPaginas);
       const inicio = (paginaUsuarios - 1) * porPagina;
       const pagina = usuariosFinais.slice(inicio, inicio + porPagina);
-      const rotuloPerfil = { admin: 'Administrador', gestor: 'Gestor', conferente: 'Conferente', usuario: 'Usuário básico' };
+      const rotuloPerfil = { admin: 'Administrador', gestor: 'Gestor', conferente: 'Conferente' };
       container.innerHTML = pagina.map(u => {
         const ativo = u.ativo !== false;
         const divisoes = u.divisoesAtribuidas || u.divisaoAtribuidas || [];
         return `<article class="user-row ${ativo ? '' : 'is-inactive'}" role="button" tabindex="0" data-user-details="${escaparHtml(u.uid)}" aria-label="Abrir detalhes de ${escaparHtml(u.nome)}">
           <div class="user-identity"><span class="user-avatar" data-user-avatar="${escaparHtml(u.uid)}">${escaparHtml(iniciaisUsuario(u.nome))}</span><div><strong>${escaparHtml(u.nome)}</strong><small>${escaparHtml(u.email)}</small></div></div>
           <div data-label="Perfil"><span class="user-role role-${u.perfil}">${escaparHtml(u.funcaoNome || rotuloPerfil[u.perfil] || u.perfil)}</span></div>
-          <div data-label="Divisões" class="user-divisions">${u.perfil === 'usuario' ? 'Próprio perfil' : u.perfil === 'conferente' ? escaparHtml(divisoes.join(', ') || 'Nenhuma') : 'Acesso global'}</div>
+          <div data-label="Divisões" class="user-divisions">${u.perfil === 'conferente' ? escaparHtml(divisoes.join(', ') || 'Nenhuma') : 'Acesso global'}</div>
           <div data-label="Status"><span class="user-status ${ativo ? 'active' : 'inactive'}">${ativo ? 'Ativo' : 'Inativo'}</span></div>
           <div data-label="Cadastro" class="user-date">${formatarDataUsuario(u.criadoEm)}</div>
           <div data-label="Detalhes"><span class="user-open-details">Abrir perfil →</span></div>
@@ -2497,7 +2436,7 @@
       usuarioDetalhadoUid = uid;
       const ativo = usuario.ativo !== false;
       const divisoes = usuario.divisoesAtribuidas || usuario.divisaoAtribuidas || [];
-      const rotuloPerfil = { admin: 'Administrador', gestor: 'Gestor', conferente: 'Conferente', usuario: 'Usuário básico' };
+      const rotuloPerfil = { admin: 'Administrador', gestor: 'Gestor', conferente: 'Conferente' };
       const avatar = document.getElementById('detalhes-usuario-avatar');
       avatar.textContent = iniciaisUsuario(usuario.nome);
       document.getElementById('detalhes-usuario-nome').textContent = usuario.nome || 'Sem nome';
@@ -2507,7 +2446,7 @@
       document.getElementById('detalhes-usuario-status').innerHTML = `<span class="user-status ${ativo ? 'active' : 'inactive'}">${ativo ? 'Ativo' : 'Inativo'}</span>`;
       document.getElementById('detalhes-usuario-divisoes').textContent = usuario.perfil === 'conferente'
         ? (divisoes.join(', ') || 'Nenhuma divisão atribuída')
-        : usuario.perfil === 'usuario' ? 'Próprio perfil' : 'Acesso global';
+        : 'Acesso global';
       document.getElementById('detalhes-usuario-cadastro').textContent = formatarDataUsuario(usuario.criadoEm);
       const acoes = document.getElementById('detalhes-usuario-acoes');
       acoes.innerHTML = usuarioLogado.perfil === 'admin'
@@ -3770,4 +3709,3 @@
       suggestionsBox.innerHTML = '';
       suggestionsBox.classList.add('hidden');
     }
-

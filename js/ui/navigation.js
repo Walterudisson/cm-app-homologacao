@@ -1,4 +1,14 @@
-import { obterPagina } from '../platform/modules.js';
+const PAGINAS = {
+  dashboard: { titulo: 'Painel', trilha: ['CM APP', 'Painel'] },
+  scanner: { titulo: 'Leitura', trilha: ['CM APP', 'Patrimônio', 'Leitura'] },
+  lista: { titulo: 'Relação', trilha: ['CM APP', 'Patrimônio', 'Relação'] },
+  transferencias: { titulo: 'Fila de aprovação', trilha: ['CM APP', 'Movimentações', 'Fila'] },
+  usuarios: { titulo: 'Gestão de usuários', trilha: ['CM APP', 'Gestão', 'Usuários'] },
+  divisoes: { titulo: 'Gestão de divisões', trilha: ['CM APP', 'Gestão', 'Divisões'] },
+  funcoes: { titulo: 'Funções e permissões', trilha: ['CM APP', 'Gestão', 'Funções'] },
+  inventarios: { titulo: 'Inventários', trilha: ['CM APP', 'Patrimônio', 'Inventários'] },
+  perfil: { titulo: 'Meu perfil', trilha: ['CM APP', 'Conta', 'Meu perfil'] }
+};
 
 let navegar = () => {};
 let registrarCamada = () => {};
@@ -108,8 +118,7 @@ export function inicializarNavegacao(aoNavegar, opcoes = {}) {
 }
 
 export function ativarPagina(aba) {
-  const pagina = obterPagina(aba);
-  if (!pagina) return false;
+  const pagina = PAGINAS[aba] || PAGINAS.dashboard;
   document.getElementById('page-title').textContent = pagina.titulo;
   document.getElementById('breadcrumb-current').textContent = pagina.trilha.at(-1);
   document.getElementById('breadcrumb-path').textContent = pagina.trilha.slice(0, -1).join(' / ');
@@ -119,7 +128,6 @@ export function ativarPagina(aba) {
     if (ativa) botao.setAttribute('aria-current', 'page');
     else botao.removeAttribute('aria-current');
   });
-  return true;
 }
 
 export function atualizarFotoUsuario(usuario, fotoUrl = '') {
@@ -156,4 +164,3 @@ export function atualizarAcessoNavegacao(perfil) {
     elemento.classList.toggle('hidden', !perfis.includes(perfil));
   });
 }
-
