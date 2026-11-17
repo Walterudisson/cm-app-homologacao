@@ -22,10 +22,10 @@ test('tarja de homologação ocupa espaço próprio antes do cabeçalho', async 
 });
 test('atualização H.2 preserva login único e base HML', async () => {
   const [html, sw, fb, app] = await Promise.all([ler('index.html'), ler('service-worker.js'), ler('js/config/firebase.js'), ler('app.js')]);
-  assert.match(sw, /v1\.13\.12-h\.3-skip-link/);
-  assert.match(html, /app\.css\?v=1\.13\.12-h\.3/);
-  assert.match(html, /app\.js\?v=1\.13\.12-h\.3/);
-  assert.match(html, /<span>v1\.13\.12-H\.3<\/span>/);
+  assert.match(sw, /v1\.13\.12-h\.4-painel-patrimonio/);
+  assert.match(html, /app\.css\?v=1\.13\.12-h\.4/);
+  assert.match(html, /app\.js\?v=1\.13\.12-h\.4/);
+  assert.match(html, /<span>v1\.13\.12-H\.4<\/span>/);
   assert.match(fb, /projectId: "cm-app-homologacao"/);
   assert.match(app, /!podeConsultarMateriaisDsips\(usuarioLogado\)/);
   assert.doesNotMatch(html, /id="pilot-login"/);
@@ -37,4 +37,21 @@ test('atalho Ir para o conteúdo é invisível fora do foco, mas aparece para na
   assert.match(html, /class="skip-link">Ir para o conteúdo<\/a>/);
   assert.match(css, /\.skip-link:not\(:focus\)\s*\{\s*clip-path:\s*inset\(50%\)/);
   assert.match(css, /\.skip-link:focus\s*\{[^}]*clip-path:\s*none/);
+});
+
+test('Painel é menu do Patrimônio, continua início e conserva indicadores existentes', async () => {
+  const [html, nav, app] = await Promise.all([ler('index.html'), ler('js/ui/navigation.js'), ler('app.js')]);
+  const secao = html.indexOf('<span class="sidebar-section-label sidebar-label">Patrimônio</span>');
+  const painel = html.indexOf('id="tab-btn-dashboard"');
+  const leitura = html.indexOf('id="tab-btn-scanner"');
+  const dsips = html.indexOf('id="dsips-section-label"');
+  assert.ok(secao > 0 && painel > secao && leitura > painel && dsips > leitura);
+  assert.equal((html.match(/<span class="sidebar-section-label sidebar-label">Patrimônio<\/span>/g) || []).length, 1);
+  assert.doesNotMatch(html, /<span class="sidebar-section-label sidebar-label">Visão geral<\/span>/);
+  assert.match(nav, /dashboard: \{ titulo: 'Painel', trilha: \['CM APP', 'Patrimônio', 'Painel'\] \}/);
+  assert.match(app, /await alternarAba\('dashboard', \{ substituirHistorico: true \}\)/);
+  assert.match(html, /id="dash-total"/);
+  assert.match(html, /id="dash-localizados"/);
+  assert.match(html, /id="dash-pendentes"/);
+  assert.match(html, /id="dash-aguardando"/);
 });
