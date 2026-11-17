@@ -687,6 +687,21 @@
           await signOut(auth);
           return;
         }
+        // HML: mesma entrada para versões legado e V2; nunca aplicar permissões antigas à conta migrada.
+        if (Object.hasOwn(userDoc.data(), 'autorizacaoVersao')) {
+          if (userDoc.data().ativo === false) {
+            await signOut(auth);
+            notificarMensagem('Este acesso está desativado. Procure um Administrador.', 'erro');
+            return;
+          }
+          if (userDoc.data().autorizacaoVersao === 2) {
+            location.replace(new URL('./homologacao/gestao-acessos/', location.href).href);
+          } else {
+            await signOut(auth);
+            notificarMensagem('Versão de autorização indisponível. Procure a administração.', 'erro');
+          }
+          return;
+        }
         usuarioLogado = { uid: user.uid, email: user.email, ...userDoc.data() };
         restaurarPausaTutorialLocal();
         if (usuarioLogado.ativo === false) {
