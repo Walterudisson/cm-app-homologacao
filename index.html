@@ -21,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.13.13-h.3">
+  <link rel="stylesheet" href="./app.css?v=1.13.14-h.1">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div id="cmapp-hml-banner" class="cmapp-hml-banner" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -54,7 +54,7 @@
 
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.13-H.3 • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.14-H.1 • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -122,11 +122,15 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8 12 4l8 4v10l-8 4-8-4V8Zm0 0 8 4 8-4M12 12v10"/></svg>
           <span class="sidebar-label">Materiais</span>
         </button>
+        <button id="tab-btn-dsips-cadastros" type="button" class="nav-item hidden" data-nav-page="dsips-cadastros">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h8v7H3zM13 4h8v7h-8zM3 13h8v7H3zM13 13h8v7h-8z"/></svg>
+          <span class="sidebar-label">Cadastros</span>
+        </button>
 
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.13.13-H.3</span>
+        <span>v1.13.14-H.1</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -517,6 +521,61 @@
         </article>
       </section>
 
+      <!-- SPRINT 1.13.14-H.1: CATEGORIAS E LOCAIS DSIPS -->
+      <section id="sec-dsips-cadastros" class="hidden space-y-5" aria-label="Cadastros DSIPS">
+        <article class="app-card dsips-intro">
+          <div>
+            <span class="eyebrow">DSIPS · Organização de materiais</span>
+            <h2>Cadastros</h2>
+            <p>Organize as categorias dos materiais e os locais de armazenamento. Os responsáveis pelas cautelas são usuários do CMAPP, não cadastros separados.</p>
+          </div>
+          <div class="dsips-intro-actions">
+            <span id="dsips-cadastros-mode" class="dsips-readonly" aria-live="polite">Verificando acesso…</span>
+            <button id="dsips-cadastros-new" type="button" class="app-button app-button-primary hidden">+ Novo cadastro</button>
+          </div>
+        </article>
+        <div class="dsips-cadastros-tabs" role="group" aria-label="Tipo de cadastro DSIPS">
+          <button id="dsips-catalog-tab-categoria" type="button" data-dsips-cadastro-tipo="categoria" class="is-selected" aria-pressed="true">Categorias</button>
+          <button id="dsips-catalog-tab-local" type="button" data-dsips-cadastro-tipo="local" aria-pressed="false">Locais de estoque</button>
+        </div>
+        <article id="dsips-cadastros-editor" class="app-card dsips-editor hidden" aria-label="Formulário de cadastro DSIPS">
+          <div class="dsips-editor-heading">
+            <span class="eyebrow">Cadastro DSIPS</span>
+            <h3 id="dsips-cadastros-editor-title">Novo cadastro</h3>
+            <p>O nome identifica este cadastro nos materiais ou no controle de estoque.</p>
+          </div>
+          <form id="dsips-cadastros-form" class="dsips-editor-form">
+            <div class="dsips-editor-fields">
+              <label>Nome do cadastro
+                <input name="nome" type="text" required maxlength="120" autocomplete="off" placeholder="Informe um nome claro">
+              </label>
+            </div>
+            <label class="dsips-editor-toggle"><input name="ativo" type="checkbox" checked> Cadastro ativo</label>
+            <p id="dsips-cadastros-editor-status" class="dsips-editor-status" role="status" aria-live="polite"></p>
+            <div class="dsips-editor-actions">
+              <button id="dsips-cadastros-cancel" type="button" class="app-button app-button-secondary">Cancelar</button>
+              <button id="dsips-cadastros-save" type="submit" class="app-button app-button-primary">Salvar cadastro</button>
+            </div>
+          </form>
+        </article>
+        <div class="dsips-overview">
+          <article class="app-card dsips-overview-card"><span>Registros cadastrados</span><strong id="dsips-cadastros-total">0</strong></article>
+          <article class="app-card dsips-overview-card"><span>Registros ativos</span><strong id="dsips-cadastros-active">0</strong></article>
+        </div>
+        <article class="app-card dsips-panel">
+          <div class="dsips-toolbar">
+            <label class="dsips-search-label" for="dsips-cadastros-search">
+              <span>Pesquisar cadastros</span>
+              <input id="dsips-cadastros-search" type="search" autocomplete="off" placeholder="Pesquisar por nome">
+            </label>
+            <button id="dsips-cadastros-refresh" type="button" class="app-button app-button-primary">Atualizar</button>
+          </div>
+          <h3 id="dsips-cadastros-list-label" class="dsips-cadastros-list-title">Categorias</h3>
+          <p id="dsips-cadastros-status" class="dsips-state-message" role="status" aria-live="polite">Abra Cadastros para consultar os registros.</p>
+          <div id="dsips-cadastros-list" class="dsips-cadastros-grid" aria-live="polite"></div>
+        </article>
+      </section>
+
       <!-- ABA 2: FILA DE TRANSFERÊNCIAS -->
       <section id="sec-transferencias" class="hidden space-y-4">
         <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-2 shadow-md">
@@ -770,7 +829,7 @@
 
       <footer class="app-footer">
         <span>CM APP</span>
-        <span>v1.13.13-H.3 · HOMOLOGAÇÃO</span>
+        <span>v1.13.14-H.1 · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -971,6 +1030,6 @@
   </div>
 
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.5.0/dist/driver.js.iife.js"></script>
-    <script type="module" src="./app.js?v=1.13.13-h.3"></script>
+    <script type="module" src="./app.js?v=1.13.14-h.1"></script>
 </body>
 </html>
