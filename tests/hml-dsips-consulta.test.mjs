@@ -34,7 +34,7 @@ test('HML tem tela e menu dentro do login e layout existentes', async () => {
   assert.match(html, /id="view-login"/);
   assert.match(html, /id="sec-dsips-materiais"/);
   assert.match(html, /data-nav-page="dsips-materiais"/);
-  assert.match(html, /Somente consulta/);
+  assert.match(html, /Verificando acesso…/);
   assert.doesNotMatch(html, /id="pilot-login"/);
   assert.match(app, /consultaMateriaisDsips\.carregar\(\)/);
   assert.match(app, /!podeConsultarMateriaisDsips\(usuarioLogado\)/);
