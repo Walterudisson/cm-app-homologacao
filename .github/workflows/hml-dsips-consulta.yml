@@ -8,6 +8,7 @@ on:
       - 'js/modules/dsips/consulta-materiais*'
       - 'js/ui/navigation.js'
       - 'tests/hml-dsips-consulta.test.mjs'
+      - 'tests/hml-dsips-mobile-layout.test.mjs'
       - '.github/workflows/hml-dsips-consulta.yml'
   workflow_dispatch:
 permissions:
@@ -27,4 +28,4 @@ jobs:
           node --check js/modules/dsips/consulta-materiais-model.js
           node --check js/modules/dsips/consulta-materiais-ui.js
       - name: Executar testes da sprint
-        run: node --test tests/hml-dsips-consulta.test.mjs
+        run: node --test tests/hml-dsips-consulta.test.mjs tests/hml-dsips-mobile-layout.test.mjs
