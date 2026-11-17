@@ -1035,3 +1035,21 @@
   .dsips-editor-fields { grid-template-columns: minmax(0, 1fr); }
   .dsips-editor-actions button { flex: 1 1 8rem; }
 }
+
+/* Hotfix H.3: destaque personalizável, preservando o tema escuro do CMAPP. */
+.dsips-material-card.dsips-cor-azul  { --dsips-accent: #93c5fd; --dsips-tint: rgba(37,99,235,.15); --dsips-stroke: rgba(59,130,246,.44); }
+.dsips-material-card.dsips-cor-verde { --dsips-accent: #6ee7b7; --dsips-tint: rgba(5,150,105,.13); --dsips-stroke: rgba(16,185,129,.43); }
+.dsips-material-card.dsips-cor-roxo  { --dsips-accent: #c4b5fd; --dsips-tint: rgba(124,58,237,.16); --dsips-stroke: rgba(139,92,246,.42); }
+.dsips-material-card.dsips-cor-ambar { --dsips-accent: #fcd34d; --dsips-tint: rgba(217,119,6,.15); --dsips-stroke: rgba(245,158,11,.43); }
+.dsips-material-card[class*="dsips-cor-"] {
+  border-color: var(--dsips-stroke);
+  background: linear-gradient(180deg, var(--dsips-tint), transparent 58%), #111e33;
+  box-shadow: inset 3px 0 0 var(--dsips-accent);
+}
+.dsips-material-card[class*="dsips-cor-"] .dsips-material-symbol {
+  color: var(--dsips-accent);
+  background: var(--dsips-tint);
+  border: 1px solid var(--dsips-stroke);
+  font-size: inherit;
+}
+.dsips-material-symbol svg { display: block; flex-shrink: 0; }
