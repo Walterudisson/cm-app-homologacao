@@ -21,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.13.16-h.3">
+  <link rel="stylesheet" href="./app.css?v=1.13.17-h.1">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div id="cmapp-hml-banner" class="cmapp-hml-banner" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -54,7 +54,7 @@
 
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.16-H.3 • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.17-H.1 • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -134,11 +134,15 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v3H8zM6 6H4v16h16V6h-2M8 12h8M8 16h8"/></svg>
           <span class="sidebar-label">Cautelas</span>
         </button>
+        <button id="tab-btn-dsips-posse" type="button" class="nav-item hidden" data-nav-page="dsips-posse">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="7" r="3"/><path d="M3 20v-3a6 6 0 0 1 12 0v3M16 11h5v9h-5"/></svg>
+          <span class="sidebar-label">Quem está com o quê</span>
+        </button>
 
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.13.16-H.3</span>
+        <span>v1.13.17-H.1</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -766,6 +770,30 @@
         </article>
       </section>
 
+      <!-- SPRINT 1.13.17-H.1: CONSULTA DE POSSE DSIPS -->
+      <section id="sec-dsips-posse" class="hidden space-y-5" aria-label="Quem está com o quê">
+        <article class="app-card dsips-intro">
+          <div><span class="eyebrow">DSIPS · Consulta de posse</span>
+          <h2>Quem está com o quê</h2>
+          <p>Localize materiais ainda cautelados por responsável, quantidade e identificação individual. As devoluções já registradas são descontadas.</p></div>
+          <span class="dsips-readonly">Somente consulta</span>
+        </article>
+        <div class="dsips-overview">
+          <article class="app-card dsips-overview-card"><span>Responsáveis com pendências</span><strong id="dsips-posse-total">0</strong></article>
+          <article class="app-card dsips-overview-card"><span>Cautelas com pendências</span><strong id="dsips-posse-cautelas">0</strong></article>
+        </div>
+        <article class="app-card dsips-panel">
+          <div class="dsips-toolbar">
+            <label class="dsips-search-label" for="dsips-posse-search"><span>Pesquisar posse</span>
+              <input id="dsips-posse-search" type="search" autocomplete="off" placeholder="Responsável, matrícula, material ou identificação">
+            </label>
+            <button id="dsips-posse-refresh" type="button" class="app-button app-button-primary">Atualizar</button>
+          </div>
+          <p id="dsips-posse-status" class="dsips-state-message" role="status" aria-live="polite">Abra a consulta para carregar as posses.</p>
+          <div id="dsips-posse-list" class="dsips-cautelas-grid"></div>
+        </article>
+      </section>
+
       <!-- ABA 2: FILA DE TRANSFERÊNCIAS -->
       <section id="sec-transferencias" class="hidden space-y-4">
         <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-2 shadow-md">
@@ -1019,7 +1047,7 @@
 
       <footer class="app-footer">
         <span>CM APP</span>
-        <span>v1.13.16-H.3 · HOMOLOGAÇÃO</span>
+        <span>v1.13.17-H.1 · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -1220,6 +1248,6 @@
   </div>
 
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.5.0/dist/driver.js.iife.js"></script>
-    <script type="module" src="./app.js?v=1.13.16-h.3"></script>
+    <script type="module" src="./app.js?v=1.13.17-h.1"></script>
 </body>
 </html>

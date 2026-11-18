@@ -1167,3 +1167,8 @@
 .dsips-cautela-status-parcial { color:#fde68a; background:#78350f; }
 .dsips-cautela-status-encerrada { color:#a7f3d0; background:#064e3b; }
 .dsips-cautela-status-desconhecida { color:#cbd5e1; background:#334155; }
+
+/* Consulta consolidada de posse DSIPS */
+.dsips-posse-item { display:grid; gap:.4rem; min-width:0; padding:.7rem; border:1px solid #334155; border-radius:.6rem; overflow-wrap:anywhere; }
+.dsips-posse-item strong { color:#f8fafc; font-size:.82rem; }
+.dsips-posse-qtd { color:#fde68a; font-size:.8rem; font-weight:750; }
