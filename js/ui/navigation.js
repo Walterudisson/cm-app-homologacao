@@ -72,6 +72,19 @@ export function fecharCamadasNavegacao() {
   return perfilFechado || menuFechado;
 }
 
+// Grupos de navegação não concedem permissões nem substituem a rota de cada página.
+function definirGrupoAberto(grupo, aberto) {
+  const botao = grupo.querySelector('[data-nav-group-toggle]');
+  const painel = grupo.querySelector('.sidebar-module-panel');
+  if (!botao || !painel) return;
+  botao.setAttribute('aria-expanded', String(aberto));
+  painel.hidden = !aberto;
+}
+
+function abrirGrupoExclusivo(grupo) {
+  document.querySelectorAll('[data-nav-group]').forEach(item => definirGrupoAberto(item, item === grupo));
+}
+
 export function inicializarNavegacao(aoNavegar, opcoes = {}) {
   navegar = aoNavegar;
   registrarCamada = opcoes.aoAbrirCamada || (() => {});
@@ -91,6 +104,19 @@ export function inicializarNavegacao(aoNavegar, opcoes = {}) {
   document.getElementById('btn-menu')?.addEventListener('click', alternarSidebar);
   document.getElementById('sidebar-overlay')?.addEventListener('click', () => {
     fecharNavegacaoMovel({ sincronizarHistorico: true });
+  });
+  document.querySelectorAll('[data-nav-group-toggle]').forEach(botao => {
+    botao.addEventListener('click', () => {
+      const grupo = botao.closest('[data-nav-group]');
+      if (!grupo || grupo.classList.contains('hidden')) return;
+      if (ehDesktop() && document.body.classList.contains('sidebar-collapsed')) {
+        alternarSidebar();
+        abrirGrupoExclusivo(grupo);
+        return;
+      }
+      if (botao.getAttribute('aria-expanded') === 'true') definirGrupoAberto(grupo, false);
+      else abrirGrupoExclusivo(grupo);
+    });
   });
   document.querySelectorAll('[data-nav-page]').forEach(botao => {
     botao.addEventListener('click', () => {
@@ -134,6 +160,14 @@ export function ativarPagina(aba) {
     if (ativa) botao.setAttribute('aria-current', 'page');
     else botao.removeAttribute('aria-current');
   });
+  const grupos = [...document.querySelectorAll('[data-nav-group]')];
+  const grupoAtivo = grupos.find(grupo => !grupo.classList.contains('hidden') &&
+    [...grupo.querySelectorAll('[data-nav-page]')].some(botao =>
+      botao.dataset.navPage === aba && !botao.classList.contains('hidden')));
+  for (const grupo of grupos) {
+    grupo.querySelector('[data-nav-group-toggle]')?.classList.toggle('has-active-page', grupo === grupoAtivo);
+  }
+  if (grupoAtivo) abrirGrupoExclusivo(grupoAtivo);
 }
 
 export function atualizarFotoUsuario(usuario, fotoUrl = '') {
