@@ -1117,3 +1117,33 @@
   .dsips-estoque-overview article:last-child { grid-column:1 / -1; }
   .dsips-estoque-card-footer button { flex:1 1 auto; }
 }
+
+/* Sprint 1.13.16-H.1: cautelas no shell único do CMAPP, mobile first. */
+.dsips-cautelas-step { color:#f8fafc; font-weight:850; font-size:.88rem; margin-top:.55rem; }
+.dsips-cautelas-units-box { border:1px solid #334155; border-radius:.75rem; background:#101d30; padding:.85rem; }
+.dsips-cautelas-units-box > p:first-child { color:#f8fafc; font-size:.74rem; font-weight:750; }
+.dsips-cautelas-units { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,12rem),1fr)); gap:.5rem; margin-top:.55rem; }
+.dsips-cautelas-unit-choice { display:flex; align-items:center; gap:.5rem; min-width:0; cursor:pointer; color:#e2e8f0; padding:.6rem; border:1px solid #334155; border-radius:.6rem; background:#1e293b; font-size:.76rem; }
+.dsips-cautelas-unit-choice span { overflow-wrap:anywhere; }
+.dsips-cautelas-unit-choice input { flex-shrink:0; accent-color:#2563eb; width:1rem; height:1rem; }
+.dsips-cautelas-add-row { display:flex; justify-content:flex-end; }
+.dsips-cautelas-add-row button { min-height:2.7rem; }
+.dsips-cautelas-cart { display:grid; gap:.6rem; }
+.dsips-cautelas-cart-item { display:flex; align-items:center; justify-content:space-between; gap:.65rem; border:1px solid #334155; background:#17243a; padding:.75rem; border-radius:.65rem; min-width:0; }
+.dsips-cautelas-cart-copy { min-width:0; }
+.dsips-cautelas-cart-copy strong { color:#f8fafc; font-weight:800; font-size:.8rem; }
+.dsips-cautelas-cart-copy p { color:#94a3b8; overflow-wrap:anywhere; font-size:.73rem; margin-top:.2rem; }
+.dsips-cautelas-cart-item button { flex-shrink:0; }
+.dsips-cautelas-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,21rem),1fr)); gap:.85rem; }
+.dsips-cautelas-card { border:1px solid #334155; background:#111e33; border-radius:.85rem; padding:1rem; display:grid; gap:.65rem; min-width:0; }
+.dsips-cautelas-card-heading { display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:.6rem; }
+.dsips-cautelas-card-heading h3 { color:#f8fafc; font-size:.88rem; font-weight:850; overflow-wrap:anywhere; }
+.dsips-cautelas-card-heading span { font-size:.67rem; }
+.dsips-cautelas-card-meta { color:#94a3b8; font-size:.72rem; overflow-wrap:anywhere; }
+.dsips-cautelas-card-line { color:#e2e8f0; padding:.5rem .65rem; border-radius:.55rem; border:1px solid #334155; font-size:.75rem; overflow-wrap:anywhere; }
+#dsips-cautelas-editor { scroll-margin-top:calc(var(--hml-banner-height) + var(--topbar-height) + 1rem); }
+#dsips-cautelas-quantity:read-only { background:#243145; color:#bfdbfe; }
+@media(max-width:639px) {
+  .dsips-cautelas-add-row button { width:100%; }
+  .dsips-cautelas-cart-item { align-items:stretch; }
+}

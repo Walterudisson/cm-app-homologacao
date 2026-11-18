@@ -21,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.13.15-h.1">
+  <link rel="stylesheet" href="./app.css?v=1.13.16-h.1">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div id="cmapp-hml-banner" class="cmapp-hml-banner" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -54,7 +54,7 @@
 
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.15-H.1 • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.16-H.1 • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -130,11 +130,15 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9 12 4l9 5v11H3V9Zm0 0 9 5 9-5M7 15h3v5M14 15h3v5"/></svg>
           <span class="sidebar-label">Estoque</span>
         </button>
+        <button id="tab-btn-dsips-cautelas" type="button" class="nav-item hidden" data-nav-page="dsips-cautelas">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v3H8zM6 6H4v16h16V6h-2M8 12h8M8 16h8"/></svg>
+          <span class="sidebar-label">Cautelas</span>
+        </button>
 
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.13.15-H.1</span>
+        <span>v1.13.16-H.1</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -648,6 +652,95 @@
         </article>
       </section>
 
+      <!-- SPRINT 1.13.16-H.1: REGISTRO DE CAUTELAS DSIPS -->
+      <section id="sec-dsips-cautelas" class="hidden space-y-5" aria-label="Cautelas DSIPS">
+        <article class="app-card dsips-intro">
+          <div>
+            <span class="eyebrow">DSIPS · Responsabilidade e entrega</span>
+            <h2>Cautelas</h2>
+            <p>Registre entregas para usuários existentes do CMAPP, consulte os materiais vinculados e acompanhe as pendências. Devoluções serão incluídas na próxima etapa.</p>
+          </div>
+          <div class="dsips-intro-actions">
+            <span id="dsips-cautelas-mode" class="dsips-readonly" aria-live="polite">Verificando acesso…</span>
+            <button id="dsips-cautelas-new" class="app-button app-button-primary hidden" type="button">+ Registrar cautela</button>
+          </div>
+        </article>
+        <div class="dsips-overview">
+          <article class="app-card dsips-overview-card">
+            <span>Cautelas registradas</span><strong id="dsips-cautelas-total">0</strong>
+          </article>
+          <article class="app-card dsips-overview-card">
+            <span>Cautelas pendentes de devolução</span><strong id="dsips-cautelas-abertas">0</strong>
+          </article>
+        </div>
+        <article id="dsips-cautelas-editor" class="app-card dsips-editor hidden" aria-label="Registrar cautela">
+          <div class="dsips-editor-heading">
+            <span class="eyebrow">Entrega de materiais · HML</span>
+            <h3>Registrar cautela</h3>
+            <p>Selecione quem receberá os materiais, confira o saldo e confirme a entrega física. O registro atualiza o estoque e o histórico.</p>
+          </div>
+          <form id="dsips-cautelas-form" class="dsips-editor-form">
+            <h4 class="dsips-cautelas-step">1. Usuário responsável</h4>
+            <div class="dsips-editor-fields">
+              <label>Pesquisar usuário do CMAPP
+                <input id="dsips-cautelas-user-search" type="search" autocomplete="off" placeholder="Nome ou matrícula">
+              </label>
+              <label>Quem receberá os materiais?
+                <select name="responsavelId" required><option value="">Selecione um usuário ativo do CMAPP</option></select>
+              </label>
+            </div>
+            <h4 class="dsips-cautelas-step">2. Materiais a entregar</h4>
+            <div class="dsips-editor-fields">
+              <label>Material com saldo disponível
+                <select id="dsips-cautelas-material"><option value="">Selecione um material disponível</option></select>
+              </label>
+              <label>Quantidade
+                <input id="dsips-cautelas-quantity" type="number" inputmode="numeric" min="1" step="1" placeholder="Quantidade disponível">
+              </label>
+            </div>
+            <div id="dsips-cautelas-units-box" class="hidden dsips-cautelas-units-box">
+              <p>Unidades individualizadas disponíveis</p>
+              <p id="dsips-cautelas-units-status" class="dsips-editor-status" role="status" aria-live="polite"></p>
+              <div id="dsips-cautelas-units" class="dsips-cautelas-units"></div>
+            </div>
+            <div class="dsips-cautelas-add-row">
+              <button id="dsips-cautelas-add" type="button" class="app-button app-button-secondary">Adicionar material à cesta</button>
+            </div>
+            <h4 class="dsips-cautelas-step">3. Confira a cesta</h4>
+            <p id="dsips-cautelas-cart-status" class="dsips-editor-status" role="status" aria-live="polite">Cesta vazia.</p>
+            <div id="dsips-cautelas-cart" class="dsips-cautelas-cart"></div>
+            <label class="dsips-editor-notes">Observações da entrega (opcional)
+              <textarea name="observacoes" rows="3" maxlength="500" placeholder="Informações importantes sobre a entrega"></textarea>
+            </label>
+            <p id="dsips-cautelas-editor-status" class="dsips-editor-status" role="status" aria-live="polite"></p>
+            <div class="dsips-editor-actions">
+              <button id="dsips-cautelas-cancel" type="button" class="app-button app-button-secondary">Cancelar</button>
+              <button id="dsips-cautelas-submit" type="submit" class="app-button app-button-primary">Conferir e registrar cautela</button>
+            </div>
+          </form>
+        </article>
+        <article class="app-card dsips-panel">
+          <div class="dsips-toolbar">
+            <label class="dsips-search-label" for="dsips-cautelas-search">
+              <span>Pesquisar cautelas</span>
+              <input id="dsips-cautelas-search" type="search" autocomplete="off" placeholder="Responsável ou material">
+            </label>
+            <label class="dsips-category-label" for="dsips-cautelas-filter">
+              <span>Situação</span>
+              <select id="dsips-cautelas-filter">
+                <option value="todas">Todas</option>
+                <option value="aberta">Sem devolução</option>
+                <option value="parcial">Parcialmente devolvida</option>
+                <option value="encerrada">Encerrada</option>
+              </select>
+            </label>
+            <button id="dsips-cautelas-refresh" type="button" class="app-button app-button-primary">Atualizar</button>
+          </div>
+          <p id="dsips-cautelas-status" class="dsips-state-message" role="status" aria-live="polite">Abra Cautelas para consultar os registros.</p>
+          <div id="dsips-cautelas-list" class="dsips-cautelas-grid" aria-live="polite"></div>
+        </article>
+      </section>
+
       <!-- ABA 2: FILA DE TRANSFERÊNCIAS -->
       <section id="sec-transferencias" class="hidden space-y-4">
         <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-2 shadow-md">
@@ -901,7 +994,7 @@
 
       <footer class="app-footer">
         <span>CM APP</span>
-        <span>v1.13.15-H.1 · HOMOLOGAÇÃO</span>
+        <span>v1.13.16-H.1 · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -1102,6 +1195,6 @@
   </div>
 
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.5.0/dist/driver.js.iife.js"></script>
-    <script type="module" src="./app.js?v=1.13.15-h.1"></script>
+    <script type="module" src="./app.js?v=1.13.16-h.1"></script>
 </body>
 </html>

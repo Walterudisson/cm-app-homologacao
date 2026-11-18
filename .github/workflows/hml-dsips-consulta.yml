@@ -8,6 +8,7 @@ on:
       - 'js/modules/dsips/consulta-materiais*'
       - 'js/modules/dsips/cadastros-*'
       - 'js/modules/dsips/estoque-*'
+      - 'js/modules/dsips/registro-cautelas-*'
       - 'service-worker.js'
       - 'js/ui/navigation.js'
       - 'tests/hml-dsips-consulta.test.mjs'
@@ -16,6 +17,7 @@ on:
       - 'tests/hml-dsips-visual-materiais.test.mjs'
       - 'tests/hml-dsips-cadastros.test.mjs'
       - 'tests/hml-dsips-estoque.test.mjs'
+      - 'tests/hml-dsips-registro-cautelas.test.mjs'
       - '.github/workflows/hml-dsips-consulta.yml'
   workflow_dispatch:
 permissions:
@@ -38,5 +40,7 @@ jobs:
           node --check js/modules/dsips/cadastros-ui.js
           node --check js/modules/dsips/estoque-model.js
           node --check js/modules/dsips/estoque-ui.js
+          node --check js/modules/dsips/registro-cautelas-model.js
+          node --check js/modules/dsips/registro-cautelas-ui.js
       - name: Executar testes da sprint
-        run: node --test tests/hml-dsips-consulta.test.mjs tests/hml-dsips-mobile-layout.test.mjs tests/hml-dsips-cadastro-materiais.test.mjs tests/hml-dsips-visual-materiais.test.mjs tests/hml-dsips-cadastros.test.mjs tests/hml-dsips-estoque.test.mjs
+        run: node --test tests/hml-dsips-consulta.test.mjs tests/hml-dsips-mobile-layout.test.mjs tests/hml-dsips-cadastro-materiais.test.mjs tests/hml-dsips-visual-materiais.test.mjs tests/hml-dsips-cadastros.test.mjs tests/hml-dsips-estoque.test.mjs tests/hml-dsips-registro-cautelas.test.mjs
