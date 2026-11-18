@@ -53,7 +53,7 @@
       fecharCamadasNavegacao,
       fecharNavegacaoMovel,
       inicializarNavegacao
-    } from "./js/ui/navigation.js?v=1.12.0";
+    } from "./js/ui/navigation.js?v=1.13.18-h.3";
     import { inicializarPwa } from "./js/pwa.js?v=1.12.0";
     import { podeConsultarMateriaisDsips } from "./js/modules/dsips/consulta-materiais-model.js?v=1.13.13-h.3";
     import { criarConsultaMateriaisDsips } from "./js/modules/dsips/consulta-materiais-ui.js?v=1.13.13-h.3";
