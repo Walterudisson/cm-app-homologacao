@@ -1,11 +1,13 @@
 import {
-  listarCadastroDsips, listarUnidadesDsips, registrarCautelaDsips
-} from './service.js?v=1.13.16-h.1';
+  listarCadastroDsips, listarUnidadesDsips, registrarCautelaDsips, registrarDevolucaoDsips
+} from './service.js?v=1.13.16-h.2';
 import {
   podeConsultarCautelasDsips, podeRegistrarCautelasDsips,
   saldoDisponivelDsips, unidadesDisponiveisDsips,
   validarCautelaDsips, filtrarCautelasDsips, STATUS_CAUTELA_DSIPS
-} from './registro-cautelas-model.js?v=1.13.16-h.1';
+} from './registro-cautelas-model.js?v=1.13.16-h.2';
+import { podeDevolverCautelaDsips, itensPendentesDevolucaoDsips, prepararDevolucaoDsips,
+  devolucaoIntegralDsips, criarReciboDevolucaoDsips } from './devolucoes-model.js?v=1.13.16-h.2';
 
 export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar = () => {} }) {
   const porId = id => document.getElementById(id);
@@ -35,6 +37,16 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
   const observacoes = form.elements.namedItem('observacoes');
   const total = porId('dsips-cautelas-total');
   const abertas = porId('dsips-cautelas-abertas');
+  const devolucaoEditor = porId('dsips-devolucao-editor');
+  const devolucaoForm = porId('dsips-devolucao-form');
+  const devolucaoCampos = porId('dsips-devolucao-campos');
+  const devolucaoItens = porId('dsips-devolucao-itens');
+  const devolucaoResponsavel = porId('dsips-devolucao-responsavel');
+  const devolucaoStatus = porId('dsips-devolucao-status');
+  const devolucaoTudo = porId('dsips-devolucao-tudo');
+  const devolucaoCancelar = porId('dsips-devolucao-cancel');
+  const devolucaoEnviar = porId('dsips-devolucao-submit');
+  let cautelaDevolucao = null, linhasDevolucao = [], reciboDevolucao = null, envioIncerto = false;
 
   let cautelas = [], responsaveis = [], materiais = [], estoque = [];
   let unidadesPorMaterial = {}, cesta = [];
@@ -68,6 +80,16 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
     adicionarBotao.disabled = bloqueado || !pronto || !materiaisSelect.value;
     cancelarBotao.disabled = bloqueado;
     enviarBotao.disabled = bloqueado || !cesta.length;
+    devolucaoCampos.disabled = bloqueado || envioIncerto;
+    devolucaoCancelar.disabled = bloqueado || envioIncerto;
+    devolucaoEnviar.disabled = bloqueado || !cautelaDevolucao;
+    if(envioIncerto) {
+      abrirBotao.disabled = true;
+      atualizarBotao.disabled = true;
+      devolucaoEnviar.textContent = 'Repetir confirmação';
+    } else {
+      devolucaoEnviar.textContent = 'Conferir e registrar devolução';
+    }
   }
   function atualizarUsuarios() {
     const atual = usuarioSelect.value;
@@ -200,18 +222,140 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
     editorStatus.textContent='';
   }
   function abrirEditor() {
+    if(!devolucaoEditor.classList.contains('hidden')) {
+      notificar('Conclua ou cancele a devolução antes de iniciar outra entrega.','aviso');return;
+    }
     if(!pronto||!podeGravar()||gravando||confirmando||carregando) return;
     fecharEditor();
     editor.classList.remove('hidden');
     editor.scrollIntoView({block:'start',behavior:'smooth'});
     usuarioSelect.focus({preventScroll:true});
   }
+  function fecharDevolucao() {
+    devolucaoEditor.classList.add('hidden');
+    devolucaoForm.reset();
+    devolucaoItens.replaceChildren();
+    devolucaoResponsavel.textContent='';
+    devolucaoStatus.textContent='';
+    cautelaDevolucao=null;linhasDevolucao=[];reciboDevolucao=null;envioIncerto=false;
+  }
+  function abrirDevolucao(cautela) {
+    if(!pronto||!podeGravar()||gravando||confirmando||carregando||envioIncerto||
+        !podeDevolverCautelaDsips(cautela)) return;
+    if(!editor.classList.contains('hidden')||!devolucaoEditor.classList.contains('hidden')) {
+      notificar('Conclua ou cancele a operação aberta antes de iniciar outra.','aviso');return;
+    }
+    fecharDevolucao();
+    cautelaDevolucao=cautela;
+    devolucaoResponsavel.textContent=(cautela.responsavelNome||'Responsável não informado')+
+      ' · Registro '+cautela.id.slice(0,10);
+    for(const item of itensPendentesDevolucaoDsips(cautela)) {
+      const bloco=elemento('article','dsips-devolucao-item');
+      bloco.append(elemento('strong','',item.nome||'Material'),
+        elemento('p','dsips-cautelas-card-meta',
+          'Entregue: '+item.entregue+' · Devolvido: '+item.devolvida+' · Pendente: '+item.pendente+' '+(item.unidade||'un')));
+      const label=elemento('label','dsips-devolucao-quantity','Quantidade a devolver');
+      const qtd=document.createElement('input');
+      qtd.type='number';qtd.min='0';qtd.max=String(item.pendente);qtd.step='1';qtd.value='0';
+      qtd.inputMode='numeric';qtd.required=true;
+      qtd.readOnly=item.controle==='individualizado';
+      qtd.setAttribute('aria-label','Quantidade a devolver de '+(item.nome||'material'));
+      label.append(qtd);bloco.append(label);
+      const unidades=elemento('div','dsips-cautelas-units');
+      if(qtd.readOnly) {
+        for(const unidade of item.unidades) {
+          const escolha=elemento('label','dsips-cautelas-unit-choice');
+          const input=document.createElement('input');input.type='checkbox';input.value=unidade.id;
+          input.addEventListener('change',()=>{qtd.value=String(unidades.querySelectorAll('input:checked').length);});
+          escolha.append(input,elemento('span','',unidade.identificacao||unidade.id));unidades.append(escolha);
+        }
+        if(!item.unidades.length) unidades.append(elemento('p','dsips-editor-status','Nenhuma identificação pendente localizada.'));
+        bloco.append(unidades);
+      }
+      linhasDevolucao.push({item,qtd,unidades});
+      devolucaoItens.append(bloco);
+    }
+    devolucaoEditor.classList.remove('hidden');
+    atualizarBotoes();
+    devolucaoEditor.scrollIntoView({block:'start',behavior:'smooth'});
+  }
+  function preencherDevolucaoIntegral() {
+    if(!cautelaDevolucao||!podeGravar()||carregando||gravando||confirmando||envioIncerto) return;
+    const todos=devolucaoIntegralDsips(cautelaDevolucao);
+    for(const linha of linhasDevolucao) {
+      const item=todos.find(i=>i.materialId===linha.item.materialId);
+      linha.qtd.value=String(item.quantidade);
+      for(const input of linha.unidades.querySelectorAll('input[type=checkbox]'))
+        input.checked=item.unidadeIds.includes(input.value);
+    }
+    devolucaoStatus.textContent='Todos os itens pendentes selecionados. Confira antes de registrar.';
+  }
+  async function salvarDevolucao(evento) {
+    evento.preventDefault();
+    if(!podeGravar()||!pronto||carregando||gravando||confirmando||!cautelaDevolucao||
+        devolucaoEditor.classList.contains('hidden')||!ativo()) return;
+    let pedido;
+    try{
+      if(!envioIncerto&&!devolucaoForm.reportValidity()) return;
+      pedido=prepararDevolucaoDsips(cautelaDevolucao,{
+        observacoes:devolucaoForm.elements.namedItem('observacoes').value,
+        itens:linhasDevolucao.filter(l=>Number(l.qtd.value)!==0).map(l=>({
+          materialId:l.item.materialId,quantidade:Number(l.qtd.value),
+          unidadeIds:[...l.unidades.querySelectorAll('input:checked')].map(i=>i.value)
+        }))
+      });
+      if(envioIncerto&&reciboDevolucao?.assinatura!==JSON.stringify(pedido))
+        throw new Error('O lançamento anterior ainda não foi confirmado. Repita a mesma devolução.');
+    }catch(erro){devolucaoStatus.textContent=erro.message;return;}
+    const uid=obterUsuario()?.uid,epoca=sessao,original=cautelaDevolucao;
+    confirmando=true;atualizarBotoes();
+    let aceito=false;
+    try{
+      const descricao=pedido.itens.map(item=>{
+        const linha=linhasDevolucao.find(l=>l.item.materialId===item.materialId).item;
+        return linha.nome+': '+item.quantidade+' '+(linha.unidade||'un')+
+          (item.unidadeIds.length?' ('+item.unidadeIds.map(id=>linha.unidades.find(u=>u.id===id)?.identificacao||id).join(', ')+')':'');
+      }).join('; ');
+      aceito=await confirmar({titulo:'Confirmar devolução dos materiais?',
+        mensagem:'Responsável: '+(original.responsavelNome||'Usuário')+'. Retorno: '+descricao+
+          '. Confirme a devolução física. O estoque de origem será atualizado.',
+        confirmarTexto:'Registrar devolução'});
+    }catch(erro){if(epoca===sessao)devolucaoStatus.textContent='Não foi possível abrir a confirmação.';}
+    finally{if(epoca===sessao){confirmando=false;atualizarBotoes();}}
+    if(!aceito||epoca!==sessao||uid!==obterUsuario()?.uid||!podeGravar()||!ativo()||
+        cautelaDevolucao!==original||devolucaoEditor.classList.contains('hidden')) return;
+    reciboDevolucao=criarReciboDevolucaoDsips(pedido,reciboDevolucao,()=>crypto.randomUUID());
+    const operacaoId=reciboDevolucao.operacaoId;
+    gravando=true;atualizarBotoes();
+    devolucaoStatus.textContent='Registrando devolução com segurança…';
+    try{
+      await registrarDevolucaoDsips({...pedido,operacaoId});
+      if(epoca!==sessao||uid!==obterUsuario()?.uid||!podeGravar()) return;
+      envioIncerto=false;
+      fecharDevolucao();
+      notificar('Devolução registrada no HML.','sucesso');
+      gravando=false;
+      await carregar();
+    }catch(erro){
+      if(epoca!==sessao||uid!==obterUsuario()?.uid||!podeGravar())return;
+      console.warn('Falha ao registrar devolução.',erro);
+      const rejeitado=['functions/permission-denied','permission-denied','functions/invalid-argument',
+        'functions/failed-precondition','functions/not-found','functions/already-exists',
+        'functions/unauthenticated'].includes(erro?.code);
+      envioIncerto=!rejeitado;
+      devolucaoStatus.textContent=envioIncerto
+        ?'Não foi possível confirmar o resultado. Repita a confirmação sem alterar os dados: o identificador da operação será preservado.'
+        :'O registro foi recusado. Confira a cautela e atualize a consulta antes de tentar novamente.';
+      notificar('Devolução não confirmada.','erro');
+    }finally{if(epoca===sessao){gravando=false;atualizarBotoes();}}
+  }
   function renderizar() {
     lista.replaceChildren();
     const podeEscrever=podeGravar();
-    modo.textContent=podeEscrever?'Consulta e registro de cautelas':'Somente consulta';
+    modo.textContent=podeEscrever?'Cautelas e devoluções':'Somente consulta';
     abrirBotao.classList.toggle('hidden',!podeEscrever);
     if(!podeEscrever&&!editor.classList.contains('hidden')) fecharEditor();
+    if(!podeEscrever&&!devolucaoEditor.classList.contains('hidden')) fecharDevolucao();
     atualizarBotoes();
     if(!autorizado()) {
       status.textContent='Acesso não autorizado.';
@@ -253,14 +397,27 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
         const restante=Math.max(0,Number(item.quantidade||0)-Number(item.devolvida||0));
         card.append(elemento('p','dsips-cautelas-card-line',
           (item.nome || 'Material')+' · Entregue: '+item.quantidade+' '+(item.unidade||'un')+
-          ' · Pendente: '+restante));
+          ' · Devolvido: '+Number(item.devolvida||0)+' · Pendente: '+restante));
+        if(item.controle==='individualizado') {
+          const ids=(item.unidades||[]).filter(u=>!(item.unidadesDevolvidas||[]).includes(u.id));
+          if(ids.length) card.append(elemento('p','dsips-cautelas-card-meta','Identificações pendentes: '+ids.map(u=>u.identificacao||u.id).join(', ')));
+        }
       }
       if(cautela.observacoes) card.append(elemento('p','dsips-cautelas-card-meta',cautela.observacoes));
+      if(podeEscrever&&podeDevolverCautelaDsips(cautela)) {
+        const devolver=elemento('button','app-button app-button-secondary','Registrar devolução');
+        devolver.type='button';
+        devolver.setAttribute('aria-label','Registrar devolução de '+(cautela.responsavelNome||'cautela'));
+        devolver.disabled=gravando||confirmando||envioIncerto;
+        devolver.addEventListener('click',()=>abrirDevolucao(cautela));
+        card.append(devolver);
+      }
       lista.append(card);
     }
   }
   function limpar() {
     revisao++;sessao++;revisaoUnidades++;
+    fecharDevolucao();
     cautelas=[];responsaveis=[];materiais=[];estoque=[];unidadesPorMaterial={};
     cesta=[];pendente=null;pronto=false;carregando=false;gravando=false;confirmando=false;falha='';
     busca.value='';filtro.value='todas';
@@ -273,10 +430,10 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
   }
   async function carregar() {
     if(!autorizado()) {limpar();return;}
-    if(gravando||confirmando) return;
+    if(gravando||confirmando||envioIncerto) return;
     const uid=obterUsuario()?.uid,token=++revisao;
     ++revisaoUnidades;
-    fecharEditor();
+    fecharEditor();fecharDevolucao();
     carregando=true;falha='';renderizar();
     try {
       const [listaCautelas,itens,localEstoque,pessoas]=await Promise.all([
@@ -358,6 +515,9 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
       if(epoca===sessao) {gravando=false;atualizarBotoes();}
     }
   }
+  devolucaoTudo.addEventListener('click',preencherDevolucaoIntegral);
+  devolucaoCancelar.addEventListener('click',()=>{if(!gravando&&!confirmando&&!envioIncerto){fecharDevolucao();atualizarBotoes();}});
+  devolucaoForm.addEventListener('submit',evento=>{void salvarDevolucao(evento);});
   abrirBotao.addEventListener('click',abrirEditor);
   cancelarBotao.addEventListener('click',fecharEditor);
   adicionarBotao.addEventListener('click',adicionarMaterial);

@@ -21,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.13.16-h.1">
+  <link rel="stylesheet" href="./app.css?v=1.13.16-h.2">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div id="cmapp-hml-banner" class="cmapp-hml-banner" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -54,7 +54,7 @@
 
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.16-H.1 • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.16-H.2 • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -138,7 +138,7 @@
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.13.16-H.1</span>
+        <span>v1.13.16-H.2</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -652,13 +652,13 @@
         </article>
       </section>
 
-      <!-- SPRINT 1.13.16-H.1: REGISTRO DE CAUTELAS DSIPS -->
+      <!-- SPRINT 1.13.16-H.2: CAUTELAS E DEVOLUÇÕES DSIPS -->
       <section id="sec-dsips-cautelas" class="hidden space-y-5" aria-label="Cautelas DSIPS">
         <article class="app-card dsips-intro">
           <div>
             <span class="eyebrow">DSIPS · Responsabilidade e entrega</span>
             <h2>Cautelas</h2>
-            <p>Registre entregas para usuários existentes do CMAPP, consulte os materiais vinculados e acompanhe as pendências. Devoluções serão incluídas na próxima etapa.</p>
+            <p>Registre entregas e devoluções de materiais vinculados aos usuários do CMAPP. Acompanhe as cautelas e suas pendências.</p>
           </div>
           <div class="dsips-intro-actions">
             <span id="dsips-cautelas-mode" class="dsips-readonly" aria-live="polite">Verificando acesso…</span>
@@ -716,6 +716,31 @@
             <div class="dsips-editor-actions">
               <button id="dsips-cautelas-cancel" type="button" class="app-button app-button-secondary">Cancelar</button>
               <button id="dsips-cautelas-submit" type="submit" class="app-button app-button-primary">Conferir e registrar cautela</button>
+            </div>
+          </form>
+        </article>
+        <article id="dsips-devolucao-editor" class="app-card dsips-editor hidden" aria-label="Registrar devolução">
+          <div class="dsips-editor-heading">
+            <span class="eyebrow">Retorno de materiais · HML</span>
+            <h3>Registrar devolução</h3>
+            <p id="dsips-devolucao-responsavel"></p>
+            <p>Informe os materiais que estão retornando fisicamente. A devolução parcial mantém a cautela em aberto; o retorno de todos os itens pendentes encerra a cautela.</p>
+          </div>
+          <form id="dsips-devolucao-form" class="dsips-editor-form">
+            <fieldset id="dsips-devolucao-campos" class="dsips-devolucao-fields">
+              <div class="dsips-devolucao-toolbar">
+                <h4 class="dsips-cautelas-step">Materiais pendentes</h4>
+                <button id="dsips-devolucao-tudo" type="button" class="app-button app-button-secondary">Devolver tudo</button>
+              </div>
+              <div id="dsips-devolucao-itens" class="dsips-cautelas-cart"></div>
+              <label class="dsips-editor-notes">Observações da devolução (opcional)
+                <textarea name="observacoes" rows="3" maxlength="500" placeholder="Informações sobre o retorno dos materiais"></textarea>
+              </label>
+            </fieldset>
+            <p id="dsips-devolucao-status" class="dsips-editor-status" role="status" aria-live="polite"></p>
+            <div class="dsips-editor-actions">
+              <button id="dsips-devolucao-cancel" type="button" class="app-button app-button-secondary">Cancelar</button>
+              <button id="dsips-devolucao-submit" type="submit" class="app-button app-button-primary">Conferir e registrar devolução</button>
             </div>
           </form>
         </article>
@@ -994,7 +1019,7 @@
 
       <footer class="app-footer">
         <span>CM APP</span>
-        <span>v1.13.16-H.1 · HOMOLOGAÇÃO</span>
+        <span>v1.13.16-H.2 · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -1195,6 +1220,6 @@
   </div>
 
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.5.0/dist/driver.js.iife.js"></script>
-    <script type="module" src="./app.js?v=1.13.16-h.1"></script>
+    <script type="module" src="./app.js?v=1.13.16-h.2"></script>
 </body>
 </html>
