@@ -1202,3 +1202,5 @@
 @media (prefers-reduced-motion: reduce) {
   .sidebar-module-toggle > .sidebar-module-chevron { transition: none; }
 }
+
+.sidebar-module-panel > .nav-item > .sidebar-label:not(.nav-badge) { white-space: normal; overflow-wrap: anywhere; }
