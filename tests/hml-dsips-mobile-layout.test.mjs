@@ -22,10 +22,10 @@ test('tarja de homologação ocupa espaço próprio antes do cabeçalho', async 
 });
 test('atualização H.2 preserva login único e base HML', async () => {
   const [html, sw, fb, app] = await Promise.all([ler('index.html'), ler('service-worker.js'), ler('js/config/firebase.js'), ler('app.js')]);
-  assert.match(sw, /v1\.13\.18-h\.1-dsips-historico/);
-  assert.match(html, /app\.css\?v=1\.13\.18-h\.1/);
-  assert.match(html, /app\.js\?v=1\.13\.18-h\.1/);
-  assert.match(html, /<span>v1\.13\.18-H\.1<\/span>/);
+  assert.match(sw, /v1\.13\.18-h\.2-identidade-login/);
+  assert.match(html, /app\.css\?v=1\.13\.18-h\.2/);
+  assert.match(html, /app\.js\?v=1\.13\.18-h\.2/);
+  assert.match(html, /<span>v1\.13\.18-H\.2<\/span>/);
   assert.match(fb, /projectId: "cm-app-homologacao"/);
   assert.match(app, /!podeConsultarMateriaisDsips\(usuarioLogado\)/);
   assert.doesNotMatch(html, /id="pilot-login"/);
@@ -75,4 +75,17 @@ test('Fila de aprovação é funcionalidade patrimonial sem mudar o acesso admin
   assert.match(app,/usuarioLogado\.perfil === 'conferente'/);
   assert.match(app,/btnTransf\.classList\.add\('hidden'\)/);
   assert.match(app,/await alternarAba\('dashboard', \{ substituirHistorico: true \}\)/);
+});
+
+
+test('login apresenta identidade geral CM APP sem alterar formulário institucional', async () => {
+  const html = await ler('index.html');
+  const css = await ler('app.css');
+  const login = html.slice(html.indexOf('id="view-login"'), html.indexOf('id="view-app"'));
+  assert.match(login, /<h1[^>]*>CM APP<\/h1>/);
+  assert.match(login, /class="brand-mark login-brand-mark" aria-hidden="true">CM<\/div>/);
+  assert.match(login, /Plataforma da Casa Militar/);
+  assert.doesNotMatch(login, /Patrimônio CM|dados patrimoniais/);
+  for (const id of ['form-login','login-email','login-senha','btn-submit-login','login-offline','login-erro']) assert.ok(login.includes('id="'+id+'"'));
+  assert.match(css, /\.login-brand-mark\s*\{/);
 });
