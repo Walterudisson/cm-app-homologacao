@@ -1,13 +1,13 @@
 import {
   listarCadastroDsips, listarUnidadesDsips, registrarCautelaDsips, registrarDevolucaoDsips
-} from './service.js?v=1.13.16-h.2';
+} from './service.js?v=1.13.16-h.3';
 import {
   podeConsultarCautelasDsips, podeRegistrarCautelasDsips,
   saldoDisponivelDsips, unidadesDisponiveisDsips,
-  validarCautelaDsips, filtrarCautelasDsips, STATUS_CAUTELA_DSIPS
-} from './registro-cautelas-model.js?v=1.13.16-h.2';
+  validarCautelaDsips, filtrarCautelasDsips, STATUS_CAUTELA_DSIPS, classeStatusCautelaDsips
+} from './registro-cautelas-model.js?v=1.13.16-h.3';
 import { podeDevolverCautelaDsips, itensPendentesDevolucaoDsips, prepararDevolucaoDsips,
-  devolucaoIntegralDsips, criarReciboDevolucaoDsips } from './devolucoes-model.js?v=1.13.16-h.2';
+  devolucaoIntegralDsips, criarReciboDevolucaoDsips } from './devolucoes-model.js?v=1.13.16-h.3';
 
 export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar = () => {} }) {
   const porId = id => document.getElementById(id);
@@ -386,7 +386,7 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
       const card=elemento('article','dsips-cautelas-card');
       const cab=elemento('div','dsips-cautelas-card-heading');
       cab.append(elemento('h3','',cautela.responsavelNome || 'Responsável não informado'),
-        elemento('span',cautela.status==='encerrada'?'dsips-status-inactive':'dsips-status-active',
+        elemento('span',classeStatusCautelaDsips(cautela.status),
           STATUS_CAUTELA_DSIPS[cautela.status] || cautela.status || 'Sem situação'));
       card.append(cab);
       const detalhes=[cautela.responsavelMatricula?'Matrícula '+cautela.responsavelMatricula:'',

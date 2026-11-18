@@ -1,4 +1,4 @@
-import { pendente, unidadesPendentes } from './cautelas-model.js?v=1.13.16-h.2';
+import { pendente, unidadesPendentes } from './cautelas-model.js?v=1.13.16-h.3';
 
 export function podeDevolverCautelaDsips(cautela) {
   return Boolean(cautela?.id && ['aberta','parcial'].includes(cautela.status) &&

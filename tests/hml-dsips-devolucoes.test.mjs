@@ -83,9 +83,23 @@ test('devolução integra Cautelas com confirmação, acesso, sessão e recupera
   const preencher=ui.slice(ui.indexOf('function preencherDevolucaoIntegral()'),ui.indexOf('async function salvarDevolucao('));
   assert.doesNotMatch(preencher,/registrarDevolucaoDsips|salvarDevolucao\(/);
   assert.match(service,/httpsCallable\(functions, 'dsipsRegistrarDevolucao'\)/);
-  assert.match(app,/registro-cautelas-ui\.js\?v=1\.13\.16-h\.2/);
-  assert.match(sw,/v1\.13\.16-h\.2-dsips-devolucoes/);
+  assert.match(app,/registro-cautelas-ui\.js\?v=1\.13\.16-h\.3/);
+  assert.match(sw,/v1\.13\.16-h\.3-dsips-status-cautelas/);
   assert.match(sw,/\.\/js\/modules\/dsips\/devolucoes-model\.js/);
   assert.match(css,/\.dsips-devolucao-item/);
   assert.doesNotMatch(ui,/innerHTML\s*=/);
+});
+
+
+test('situações das cautelas possuem cores semânticas próprias sem modificar cadastros',async()=>{
+  const {classeStatusCautelaDsips}=await import('../js/modules/dsips/registro-cautelas-model.js');
+  const [css,ui]=await Promise.all([ler('app.css'),ler('js/modules/dsips/registro-cautelas-ui.js')]);
+  for(const [status,fundo] of [['aberta','#7f1d1d'],['parcial','#78350f'],['encerrada','#064e3b']]){
+    assert.equal(classeStatusCautelaDsips(status),'dsips-cautela-status dsips-cautela-status-'+status);
+    assert.match(css,new RegExp('\\.dsips-cautela-status-'+status+' \\{[^}]*background:\\s*'+fundo));
+  }
+  assert.equal(classeStatusCautelaDsips('constructor'),'dsips-cautela-status dsips-cautela-status-desconhecida');
+  assert.match(ui,/classeStatusCautelaDsips\(cautela.status\)/);
+  assert.match(css,/\.dsips-status-active\s*\{[^}]*background:\s*#064e3b/);
+  assert.match(css,/\.dsips-status-inactive\s*\{[^}]*background:\s*#7f1d1d/);
 });
