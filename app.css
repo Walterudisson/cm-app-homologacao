@@ -1184,3 +1184,21 @@
 .login-brand { display:grid; justify-items:center; gap:.4rem; }
 .login-brand-mark { width:3.65rem; height:3.65rem; font-size:1.2rem; border-radius:1rem; margin-bottom:.3rem; }
 .login-brand-subtitle { font-size:.82rem; font-weight:600; color:#93c5fd; }
+
+/* H.3: navegação modular expansível, preservando as permissões dos filhos. */
+.sidebar-module { margin: .35rem 0; }
+.sidebar-module.hidden, .sidebar-module-panel[hidden] { display: none !important; }
+.sidebar-module-toggle { font-weight: 800; border-color: rgb(71 85 105 / .32); }
+.sidebar-module-toggle > .sidebar-section-label { padding: 0; color: inherit; text-transform: none; letter-spacing: 0; font-size: .82rem; }
+.sidebar-module-toggle.has-active-page { color: #bfdbfe; border-color: rgb(96 165 250 / .45); background: rgb(37 99 235 / .13); }
+.sidebar-module-toggle:focus-visible { outline: 2px solid #93c5fd; outline-offset: -2px; }
+.sidebar-module-toggle > .sidebar-module-chevron { flex: 0 0 1rem; width: 1rem; height: 1rem; margin-left: auto; transition: transform .15s ease; }
+.sidebar-module-toggle[aria-expanded="true"] > .sidebar-module-chevron { transform: rotate(90deg); }
+.sidebar-module-panel { margin: .3rem 0 .6rem .95rem; padding-left: .5rem; border-left: 1px solid rgb(71 85 105 / .7); }
+.sidebar-module-panel > .nav-item { gap: .6rem; }
+@media (min-width: 1024px) {
+  body.sidebar-collapsed .app-sidebar:not(:hover):not(:focus-within) .sidebar-module-panel { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-module-toggle > .sidebar-module-chevron { transition: none; }
+}
