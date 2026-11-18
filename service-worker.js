@@ -1,4 +1,4 @@
-const VERSAO = 'v1.13.16-h.2-dsips-devolucoes';
+const VERSAO = 'v1.13.16-h.3-dsips-status-cautelas';
 const CACHE_SHELL = `cmapp-shell-${VERSAO}`;
 const CACHE_RUNTIME = `cmapp-runtime-${VERSAO}`;
 const PREFIXO_CACHE = 'cmapp-';

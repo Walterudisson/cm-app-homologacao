@@ -1160,3 +1160,10 @@
 @media(max-width:639px) {
   .dsips-devolucao-toolbar button,.dsips-devolucao-quantity { width:100%; max-width:none; }
 }
+
+/* H.3: semântica de situação exclusiva das cautelas. */
+.dsips-cautela-status { font-size:.68rem; font-weight:800; border-radius:100px; padding:.35rem .6rem; }
+.dsips-cautela-status-aberta { color:#fecaca; background:#7f1d1d; }
+.dsips-cautela-status-parcial { color:#fde68a; background:#78350f; }
+.dsips-cautela-status-encerrada { color:#a7f3d0; background:#064e3b; }
+.dsips-cautela-status-desconhecida { color:#cbd5e1; background:#334155; }

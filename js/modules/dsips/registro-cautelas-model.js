@@ -1,6 +1,6 @@
 import {
   podeConsultarMateriaisDsips, podeGerenciarMateriaisDsips
-} from './consulta-materiais-model.js?v=1.13.16-h.2';
+} from './consulta-materiais-model.js?v=1.13.16-h.3';
 
 export const podeConsultarCautelasDsips = podeConsultarMateriaisDsips;
 export const podeRegistrarCautelasDsips = podeGerenciarMateriaisDsips;
@@ -8,6 +8,12 @@ export const podeRegistrarCautelasDsips = podeGerenciarMateriaisDsips;
 export const STATUS_CAUTELA_DSIPS = Object.freeze({
   aberta: 'Sem devolução', parcial: 'Parcialmente devolvida', encerrada: 'Encerrada'
 });
+
+// Classes fechadas e exclusivas das cautelas; não alterar as situações dos cadastros.
+export function classeStatusCautelaDsips(status) {
+  const chave = typeof status === 'string' && Object.hasOwn(STATUS_CAUTELA_DSIPS,status) ? status : 'desconhecida';
+  return 'dsips-cautela-status dsips-cautela-status-' + chave;
+}
 
 export function saldoDisponivelDsips(materialId, estoque = []) {
   return (Array.isArray(estoque) ? estoque : [])
