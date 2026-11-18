@@ -57,5 +57,5 @@ test('integra menu e sessão existente, exclusivamente leitura de cautelas',asyn
   assert.match(ui,/await listarCadastroDsips\('cautelas'\)/);
   assert.match(ui,/uid!==obterUsuario\(\)\?\.uid/);
   assert.doesNotMatch(ui,/salvarCadastroDsips|registrarCautelaDsips|registrarDevolucaoDsips|innerHTML|listarEventosDsips|responsaveis'\)/);
-  assert.match(sw,/v1\.13\.18-h\.1-dsips-historico/);
+  assert.match(sw,/v1\.13\.18-h\.2-identidade-login/);
 });
