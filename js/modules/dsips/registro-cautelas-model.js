@@ -1,6 +1,6 @@
 import {
   podeConsultarMateriaisDsips, podeGerenciarMateriaisDsips
-} from './consulta-materiais-model.js?v=1.13.16-h.1';
+} from './consulta-materiais-model.js?v=1.13.16-h.2';
 
 export const podeConsultarCautelasDsips = podeConsultarMateriaisDsips;
 export const podeRegistrarCautelasDsips = podeGerenciarMateriaisDsips;

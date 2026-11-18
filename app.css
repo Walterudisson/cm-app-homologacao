@@ -1147,3 +1147,16 @@
   .dsips-cautelas-add-row button { width:100%; }
   .dsips-cautelas-cart-item { align-items:stretch; }
 }
+
+/* Sprint 1.13.16-H.2: devoluções no fluxo de cautelas. */
+.dsips-devolucao-fields { display:grid; gap:.85rem; min-width:0; padding:0; border:0; }
+.dsips-devolucao-toolbar { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.6rem; }
+.dsips-devolucao-item { display:grid; gap:.65rem; min-width:0; padding:.85rem; background:#17243a; border:1px solid #334155; border-radius:.75rem; }
+.dsips-devolucao-item > strong { color:#f8fafc; font-size:.85rem; overflow-wrap:anywhere; }
+.dsips-devolucao-quantity { display:grid; gap:.35rem; max-width:16rem; font-size:.73rem; color:#cbd5e1; }
+.dsips-devolucao-quantity input { min-width:0; width:100%; border:1px solid #475569; border-radius:.6rem; background:#0f172a; padding:.7rem; color:#f8fafc; }
+.dsips-devolucao-quantity input:read-only { background:#243145; color:#bfdbfe; }
+#dsips-devolucao-editor { scroll-margin-top:calc(var(--hml-banner-height) + var(--topbar-height) + 1rem); }
+@media(max-width:639px) {
+  .dsips-devolucao-toolbar button,.dsips-devolucao-quantity { width:100%; max-width:none; }
+}

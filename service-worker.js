@@ -1,4 +1,4 @@
-const VERSAO = 'v1.13.16-h.1-dsips-cautelas';
+const VERSAO = 'v1.13.16-h.2-dsips-devolucoes';
 const CACHE_SHELL = `cmapp-shell-${VERSAO}`;
 const CACHE_RUNTIME = `cmapp-runtime-${VERSAO}`;
 const PREFIXO_CACHE = 'cmapp-';
@@ -28,6 +28,8 @@ const ARQUIVOS_SHELL = [
   './js/modules/dsips/estoque-ui.js',
   './js/modules/dsips/registro-cautelas-model.js',
   './js/modules/dsips/registro-cautelas-ui.js',
+  './js/modules/dsips/cautelas-model.js',
+  './js/modules/dsips/devolucoes-model.js',
   './js/controllers/camera.controller.js',
   './js/core/camera.js',
   './js/core/movimentacao.js',
