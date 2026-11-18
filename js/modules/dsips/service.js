@@ -1,4 +1,4 @@
-import { collection, getDocs, query, where, orderBy, limit } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+import { collection, getDocs, query, where, orderBy, limit, startAfter } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
 import { httpsCallable } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-functions.js';
 import { db, functions } from '../../config/firebase.js';
 
@@ -12,6 +12,16 @@ export async function listarCadastroDsips(tipo) {
 export async function listarEventosDsips() {
   const snapshot = await getDocs(query(collection(db, 'dsipsEventos'), orderBy('registradoEm', 'desc'), limit(30)));
   return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+}
+// Cursor do documento mantém ordenação consistente quando timestamps coincidem.
+export async function listarPaginaEventosDsips(cursor = null) {
+  const restricoes = [orderBy('registradoEm', 'desc')];
+  if (cursor) restricoes.push(startAfter(cursor));
+  restricoes.push(limit(31));
+  const snapshot = await getDocs(query(collection(db, 'dsipsEventos'), ...restricoes));
+  const docs = snapshot.docs.slice(0, 30);
+  return { eventos: docs.map(doc => ({ ...doc.data(), id: doc.id })),
+    cursor: docs.at(-1) || null, temMais: snapshot.docs.length > 30 };
 }
 export async function listarUnidadesDsips(materialId) {
   const snapshot = await getDocs(query(collection(db, 'dsipsUnidades'), where('materialId', '==', materialId)));

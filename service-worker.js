@@ -1,4 +1,4 @@
-const VERSAO = 'v1.13.17-h.1-dsips-posse';
+const VERSAO = 'v1.13.18-h.1-dsips-historico';
 const CACHE_SHELL = `cmapp-shell-${VERSAO}`;
 const CACHE_RUNTIME = `cmapp-runtime-${VERSAO}`;
 const PREFIXO_CACHE = 'cmapp-';
@@ -32,6 +32,8 @@ const ARQUIVOS_SHELL = [
   './js/modules/dsips/devolucoes-model.js',
   './js/modules/dsips/posse-model.js',
   './js/modules/dsips/posse-ui.js',
+  './js/modules/dsips/historico-model.js',
+  './js/modules/dsips/historico-ui.js',
   './js/controllers/camera.controller.js',
   './js/core/camera.js',
   './js/core/movimentacao.js',
