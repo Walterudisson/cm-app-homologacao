@@ -22,10 +22,10 @@ test('tarja de homologação ocupa espaço próprio antes do cabeçalho', async 
 });
 test('atualização H.2 preserva login único e base HML', async () => {
   const [html, sw, fb, app] = await Promise.all([ler('index.html'), ler('service-worker.js'), ler('js/config/firebase.js'), ler('app.js')]);
-  assert.match(sw, /v1\.13\.18-h\.2-identidade-login/);
-  assert.match(html, /app\.css\?v=1\.13\.18-h\.2/);
-  assert.match(html, /app\.js\?v=1\.13\.18-h\.2/);
-  assert.match(html, /<span>v1\.13\.18-H\.2<\/span>/);
+  assert.match(sw, /v1\.13\.18-h\.3-menu-modular/);
+  assert.match(html, /app\.css\?v=1\.13\.18-h\.3/);
+  assert.match(html, /app\.js\?v=1\.13\.18-h\.3/);
+  assert.match(html, /<span>v1\.13\.18-H\.3<\/span>/);
   assert.match(fb, /projectId: "cm-app-homologacao"/);
   assert.match(app, /!podeConsultarMateriaisDsips\(usuarioLogado\)/);
   assert.doesNotMatch(html, /id="pilot-login"/);
@@ -88,4 +88,73 @@ test('login apresenta identidade geral CM APP sem alterar formulário institucio
   assert.doesNotMatch(login, /Patrimônio CM|dados patrimoniais/);
   for (const id of ['form-login','login-email','login-senha','btn-submit-login','login-offline','login-erro']) assert.ok(login.includes('id="'+id+'"'));
   assert.match(css, /\.login-brand-mark\s*\{/);
+});
+
+
+test('menus expansíveis conservam a estrutura, rotas, acesso e versão do controlador', async () => {
+  const [html,nav,app,css]=await Promise.all([ler('index.html'),ler('js/ui/navigation.js'),ler('app.js'),ler('app.css')]);
+  for(const [key,ids] of [
+    ['patrimonio',['dashboard','scanner','lista','inventarios','transferencias']],
+    ['gestao',['usuarios','divisoes','funcoes']],
+    ['dsips',['dsips-materiais','dsips-cadastros','dsips-estoque','dsips-cautelas','dsips-posse','dsips-historico']]
+  ]){
+    const grupo=html.match(new RegExp('data-nav-group="'+key+'"[^>]*>[\\s\\S]*?<div id="sidebar-submenu-'+key+'"[^>]*>([\\s\\S]*?)</div>'));
+    assert.ok(grupo,key);
+    assert.match(grupo[0],new RegExp('aria-controls="sidebar-submenu-'+key+'"'));
+    assert.deepEqual([...grupo[1].matchAll(/data-nav-page="([^"]+)"/g)].map(m=>m[1]),ids);
+  }
+  assert.match(html,/data-nav-group="gestao" data-perfis="admin,gestor"/);
+  assert.match(html,/class="sidebar-module hidden" data-nav-group="dsips" id="dsips-section-label"/);
+  assert.match(html,/data-nav-group-toggle="patrimonio"[^>]*aria-expanded="true"/);
+  assert.match(html,/data-nav-group-toggle="gestao"[^>]*aria-expanded="false"/);
+  assert.match(html,/id="sidebar-submenu-dsips" class="sidebar-module-panel" hidden/);
+  assert.match(app,/navigation\.js\?v=1\.13\.18-h\.3/);
+  assert.match(app,/getElementById\('dsips-section-label'\)\?\.classList.toggle\('hidden', !podeConsultarDsips\)/);
+  assert.match(nav,/painel\.hidden = !aberto/);
+  assert.match(css,/\.sidebar-module-panel\[hidden\]\s*\{\s*display: none !important/);
+  assert.match(css,/\.sidebar-module-toggle\[aria-expanded="true"\]/);
+});
+
+test('clique expande um grupo por vez sem navegar, e página ativa reabre seu grupo',async()=>{
+  const {inicializarNavegacao,ativarPagina,atualizarAcessoNavegacao}=await import('../js/ui/navigation.js');
+  function no(dataset={},classes=[]){
+    const valores=new Set(classes), attrs=new Map(), eventos=new Map();
+    return {dataset,hidden:false,textContent:'',
+      classList:{contains:k=>valores.has(k),add:k=>valores.add(k),remove:k=>valores.delete(k),toggle:(k,v)=>{const abrir=v===undefined?!valores.has(k):Boolean(v);if(abrir)valores.add(k);else valores.delete(k);return abrir;}},
+      setAttribute:(k,v)=>attrs.set(k,v),getAttribute:k=>attrs.get(k),removeAttribute:k=>attrs.delete(k),
+      addEventListener:(k,fn)=>eventos.set(k,fn),click:()=>eventos.get('click')?.()
+    };
+  }
+  function grupo(key,pagina,aberto){
+    const g=no({navGroup:key}),b=no({navGroupToggle:key}),p=no(),filho=no({navPage:pagina});
+    b.setAttribute('aria-expanded',String(aberto));p.hidden=!aberto;b.closest=()=>g;
+    g.querySelector=s=>s==='[data-nav-group-toggle]'?b:p;
+    g.querySelectorAll=()=>[filho];return {g,b,p,filho};
+  }
+  const grupos=[grupo('patrimonio','dashboard',true),grupo('gestao','usuarios',false),grupo('dsips','dsips-posse',false)];
+  grupos[1].g.dataset.perfis='admin,gestor';
+  let destino=null;
+  const oldDoc=globalThis.document,oldWin=globalThis.window;
+  const oldStorage=Object.getOwnPropertyDescriptor(globalThis,'localStorage');
+  try{
+    globalThis.document={body:no(),getElementById:id=>no(),addEventListener:()=>{},
+      querySelectorAll:s=>s==='[data-nav-group]'?grupos.map(x=>x.g):s==='[data-nav-group-toggle]'?grupos.map(x=>x.b):s==='[data-nav-page]'?grupos.map(x=>x.filho):s==='[data-perfis]'?[grupos[1].g]:[]};
+    globalThis.window={matchMedia:()=>({matches:false})};
+    Object.defineProperty(globalThis,'localStorage',{configurable:true,value:{getItem:()=>null,setItem:()=>{}}});
+    inicializarNavegacao(v=>{destino=v;});
+    grupos[2].b.click();
+    assert.equal(destino,null);assert.equal(grupos[0].p.hidden,true);assert.equal(grupos[2].p.hidden,false);
+    grupos[2].b.click();assert.equal(grupos[2].p.hidden,true);
+    ativarPagina('dsips-posse');
+    assert.equal(grupos[2].p.hidden,false);assert.equal(grupos[2].b.classList.contains('has-active-page'),true);
+    assert.equal(grupos[2].filho.getAttribute('aria-current'),'page');
+    atualizarAcessoNavegacao('conferente');
+    assert.equal(grupos[1].g.classList.contains('hidden'),true);
+    grupos[1].b.click();assert.equal(grupos[1].p.hidden,true);
+    grupos[2].filho.click();assert.equal(destino,'dsips-posse');
+  }finally{
+    if(oldDoc===undefined)delete globalThis.document;else globalThis.document=oldDoc;
+    if(oldWin===undefined)delete globalThis.window;else globalThis.window=oldWin;
+    if(oldStorage)Object.defineProperty(globalThis,'localStorage',oldStorage);else delete globalThis.localStorage;
+  }
 });
