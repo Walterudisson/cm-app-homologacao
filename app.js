@@ -59,6 +59,7 @@
     import { criarConsultaMateriaisDsips } from "./js/modules/dsips/consulta-materiais-ui.js?v=1.13.13-h.3";
     import { criarCadastrosDsips } from "./js/modules/dsips/cadastros-ui.js?v=1.13.14-h.1";
     import { criarEstoqueDsips } from "./js/modules/dsips/estoque-ui.js?v=1.13.15-h.1";
+    import { criarRegistroCautelasDsips } from "./js/modules/dsips/registro-cautelas-ui.js?v=1.13.16-h.1";
 
     let usuarioLogado = null;
     let bancoPatrimonio = [];
@@ -150,6 +151,7 @@
     const consultaMateriaisDsips = criarConsultaMateriaisDsips({ obterUsuario: () => usuarioLogado, notificar: notificarMensagem });
     const cadastrosDsips = criarCadastrosDsips({ obterUsuario: () => usuarioLogado, notificar: notificarMensagem });
     const estoqueDsips = criarEstoqueDsips({ obterUsuario: () => usuarioLogado, confirmar: confirmarAcao, notificar: notificarMensagem });
+    const cautelasDsips = criarRegistroCautelasDsips({ obterUsuario: () => usuarioLogado, confirmar: confirmarAcao, notificar: notificarMensagem });
     inicializarAlternadoresSenha();
     inicializarGestaoDivisoes();
     inicializarGestaoFuncoes();
@@ -633,6 +635,7 @@
       consultaMateriaisDsips.limpar();
       cadastrosDsips.limpar();
       estoqueDsips.limpar();
+      cautelasDsips.limpar();
       if (user) {
         const userDoc = await getDoc(doc(db, "usuarios", user.uid));
         if (!userDoc.exists()) {
@@ -707,6 +710,7 @@
       document.getElementById('tab-btn-dsips-materiais')?.classList.toggle('hidden', !podeConsultarDsips);
       document.getElementById('tab-btn-dsips-cadastros')?.classList.toggle('hidden', !podeConsultarDsips);
       document.getElementById('tab-btn-dsips-estoque')?.classList.toggle('hidden', !podeConsultarDsips);
+      document.getElementById('tab-btn-dsips-cautelas')?.classList.toggle('hidden', !podeConsultarDsips);
       document.getElementById('dsips-section-label')?.classList.toggle('hidden', !podeConsultarDsips);
       atualizarEstadoTutorialConferente();
       document.getElementById('profile-menu-name').innerText = usuarioLogado.nome;
@@ -1460,7 +1464,7 @@
 
     async function alternarAba(abaAtiva, { registrarHistorico = true, substituirHistorico = false } = {}) {
       if (!usuarioLogado) return;
-      if (['dsips-materiais', 'dsips-cadastros', 'dsips-estoque'].includes(abaAtiva) && !podeConsultarMateriaisDsips(usuarioLogado)) {
+      if (['dsips-materiais', 'dsips-cadastros', 'dsips-estoque', 'dsips-cautelas'].includes(abaAtiva) && !podeConsultarMateriaisDsips(usuarioLogado)) {
         notificarMensagem('Você não possui acesso à consulta DSIPS.', 'aviso');
         return;
       }
@@ -1480,7 +1484,7 @@
         await controladorCamera.desligar({ retomarAposSalvar: true });
       }
 
-      ['dashboard', 'scanner', 'transferencias', 'usuarios', 'divisoes', 'funcoes', 'inventarios', 'lista', 'perfil', 'dsips-materiais', 'dsips-cadastros', 'dsips-estoque'].forEach(aba => {
+      ['dashboard', 'scanner', 'transferencias', 'usuarios', 'divisoes', 'funcoes', 'inventarios', 'lista', 'perfil', 'dsips-materiais', 'dsips-cadastros', 'dsips-estoque', 'dsips-cautelas'].forEach(aba => {
         const sec = document.getElementById(`sec-${aba}`);
         if (sec) sec.classList.toggle('hidden', aba !== abaAtiva);
       });
@@ -1513,6 +1517,7 @@
         if (abaAtiva === 'dsips-materiais') await consultaMateriaisDsips.carregar();
         if (abaAtiva === 'dsips-cadastros') await cadastrosDsips.carregar();
         if (abaAtiva === 'dsips-estoque') await estoqueDsips.carregar();
+        if (abaAtiva === 'dsips-cautelas') await cautelasDsips.carregar();
         if (abaAtiva === 'lista') await carregarRelacaoPatrimonial();
       } catch (erro) {
         console.error(`Erro ao carregar a aba ${abaAtiva}:`, erro);
