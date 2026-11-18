@@ -1,4 +1,4 @@
-const VERSAO = 'v1.13.18-h.1-dsips-historico';
+const VERSAO = 'v1.13.18-h.2-identidade-login';
 const CACHE_SHELL = `cmapp-shell-${VERSAO}`;
 const CACHE_RUNTIME = `cmapp-runtime-${VERSAO}`;
 const PREFIXO_CACHE = 'cmapp-';
