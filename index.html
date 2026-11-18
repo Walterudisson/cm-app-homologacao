@@ -21,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.13.18-h.2">
+  <link rel="stylesheet" href="./app.css?v=1.13.18-h.3">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div id="cmapp-hml-banner" class="cmapp-hml-banner" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -56,7 +56,7 @@
 
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.18-H.2 • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.18-H.3 • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -82,7 +82,13 @@
       </div>
 
       <nav class="sidebar-nav">
-        <span class="sidebar-section-label sidebar-label">Patrimônio</span>
+        <div class="sidebar-module" data-nav-group="patrimonio">
+          <button type="button" class="nav-item sidebar-module-toggle has-active-page" data-nav-group-toggle="patrimonio" aria-label="Patrimônio" aria-controls="sidebar-submenu-patrimonio" aria-expanded="true">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10 12 4l9 6v10H3zM9 20v-6h6v6M6 10h12"/></svg>
+            <span class="sidebar-section-label sidebar-label">Patrimônio</span>
+            <svg class="sidebar-module-chevron sidebar-label" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+          <div id="sidebar-submenu-patrimonio" class="sidebar-module-panel">
         <button id="tab-btn-dashboard" type="button" class="nav-item active" data-nav-page="dashboard">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13h6V4H4v9Zm0 7h6v-5H4v5Zm10 0h6v-9h-6v9Zm0-16v5h6V4h-6Z"/></svg>
           <span class="sidebar-label">Painel</span>
@@ -106,7 +112,16 @@
           <span id="badge-fila-count" class="hidden nav-badge sidebar-label">0</span>
         </button>
 
-        <span class="sidebar-section-label sidebar-label" data-perfis="admin,gestor">Gestão</span>
+          </div>
+        </div>
+
+        <div class="sidebar-module" data-nav-group="gestao" data-perfis="admin,gestor">
+          <button type="button" class="nav-item sidebar-module-toggle" data-nav-group-toggle="gestao" aria-label="Gestão" aria-controls="sidebar-submenu-gestao" aria-expanded="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3M5 5l2 2m10 10 2 2M5 19l2-2M17 7l2-2"/></svg>
+            <span class="sidebar-section-label sidebar-label">Gestão</span>
+            <svg class="sidebar-module-chevron sidebar-label" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+          <div id="sidebar-submenu-gestao" class="sidebar-module-panel" hidden>
         <button id="tab-btn-usuarios" type="button" class="nav-item" data-nav-page="usuarios" data-perfis="admin,gestor">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm7 8a7 7 0 0 0-14 0M19 8v6M16 11h6"/></svg>
           <span class="sidebar-label">Usuários</span>
@@ -119,7 +134,16 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 7v5c0 5 3.4 8 8 9 4.6-1 8-4 8-9V7l-8-4Zm-3 9 2 2 4-5"/></svg>
           <span class="sidebar-label">Funções e permissões</span>
         </button>
-        <span id="dsips-section-label" class="sidebar-section-label sidebar-label hidden">DSIPS</span>
+          </div>
+        </div>
+
+        <div class="sidebar-module hidden" data-nav-group="dsips" id="dsips-section-label">
+          <button type="button" class="nav-item sidebar-module-toggle" data-nav-group-toggle="dsips" aria-label="DSIPS" aria-controls="sidebar-submenu-dsips" aria-expanded="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 7v5c0 5 3 8 8 10 5-2 8-5 8-10V7zM8 12l3 3 5-6"/></svg>
+            <span class="sidebar-section-label sidebar-label">DSIPS</span>
+            <svg class="sidebar-module-chevron sidebar-label" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+          <div id="sidebar-submenu-dsips" class="sidebar-module-panel" hidden>
         <button id="tab-btn-dsips-materiais" type="button" class="nav-item hidden" data-nav-page="dsips-materiais">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8 12 4l8 4v10l-8 4-8-4V8Zm0 0 8 4 8-4M12 12v10"/></svg>
           <span class="sidebar-label">Materiais</span>
@@ -144,11 +168,13 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11a9 9 0 1 1 3 7M3 4v7h7M12 7v5l3 2"/></svg>
           <span class="sidebar-label">Histórico</span>
         </button>
+          </div>
+        </div>
 
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.13.18-H.2</span>
+        <span>v1.13.18-H.3</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -1077,7 +1103,7 @@
 
       <footer class="app-footer">
         <span>CM APP</span>
-        <span>v1.13.18-H.2 · HOMOLOGAÇÃO</span>
+        <span>v1.13.18-H.3 · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -1278,6 +1304,6 @@
   </div>
 
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.5.0/dist/driver.js.iife.js"></script>
-    <script type="module" src="./app.js?v=1.13.18-h.2"></script>
+    <script type="module" src="./app.js?v=1.13.18-h.3"></script>
 </body>
 </html>
