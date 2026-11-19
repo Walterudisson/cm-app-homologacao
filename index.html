@@ -21,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.13.21-h.1">
+  <link rel="stylesheet" href="./app.css?v=1.13.22-h.1">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div id="cmapp-hml-banner" class="cmapp-hml-banner" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -56,7 +56,7 @@
 
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.21-H.1 • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.22-H.1 • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -176,7 +176,7 @@
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.13.21-H.1</span>
+        <span>v1.13.22-H.1</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -703,17 +703,22 @@
 
       <!-- SPRINT 1.13.16-H.2: CAUTELAS E DEVOLUÇÕES DSIPS -->
       <section id="sec-dsips-cautelas" class="hidden space-y-5" aria-label="Cautelas DSIPS">
-        <article class="app-card dsips-intro">
+        <article class="cm-panel-header cm-pdv-header">
           <div>
             <span class="eyebrow">DSIPS · Responsabilidade e entrega</span>
             <h2>Cautelas</h2>
-            <p>Registre entregas e devoluções de materiais vinculados aos usuários do CMAPP. Acompanhe as cautelas e suas pendências.</p>
+            <p>Entregue, receba e consulte materiais em cautela.</p>
           </div>
           <div class="dsips-intro-actions">
-            <span id="dsips-cautelas-mode" class="dsips-readonly" aria-live="polite">Verificando acesso…</span>
+            <span id="dsips-cautelas-mode" class="cm-pdv-access" aria-live="polite">Verificando acesso…</span><button type="button" id="dsips-pdv-mode" class="app-button app-button-secondary">Modo quiosque</button>
             <button id="dsips-cautelas-new" class="app-button app-button-primary hidden" type="button">+ Registrar cautela</button>
           </div>
         </article>
+        <div class="cm-pdv-launch" id="dsips-pdv-launch">
+          <button type="button" id="dsips-pdv-entrega" class="cm-pdv-tile cm-pdv-delivery hidden"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7l9-4 9 4-9 4-9-4zm0 0v10l9 4 9-4V7M12 11v10"/></svg><strong>Nova cautela</strong><span>Entregar materiais</span></button>
+          <button type="button" id="dsips-pdv-retorno" class="cm-pdv-tile cm-pdv-return hidden"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-9-6-6 6 6 6M19 5v14"/></svg><strong>Devolução</strong><span>Receber materiais</span></button>
+          <button type="button" id="dsips-pdv-consulta" class="cm-pdv-tile"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 20l-5-5M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg><strong>Consultar cautelas</strong><span>Pesquisar registros</span></button>
+        </div>
         <div class="dsips-overview">
           <article class="app-card dsips-overview-card">
             <span>Cautelas registradas</span><strong id="dsips-cautelas-total">0</strong>
@@ -739,6 +744,8 @@
               </label>
             </div>
             <h4 class="dsips-cautelas-step">2. Materiais a entregar</h4>
+            <div class="cm-pdv-tools"><label for="dsips-pdv-search">Pesquisar material</label><input id="dsips-pdv-search" type="search" autocomplete="off" placeholder="Nome do material"></div>
+            <div id="dsips-pdv-materials" class="cm-pdv-material-grid" aria-label="Materiais disponíveis"></div>
             <div class="dsips-editor-fields">
               <label>Material com saldo disponível
                 <select id="dsips-cautelas-material"><option value="">Selecione um material disponível</option></select>
@@ -1116,7 +1123,7 @@
 
       <footer class="app-footer">
         <span>CM APP</span>
-        <span>v1.13.21-H.1 · HOMOLOGAÇÃO</span>
+        <span>v1.13.22-H.1 · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -1317,6 +1324,6 @@
   </div>
 
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.5.0/dist/driver.js.iife.js"></script>
-    <script type="module" src="./app.js?v=1.13.21-h.1"></script>
+    <script type="module" src="./app.js?v=1.13.22-h.1"></script>
 </body>
 </html>

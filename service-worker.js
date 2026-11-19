@@ -1,4 +1,4 @@
-const VERSAO = 'v1.13.21-h.1-ux-painel';
+const VERSAO = 'v1.13.22-h.1-ux-pdv';
 const CACHE_SHELL = `cmapp-shell-${VERSAO}`;
 const CACHE_RUNTIME = `cmapp-runtime-${VERSAO}`;
 const PREFIXO_CACHE = 'cmapp-';
@@ -30,6 +30,7 @@ const ARQUIVOS_SHELL = [
   './js/modules/dsips/ajustes-model.js',
   './js/modules/dsips/registro-cautelas-model.js',
   './js/modules/dsips/registro-cautelas-ui.js',
+  './js/modules/dsips/pdv-model.js',
   './js/modules/dsips/cautelas-model.js',
   './js/modules/dsips/devolucoes-model.js',
   './js/modules/dsips/posse-model.js',

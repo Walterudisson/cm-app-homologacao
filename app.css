@@ -1249,3 +1249,30 @@
 .cm-panel-kpi .cm-panel-icon svg {width:23px;height:23px}
 @media(max-width:900px){.cm-panel-kpis,.cm-panel-actions{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}}
 @media(max-width:420px){.cm-panel-kpi{padding:10px;gap:7px}.cm-panel-kpi .cm-panel-icon{width:32px;height:32px}.cm-panel-action{padding:12px;min-height:150px}}
+
+/* UX-04: PDV com o mesmo motor de cautelas */
+.cm-pdv-header {margin-bottom:12px}
+.cm-pdv-access:empty {display:none}
+.cm-pdv-access {color:var(--app-muted);font-size:.8rem}
+.cm-pdv-launch {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.cm-pdv-tile {display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;min-height:146px;border:1px solid var(--app-border);border-radius:16px;padding:18px;background:var(--app-surface);color:var(--app-text);text-align:center}
+.cm-pdv-tile strong {font-size:1.15rem;font-weight:750}
+.cm-pdv-tile span {font-size:.85rem;opacity:.85}
+.cm-pdv-tile svg,.cm-pdv-icon svg {width:42px;height:42px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.cm-pdv-delivery {background:#174d9a;color:white;border-color:#2862ac}
+.cm-pdv-return {background:#0f766e;color:white;border-color:#14877e}
+.cm-pdv-tile:hover,.cm-pdv-material:hover,.cm-pdv-material[aria-pressed="true"] {border-color:#93c5fd}
+.cm-pdv-tile:disabled,.cm-pdv-material:disabled {opacity:.5;cursor:not-allowed}
+.cm-pdv-tools {display:flex;flex-direction:column;gap:6px;max-width:440px}
+.cm-pdv-material-grid {display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,150px),1fr));gap:12px}
+.cm-pdv-material {min-height:144px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;border:1px solid var(--app-border);border-radius:14px;padding:12px;background:var(--app-surface);color:var(--app-text);overflow-wrap:anywhere}
+.cm-pdv-material strong {font-size:.9rem;font-weight:700}
+.cm-pdv-material>span:last-child {font-size:.75rem;color:var(--app-muted)}
+.cm-pdv-icon {display:grid;place-items:center;background:rgb(59 130 246 / .15);color:#93c5fd;border-radius:14px;width:64px;height:64px}
+.cm-pdv-material[data-cor="verde"] .cm-pdv-icon {background:rgb(16 185 129 / .15);color:#6ee7b7}
+.cm-pdv-material[data-cor="roxo"] .cm-pdv-icon {background:rgb(139 92 246 / .15);color:#c4b5fd}
+.cm-pdv-material[data-cor="ambar"] .cm-pdv-icon {background:rgb(245 158 11 / .15);color:#fcd34d}
+.cm-pdv-kiosk .app-sidebar,.cm-pdv-kiosk #sidebar-overlay,.cm-pdv-kiosk #btn-menu {display:none!important}
+body.cm-pdv-kiosk .app-shell {display:block!important;grid-template-columns:minmax(0,1fr)!important}
+body.cm-pdv-kiosk .app-workspace {margin-left:0!important;width:100%!important}
+@media(max-width:639px){.cm-pdv-launch{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.cm-pdv-tile{min-height:120px;padding:12px}.cm-pdv-tile:last-child{grid-column:1/-1}.cm-pdv-material-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
