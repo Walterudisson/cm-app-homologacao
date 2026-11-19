@@ -53,7 +53,7 @@
       fecharCamadasNavegacao,
       fecharNavegacaoMovel,
       inicializarNavegacao
-    } from "./js/ui/navigation.js?v=1.13.18-h.3";
+    } from "./js/ui/navigation.js?v=1.13.20-h.1";
     import { inicializarPwa } from "./js/pwa.js?v=1.12.0";
     import { podeConsultarMateriaisDsips } from "./js/modules/dsips/consulta-materiais-model.js?v=1.13.13-h.3";
     import { criarConsultaMateriaisDsips } from "./js/modules/dsips/consulta-materiais-ui.js?v=1.13.13-h.3";
@@ -63,6 +63,9 @@
     import { criarPosseDsips } from "./js/modules/dsips/posse-ui.js?v=1.13.17-h.1";
     import { criarHistoricoDsips } from "./js/modules/dsips/historico-ui.js?v=1.13.19-h.1";
     import { podeConsultarHistoricoDsips } from "./js/modules/dsips/historico-model.js?v=1.13.19-h.1";
+
+    import {renderizarCentral, podeAbrirCentral} from './js/ui/central-trabalho.js?v=1.13.20-h.1';
+    import {modulosDoUsuario} from './js/platform/modules.js';
 
     let usuarioLogado = null;
     let bancoPatrimonio = [];
@@ -679,12 +682,19 @@
         await carregarFotoPerfilAtual();
         atualizarCarrossel();
         if (usuarioLogado.perfil !== 'conferente') iniciarOuvinteTransferencias();
-        await alternarAba('dashboard', { substituirHistorico: true });
-        agendarTutorialConferente();
+        if (usuarioLogado.perfil === 'conferente' && modulosDoUsuario(usuarioLogado).some(m=>m.id==='patrimonios')) {
+          await alternarAba('dashboard', { substituirHistorico: true });
+          agendarTutorialConferente();
+        } else if (podeAbrirCentral(usuarioLogado)) {
+          await alternarAba('modulos', { substituirHistorico: true });
+        } else {
+          await alternarAba('perfil', { substituirHistorico: true });
+        }
       } else {
         encerrarOuvinteTransferencias();
         if (controladorCamera.estaAtiva()) await controladorCamera.desligar({ limparResultado: true });
         usuarioLogado = null;
+        renderizarCentral(document.getElementById('central-modulos-grid'), null, ()=>{});
         escopoVisualizacao = '';
         revisaoEscopo++;
         bancoPatrimonio = [];
@@ -714,6 +724,8 @@
       atualizarUsuarioNavegacao(usuarioLogado, fotoPerfilUrl);
       atualizarAcessoNavegacao(usuarioLogado.perfil);
       const podeConsultarDsips = podeConsultarMateriaisDsips(usuarioLogado);
+      document.getElementById('tab-btn-modulos')?.classList.toggle('hidden', !podeAbrirCentral(usuarioLogado));
+      renderizarCentral(document.getElementById('central-modulos-grid'), usuarioLogado, aba=>alternarAba(aba));
       document.getElementById('tab-btn-dsips-materiais')?.classList.toggle('hidden', !podeConsultarDsips);
       document.getElementById('tab-btn-dsips-cadastros')?.classList.toggle('hidden', !podeConsultarDsips);
       document.getElementById('tab-btn-dsips-estoque')?.classList.toggle('hidden', !podeConsultarDsips);
@@ -1473,6 +1485,7 @@
 
     async function alternarAba(abaAtiva, { registrarHistorico = true, substituirHistorico = false } = {}) {
       if (!usuarioLogado) return;
+      if (abaAtiva === 'modulos' && !podeAbrirCentral(usuarioLogado)) return;
       if (abaAtiva === 'dsips-historico' && !podeConsultarHistoricoDsips(usuarioLogado)) {
         historicoDsips.limpar();
         notificarMensagem('Você não possui acesso à auditoria DSIPS.', 'aviso');
@@ -1498,7 +1511,7 @@
         await controladorCamera.desligar({ retomarAposSalvar: true });
       }
 
-      ['dashboard', 'scanner', 'transferencias', 'usuarios', 'divisoes', 'funcoes', 'inventarios', 'lista', 'perfil', 'dsips-materiais', 'dsips-cadastros', 'dsips-estoque', 'dsips-cautelas', 'dsips-posse', 'dsips-historico'].forEach(aba => {
+      ['modulos', 'dashboard', 'scanner', 'transferencias', 'usuarios', 'divisoes', 'funcoes', 'inventarios', 'lista', 'perfil', 'dsips-materiais', 'dsips-cadastros', 'dsips-estoque', 'dsips-cautelas', 'dsips-posse', 'dsips-historico'].forEach(aba => {
         const sec = document.getElementById(`sec-${aba}`);
         if (sec) sec.classList.toggle('hidden', aba !== abaAtiva);
       });
@@ -1513,6 +1526,7 @@
       }
 
       try {
+        if (abaAtiva === 'modulos') renderizarCentral(document.getElementById('central-modulos-grid'), usuarioLogado, aba=>alternarAba(aba));
         if (abaAtiva === 'dashboard') await carregarDashboard();
         if (abaAtiva === 'scanner') await carregarCatalogoDivisoes();
         if (abaAtiva === 'transferencias' && unsubscribeTransferencias.length === 0) iniciarOuvinteTransferencias();

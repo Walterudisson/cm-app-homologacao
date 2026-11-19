@@ -22,10 +22,10 @@ test('tarja de homologação ocupa espaço próprio antes do cabeçalho', async 
 });
 test('atualização H.2 preserva login único e base HML', async () => {
   const [html, sw, fb, app] = await Promise.all([ler('index.html'), ler('service-worker.js'), ler('js/config/firebase.js'), ler('app.js')]);
-  assert.match(sw, /v1\.13\.19-h\.1-ajustes/);
-  assert.match(html, /app\.css\?v=1\.13\.18-h\.3/);
-  assert.match(html, /app\.js\?v=1\.13\.19-h\.1/);
-  assert.match(html, /<span>v1\.13\.19-H\.1<\/span>/);
+  assert.match(sw, /v1\.13\.20-h\.1-ux-central/);
+  assert.match(html, /app\.css\?v=1\.13\.20-h\.1/);
+  assert.match(html, /app\.js\?v=1\.13\.20-h\.1/);
+  assert.match(html, /<span>v1\.13\.20-H\.1<\/span>/);
   assert.match(fb, /projectId: "cm-app-homologacao"/);
   assert.match(app, /!podeConsultarMateriaisDsips\(usuarioLogado\)/);
   assert.doesNotMatch(html, /id="pilot-login"/);
@@ -108,7 +108,7 @@ test('menus expansíveis conservam a estrutura, rotas, acesso e versão do contr
   assert.match(html,/data-nav-group-toggle="patrimonio"[^>]*aria-expanded="true"/);
   assert.match(html,/data-nav-group-toggle="gestao"[^>]*aria-expanded="false"/);
   assert.match(html,/id="sidebar-submenu-dsips" class="sidebar-module-panel" hidden/);
-  assert.match(app,/navigation\.js\?v=1\.13\.18-h\.3/);
+  assert.match(app,/navigation\.js\?v=1\.13\.20-h\.1/);
   assert.match(app,/getElementById\('dsips-section-label'\)\?\.classList.toggle\('hidden', !podeConsultarDsips\)/);
   assert.match(nav,/painel\.hidden = !aberto/);
   assert.match(css,/\.sidebar-module-panel\[hidden\]\s*\{\s*display: none !important/);

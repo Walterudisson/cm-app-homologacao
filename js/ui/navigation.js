@@ -1,4 +1,5 @@
 const PAGINAS = {
+  modulos: { titulo: 'Central de Trabalho', trilha: ['CM APP', 'Central de Trabalho'] },
   dashboard: { titulo: 'Painel', trilha: ['CM APP', 'Patrimônio', 'Painel'] },
   scanner: { titulo: 'Leitura', trilha: ['CM APP', 'Patrimônio', 'Leitura'] },
   lista: { titulo: 'Relação', trilha: ['CM APP', 'Patrimônio', 'Relação'] },

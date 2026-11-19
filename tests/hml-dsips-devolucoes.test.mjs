@@ -84,7 +84,7 @@ test('devolução integra Cautelas com confirmação, acesso, sessão e recupera
   assert.doesNotMatch(preencher,/registrarDevolucaoDsips|salvarDevolucao\(/);
   assert.match(service,/httpsCallable\(functions, 'dsipsRegistrarDevolucao'\)/);
   assert.match(app,/registro-cautelas-ui\.js\?v=1\.13\.16-h\.3/);
-  assert.match(sw,/v1\.13\.19-h\.1-ajustes/);
+  assert.match(sw,/v1\.13\.20-h\.1-ux-central/);
   assert.match(sw,/\.\/js\/modules\/dsips\/devolucoes-model\.js/);
   assert.match(css,/\.dsips-devolucao-item/);
   assert.doesNotMatch(ui,/innerHTML\s*=/);
