@@ -61,7 +61,7 @@
     import { criarEstoqueDsips } from "./js/modules/dsips/estoque-ui.js?v=1.13.23-h.1";
     import { criarRegistroCautelasDsips } from "./js/modules/dsips/registro-cautelas-ui.js?v=1.13.26-h.1";
     import { criarPosseDsips } from "./js/modules/dsips/posse-ui.js?v=1.13.26-h.1";
-    import { criarHistoricoDsips } from "./js/modules/dsips/historico-ui.js?v=1.13.19-h.1";
+    import { criarHistoricoDsips } from "./js/modules/dsips/historico-ui.js?v=1.13.28-h.1";
     import { podeConsultarHistoricoDsips } from "./js/modules/dsips/historico-model.js?v=1.13.19-h.1";
 
     import {renderizarCentral, podeAbrirCentral} from './js/ui/central-trabalho.js?v=1.13.23-h.1';

@@ -21,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.13.27-h.1">
+  <link rel="stylesheet" href="./app.css?v=1.13.28-h.1">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div id="cmapp-hml-banner" class="cmapp-hml-banner" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -56,7 +56,7 @@
 
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.27-H.1 • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.28-H.1 • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -176,7 +176,7 @@
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.13.27-H.1</span>
+        <span>v1.13.28-H.1</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -853,11 +853,12 @@
       <section id="sec-dsips-historico" class="hidden space-y-5" aria-label="Histórico DSIPS">
         <article class="cm-panel-header cm-management-header dsips-intro">
           <div><span class="eyebrow">DSIPS · Auditoria</span>
-          <h2>Histórico de movimentações</h2>
+          <h2>Histórico e auditoria</h2>
           <p>Consulte movimentações, operadores e detalhes de auditoria.</p></div>
           <span class="cm-management-access">Somente consulta</span>
         </article>
         <article class="app-card dsips-panel">
+          <div class="dsips-cadastros-tabs" role="group" aria-label="Perspectiva da auditoria"><button type="button" data-historico-visao="geral" aria-pressed="true" class="is-selected">Geral</button><button type="button" data-historico-visao="material" aria-pressed="false" class="">Material</button><button type="button" data-historico-visao="pessoa" aria-pressed="false" class="">Pessoa</button><button type="button" data-historico-visao="operador" aria-pressed="false" class="">Operador</button></div>
           <div class="dsips-toolbar">
             <label class="dsips-search-label" for="dsips-historico-search"><span>Pesquisar eventos carregados</span>
               <input id="dsips-historico-search" type="search" autocomplete="off" placeholder="Operador, responsável, material ou registro">
@@ -867,6 +868,8 @@
             </label>
             <button id="dsips-historico-refresh" type="button" class="app-button app-button-primary">Atualizar</button>
           </div>
+          <div class="cm-audit-dates dsips-editor-fields"><label>De<input type="date" id="dsips-historico-de"></label><label>Até<input type="date" id="dsips-historico-ate"></label></div>
+          <p class="cm-audit-note">Filtros sobre eventos carregados. Use Carregar eventos anteriores para ampliar a consulta.</p>
           <p id="dsips-historico-status" class="dsips-state-message" role="status" aria-live="polite">Abra Histórico para consultar os eventos.</p>
           <div id="dsips-historico-list" class="dsips-historico-list"></div>
           <button id="dsips-historico-more" type="button" class="app-button app-button-secondary hidden">Carregar eventos anteriores</button>
@@ -1126,7 +1129,7 @@
 
       <footer class="app-footer">
         <span>CM APP</span>
-        <span>v1.13.27-H.1 · HOMOLOGAÇÃO</span>
+        <span>v1.13.28-H.1 · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -1327,6 +1330,6 @@
   </div>
 
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.5.0/dist/driver.js.iife.js"></script>
-    <script type="module" src="./app.js?v=1.13.27-h.1"></script>
+    <script type="module" src="./app.js?v=1.13.28-h.1"></script>
 </body>
 </html>

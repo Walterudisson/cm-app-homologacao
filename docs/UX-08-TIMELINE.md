@@ -1,0 +1,2 @@
+# UX-08
+Quatro perspectivas e filtros locais sobre eventos paginados. Dados históricos preservados. Identidades por nome podem ter homônimos; ID pesquisável quando registrado. Template original indisponível. Atalhos e busca integral posteriores. Sem alterações no backend.
