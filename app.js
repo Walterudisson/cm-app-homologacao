@@ -58,11 +58,11 @@
     import { podeConsultarMateriaisDsips } from "./js/modules/dsips/consulta-materiais-model.js?v=1.13.13-h.3";
     import { criarConsultaMateriaisDsips } from "./js/modules/dsips/consulta-materiais-ui.js?v=1.13.13-h.3";
     import { criarCadastrosDsips } from "./js/modules/dsips/cadastros-ui.js?v=1.13.14-h.1";
-    import { criarEstoqueDsips } from "./js/modules/dsips/estoque-ui.js?v=1.13.15-h.1";
+    import { criarEstoqueDsips } from "./js/modules/dsips/estoque-ui.js?v=1.13.19-h.1";
     import { criarRegistroCautelasDsips } from "./js/modules/dsips/registro-cautelas-ui.js?v=1.13.16-h.3";
     import { criarPosseDsips } from "./js/modules/dsips/posse-ui.js?v=1.13.17-h.1";
-    import { criarHistoricoDsips } from "./js/modules/dsips/historico-ui.js?v=1.13.18-h.1";
-    import { podeConsultarHistoricoDsips } from "./js/modules/dsips/historico-model.js?v=1.13.18-h.1";
+    import { criarHistoricoDsips } from "./js/modules/dsips/historico-ui.js?v=1.13.19-h.1";
+    import { podeConsultarHistoricoDsips } from "./js/modules/dsips/historico-model.js?v=1.13.19-h.1";
 
     let usuarioLogado = null;
     let bancoPatrimonio = [];

@@ -30,4 +30,5 @@ export async function listarUnidadesDsips(materialId) {
 export const salvarCadastroDsips = dados => httpsCallable(functions, 'dsipsSalvarCadastro')(dados).then(result => result.data);
 export const registrarSaldoInicialDsips = dados => httpsCallable(functions, 'dsipsRegistrarSaldoInicial')(dados).then(result => result.data);
 export const registrarCautelaDsips = dados => httpsCallable(functions, 'dsipsRegistrarCautela')(dados).then(result => result.data);
+export const registrarAjusteEstoqueDsips = dados => httpsCallable(functions, 'dsipsRegistrarAjusteEstoque')(dados).then(result => result.data);
 export const registrarDevolucaoDsips = dados => httpsCallable(functions, 'dsipsRegistrarDevolucao')(dados).then(result => result.data);
