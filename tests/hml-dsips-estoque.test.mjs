@@ -91,10 +91,10 @@ test('Estoque fica no CMAPP principal com controle de sessão, confirmação e s
   assert.doesNotMatch(ui,/innerHTML\s*=/);
   assert.doesNotMatch(ui,/deleteDoc|updateDoc|setDoc/);
   assert.match(service,/httpsCallable\(functions, 'dsipsRegistrarSaldoInicial'\)/);
-  assert.match(sw,/v1\.13\.20-h\.1-ux-central/);
+  assert.match(sw,/v1\.13\.21-h\.1-ux-painel/);
   assert.match(sw,/\.\/js\/modules\/dsips\/estoque-model\.js/);
   assert.match(sw,/\.\/js\/modules\/dsips\/estoque-ui\.js/);
-  assert.match(html,/app\.js\?v=1\.13\.20-h\.1/);
+  assert.match(html,/app\.js\?v=1\.13\.21-h\.1/);
   assert.match(css,/\.dsips-estoque-grid/);
   assert.match(fb,/projectId: "cm-app-homologacao"/);
   assert.doesNotMatch(fb,/projectId: "patrimonioscm"/);
