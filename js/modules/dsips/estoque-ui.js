@@ -1,3 +1,4 @@
+import {podeConsultarHistoricoDsips} from './historico-model.js?v=1.13.29-h.1';
 import {
   listarCadastroDsips, listarUnidadesDsips, registrarSaldoInicialDsips
 } from './service.js?v=1.13.15-h.1';
@@ -8,7 +9,7 @@ import {
 
 import { criarAjustesDsips } from './ajustes-ui.js?v=1.13.19-h.1';
 
-export function criarEstoqueDsips({ obterUsuario, confirmar, notificar = () => {} }) {
+export function criarEstoqueDsips({ obterUsuario, confirmar, notificar = () => {} , abrirHistorico=()=>{}}) {
   const porId = id => document.getElementById(id);
   const secao = porId('sec-dsips-estoque');
   const lista = porId('dsips-estoque-list');
@@ -175,6 +176,7 @@ export function criarEstoqueDsips({ obterUsuario, confirmar, notificar = () => {
         rodape.append(consultar);
       }
       ajustes.anexar(rodape,material,local,posicao);
+      if(podeConsultarHistoricoDsips(obterUsuario())&&posicao.materialId){const b=elemento('button','app-button app-button-secondary','Movimentações');b.type='button';b.addEventListener('click',()=>abrirHistorico({visao:'material',id:posicao.materialId,nome:material?.nome}));rodape.append(b);}
       card.append(cabecalho,atributos,rodape);
       lista.append(card);
     }
@@ -245,6 +247,7 @@ export function criarEstoqueDsips({ obterUsuario, confirmar, notificar = () => {
           unidade.situacao === 'em_cautela' ? 'Em cautela' : unidade.situacao === 'baixada' ? 'Baixada' : (unidade.situacao || 'Sem situação'));
         const local = elemento('small','',localPorId(unidade.localId)?.nome || 'Local não informado');
         linha.append(nome,estado,local);
+        if(podeConsultarHistoricoDsips(obterUsuario())&&unidade.id&&unidade.identificacao){const b=elemento('button','app-button app-button-secondary','Histórico da unidade');b.type='button';b.addEventListener('click',()=>abrirHistorico({visao:'unidade',id:unidade.id,identificacao:unidade.identificacao,materialId,nome:unidade.identificacao}));linha.append(b);}
         unidadesLista.append(linha);
       }
       unidadesLista.scrollIntoView({ behavior: 'smooth', block: 'nearest' });

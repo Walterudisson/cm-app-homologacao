@@ -1,3 +1,4 @@
+import {podeConsultarHistoricoDsips} from './historico-model.js?v=1.13.29-h.1';
 import { listarCadastroDsips, salvarCadastroDsips } from './service.js?v=1.13.13-h.3';
 import {
   filtrarMateriaisDsips, podeConsultarMateriaisDsips,
@@ -5,7 +6,7 @@ import {
   visualMaterialDsips, ICONES_CARDS_DSIPS
 } from './consulta-materiais-model.js?v=1.13.13-h.3';
 
-export function criarConsultaMateriaisDsips({ obterUsuario, notificar = () => {} }) {
+export function criarConsultaMateriaisDsips({ obterUsuario, notificar = () => {} , abrirHistorico=()=>{}}) {
   const porId = id => document.getElementById(id);
   const lista = porId('dsips-material-list');
   const estado = porId('dsips-material-status');
@@ -167,6 +168,7 @@ export function criarConsultaMateriaisDsips({ obterUsuario, notificar = () => {}
         material.ativo === false ? 'dsips-status-inactive' : 'dsips-status-active',
         material.ativo === false ? 'Inativo' : 'Ativo');
       card.append(cab, informacoes, situacao);
+      if(podeConsultarHistoricoDsips(obterUsuario())&&material.id){const b=elemento('button','app-button app-button-secondary','Histórico');b.type='button';b.addEventListener('click',()=>abrirHistorico({visao:'material',id:material.id,nome:material.nome}));card.append(b);}
       if (edicaoPermitida) {
         const editar = elemento('button', 'app-button app-button-secondary dsips-material-edit', 'Editar');
         editar.type = 'button';
