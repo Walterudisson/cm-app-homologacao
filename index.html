@@ -21,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.13.26-h.1">
+  <link rel="stylesheet" href="./app.css?v=1.13.27-h.1">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div id="cmapp-hml-banner" class="cmapp-hml-banner" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -56,7 +56,7 @@
 
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.26-H.1 • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.27-H.1 • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -146,7 +146,7 @@
           </button>
           <div id="sidebar-submenu-dsips" class="sidebar-module-panel" hidden>
         <button id="tab-btn-dsips-inicio" type="button" class="nav-item hidden" data-nav-page="dsips-inicio"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h8v8H3zM13 3h8v5h-8zM3 13h8v8H3zM13 10h8v11h-8z"/></svg><span class="sidebar-label">Painel</span></button>
-        <button id="tab-btn-dsips-materiais" type="button" class="nav-item hidden" data-nav-page="dsips-materiais">
+        <button id="tab-btn-dsips-materiais" type="button" class="nav-item hidden cm-cadastros-legacy-nav" tabindex="-1" aria-hidden="true" data-nav-page="dsips-materiais">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8 12 4l8 4v10l-8 4-8-4V8Zm0 0 8 4 8-4M12 12v10"/></svg>
           <span class="sidebar-label">Materiais</span>
         </button>
@@ -176,7 +176,7 @@
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.13.26-H.1</span>
+        <span>v1.13.27-H.1</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -526,14 +526,15 @@
         <article class="cm-panel-header cm-management-header dsips-intro">
           <div>
             <span class="eyebrow">DSIPS · Materiais e cautelas</span>
-            <h2>Consulta de materiais</h2>
-            <p>Consulte e gerencie os materiais cadastrados.</p>
+            <h2>Cadastros</h2>
+            <p>Gerencie os materiais, categorias e locais de armazenamento.</p>
           </div>
           <div class="dsips-intro-actions">
             <span id="dsips-material-mode" class="cm-management-access" aria-live="polite">Verificando acesso…</span>
             <button id="dsips-material-new" class="app-button app-button-primary hidden" type="button">+ Novo material</button>
           </div>
         </article>
+        <div class="dsips-cadastros-tabs" role="group" aria-label="Tipo de cadastro DSIPS"><button type="button" class="is-selected" aria-pressed="true">Materiais</button><button type="button" data-cm-cadastro-abrir="categoria" aria-pressed="false">Categorias</button><button type="button" data-cm-cadastro-abrir="local" aria-pressed="false">Locais de estoque</button></div>
         <article id="dsips-material-editor" class="app-card dsips-editor hidden" aria-label="Cadastro de material">
           <div class="dsips-editor-heading">
             <span class="eyebrow">Cadastro DSIPS</span>
@@ -583,7 +584,7 @@
       <section id="sec-dsips-cadastros" class="hidden space-y-5" aria-label="Cadastros DSIPS">
         <article class="cm-panel-header cm-management-header dsips-intro">
           <div>
-            <span class="eyebrow">DSIPS · Organização de materiais</span>
+            <span class="eyebrow">DSIPS · Materiais e cautelas</span>
             <h2>Cadastros</h2>
             <p>Gerencie categorias e locais. Os responsáveis pelas cautelas são usuários do CMAPP.</p>
           </div>
@@ -593,6 +594,7 @@
           </div>
         </article>
         <div class="dsips-cadastros-tabs" role="group" aria-label="Tipo de cadastro DSIPS">
+          <button type="button" data-cm-cadastro-abrir="materiais" aria-pressed="false">Materiais</button>
           <button id="dsips-catalog-tab-categoria" type="button" data-dsips-cadastro-tipo="categoria" class="is-selected" aria-pressed="true">Categorias</button>
           <button id="dsips-catalog-tab-local" type="button" data-dsips-cadastro-tipo="local" aria-pressed="false">Locais de estoque</button>
         </div>
@@ -1124,7 +1126,7 @@
 
       <footer class="app-footer">
         <span>CM APP</span>
-        <span>v1.13.26-H.1 · HOMOLOGAÇÃO</span>
+        <span>v1.13.27-H.1 · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -1325,6 +1327,6 @@
   </div>
 
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.5.0/dist/driver.js.iife.js"></script>
-    <script type="module" src="./app.js?v=1.13.26-h.1"></script>
+    <script type="module" src="./app.js?v=1.13.27-h.1"></script>
 </body>
 </html>

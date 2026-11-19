@@ -9,7 +9,7 @@ const PAGINAS = {
   funcoes: { titulo: 'Funções e permissões', trilha: ['CM APP', 'Gestão', 'Funções'] },
   inventarios: { titulo: 'Inventários', trilha: ['CM APP', 'Patrimônio', 'Inventários'] },
   'dsips-inicio': { titulo: 'Painel DSIPS', trilha: ['CM APP', 'DSIPS', 'Painel'] },
-  'dsips-materiais': { titulo: 'Materiais DSIPS', trilha: ['CM APP', 'DSIPS', 'Materiais'] },
+  'dsips-materiais': { titulo: 'Cadastros DSIPS', trilha: ['CM APP', 'DSIPS', 'Cadastros'] },
   'dsips-cadastros': { titulo: 'Cadastros DSIPS', trilha: ['CM APP', 'DSIPS', 'Cadastros'] },
   'dsips-estoque': { titulo: 'Estoque DSIPS', trilha: ['CM APP', 'DSIPS', 'Estoque'] },
   'dsips-cautelas': { titulo: 'Cautelas DSIPS', trilha: ['CM APP', 'DSIPS', 'Cautelas'] },
@@ -157,7 +157,7 @@ export function ativarPagina(aba) {
   document.getElementById('breadcrumb-current').textContent = pagina.trilha.at(-1);
   document.getElementById('breadcrumb-path').textContent = pagina.trilha.slice(0, -1).join(' / ');
   document.querySelectorAll('[data-nav-page]').forEach(botao => {
-    const ativa = botao.dataset.navPage === aba;
+    const ativa = botao.dataset.navPage === (aba === 'dsips-materiais' ? 'dsips-cadastros' : aba);
     botao.classList.toggle('active', ativa);
     if (ativa) botao.setAttribute('aria-current', 'page');
     else botao.removeAttribute('aria-current');
@@ -165,7 +165,7 @@ export function ativarPagina(aba) {
   const grupos = [...document.querySelectorAll('[data-nav-group]')];
   const grupoAtivo = grupos.find(grupo => !grupo.classList.contains('hidden') &&
     [...grupo.querySelectorAll('[data-nav-page]')].some(botao =>
-      botao.dataset.navPage === aba && !botao.classList.contains('hidden')));
+      botao.dataset.navPage === (aba === 'dsips-materiais' ? 'dsips-cadastros' : aba) && !botao.classList.contains('hidden')));
   for (const grupo of grupos) {
     grupo.querySelector('[data-nav-group-toggle]')?.classList.toggle('has-active-page', grupo === grupoAtivo);
   }
