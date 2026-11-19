@@ -53,11 +53,11 @@
       fecharCamadasNavegacao,
       fecharNavegacaoMovel,
       inicializarNavegacao
-    } from "./js/ui/navigation.js?v=1.13.23-h.1";
+    } from "./js/ui/navigation.js?v=1.13.27-h.1";
     import { inicializarPwa } from "./js/pwa.js?v=1.12.0";
     import { podeConsultarMateriaisDsips } from "./js/modules/dsips/consulta-materiais-model.js?v=1.13.13-h.3";
     import { criarConsultaMateriaisDsips } from "./js/modules/dsips/consulta-materiais-ui.js?v=1.13.23-h.1";
-    import { criarCadastrosDsips } from "./js/modules/dsips/cadastros-ui.js?v=1.13.23-h.1";
+    import { criarCadastrosDsips } from "./js/modules/dsips/cadastros-ui.js?v=1.13.27-h.1";
     import { criarEstoqueDsips } from "./js/modules/dsips/estoque-ui.js?v=1.13.23-h.1";
     import { criarRegistroCautelasDsips } from "./js/modules/dsips/registro-cautelas-ui.js?v=1.13.26-h.1";
     import { criarPosseDsips } from "./js/modules/dsips/posse-ui.js?v=1.13.26-h.1";
@@ -67,7 +67,7 @@
     import {renderizarCentral, podeAbrirCentral} from './js/ui/central-trabalho.js?v=1.13.23-h.1';
     import {modulosDoUsuario} from './js/platform/modules.js';
 
-    import {criarPainelDsips} from './js/modules/dsips/painel-ui.js?v=1.13.23-h.1';
+    import {criarPainelDsips} from './js/modules/dsips/painel-ui.js?v=1.13.27-h.1';
     let usuarioLogado = null;
     let bancoPatrimonio = [];
     let bancoUsuarios = [];
@@ -148,7 +148,7 @@
       podeManterCamera: () => Boolean(usuarioLogado && abaAtual === 'scanner')
     });
     controladorCamera.inicializar();
-    inicializarNavegacao(aba => alternarAba(aba), {
+    inicializarNavegacao(aba => alternarAba(aba === 'dsips-cadastros' ? 'dsips-materiais' : aba), {
       aoAbrirCamada: registrarCamadaHistorico,
       aoFecharCamada: removerCamadaHistorico
     });
@@ -1495,6 +1495,13 @@
       if (abaAtual === 'lista') await carregarRelacaoPatrimonial({ reiniciar: true });
     });
 
+    document.querySelectorAll('[data-cm-cadastro-abrir]').forEach(botao=>botao.addEventListener('click',async()=>{
+      const tipo=botao.dataset.cmCadastroAbrir,uid=usuarioLogado?.uid;
+      if(!podeConsultarMateriaisDsips(usuarioLogado)||!['materiais','categoria','local'].includes(tipo))return;
+      if(tipo==='materiais'){await alternarAba('dsips-materiais');return;}
+      await alternarAba('dsips-cadastros');
+      if(uid===usuarioLogado?.uid&&abaAtual==='dsips-cadastros')cadastrosDsips.mudarTipo(tipo);
+    }));
     async function alternarAba(abaAtiva, { registrarHistorico = true, substituirHistorico = false } = {}) {
       if (!usuarioLogado) return;
       if (abaAtiva === 'modulos' && !podeAbrirCentral(usuarioLogado)) return;

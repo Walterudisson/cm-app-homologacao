@@ -1334,3 +1334,8 @@ body.cm-pdv-kiosk .app-workspace {margin-left:0!important;width:100%!important}
 .cm-pdv-tools label{font-size:.69rem;font-weight:800;color:var(--app-text)}
 .cm-pdv-tools input{width:100%;min-height:44px;border:1px solid var(--app-border);border-radius:.6rem;background:var(--app-surface);color:var(--app-text);padding:.7rem .8rem;font-size:.8rem}
 .cm-pdv-quantity{display:flex;gap:8px;align-items:center}.cm-pdv-quantity input{flex:1;text-align:center}.cm-pdv-quantity button{min-width:44px;min-height:44px;font-size:1.2rem}.cm-pdv-quick,.cm-posse-devolucoes{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}.cm-pdv-quick button[aria-pressed=true]{border-color:#60a5fa;color:#93c5fd}.cm-pdv-quick[hidden],.cm-pdv-quantity button[hidden]{display:none!important}
+
+/* UX-07.2: entrada única de cadastros; rotas legadas continuam compatíveis. */
+.cm-cadastros-legacy-nav{display:none!important}
+.dsips-cadastros-tabs{flex-wrap:wrap}
+.dsips-cadastros-tabs button:focus-visible{outline:2px solid #60a5fa;outline-offset:2px}

@@ -1,6 +1,6 @@
 import {listarCadastroDsips} from './service.js?v=1.13.19-h.1';
 import {podeConsultarMateriaisDsips} from './consulta-materiais-model.js';
-import {resumirPainelDsips,acoesPainelDsips} from './painel-model.js?v=1.13.22-h.1';
+import {resumirPainelDsips,acoesPainelDsips} from './painel-model.js?v=1.13.27-h.1';
 const paths={box:'M3 7l9-4 9 4-9 4-9-4zm0 0v10l9 4 9-4V7M12 11v10',warehouse:'M3 21V8l9-5 9 5v13M7 21V11h10v10M7 15h10M7 18h10',clipboard:'M8 4H5v17h14V4h-3M8 3h8v4H8zM8 12h8M8 16h5',users:'M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2m10-15a4 4 0 1 1-8 0 4 4 0 0 1 8 0M18 15a4 4 0 0 1 3 4v2',folder:'M3 6h7l2 2h9v12H3z',history:'M3 12a9 9 0 1 1 3 7M3 4v8h8m1-5v5l3 2'};
 export function criarPainelDsips({obterUsuario,navegar}){
  const k=document.getElementById('dsips-painel-kpis'),a=document.getElementById('dsips-painel-acoes'),s=document.getElementById('dsips-painel-status'),r=document.getElementById('dsips-painel-refresh');let rev=0;

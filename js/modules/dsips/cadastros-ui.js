@@ -259,5 +259,5 @@ export function criarCadastrosDsips({ obterUsuario, notificar = () => {} }) {
   busca.addEventListener('input', renderizar);
   atualizarBotao.addEventListener('click', carregar);
   limpar();
-  return { carregar, limpar };
+  return { carregar, limpar, mudarTipo };
 }
