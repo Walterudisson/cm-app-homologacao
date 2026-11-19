@@ -5,7 +5,7 @@ import {
   podeConsultarCautelasDsips, podeRegistrarCautelasDsips,
   saldoDisponivelDsips, unidadesDisponiveisDsips,
   validarCautelaDsips, filtrarCautelasDsips, STATUS_CAUTELA_DSIPS, classeStatusCautelaDsips
-} from './registro-cautelas-model.js?v=1.13.16-h.3';
+} from './registro-cautelas-model.js?v=1.13.26-h.1';
 import { podeDevolverCautelaDsips, itensPendentesDevolucaoDsips, prepararDevolucaoDsips,
   devolucaoIntegralDsips, criarReciboDevolucaoDsips } from './devolucoes-model.js?v=1.13.16-h.3';
 
@@ -49,6 +49,7 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
   const devolucaoCancelar = porId('dsips-devolucao-cancel');
   const devolucaoEnviar = porId('dsips-devolucao-submit');
   const pdvGrid=porId('dsips-pdv-materials'),pdvBusca=porId('dsips-pdv-search'),pdvEntrega=porId('dsips-pdv-entrega'),pdvRetorno=porId('dsips-pdv-retorno'),pdvConsulta=porId('dsips-pdv-consulta'),pdvModo=porId('dsips-pdv-mode');
+  const menos=porId('dsips-pdv-minus'),mais=porId('dsips-pdv-plus'),rapidos=porId('dsips-pdv-quick'),saldoPrevisto=porId('dsips-pdv-balance');
   let cautelaDevolucao = null, linhasDevolucao = [], reciboDevolucao = null, envioIncerto = false;
 
   let cautelas = [], responsaveis = [], materiais = [], estoque = [];
@@ -96,6 +97,7 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
     pdvEntrega.disabled=abrirBotao.disabled||!editor.classList.contains('hidden')||!devolucaoEditor.classList.contains('hidden');
     pdvRetorno.disabled=bloqueado||!pronto||envioIncerto||!editor.classList.contains('hidden')||!devolucaoEditor.classList.contains('hidden');
     pdvGrid.querySelectorAll('button').forEach(b=>{b.disabled=bloqueado||!pronto||!podeGravar();});
+    atualizarQuantidade();
   }
   function atualizarUsuarios() {
     const atual = usuarioSelect.value;
@@ -108,6 +110,19 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
     }
     if (responsaveis.some(p=>p.id===atual && p.ativo!==false)) usuarioSelect.value = atual;
   }
+  function atualizarQuantidade(){
+    const m=materialPorId(materiaisSelect.value),saldo=m?saldoDisponivelDsips(m.id,estoque):0,n=Number(quantidade.value);
+    const livre=Boolean(m&&m.controle!=='individualizado'&&pronto&&podeGravar()&&!carregando&&!gravando&&!confirmando);
+    quantidade.disabled=!m||carregando||gravando||confirmando;
+    menos.hidden=mais.hidden=rapidos.hidden=!m||m.controle==='individualizado';
+    menos.disabled=!livre||n<=1;mais.disabled=!livre||n>=saldo;
+    const valido=/^[0-9]+$/.test(quantidade.value)&&Number.isSafeInteger(n)&&n>=1&&n<=saldo;
+    saldoPrevisto.textContent=m?(valido?'Saldo após entrega: '+(saldo-n)+' '+(m.unidade||'un'):'Disponível: '+saldo+' '+(m.unidade||'un')):'';
+    adicionarBotao.disabled=adicionarBotao.disabled||!valido;
+    rapidos.replaceChildren();
+    if(livre)for(const q of [1,10,25,50].filter(q=>q<=saldo)){const b=elemento('button','app-button app-button-secondary',q);b.type='button';b.setAttribute('aria-pressed',String(n===q));b.addEventListener('click',()=>definirQuantidade(q));rapidos.append(b);}
+  }
+  function definirQuantidade(n){const m=materialPorId(materiaisSelect.value);if(!m||m.controle==='individualizado'||!podeGravar()||gravando||confirmando||carregando)return;quantidade.value=String(Math.min(saldoDisponivelDsips(m.id,estoque),Math.max(1,n)));atualizarBotoes();}
   function renderizarPdv(){
     pdvGrid.replaceChildren();
     for(const material of filtrarMateriaisPdv(materiais,estoque,cesta,pdvBusca.value)){
@@ -115,7 +130,7 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
       b.append(criarIconePdv(material.visual.icone),elemento('strong','',material.nome),elemento('span','',material.saldo+' '+(material.unidade||'un')+' disponíveis'));
       b.setAttribute('aria-pressed',String(materiaisSelect.value===material.id));
       b.addEventListener('click',async()=>{if(!pronto||!podeGravar()||gravando||confirmando||carregando||!ativo()||editor.classList.contains('hidden'))return;
-        materiaisSelect.value=material.id;await selecionarMaterial();if(materiaisSelect.value===material.id&&!editor.classList.contains('hidden')){renderizarPdv();atualizarBotoes();if(material.controle==='individualizado')identificacoesBox.scrollIntoView({block:'nearest'});else quantidade.focus({preventScroll:true});}
+        materiaisSelect.value=material.id;await selecionarMaterial();if(materiaisSelect.value===material.id&&!editor.classList.contains('hidden')){renderizarPdv();atualizarBotoes();if(material.controle==='individualizado')identificacoesBox.scrollIntoView({block:'nearest'});else {quantidade.focus({preventScroll:true});quantidade.select();}}
       });pdvGrid.append(b);
     }
     atualizarBotoes();
@@ -167,7 +182,7 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
         const checkbox=document.createElement('input');
         checkbox.type='checkbox';checkbox.value=unidade.id;
         checkbox.addEventListener('change',()=>{
-          quantidade.value=String(identificacoes.querySelectorAll('input:checked').length);
+          quantidade.value=String(identificacoes.querySelectorAll('input:checked').length);atualizarBotoes();
         });
         label.append(checkbox,elemento('span','',unidade.identificacao || unidade.id));
         identificacoes.append(label);
@@ -186,7 +201,7 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
     cestaLista.replaceChildren();
     cestaStatus.textContent=cesta.length
       ? cesta.length+' material(is) na cautela. Confira os itens antes de confirmar.'
-      : 'Cesta vazia. Selecione um material e use Adicionar.';
+      : 'Nenhum material adicionado à cautela. Selecione um material.';
     for(const item of cesta) {
       const material=materialPorId(item.materialId);
       const card=elemento('article','dsips-cautelas-cart-item');
@@ -299,6 +314,12 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
     devolucaoEditor.classList.remove('hidden');
     atualizarBotoes();
     devolucaoEditor.scrollIntoView({block:'start',behavior:'smooth'});
+  }
+  function iniciarDevolucaoPorId(id){
+    if(!ativo()||!podeGravar()||!pronto||carregando||gravando||confirmando||envioIncerto)return false;
+    const cautela=cautelas.find(c=>c.id===id);
+    if(!podeDevolverCautelaDsips(cautela)){notificar('Esta cautela não possui pendências disponíveis.','aviso');return false;}
+    abrirDevolucao(cautela);return cautelaDevolucao?.id===id&&!devolucaoEditor.classList.contains('hidden');
   }
   function preencherDevolucaoIntegral() {
     if(!cautelaDevolucao||!podeGravar()||carregando||gravando||confirmando||envioIncerto) return;
@@ -544,6 +565,11 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
   abrirBotao.addEventListener('click',abrirEditor);
   cancelarBotao.addEventListener('click',fecharEditor);
   adicionarBotao.addEventListener('click',adicionarMaterial);
+  quantidade.addEventListener('focus',()=>{if(!quantidade.readOnly)quantidade.select();});
+  quantidade.addEventListener('input',atualizarBotoes);
+  quantidade.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();if(!adicionarBotao.disabled)adicionarMaterial();}});
+  menos.addEventListener('click',()=>definirQuantidade((Number(quantidade.value)||1)-1));
+  mais.addEventListener('click',()=>definirQuantidade((Number(quantidade.value)||0)+1));
   materiaisSelect.addEventListener('change',()=>{renderizarPdv();void selecionarMaterial();});
   pdvBusca.addEventListener('input',renderizarPdv);
   pdvEntrega.addEventListener('click',()=>{if(!pdvEntrega.disabled)abrirEditor();});
@@ -558,5 +584,5 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
   busca.addEventListener('input',renderizar);
   filtro.addEventListener('change',renderizar);
   limpar();
-  return {carregar,limpar,sairQuiosque};
+  return {carregar,limpar,sairQuiosque,iniciarDevolucaoPorId};
 }
