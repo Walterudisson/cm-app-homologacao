@@ -6,6 +6,8 @@ import {
   resumoEstoqueDsips, identificadoresDoTextoDsips, prepararSaldoInicialDsips
 } from './estoque-model.js?v=1.13.15-h.1';
 
+import { criarAjustesDsips } from './ajustes-ui.js?v=1.13.19-h.1';
+
 export function criarEstoqueDsips({ obterUsuario, confirmar, notificar = () => {} }) {
   const porId = id => document.getElementById(id);
   const secao = porId('sec-dsips-estoque');
@@ -42,6 +44,7 @@ export function criarEstoqueDsips({ obterUsuario, confirmar, notificar = () => {
   const ativo = () => !secao.classList.contains('hidden');
   const materialPorId = id => materiais.find(item => item.id === id);
   const localPorId = id => locais.find(item => item.id === id);
+  const ajustes = criarAjustesDsips({obterUsuario, podeGravar, ativo, confirmar, notificar, carregar, secao, fecharSaldoInicial: fecharEditor, podeAbrir:()=>pronto&&!carregando&&!gravando&&!confirmando});
   function elemento(tag, classe, conteudo) {
     const el = document.createElement(tag);
     if (classe) el.className = classe;
@@ -85,7 +88,8 @@ export function criarEstoqueDsips({ obterUsuario, confirmar, notificar = () => {
     sincronizarCampos();
   }
   function abrirEditor() {
-    if (!pronto || !podeGravar() || gravando || carregando || !pendentes().length) return;
+    if (ajustes.ocupado() || !pronto || !podeGravar() || gravando || carregando || !pendentes().length) return;
+    ajustes.fechar();
     fecharEditor();
     atualizarSeletores();
     editor.classList.remove('hidden');
@@ -100,9 +104,10 @@ export function criarEstoqueDsips({ obterUsuario, confirmar, notificar = () => {
     cancelarBotao.disabled = gravando || confirmando;
   }
   function renderizar() {
+    ajustes.fechar();
     lista.replaceChildren();
     const podeEscrever = podeGravar();
-    modo.textContent = podeEscrever ? 'Consulta e saldo inicial' : 'Somente consulta';
+    modo.textContent = podeEscrever ? 'Consulta, saldo inicial e ajustes' : 'Somente consulta';
     novoBotao.classList.toggle('hidden', !podeEscrever);
     if (!podeEscrever && !editor.classList.contains('hidden')) fecharEditor();
     atualizarBotoes();
@@ -169,11 +174,13 @@ export function criarEstoqueDsips({ obterUsuario, confirmar, notificar = () => {
         consultar.addEventListener('click',()=>{ void mostrarUnidades(posicao.materialId); });
         rodape.append(consultar);
       }
+      ajustes.anexar(rodape,material,local,posicao);
       card.append(cabecalho,atributos,rodape);
       lista.append(card);
     }
   }
   function limpar() {
+    ajustes.limpar();
     revisao++; sessao++; unidadesRevisao++;
     materiais = []; locais = []; estoque = [];
     pronto = false; carregando = false; falha = '';
@@ -235,7 +242,7 @@ export function criarEstoqueDsips({ obterUsuario, confirmar, notificar = () => {
         const nome = elemento('strong','',unidade.identificacao || 'Sem identificação');
         const estado = elemento('span','',
           unidade.situacao === 'disponivel' ? 'Disponível' :
-          unidade.situacao === 'em_cautela' ? 'Em cautela' : (unidade.situacao || 'Sem situação'));
+          unidade.situacao === 'em_cautela' ? 'Em cautela' : unidade.situacao === 'baixada' ? 'Baixada' : (unidade.situacao || 'Sem situação'));
         const local = elemento('small','',localPorId(unidade.localId)?.nome || 'Local não informado');
         linha.append(nome,estado,local);
         unidadesLista.append(linha);

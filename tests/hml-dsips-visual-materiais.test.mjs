@@ -32,5 +32,5 @@ test('cards realmente usam ícone e cor do material no controlador',async()=>{
   for(const cor of CORES_CARDS_DSIPS) assert.ok(css.includes('.dsips-material-card.dsips-cor-'+cor));
   assert.match(app,/consulta-materiais-ui\.js\?v=1\.13\.13-h\.3/);
   assert.match(html,/app\.css\?v=1\.13\.18-h\.3/);
-  assert.match(sw,/v1\.13\.18-h\.3-menu-modular/);
+  assert.match(sw,/v1\.13\.19-h\.1-ajustes/);
 });

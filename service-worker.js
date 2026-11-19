@@ -1,4 +1,4 @@
-const VERSAO = 'v1.13.18-h.3-menu-modular';
+const VERSAO = 'v1.13.19-h.1-ajustes';
 const CACHE_SHELL = `cmapp-shell-${VERSAO}`;
 const CACHE_RUNTIME = `cmapp-runtime-${VERSAO}`;
 const PREFIXO_CACHE = 'cmapp-';
@@ -26,6 +26,8 @@ const ARQUIVOS_SHELL = [
   './js/modules/dsips/cadastros-ui.js',
   './js/modules/dsips/estoque-model.js',
   './js/modules/dsips/estoque-ui.js',
+  './js/modules/dsips/ajustes-ui.js',
+  './js/modules/dsips/ajustes-model.js',
   './js/modules/dsips/registro-cautelas-model.js',
   './js/modules/dsips/registro-cautelas-ui.js',
   './js/modules/dsips/cautelas-model.js',

@@ -1,6 +1,6 @@
 import { podeGerenciarMateriaisDsips } from './consulta-materiais-model.js?v=1.13.18-h.1';
 export const podeConsultarHistoricoDsips = podeGerenciarMateriaisDsips;
-export const TIPOS_HISTORICO_DSIPS=Object.freeze({cadastro:'Cadastro',saldo:'Saldo inicial',cautela:'Cautela',devolucao:'Devolução',outro:'Outro evento'});
+export const TIPOS_HISTORICO_DSIPS=Object.freeze({cadastro:'Cadastro',saldo:'Saldo inicial',ajuste:'Ajustes de estoque',cautela:'Cautela',devolucao:'Devolução',outro:'Outro evento'});
 const texto = v => typeof v==='string' ? v.trim() : '';
 const normalizar = v => String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR').trim();
 function dataEvento(v){
@@ -12,6 +12,11 @@ export function apresentarEventoDsips(evento){
   if(tipo==='saldo_inicial_registrado'){
     grupo='saldo'; titulo=texto(d.materialNome)||'Material não informado';
     if(d.quantidade!==undefined && d.quantidade!==null)linhas.push('Saldo inicial: '+String(d.quantidade)+' '+texto(d.unidade));
+  }else if(tipo==='ajuste_estoque_registrado'){
+    grupo='ajuste'; titulo=(d.tipo==='entrada'?'Entrada de estoque':d.tipo==='baixa'?'Baixa definitiva':'Ajuste de estoque')+' · '+(texto(d.materialNome)||'Material não informado');
+    linhas.push('Quantidade: '+String(d.quantidade??'')+' '+texto(d.unidade));
+    for(const [k,l] of [['total','Total'],['disponivel','Disponível'],['emCautela','Em cautela']]) if(d.antes?.[k]!==undefined&&d.depois?.[k]!==undefined)linhas.push(l+': '+d.antes[k]+' → '+d.depois[k]);
+    for(const u of Array.isArray(d.unidades)?d.unidades:[])if(texto(u.identificacao))linhas.push('Identificação: '+u.identificacao);
   }else if(['cautela_registrada','devolucao_registrada'].includes(tipo)){
     grupo=tipo==='cautela_registrada'?'cautela':'devolucao';
     titulo=texto(d.responsavelNome)||'Responsável não informado';

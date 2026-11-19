@@ -8,6 +8,7 @@ on:
       - 'js/modules/dsips/consulta-materiais*'
       - 'js/modules/dsips/cadastros-*'
       - 'js/modules/dsips/estoque-*'
+      - 'js/modules/dsips/ajustes-*'
       - 'js/modules/dsips/registro-cautelas-*'
       - 'js/modules/dsips/devolucoes-model.js'
       - 'js/modules/dsips/posse-*'
@@ -21,6 +22,7 @@ on:
       - 'tests/hml-dsips-visual-materiais.test.mjs'
       - 'tests/hml-dsips-cadastros.test.mjs'
       - 'tests/hml-dsips-estoque.test.mjs'
+      - 'tests/hml-dsips-ajustes.test.mjs'
       - 'tests/hml-dsips-registro-cautelas.test.mjs'
       - 'tests/hml-dsips-devolucoes.test.mjs'
       - 'tests/hml-dsips-posse.test.mjs'
@@ -34,6 +36,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -47,6 +51,8 @@ jobs:
           node --check js/modules/dsips/cadastros-ui.js
           node --check js/modules/dsips/estoque-model.js
           node --check js/modules/dsips/estoque-ui.js
+          node --check js/modules/dsips/ajustes-model.js
+          node --check js/modules/dsips/ajustes-ui.js
           node --check js/modules/dsips/registro-cautelas-model.js
           node --check js/modules/dsips/registro-cautelas-ui.js
           node --check js/modules/dsips/devolucoes-model.js
@@ -56,4 +62,53 @@ jobs:
           node --check js/modules/dsips/historico-ui.js
           node --check js/modules/dsips/service.js
       - name: Executar testes da sprint
-        run: node --test tests/hml-dsips-consulta.test.mjs tests/hml-dsips-mobile-layout.test.mjs tests/hml-dsips-cadastro-materiais.test.mjs tests/hml-dsips-visual-materiais.test.mjs tests/hml-dsips-cadastros.test.mjs tests/hml-dsips-estoque.test.mjs tests/hml-dsips-registro-cautelas.test.mjs tests/hml-dsips-devolucoes.test.mjs tests/hml-dsips-posse.test.mjs tests/hml-dsips-historico.test.mjs
+        run: node --test tests/hml-dsips-consulta.test.mjs tests/hml-dsips-mobile-layout.test.mjs tests/hml-dsips-cadastro-materiais.test.mjs tests/hml-dsips-visual-materiais.test.mjs tests/hml-dsips-cadastros.test.mjs tests/hml-dsips-estoque.test.mjs tests/hml-dsips-registro-cautelas.test.mjs tests/hml-dsips-devolucoes.test.mjs tests/hml-dsips-posse.test.mjs tests/hml-dsips-historico.test.mjs tests/hml-dsips-ajustes.test.mjs
+      - name: Comparar suíte geral com a base HML
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          BASE_DIR="$RUNNER_TEMP/cmapp-base"
+          git worktree add --detach "$BASE_DIR" "$BASE_SHA"
+          trap 'git worktree remove --force "$BASE_DIR"' EXIT
+          BASE_RC=0
+          CAND_RC=0
+          (cd "$BASE_DIR" && node --test --test-reporter=tap tests/*.test.mjs) > "$RUNNER_TEMP/cmapp-base.tap" 2>&1 || BASE_RC=$?
+          node --test --test-reporter=tap tests/*.test.mjs > "$RUNNER_TEMP/cmapp-candidato.tap" 2>&1 || CAND_RC=$?
+          if [ "$BASE_RC" -gt 1 ] || [ "$CAND_RC" -gt 1 ]; then
+            echo "Falha na execução do runner de testes."
+            exit 1
+          fi
+          python3 - "$RUNNER_TEMP/cmapp-base.tap" "$RUNNER_TEMP/cmapp-candidato.tap" <<'PY'
+          from collections import Counter
+          from pathlib import Path
+          import re
+          import sys
+
+          def analisar(arquivo):
+              conteudo = Path(arquivo).read_text()
+              stats = {}
+              for campo in ('tests', 'pass', 'fail', 'cancelled', 'skipped', 'todo'):
+                  valores = re.findall(r'^# ' + campo + r' (\d+)$', conteudo, re.M)
+                  if not valores:
+                      raise SystemExit('Relatório incompleto: ' + arquivo)
+                  stats[campo] = int(valores[-1])
+              falhas = Counter(re.findall(r'^not ok \d+ - (.+)$', conteudo, re.M))
+              if sum(falhas.values()) != stats['fail']:
+                  raise SystemExit('Contagem de falhas inconsistente: ' + arquivo)
+              return stats, falhas
+
+          base, falhas_base = analisar(sys.argv[1])
+          cand, falhas_cand = analisar(sys.argv[2])
+          print('BASE:', base)
+          print('CANDIDATO:', cand)
+          print('FALHAS PRESENTES ANTES:', sorted(falhas_base.elements()))
+          print('FALHAS PERSISTENTES:', sorted((falhas_base & falhas_cand).elements()))
+          novas = falhas_cand - falhas_base
+          print('NOVAS FALHAS:', sorted(novas.elements()))
+          print('FALHAS RESOLVIDAS:', sorted((falhas_base - falhas_cand).elements()))
+          if novas or cand['cancelled'] > base['cancelled'] or cand['skipped'] > base['skipped'] or cand['todo'] > base['todo'] or cand['tests'] < base['tests']:
+              raise SystemExit('Regressão nova ou perda de cobertura.')
+          print('SEM NOVAS FALHAS NA SUÍTE GERAL; conferir a rotina HML obrigatória.')
+          PY

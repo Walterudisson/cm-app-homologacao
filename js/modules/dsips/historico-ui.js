@@ -1,5 +1,5 @@
 import { listarPaginaEventosDsips } from './service.js?v=1.13.18-h.1';
-import { podeConsultarHistoricoDsips,filtrarHistoricoDsips,TIPOS_HISTORICO_DSIPS } from './historico-model.js?v=1.13.18-h.1';
+import { podeConsultarHistoricoDsips,filtrarHistoricoDsips,TIPOS_HISTORICO_DSIPS } from './historico-model.js?v=1.13.19-h.1';
 
 export function criarHistoricoDsips({obterUsuario}){
   const porId=id=>document.getElementById(id);
