@@ -22,7 +22,7 @@ test('atribuição explícita controla a entrada, inclusive lista vazia e campo 
 
 test('acesso DSIPS não permite abrir qualquer tela de Patrimônios', () => {
   const usuario = { perfil: 'conferente', modulos: ['dsips'] };
-  assert.equal(paginaInicialUsuario(usuario), 'dsips-cautelas');
+  assert.equal(paginaInicialUsuario(usuario), 'dsips-inicio');
   assert.equal(podeAbrirPagina(usuario, 'dsips-inicio'), true);
   for (const id of ['dashboard', 'scanner', 'lista', 'inventarios', 'transferencias']) assert.equal(podeAbrirPagina(usuario, id), false);
 });
