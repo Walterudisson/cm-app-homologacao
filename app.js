@@ -1512,6 +1512,9 @@
       if (registrarHistorico) registrarAbaHistorico(abaAtiva, { substituir: substituirHistorico });
       if (abaAtiva !== 'dsips-inicio') painelDsips.limpar();
       if (abaAtiva !== 'dsips-cautelas') cautelasDsips.sairQuiosque();
+      if (abaAtual !== abaAtiva && abaAtiva === 'transferencias') {
+        document.querySelectorAll('#container-transferencias details.transfer-group').forEach(grupo => { grupo.open = false; });
+      }
       abaAtual = abaAtiva;
       ativarPagina(abaAtiva);
       document.getElementById('escopo-barra').classList.toggle('hidden', !['dashboard', 'lista'].includes(abaAtiva));
@@ -3104,6 +3107,7 @@
       filaSugestoesDestino = [];
       filaPronta = {fisicas:false,sugestoes:false};
       filaGeracao++;
+      document.getElementById('container-transferencias')?.replaceChildren();
       bancoTransferencias = [];
       sincronizarContadorFila();
     }
@@ -3166,6 +3170,7 @@
       const contador = document.getElementById('transf-contador');
       if (!container) return;
 
+      const gruposAbertos = new Set([...container.querySelectorAll('details.transfer-group[open]')].map(grupo => grupo.dataset.divisao));
       const pendentes = bancoTransferencias;
       contador.innerText = `${pendentes.length} ${pendentes.length === 1 ? 'pendente' : 'pendentes'}`;
 
@@ -3186,8 +3191,8 @@
 
       container.innerHTML = [...grupos.entries()]
         .sort(([divisaoA], [divisaoB]) => divisaoA.localeCompare(divisaoB, 'pt-BR'))
-        .map(([divisao, itens], indice) => `
-          <details class="transfer-group" ${indice === 0 ? 'open' : ''}>
+        .map(([divisao, itens]) => `
+          <details class="transfer-group" data-divisao="${escaparHtml(divisao)}" ${gruposAbertos.has(divisao) ? 'open' : ''}>
             <summary class="transfer-group-summary">
               <span>
                 <strong>${divisao}</strong>

@@ -115,10 +115,10 @@ test('cautela integra login e navegador do CMAPP, sem rota ou cadastro de respon
   assert.match(ui,/await registrarCautelaDsips\(\{\.\.\.pedido,operacaoId\}\)/);
   assert.match(service,/httpsCallable\(functions, 'dsipsRegistrarCautela'\)/);
   assert.match(service,/httpsCallable\(functions, 'dsipsListarResponsaveis'\)/);
-  assert.match(sw,/v1\.13\.25-h\.1-ux-polimento/);
+  assert.match(sw,/v1\.13\.25-h\.2-ux-fila/);
   assert.match(sw,/\.\/js\/modules\/dsips\/registro-cautelas-model\.js/);
   assert.match(sw,/\.\/js\/modules\/dsips\/registro-cautelas-ui\.js/);
-  assert.match(html,/app\.js\?v=1\.13\.25-h\.1/);
+  assert.match(html,/app\.js\?v=1\.13\.25-h\.2/);
   assert.match(css,/\.dsips-cautelas-grid/);
   assert.match(fb,/projectId: "cm-app-homologacao"/);
   assert.doesNotMatch(fb,/projectId: "patrimonioscm"/);
