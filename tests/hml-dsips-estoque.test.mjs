@@ -100,5 +100,3 @@ test('Estoque fica no CMAPP principal com controle de sessão, confirmação e s
   assert.doesNotMatch(fb,/projectId: "patrimonioscm"/);
 });
 
-// Inclui a suíte de ajustes de estoque na rotina HML existente.
-import './hml-dsips-ajustes.test.mjs';
