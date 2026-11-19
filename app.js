@@ -56,12 +56,12 @@
     } from "./js/ui/navigation.js?v=1.13.27-h.1";
     import { inicializarPwa } from "./js/pwa.js?v=1.12.0";
     import { podeConsultarMateriaisDsips } from "./js/modules/dsips/consulta-materiais-model.js?v=1.13.13-h.3";
-    import { criarConsultaMateriaisDsips } from "./js/modules/dsips/consulta-materiais-ui.js?v=1.13.23-h.1";
+    import { criarConsultaMateriaisDsips } from "./js/modules/dsips/consulta-materiais-ui.js?v=1.13.29-h.1";
     import { criarCadastrosDsips } from "./js/modules/dsips/cadastros-ui.js?v=1.13.27-h.1";
-    import { criarEstoqueDsips } from "./js/modules/dsips/estoque-ui.js?v=1.13.23-h.1";
+    import { criarEstoqueDsips } from "./js/modules/dsips/estoque-ui.js?v=1.13.29-h.1";
     import { criarRegistroCautelasDsips } from "./js/modules/dsips/registro-cautelas-ui.js?v=1.13.26-h.1";
-    import { criarPosseDsips } from "./js/modules/dsips/posse-ui.js?v=1.13.26-h.1";
-    import { criarHistoricoDsips } from "./js/modules/dsips/historico-ui.js?v=1.13.28-h.1";
+    import { criarPosseDsips } from "./js/modules/dsips/posse-ui.js?v=1.13.29-h.1";
+    import { criarHistoricoDsips } from "./js/modules/dsips/historico-ui.js?v=1.13.29-h.1";
     import { podeConsultarHistoricoDsips } from "./js/modules/dsips/historico-model.js?v=1.13.19-h.1";
 
     import {renderizarCentral, podeAbrirCentral} from './js/ui/central-trabalho.js?v=1.13.23-h.1';
@@ -157,12 +157,18 @@
       aoFecharCamada: removerCamadaHistorico
     });
     inicializarPwa({ notificarMensagem });
-    const consultaMateriaisDsips = criarConsultaMateriaisDsips({ obterUsuario: () => usuarioLogado, notificar: notificarMensagem });
+    async function abrirAuditoriaContextual(contexto){
+      const uid=usuarioLogado?.uid;
+      if(!podeConsultarHistoricoDsips(usuarioLogado))return;
+      await alternarAba('dsips-historico');
+      if(uid===usuarioLogado?.uid&&abaAtual==='dsips-historico'&&podeConsultarHistoricoDsips(usuarioLogado))historicoDsips.aplicarContexto(contexto);
+    }
+    const consultaMateriaisDsips = criarConsultaMateriaisDsips({ obterUsuario: () => usuarioLogado, notificar: notificarMensagem, abrirHistorico: abrirAuditoriaContextual });
     const cadastrosDsips = criarCadastrosDsips({ obterUsuario: () => usuarioLogado, notificar: notificarMensagem });
     const painelDsips = criarPainelDsips({obterUsuario:()=>usuarioLogado,navegar:aba=>alternarAba(aba)});
-    const estoqueDsips = criarEstoqueDsips({ obterUsuario: () => usuarioLogado, confirmar: confirmarAcao, notificar: notificarMensagem });
+    const estoqueDsips = criarEstoqueDsips({ obterUsuario: () => usuarioLogado, confirmar: confirmarAcao, notificar: notificarMensagem, abrirHistorico: abrirAuditoriaContextual });
     const cautelasDsips = criarRegistroCautelasDsips({ obterUsuario: () => usuarioLogado, confirmar: confirmarAcao, notificar: notificarMensagem });
-    const posseDsips = criarPosseDsips({ obterUsuario: () => usuarioLogado, iniciarDevolucao: async id => {
+    const posseDsips = criarPosseDsips({ obterUsuario: () => usuarioLogado, abrirHistorico: abrirAuditoriaContextual, iniciarDevolucao: async id => {
       const uid=usuarioLogado?.uid;
       if(abaAtual!=='dsips-posse'||!podeConsultarMateriaisDsips(usuarioLogado)||!['admin','gestor'].includes(usuarioLogado?.perfil))return;
       await alternarAba('dsips-cautelas');

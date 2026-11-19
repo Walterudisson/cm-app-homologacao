@@ -42,7 +42,7 @@ export function filtrarHistoricoDsips(eventos=[],busca='',grupo='todos'){
 
 const dataDia = new Intl.DateTimeFormat('sv-SE',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'});
 export function diaEventoDsips(data){return data?dataDia.format(data):'';}
-export function filtrarTimelineDsips(eventos=[],{visao='geral',busca='',grupo='todos',de='',ate=''}={}){
+export function filtrarTimelineDsips(eventos=[],{visao='geral',busca='',grupo='todos',de='',ate='',contexto=null}={}){
  const termo=normalizar(busca);
  return eventos.flatMap(raw=>{
   const e=apresentarEventoDsips(raw),d=raw.dados||{},dia=diaEventoDsips(e.data);
@@ -51,8 +51,13 @@ export function filtrarTimelineDsips(eventos=[],{visao='geral',busca='',grupo='t
   const materiais=[...(Array.isArray(d.itens)?d.itens.map(i=>[i.materialId,i.nome].filter(Boolean).join(' ')):[]),d.materialId,d.materialNome,...(e.grupo==='cadastro'&&d.tipo==='material'?[d.nome,d.id]:[])].filter(Boolean);
   const pessoa=[d.responsavelUid,d.responsavelId,d.responsavelNome].filter(Boolean);
   const operador=[raw.operadorUid,raw.operadorNome].filter(Boolean);
-  const campos=visao==='material'?materiais:visao==='pessoa'?pessoa:visao==='operador'?operador:null;
-  if(campos&&(!campos.length||!normalizar(campos.join(' ')).includes(termo)))return [];
+  const itens=Array.isArray(d.itens)?d.itens:[];
+  const idsMaterial=[d.materialId,...itens.map(i=>i.materialId),...(e.grupo==='cadastro'&&d.tipo==='material'?[d.id]:[])];
+  const unidades=[...(Array.isArray(d.unidades)?d.unidades.map(u=>({u,mid:d.materialId})):[]),...itens.flatMap(i=>(Array.isArray(i.unidades)?i.unidades:[]).map(u=>({u,mid:i.materialId})))];
+  const idsUnidade=[...(Array.isArray(d.unidadeIds)?d.unidadeIds.map(id=>({id,mid:d.materialId})):[]),...itens.flatMap(i=>(Array.isArray(i.unidadeIds)?i.unidadeIds:[]).map(id=>({id,mid:i.materialId})))];
+  if(contexto){const ok=contexto.visao==='material'?idsMaterial.includes(contexto.id):contexto.visao==='pessoa'?[d.responsavelUid,d.responsavelId].includes(contexto.id):contexto.visao==='unidade'?(idsUnidade.some(x=>x.mid===contexto.materialId&&x.id===contexto.id)||unidades.some(({u,mid})=>mid===contexto.materialId&&((contexto.id&&u.id===contexto.id)||(!u.id&&u.identificacao===contexto.identificacao)))):false;if(!ok)return [];}
+  const campos=visao==='material'?materiais:visao==='pessoa'?pessoa:visao==='operador'?operador:visao==='unidade'?[...unidades.map(({u})=>[u.id,u.identificacao].filter(Boolean).join(' ')),...idsUnidade.map(x=>x.id)]:null;
+  if(!contexto&&campos&&(!campos.length||!normalizar(campos.join(' ')).includes(termo)))return [];
   if(!campos&&!filtrarHistoricoDsips([raw],busca,grupo).length)return [];
   return [{...e,dia}];
  }).sort((a,b)=>(b.data?.getTime()??-Infinity)-(a.data?.getTime()??-Infinity));

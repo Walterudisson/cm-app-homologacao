@@ -1,8 +1,9 @@
+import {podeConsultarHistoricoDsips} from './historico-model.js?v=1.13.29-h.1';
 import { listarCadastroDsips } from './service.js?v=1.13.17-h.1';
 import { podeConsultarPosseDsips, consolidarPosseDsips, filtrarPosseDsips } from './posse-model.js?v=1.13.17-h.1';
 
 import {podeRegistrarCautelasDsips} from './registro-cautelas-model.js?v=1.13.26-h.1';
-export function criarPosseDsips({obterUsuario,iniciarDevolucao=()=>{}}) {
+export function criarPosseDsips({obterUsuario,iniciarDevolucao=()=>{}, abrirHistorico=()=>{}}) {
   const porId=id=>document.getElementById(id);
   const lista=porId('dsips-posse-list'), status=porId('dsips-posse-status');
   const busca=porId('dsips-posse-search'), atualizar=porId('dsips-posse-refresh');
@@ -37,6 +38,7 @@ export function criarPosseDsips({obterUsuario,iniciarDevolucao=()=>{}}) {
       cab.append(el('h3','',grupo.nome));
       if(grupo.legado)cab.append(el('span','dsips-cautela-status dsips-cautela-status-desconhecida','Registro legado'));
       card.append(cab);
+      if(podeConsultarHistoricoDsips(obterUsuario())&&grupo.chave.startsWith('usuario:')){const b=el('button','app-button app-button-secondary','Histórico do responsável');b.type='button';b.addEventListener('click',()=>abrirHistorico({visao:'pessoa',id:grupo.chave.slice(8),nome:grupo.nome}));card.append(b);}
       if(grupo.matricula)card.append(el('p','dsips-cautelas-card-meta','Matrícula: '+grupo.matricula));
       for(const material of grupo.materiais){
         const bloco=el('div','dsips-posse-item');
