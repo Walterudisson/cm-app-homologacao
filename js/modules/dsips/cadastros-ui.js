@@ -94,7 +94,7 @@ export function criarCadastrosDsips({ obterUsuario, notificar = () => {} }) {
     novoBotao.textContent = '+ Novo cadastro';
     novoBotao.classList.toggle('hidden', !podeEscrever);
     novoBotao.disabled = carregando || gravando || !pronto;
-    modo.textContent = podeEscrever ? 'Consulta e cadastro' : 'Somente consulta';
+    modo.textContent = podeEscrever ? '' : 'Somente consulta';
     atualizarBotao.disabled = carregando || gravando;
     lista.replaceChildren();
     lista.setAttribute('aria-busy', String(carregando));
