@@ -73,7 +73,7 @@ jobs:
           node --check js/modules/dsips/historico-ui.js
           node --check js/modules/dsips/service.js
       - name: Executar testes da sprint
-        run: node --test tests/hml-dsips-consulta.test.mjs tests/hml-dsips-mobile-layout.test.mjs tests/hml-dsips-cadastro-materiais.test.mjs tests/hml-dsips-visual-materiais.test.mjs tests/hml-dsips-cadastros.test.mjs tests/hml-dsips-estoque.test.mjs tests/hml-dsips-registro-cautelas.test.mjs tests/hml-dsips-devolucoes.test.mjs tests/hml-dsips-posse.test.mjs tests/hml-dsips-historico.test.mjs tests/hml-dsips-ajustes.test.mjs tests/hml-ux-central.test.mjs tests/hml-ux-painel.test.mjs tests/hml-ux-pdv.test.mjs tests/hml-ux-gestao.test.mjs tests/hml-ux-patrimonio.test.mjs tests/hml-ux-polimento.test.mjs tests/hml-ux-fila.test.mjs tests/hml-ux-pdv-refino.test.mjs tests/hml-ux-cadastros-unificados.test.mjs
+        run: node --test tests/hml-dsips-consulta.test.mjs tests/hml-dsips-mobile-layout.test.mjs tests/hml-dsips-cadastro-materiais.test.mjs tests/hml-dsips-visual-materiais.test.mjs tests/hml-dsips-cadastros.test.mjs tests/hml-dsips-estoque.test.mjs tests/hml-dsips-registro-cautelas.test.mjs tests/hml-dsips-devolucoes.test.mjs tests/hml-dsips-posse.test.mjs tests/hml-dsips-historico.test.mjs tests/hml-dsips-ajustes.test.mjs tests/hml-ux-central.test.mjs tests/hml-ux-painel.test.mjs tests/hml-ux-pdv.test.mjs tests/hml-ux-gestao.test.mjs tests/hml-ux-patrimonio.test.mjs tests/hml-ux-polimento.test.mjs tests/hml-ux-fila.test.mjs tests/hml-ux-pdv-refino.test.mjs tests/hml-ux-cadastros-unificados.test.mjs tests/hml-ux-timeline.test.mjs
       - name: Comparar suíte geral com a base HML
         if: github.event_name == 'pull_request'
         env:

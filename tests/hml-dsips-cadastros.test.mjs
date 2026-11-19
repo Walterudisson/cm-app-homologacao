@@ -62,7 +62,7 @@ test('Cadastros faz parte do CMAPP e mantém identidade, login e navegação ún
   assert.match(app,/cadastrosDsips\.carregar\(\)/);
   assert.match(app,/if \(\['dsips-materiais', 'dsips-cadastros', 'dsips-estoque', 'dsips-cautelas', 'dsips-posse'\]\.includes\(abaAtiva\)/);
   assert.match(app,/tab-btn-dsips-cadastros/);
-  assert.match(sw,/v1\.13\.27-h\.1-ux-cadastros/);
+  assert.match(sw,/v1\.13\.28-h\.1-ux-timeline/);
   assert.match(sw,/\.\/js\/modules\/dsips\/cadastros-model\.js/);
   assert.match(sw,/\.\/js\/modules\/dsips\/cadastros-ui\.js/);
   assert.match(css,/\.dsips-cadastros-tabs/);

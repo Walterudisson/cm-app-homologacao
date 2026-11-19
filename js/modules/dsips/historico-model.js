@@ -39,3 +39,21 @@ export function filtrarHistoricoDsips(eventos=[],busca='',grupo='todos'){
   return eventos.map(apresentarEventoDsips).filter(e=>(grupo==='todos'||e.grupo===grupo)&&
     normalizar([e.id,e.tipo,e.titulo,e.operador,...e.linhas,TIPOS_HISTORICO_DSIPS[e.grupo]].join(' ')).includes(termo));
 }
+
+const dataDia = new Intl.DateTimeFormat('sv-SE',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'});
+export function diaEventoDsips(data){return data?dataDia.format(data):'';}
+export function filtrarTimelineDsips(eventos=[],{visao='geral',busca='',grupo='todos',de='',ate=''}={}){
+ const termo=normalizar(busca);
+ return eventos.flatMap(raw=>{
+  const e=apresentarEventoDsips(raw),d=raw.dados||{},dia=diaEventoDsips(e.data);
+  if(grupo!=='todos'&&e.grupo!==grupo)return [];
+  if((de||ate)&&(!dia||(de&&dia<de)||(ate&&dia>ate)))return [];
+  const materiais=[...(Array.isArray(d.itens)?d.itens.map(i=>[i.materialId,i.nome].filter(Boolean).join(' ')):[]),d.materialId,d.materialNome,...(e.grupo==='cadastro'&&d.tipo==='material'?[d.nome,d.id]:[])].filter(Boolean);
+  const pessoa=[d.responsavelUid,d.responsavelId,d.responsavelNome].filter(Boolean);
+  const operador=[raw.operadorUid,raw.operadorNome].filter(Boolean);
+  const campos=visao==='material'?materiais:visao==='pessoa'?pessoa:visao==='operador'?operador:null;
+  if(campos&&(!campos.length||!normalizar(campos.join(' ')).includes(termo)))return [];
+  if(!campos&&!filtrarHistoricoDsips([raw],busca,grupo).length)return [];
+  return [{...e,dia}];
+ }).sort((a,b)=>(b.data?.getTime()??-Infinity)-(a.data?.getTime()??-Infinity));
+}
