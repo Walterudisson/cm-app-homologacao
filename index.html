@@ -21,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.13.24-h.1">
+  <link rel="stylesheet" href="./app.css?v=1.13.25-h.1">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div id="cmapp-hml-banner" class="cmapp-hml-banner" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -56,7 +56,7 @@
 
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.24-H.1 • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.25-H.1 • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -176,7 +176,7 @@
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.13.24-H.1</span>
+        <span>v1.13.25-H.1</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -237,8 +237,8 @@
         <p class="cm-ux-note">Somente os módulos disponíveis para seu perfil são apresentados.</p>
       </section>
       <!-- ABA 0: DASHBOARD -->
-      <section id="sec-dashboard" class="space-y-5">
-        <div class="cm-dash-switch"><div><span class="cm-dash-v2-only eyebrow">PATRIMÔNIOS · INVENTÁRIO</span><h2 class="cm-dash-v2-only">Painel de Patrimônios</h2><p class="cm-dash-v2-only">Acompanhe a conferência e as pendências do escopo selecionado.</p></div><div class="cm-dash-switch-controls" role="group" aria-label="Apresentação do painel"><button type="button" id="dash-view-v1" aria-pressed="true">V1 · Atual</button><button type="button" id="dash-view-v2" aria-pressed="false">V2 · Moderno</button></div></div>
+      <section id="sec-dashboard" class="space-y-5 cm-dashboard-v2">
+        <div class="cm-dash-switch"><div><span class="cm-dash-v2-only eyebrow">PATRIMÔNIOS · INVENTÁRIO</span><h2 class="cm-dash-v2-only">Painel de Patrimônios</h2><p class="cm-dash-v2-only">Acompanhe a conferência e as pendências do escopo selecionado.</p></div></div>
         <div class="dashboard-kpis">
           <button type="button" class="kpi-card kpi-card-blue" data-dashboard-target="todos"><span class="cm-dash-v2-only cm-dash-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4zm0 0v10l9 4 9-4V7M12 11v10"/></svg></span>
             <span class="kpi-label">Total de patrimônios</span>
@@ -256,7 +256,7 @@
             <span class="kpi-action">Ver pendências <span aria-hidden="true">→</span></span>
           </button>
           <button type="button" class="kpi-card kpi-card-amber" data-dashboard-target="transferencias"><span class="cm-dash-v2-only cm-dash-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7h16m-4-4 4 4-4 4M20 17H4m4 4-4-4 4-4"/></svg></span>
-            <span class="kpi-label">Aguardando aprovação</span>
+            <span class="kpi-label" id="dash-aguardando-label">Solicitações na fila geral</span>
             <strong id="dash-aguardando">0</strong>
             <span class="kpi-action" id="dash-aguardando-acao">Abrir fila <span aria-hidden="true">→</span></span>
           </button>
@@ -1124,7 +1124,7 @@
 
       <footer class="app-footer">
         <span>CM APP</span>
-        <span>v1.13.24-H.1 · HOMOLOGAÇÃO</span>
+        <span>v1.13.25-H.1 · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -1325,6 +1325,6 @@
   </div>
 
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.5.0/dist/driver.js.iife.js"></script>
-    <script type="module" src="./app.js?v=1.13.24-h.1"></script>
+    <script type="module" src="./app.js?v=1.13.25-h.1"></script>
 </body>
 </html>

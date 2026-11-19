@@ -76,6 +76,8 @@
     let bancoTransferencias = [];
     let filaTransferenciasFisicas = [];
     let filaSugestoesDestino = [];
+    let filaPronta = {fisicas:false,sugestoes:false};
+    let filaGeracao = 0;
     let itemAtualSelecionado = null;
     let metodoLocalizacaoSelecionado = 'digitacao';
     let itensFiltradosCache = [];
@@ -684,7 +686,7 @@
         inicializarEscopoVisualizacao();
         await carregarFotoPerfilAtual();
         atualizarCarrossel();
-        if (usuarioLogado.perfil !== 'conferente') iniciarOuvinteTransferencias();
+        if (['admin','gestor'].includes(usuarioLogado.perfil) && modulosDoUsuario(usuarioLogado).some(m=>m.id==='patrimonios')) iniciarOuvinteTransferencias();
         if (usuarioLogado.perfil === 'conferente' && modulosDoUsuario(usuarioLogado).some(m=>m.id==='patrimonios')) {
           await alternarAba('dashboard', { substituirHistorico: true });
           agendarTutorialConferente();
@@ -697,7 +699,6 @@
         encerrarOuvinteTransferencias();
         if (controladorCamera.estaAtiva()) await controladorCamera.desligar({ limparResultado: true });
         usuarioLogado = null;
-        escolherPainelPatrimonio('v1');
         renderizarCentral(document.getElementById('central-modulos-grid'), null, ()=>{});
         escopoVisualizacao = '';
         revisaoEscopo++;
@@ -753,6 +754,7 @@
       const boxExportacao = document.getElementById('container-botoes-exportacao');
       const panelCiclo = document.getElementById('panel-gestao-ciclo');
       const btnSalvar = document.getElementById('btn-salvar');
+      document.getElementById('dash-aguardando-label').textContent = usuarioLogado.perfil === 'conferente' ? 'Aguardando aprovação' : 'Solicitações na fila geral';
       document.getElementById('dash-aguardando-acao').innerText = usuarioLogado.perfil === 'conferente'
         ? 'Ver na relação →' : 'Abrir fila geral →';
       btnNovoUsuario?.classList.toggle('hidden', usuarioLogado.perfil !== 'admin');
@@ -1569,6 +1571,7 @@
       document.getElementById('dash-localizados').innerText = localizados;
       document.getElementById('dash-pendentes').innerText = pendentes;
       document.getElementById('dash-aguardando').innerText = aguardando;
+      sincronizarContadorFila();
       const percentual = total > 0 ? Math.round((localizados / total) * 100) : 0;
       document.getElementById('dash-progress-text').innerText = `${percentual}% concluído`;
       document.getElementById('dash-progress-bar').style.width = `${percentual}%`;
@@ -1579,18 +1582,8 @@
       // transferências físicas e sugestões de destino.
     }
 
-    // UX-06: alternância local; o mesmo DOM conserva métricas, escopo e ações.
+    // UX-06: V2 aprovada.
     const painelPatrimonio = document.getElementById('sec-dashboard');
-    const painelV1 = document.getElementById('dash-view-v1');
-    const painelV2 = document.getElementById('dash-view-v2');
-    function escolherPainelPatrimonio(versao) {
-      const moderno = versao === 'v2';
-      painelPatrimonio.classList.toggle('cm-dashboard-v2', moderno);
-      painelV1.setAttribute('aria-pressed', String(!moderno));
-      painelV2.setAttribute('aria-pressed', String(moderno));
-    }
-    painelV1.addEventListener('click', () => escolherPainelPatrimonio('v1'));
-    painelV2.addEventListener('click', () => escolherPainelPatrimonio('v2'));
     // O gráfico usa a largura da barra original inclusive em carregamento e erro.
     const progressoOriginal = document.getElementById('dash-progress-bar');
     const sincronizarAnel = () => {
@@ -3109,6 +3102,10 @@
       unsubscribeTransferencias = [];
       filaTransferenciasFisicas = [];
       filaSugestoesDestino = [];
+      filaPronta = {fisicas:false,sugestoes:false};
+      filaGeracao++;
+      bancoTransferencias = [];
+      sincronizarContadorFila();
     }
 
     function consolidarFilaAprovacao() {
@@ -3123,7 +3120,11 @@
 
     function iniciarOuvinteTransferencias() {
       encerrarOuvinteTransferencias();
-      const tratarErro = erro => {
+      const geracao = filaGeracao;
+      const tratarErro = tipo => erro => {
+        if (geracao !== filaGeracao) return;
+        filaPronta[tipo] = false;
+        sincronizarContadorFila();
         console.error("Erro no listener de transferências:", erro);
         document.getElementById('container-transferencias').innerHTML = `<div class="bg-red-950/40 p-4 rounded-xl border border-red-500/30 text-center text-xs text-red-300 md:col-span-2">Não foi possível acompanhar a fila em tempo real.</div>`;
       };
@@ -3131,24 +3132,33 @@
       const consultaSugestoes = query(collection(db, "patrimonios"), where("sugestaoDestinoStatus", "==", "pendente"));
       unsubscribeTransferencias.push(
         onSnapshot(consultaTransferencias, snapshot => {
+          if (geracao !== filaGeracao) return;
           filaTransferenciasFisicas = snapshot.docs.map(normalizarPatrimonio);
+          filaPronta.fisicas = true;
           consolidarFilaAprovacao();
-        }, tratarErro),
+        }, tratarErro('fisicas')),
         onSnapshot(consultaSugestoes, snapshot => {
+          if (geracao !== filaGeracao) return;
           filaSugestoesDestino = snapshot.docs.map(normalizarPatrimonio);
+          filaPronta.sugestoes = true;
           consolidarFilaAprovacao();
-        }, tratarErro)
+        }, tratarErro('sugestoes'))
       );
     }
 
+    function sincronizarContadorFila() {
+      const badge = document.getElementById('badge-fila-count');
+      const card = document.getElementById('dash-aguardando');
+      const autorizado = ['admin','gestor'].includes(usuarioLogado?.perfil) && modulosDoUsuario(usuarioLogado).some(m=>m.id==='patrimonios');
+      const pronto = autorizado && filaPronta.fisicas && filaPronta.sugestoes;
+      const quantidade = bancoTransferencias.length;
+      badge.classList.toggle('hidden', !pronto || quantidade === 0);
+      badge.textContent = pronto ? String(quantidade) : '';
+      if (autorizado) card.innerText = pronto ? String(quantidade) : '—';
+    }
+
     function aplicarBadgeTransferencias(quantidade) {
-      const badgeFila = document.getElementById('badge-fila-count');
-      if (quantidade > 0 && usuarioLogado?.perfil !== 'conferente') {
-        badgeFila.innerText = quantidade;
-        badgeFila.classList.remove('hidden');
-      } else {
-        badgeFila.classList.add('hidden');
-      }
+      sincronizarContadorFila();
     }
 
     function renderizarFilaTransferencias() {
@@ -3235,9 +3245,9 @@
       cachePatrimonios.set(itemAtualizado.plaqueta, itemAtualizado);
       const indiceRelacao = bancoPatrimonio.findIndex(item => item.plaqueta === itemAtualizado.plaqueta);
       if (indiceRelacao >= 0) bancoPatrimonio[indiceRelacao] = itemAtualizado;
-      bancoTransferencias = bancoTransferencias.filter(item => item.plaqueta !== itemAtualizado.plaqueta);
-      renderizarFilaTransferencias();
-      aplicarBadgeTransferencias(bancoTransferencias.length);
+      filaTransferenciasFisicas = filaTransferenciasFisicas.filter(item => item.plaqueta !== itemAtualizado.plaqueta || itemAtualizado.statusTransferencia === 'pendente');
+      filaSugestoesDestino = filaSugestoesDestino.filter(item => item.plaqueta !== itemAtualizado.plaqueta || itemAtualizado.sugestaoDestinoStatus === 'pendente');
+      consolidarFilaAprovacao();
       invalidarCacheRelacao();
     }
 
