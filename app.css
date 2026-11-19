@@ -1204,3 +1204,24 @@
 }
 
 .sidebar-module-panel > .nav-item > .sidebar-label:not(.nav-badge) { white-space: normal; overflow-wrap: anywhere; }
+
+/* UX-01: componentes locais inspirados no AppDashboard, sem substituir o runtime. */
+.cm-ux-central { --ux-radius: 16px; --ux-gap: 20px; --ux-accent: #60a5fa; --ux-card: var(--app-surface); --ux-fg: var(--app-text); --ux-muted: var(--app-muted); font-family: "Geist", "Inter", system-ui, sans-serif; max-width: 1200px; margin: 0 auto; }
+.cm-ux-intro { padding: 24px 0 28px; }
+.cm-ux-eyebrow { font-size: .7rem; font-weight: 700; letter-spacing: .09em; color: var(--ux-muted); }
+.cm-ux-intro h2 { font-size: clamp(1.65rem, 3vw, 2.35rem); font-weight: 700; letter-spacing: -.04em; margin: .5rem 0; color: var(--ux-fg); }
+.cm-ux-intro p, .cm-ux-note { color: var(--ux-muted); font-size: .9rem; }
+.cm-ux-module-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,260px),1fr)); gap: var(--ux-gap); }
+.cm-ux-module-card { display: flex; flex-direction: column; align-items: center; justify-content: space-between; width: 100%; min-height: 255px; border: 1px solid var(--app-border); border-radius: var(--ux-radius); overflow: hidden; color: var(--ux-fg); background: var(--ux-card); text-align: center; box-shadow: 0 8px 22px rgb(0 0 0 / .08); transition: border-color .15s, transform .15s; }
+.cm-ux-module-card:hover { border-color: var(--ux-accent); transform: translateY(-2px); }
+.cm-ux-module-body { display: flex; flex: 1; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 24px 20px; }
+.cm-ux-module-icon { display: grid; place-items: center; width: 76px; height: 76px; border-radius: 22px; background: rgb(59 130 246 / .15); color: #93c5fd; }
+.cm-ux-module-icon svg { width: 42px; height: 42px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.cm-ux-module-card[data-modulo="dsips"] .cm-ux-module-icon { background: rgb(13 148 136 / .17); color: #5eead4; }
+.cm-ux-module-title { font-size: 1.25rem; font-weight: 700; }
+.cm-ux-module-description { font-size: .875rem; color: var(--ux-muted); max-width: 28ch; }
+.cm-ux-module-action { display: flex; justify-content: space-between; align-items: center; width: 100%; background: #1d4ed8; color: white; padding: 16px 22px; font-size: .85rem; font-weight: 650; }
+.cm-ux-module-card[data-modulo="dsips"] .cm-ux-module-action { background: #0f766e; }
+.cm-ux-note { margin-top: 22px; }
+@media(max-width:639px) { .cm-ux-central { --ux-gap: 12px; } .cm-ux-intro { padding: 12px 0 18px; } .cm-ux-module-card { min-height: 210px; } .cm-ux-module-body { padding: 18px; gap: 9px; } }
+@media(prefers-reduced-motion:reduce) { .cm-ux-module-card { transition: none; } .cm-ux-module-card:hover { transform: none; } }

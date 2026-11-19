@@ -49,5 +49,5 @@ test('navegação protege auditoria antes da ativação, leitura paginada e isol
   assert.match(serv,/snapshot\.docs\.slice\(0, 30\)/);
   assert.match(serv,/temMais: snapshot\.docs\.length > 30/);
   assert.doesNotMatch(ui,/innerHTML|setDoc|updateDoc|deleteDoc|httpsCallable/);
-  assert.match(sw,/v1\.13\.19-h\.1-ajustes/);
+  assert.match(sw,/v1\.13\.20-h\.1-ux-central/);
 });

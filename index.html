@@ -21,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.13.18-h.3">
+  <link rel="stylesheet" href="./app.css?v=1.13.20-h.1">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div id="cmapp-hml-banner" class="cmapp-hml-banner" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -56,7 +56,7 @@
 
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.19-H.1 • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.20-H.1 • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -82,6 +82,7 @@
       </div>
 
       <nav class="sidebar-nav">
+        <button id="tab-btn-modulos" type="button" class="nav-item hidden" data-nav-page="modulos" aria-label="Central de Trabalho"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/></svg><span class="sidebar-label">Central de Trabalho</span></button>
         <div class="sidebar-module" data-nav-group="patrimonio">
           <button type="button" class="nav-item sidebar-module-toggle has-active-page" data-nav-group-toggle="patrimonio" aria-label="Patrimônio" aria-controls="sidebar-submenu-patrimonio" aria-expanded="true">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10 12 4l9 6v10H3zM9 20v-6h6v6M6 10h12"/></svg>
@@ -174,7 +175,7 @@
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.13.19-H.1</span>
+        <span>v1.13.20-H.1</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -229,6 +230,11 @@
           <select id="escopo-divisao" aria-describedby="escopo-descricao"></select>
         </div>
 
+      <section id="sec-modulos" class="hidden cm-ux-central" aria-labelledby="central-heading">
+        <div class="cm-ux-intro"><span class="cm-ux-eyebrow">PLATAFORMA INSTITUCIONAL</span><h2 id="central-heading">Central de Trabalho</h2><p>Selecione um módulo para começar.</p></div>
+        <div id="central-modulos-grid" class="cm-ux-module-grid"></div>
+        <p class="cm-ux-note">Somente os módulos disponíveis para seu perfil são apresentados.</p>
+      </section>
       <!-- ABA 0: DASHBOARD -->
       <section id="sec-dashboard" class="space-y-5">
         <div class="dashboard-kpis">
@@ -1103,7 +1109,7 @@
 
       <footer class="app-footer">
         <span>CM APP</span>
-        <span>v1.13.19-H.1 · HOMOLOGAÇÃO</span>
+        <span>v1.13.20-H.1 · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -1304,6 +1310,6 @@
   </div>
 
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.5.0/dist/driver.js.iife.js"></script>
-    <script type="module" src="./app.js?v=1.13.19-h.1"></script>
+    <script type="module" src="./app.js?v=1.13.20-h.1"></script>
 </body>
 </html>

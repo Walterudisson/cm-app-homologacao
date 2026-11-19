@@ -16,6 +16,8 @@ on:
       - 'js/modules/dsips/service.js'
       - 'service-worker.js'
       - 'js/ui/navigation.js'
+      - 'js/ui/central-trabalho.js'
+      - 'tests/hml-ux-central.test.mjs'
       - 'tests/hml-dsips-consulta.test.mjs'
       - 'tests/hml-dsips-mobile-layout.test.mjs'
       - 'tests/hml-dsips-cadastro-materiais.test.mjs'
@@ -45,6 +47,7 @@ jobs:
         run: |
           node --check app.js
           node --check js/ui/navigation.js
+          node --check js/ui/central-trabalho.js
           node --check js/modules/dsips/consulta-materiais-model.js
           node --check js/modules/dsips/consulta-materiais-ui.js
           node --check js/modules/dsips/cadastros-model.js
@@ -62,7 +65,7 @@ jobs:
           node --check js/modules/dsips/historico-ui.js
           node --check js/modules/dsips/service.js
       - name: Executar testes da sprint
-        run: node --test tests/hml-dsips-consulta.test.mjs tests/hml-dsips-mobile-layout.test.mjs tests/hml-dsips-cadastro-materiais.test.mjs tests/hml-dsips-visual-materiais.test.mjs tests/hml-dsips-cadastros.test.mjs tests/hml-dsips-estoque.test.mjs tests/hml-dsips-registro-cautelas.test.mjs tests/hml-dsips-devolucoes.test.mjs tests/hml-dsips-posse.test.mjs tests/hml-dsips-historico.test.mjs tests/hml-dsips-ajustes.test.mjs
+        run: node --test tests/hml-dsips-consulta.test.mjs tests/hml-dsips-mobile-layout.test.mjs tests/hml-dsips-cadastro-materiais.test.mjs tests/hml-dsips-visual-materiais.test.mjs tests/hml-dsips-cadastros.test.mjs tests/hml-dsips-estoque.test.mjs tests/hml-dsips-registro-cautelas.test.mjs tests/hml-dsips-devolucoes.test.mjs tests/hml-dsips-posse.test.mjs tests/hml-dsips-historico.test.mjs tests/hml-dsips-ajustes.test.mjs tests/hml-ux-central.test.mjs
       - name: Comparar suíte geral com a base HML
         if: github.event_name == 'pull_request'
         env:
