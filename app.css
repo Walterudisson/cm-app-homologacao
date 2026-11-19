@@ -1296,9 +1296,6 @@ body.cm-pdv-kiosk .app-workspace {margin-left:0!important;width:100%!important}
 
 /* UX-06 — duas apresentações, uma única fonte de dados. V1 conserva os estilos originais. */
 .cm-dash-switch {display:flex;justify-content:flex-end;align-items:center;gap:12px;flex-wrap:wrap}
-.cm-dash-switch-controls {display:inline-flex;gap:4px;padding:4px;border:1px solid var(--app-border);border-radius:10px;background:var(--app-surface)}
-.cm-dash-switch-controls button {font-size:.78rem;font-weight:650;padding:8px 12px;border-radius:7px;color:var(--app-muted)}
-.cm-dash-switch-controls button[aria-pressed="true"] {background:#2563eb;color:white}
 #sec-dashboard:not(.cm-dashboard-v2) .cm-dash-v2-only {display:none!important}
 #sec-dashboard.cm-dashboard-v2 .cm-dash-switch {justify-content:space-between}
 #sec-dashboard.cm-dashboard-v2 .cm-dash-switch h2 {font-size:1.5rem;font-weight:750;letter-spacing:-.025em;margin:4px 0;color:var(--app-text)}
@@ -1322,3 +1319,13 @@ body.cm-pdv-kiosk .app-workspace {margin-left:0!important;width:100%!important}
 #sec-dashboard.cm-dashboard-v2 .dashboard-progress .progress-track {grid-column:2;height:9px;background:var(--app-border)}
 #sec-dashboard.cm-dashboard-v2 .dashboard-progress .progress-track span {background:#10b981}
 @media(max-width:639px){#sec-dashboard.cm-dashboard-v2 .kpi-card {min-height:125px;padding:10px;grid-template-columns:32px minmax(0,1fr);column-gap:8px}#sec-dashboard.cm-dashboard-v2 .cm-dash-icon {width:32px;height:32px;border-radius:9px}#sec-dashboard.cm-dashboard-v2 .cm-dash-icon svg{width:20px;height:20px}#sec-dashboard.cm-dashboard-v2 .dashboard-progress{grid-template-columns:76px minmax(0,1fr);gap:12px;padding:12px}#sec-dashboard.cm-dashboard-v2 .cm-dash-ring{width:76px}#sec-dashboard.cm-dashboard-v2 .cm-dash-ring::before{inset:8px}#sec-dashboard.cm-dashboard-v2 .cm-dash-ring span{font-size:.58rem}}
+
+/* UX-07: ajustes de densidade e foco, sem substituir controles existentes. */
+#sec-dashboard.cm-dashboard-v2 .kpi-card {min-height:132px;padding:16px}
+#sec-dashboard.cm-dashboard-v2 .kpi-action {color:var(--app-text);font-weight:600}
+#sec-dashboard.cm-dashboard-v2 .dashboard-progress {padding:16px;gap:14px}
+.cm-panel-header,.cm-management-header {margin-bottom:12px}
+.cm-panel-action,.cm-pdv-tile,.cm-pdv-material,.cm-ux-module-card,.kpi-card {outline-offset:3px}
+.cm-panel-action:focus-visible,.cm-pdv-tile:focus-visible,.cm-pdv-material:focus-visible,.cm-ux-module-card:focus-visible,.kpi-card:focus-visible {outline:2px solid #60a5fa}
+@media(max-width:639px){#sec-dashboard.cm-dashboard-v2 .kpi-card{min-height:120px;padding:10px}.cm-management-header .dsips-intro-actions{gap:8px}.cm-panel-header{gap:8px}}
+@media(prefers-reduced-motion:reduce){.kpi-card,.progress-track span,.cm-ux-module-card{transition:none!important}.kpi-card:hover{transform:none}}
