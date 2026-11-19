@@ -9,6 +9,8 @@ import {
 import { podeDevolverCautelaDsips, itensPendentesDevolucaoDsips, prepararDevolucaoDsips,
   devolucaoIntegralDsips, criarReciboDevolucaoDsips } from './devolucoes-model.js?v=1.13.16-h.3';
 
+import {filtrarMateriaisPdv, criarIconePdv} from './pdv-model.js?v=1.13.22-h.1';
+
 export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar = () => {} }) {
   const porId = id => document.getElementById(id);
   const secao = porId('sec-dsips-cautelas');
@@ -46,6 +48,7 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
   const devolucaoTudo = porId('dsips-devolucao-tudo');
   const devolucaoCancelar = porId('dsips-devolucao-cancel');
   const devolucaoEnviar = porId('dsips-devolucao-submit');
+  const pdvGrid=porId('dsips-pdv-materials'),pdvBusca=porId('dsips-pdv-search'),pdvEntrega=porId('dsips-pdv-entrega'),pdvRetorno=porId('dsips-pdv-retorno'),pdvConsulta=porId('dsips-pdv-consulta'),pdvModo=porId('dsips-pdv-mode');
   let cautelaDevolucao = null, linhasDevolucao = [], reciboDevolucao = null, envioIncerto = false;
 
   let cautelas = [], responsaveis = [], materiais = [], estoque = [];
@@ -90,6 +93,9 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
     } else {
       devolucaoEnviar.textContent = 'Conferir e registrar devolução';
     }
+    pdvEntrega.disabled=abrirBotao.disabled||!editor.classList.contains('hidden')||!devolucaoEditor.classList.contains('hidden');
+    pdvRetorno.disabled=bloqueado||!pronto||envioIncerto||!editor.classList.contains('hidden')||!devolucaoEditor.classList.contains('hidden');
+    pdvGrid.querySelectorAll('button').forEach(b=>{b.disabled=bloqueado||!pronto||!podeGravar();});
   }
   function atualizarUsuarios() {
     const atual = usuarioSelect.value;
@@ -102,6 +108,18 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
     }
     if (responsaveis.some(p=>p.id===atual && p.ativo!==false)) usuarioSelect.value = atual;
   }
+  function renderizarPdv(){
+    pdvGrid.replaceChildren();
+    for(const material of filtrarMateriaisPdv(materiais,estoque,cesta,pdvBusca.value)){
+      const b=elemento('button','cm-pdv-material');b.type='button';b.dataset.materialId=material.id;b.dataset.cor=material.visual.cor;
+      b.append(criarIconePdv(material.visual.icone),elemento('strong','',material.nome),elemento('span','',material.saldo+' '+(material.unidade||'un')+' disponíveis'));
+      b.setAttribute('aria-pressed',String(materiaisSelect.value===material.id));
+      b.addEventListener('click',async()=>{if(!pronto||!podeGravar()||gravando||confirmando||carregando||!ativo()||editor.classList.contains('hidden'))return;
+        materiaisSelect.value=material.id;await selecionarMaterial();if(materiaisSelect.value===material.id&&!editor.classList.contains('hidden')){renderizarPdv();atualizarBotoes();if(material.controle==='individualizado')identificacoesBox.scrollIntoView({block:'nearest'});else quantidade.focus({preventScroll:true});}
+      });pdvGrid.append(b);
+    }
+    atualizarBotoes();
+  }
   function atualizarMateriais() {
     const selecionado = materiaisSelect.value;
     materiaisSelect.replaceChildren(new Option('Selecione um material disponível',''));
@@ -112,6 +130,7 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
       materiaisSelect.add(new Option(material.nome+' · '+saldo+' '+(material.unidade || 'un'),material.id));
     }
     if ([...materiaisSelect.options].some(o=>o.value===selecionado)) materiaisSelect.value=selecionado;
+    renderizarPdv();
     atualizarBotoes();
   }
   function limparSelecaoMaterial() {
@@ -214,6 +233,7 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
   }
   function fecharEditor() {
     editor.classList.add('hidden');
+    pdvBusca.value='';
     form.reset();
     cesta=[];pendente=null;usuarioBusca.value='';
     limparSelecaoMaterial();
@@ -228,6 +248,7 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
     if(!pronto||!podeGravar()||gravando||confirmando||carregando) return;
     fecharEditor();
     editor.classList.remove('hidden');
+    atualizarBotoes();
     editor.scrollIntoView({block:'start',behavior:'smooth'});
     usuarioSelect.focus({preventScroll:true});
   }
@@ -352,7 +373,8 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
   function renderizar() {
     lista.replaceChildren();
     const podeEscrever=podeGravar();
-    modo.textContent=podeEscrever?'Cautelas e devoluções':'Somente consulta';
+    modo.textContent=podeEscrever?'':'Somente consulta';
+    pdvEntrega.classList.toggle('hidden',!podeEscrever);pdvRetorno.classList.toggle('hidden',!podeEscrever);
     abrirBotao.classList.toggle('hidden',!podeEscrever);
     if(!podeEscrever&&!editor.classList.contains('hidden')) fecharEditor();
     if(!podeEscrever&&!devolucaoEditor.classList.contains('hidden')) fecharDevolucao();
@@ -417,6 +439,7 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
   }
   function limpar() {
     revisao++;sessao++;revisaoUnidades++;
+    sairQuiosque();pdvBusca.value='';pdvGrid.replaceChildren();
     fecharDevolucao();
     cautelas=[];responsaveis=[];materiais=[];estoque=[];unidadesPorMaterial={};
     cesta=[];pendente=null;pronto=false;carregando=false;gravando=false;confirmando=false;falha='';
@@ -521,12 +544,19 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
   abrirBotao.addEventListener('click',abrirEditor);
   cancelarBotao.addEventListener('click',fecharEditor);
   adicionarBotao.addEventListener('click',adicionarMaterial);
-  materiaisSelect.addEventListener('change',()=>{void selecionarMaterial();});
+  materiaisSelect.addEventListener('change',()=>{renderizarPdv();void selecionarMaterial();});
+  pdvBusca.addEventListener('input',renderizarPdv);
+  pdvEntrega.addEventListener('click',()=>{if(!pdvEntrega.disabled)abrirEditor();});
+  function focarConsulta(){busca.scrollIntoView({block:'center',behavior:'smooth'});busca.focus({preventScroll:true});}
+  pdvConsulta.addEventListener('click',()=>{if(!gravando&&!confirmando)focarConsulta();});
+  pdvRetorno.addEventListener('click',()=>{if(pdvRetorno.disabled||!podeGravar())return;filtro.value='todas';busca.value='';renderizar();focarConsulta();});
+  function sairQuiosque(){document.body.classList.remove('cm-pdv-kiosk');pdvModo.textContent='Modo quiosque';pdvModo.setAttribute('aria-pressed','false');}
+  pdvModo.addEventListener('click',()=>{if(!autorizado()||!ativo())return;const on=document.body.classList.toggle('cm-pdv-kiosk');pdvModo.textContent=on?'Sair do quiosque':'Modo quiosque';pdvModo.setAttribute('aria-pressed',String(on));});
   usuarioBusca.addEventListener('input',atualizarUsuarios);
   atualizarBotao.addEventListener('click',()=>{void carregar();});
   form.addEventListener('submit',evento=>{void salvar(evento);});
   busca.addEventListener('input',renderizar);
   filtro.addEventListener('change',renderizar);
   limpar();
-  return {carregar,limpar};
+  return {carregar,limpar,sairQuiosque};
 }
