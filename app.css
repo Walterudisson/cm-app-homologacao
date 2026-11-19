@@ -1225,3 +1225,27 @@
 .cm-ux-note { margin-top: 22px; }
 @media(max-width:639px) { .cm-ux-central { --ux-gap: 12px; } .cm-ux-intro { padding: 12px 0 18px; } .cm-ux-module-card { min-height: 210px; } .cm-ux-module-body { padding: 18px; gap: 9px; } }
 @media(prefers-reduced-motion:reduce) { .cm-ux-module-card { transition: none; } .cm-ux-module-card:hover { transform: none; } }
+
+/* UX-03: cabeçalho compacto e painel operacional DSIPS */
+.cm-panel-header {display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.cm-panel-header h2 {font-size:1.4rem;font-weight:750;color:var(--app-text);margin:4px 0}
+.cm-panel-header p,.cm-panel-status {font-size:.8rem;color:var(--app-muted)}
+.cm-panel-kpis {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.cm-panel-kpi {text-align:left;display:flex;align-items:center;gap:12px;padding:16px;min-height:94px;border:1px solid var(--app-border);border-radius:14px;background:var(--app-surface);color:var(--app-text)}
+.cm-panel-kpi strong {display:block;font-size:1.55rem;line-height:1.2;font-weight:700}
+.cm-panel-kpi small {font-size:.8rem;color:var(--app-muted)}
+.cm-panel-kpi:hover,.cm-panel-action:hover {border-color:#60a5fa}
+.cm-panel-label {font-size:1.15rem;font-weight:700;margin:20px 0 12px}
+.cm-panel-status {margin-top:8px;min-height:1em}
+.cm-panel-actions {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.cm-panel-action {display:flex;flex-direction:column;align-items:center;text-align:center;justify-content:center;gap:10px;min-height:174px;background:var(--app-surface);color:var(--app-text);border:1px solid var(--app-border);border-radius:16px;padding:20px}
+.cm-panel-action strong {font-size:1.05rem;font-weight:700}
+.cm-panel-action small {font-size:.8rem;color:var(--app-muted)}
+.cm-panel-action[data-primary="true"] {background:#174d9a;border-color:#2862ac;color:white}
+.cm-panel-action[data-primary="true"] small {color:#dbeafe}
+.cm-panel-icon {flex-shrink:0;width:54px;height:54px;display:grid;place-items:center;border-radius:14px;background:rgb(96 165 250 / .15);color:#93c5fd}
+.cm-panel-icon svg {width:32px;height:32px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.cm-panel-kpi .cm-panel-icon {width:40px;height:40px}
+.cm-panel-kpi .cm-panel-icon svg {width:23px;height:23px}
+@media(max-width:900px){.cm-panel-kpis,.cm-panel-actions{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}}
+@media(max-width:420px){.cm-panel-kpi{padding:10px;gap:7px}.cm-panel-kpi .cm-panel-icon{width:32px;height:32px}.cm-panel-action{padding:12px;min-height:150px}}

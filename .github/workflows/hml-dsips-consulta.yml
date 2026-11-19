@@ -8,6 +8,9 @@ on:
       - 'js/modules/dsips/consulta-materiais*'
       - 'js/modules/dsips/cadastros-*'
       - 'js/modules/dsips/estoque-*'
+      - 'js/modules/dsips/painel-*'
+      - 'js/modules/dsips/module.js'
+      - 'tests/hml-ux-painel.test.mjs'
       - 'js/modules/dsips/ajustes-*'
       - 'js/modules/dsips/registro-cautelas-*'
       - 'js/modules/dsips/devolucoes-model.js'
@@ -54,6 +57,8 @@ jobs:
           node --check js/modules/dsips/cadastros-ui.js
           node --check js/modules/dsips/estoque-model.js
           node --check js/modules/dsips/estoque-ui.js
+          node --check js/modules/dsips/painel-ui.js
+          node --check js/modules/dsips/painel-model.js
           node --check js/modules/dsips/ajustes-model.js
           node --check js/modules/dsips/ajustes-ui.js
           node --check js/modules/dsips/registro-cautelas-model.js
@@ -65,7 +70,7 @@ jobs:
           node --check js/modules/dsips/historico-ui.js
           node --check js/modules/dsips/service.js
       - name: Executar testes da sprint
-        run: node --test tests/hml-dsips-consulta.test.mjs tests/hml-dsips-mobile-layout.test.mjs tests/hml-dsips-cadastro-materiais.test.mjs tests/hml-dsips-visual-materiais.test.mjs tests/hml-dsips-cadastros.test.mjs tests/hml-dsips-estoque.test.mjs tests/hml-dsips-registro-cautelas.test.mjs tests/hml-dsips-devolucoes.test.mjs tests/hml-dsips-posse.test.mjs tests/hml-dsips-historico.test.mjs tests/hml-dsips-ajustes.test.mjs tests/hml-ux-central.test.mjs
+        run: node --test tests/hml-dsips-consulta.test.mjs tests/hml-dsips-mobile-layout.test.mjs tests/hml-dsips-cadastro-materiais.test.mjs tests/hml-dsips-visual-materiais.test.mjs tests/hml-dsips-cadastros.test.mjs tests/hml-dsips-estoque.test.mjs tests/hml-dsips-registro-cautelas.test.mjs tests/hml-dsips-devolucoes.test.mjs tests/hml-dsips-posse.test.mjs tests/hml-dsips-historico.test.mjs tests/hml-dsips-ajustes.test.mjs tests/hml-ux-central.test.mjs tests/hml-ux-painel.test.mjs
       - name: Comparar suíte geral com a base HML
         if: github.event_name == 'pull_request'
         env:

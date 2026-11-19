@@ -1,7 +1,7 @@
 import {modulosDoUsuario} from '../platform/modules.js';
 const conf = Object.freeze({
   patrimonios: {nome:'Patrimônio',descricao:'Inventário, conferência e movimentação de bens.',destino:'dashboard',path:'M3 7l9-4 9 4-9 4-9-4zm0 0v10l9 4 9-4V7M12 11v10M7.5 5l9 4'},
-  dsips: {nome:'DSIPS',descricao:'Materiais, cautelas, devoluções e estoque.',destino:'dsips-cautelas',path:'M12 3l8 3v6c0 5-4 8-8 10-4-2-8-5-8-10V6l8-3zm-4 9 3 3 5-6'}
+  dsips: {nome:'DSIPS',descricao:'Materiais, cautelas, devoluções e estoque.',destino:'dsips-inicio',path:'M12 3l8 3v6c0 5-4 8-8 10-4-2-8-5-8-10V6l8-3zm-4 9 3 3 5-6'}
 });
 export function destinosCentral(usuario) {
   if(!usuario || Object.hasOwn(usuario,'autorizacaoVersao')) return [];

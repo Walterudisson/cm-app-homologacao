@@ -11,7 +11,7 @@ test('Central apresenta apenas módulos autorizados, sem módulos futuros',()=>{
   for(const u of [null,{perfil:'usuario',modulos:['dsips']},{perfil:'admin',ativo:false},{perfil:'admin',autorizacaoVersao:2}])assert.equal(podeAbrirCentral(u),false);
 });
 test('Central preserva rotas operacionais e não inventa métricas',()=>{
-  assert.deepEqual(destinosCentral({perfil:'admin'}).map(m=>m.destino),['dashboard','dsips-cautelas']);
+  assert.deepEqual(destinosCentral({perfil:'admin'}).map(m=>m.destino),['dashboard','dsips-inicio']);
 });
 test('Central integra shell, navegação, versão e PWA',async()=>{
   const [html,app,css,sw,nav]=await Promise.all(['index.html','app.js','app.css','service-worker.js','js/ui/navigation.js'].map(p=>readFile(new URL('../'+p,import.meta.url),'utf8')));
