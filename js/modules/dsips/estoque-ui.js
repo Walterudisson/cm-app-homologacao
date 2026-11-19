@@ -107,7 +107,7 @@ export function criarEstoqueDsips({ obterUsuario, confirmar, notificar = () => {
     ajustes.fechar();
     lista.replaceChildren();
     const podeEscrever = podeGravar();
-    modo.textContent = podeEscrever ? 'Consulta, saldo inicial e ajustes' : 'Somente consulta';
+    modo.textContent = podeEscrever ? '' : 'Somente consulta';
     novoBotao.classList.toggle('hidden', !podeEscrever);
     if (!podeEscrever && !editor.classList.contains('hidden')) fecharEditor();
     atualizarBotoes();

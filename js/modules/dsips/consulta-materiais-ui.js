@@ -115,7 +115,7 @@ export function criarConsultaMateriaisDsips({ obterUsuario, notificar = () => {}
     atualizarBotao.disabled = carregando;
     const edicaoPermitida = podeGravar();
     novoBotao.classList.toggle('hidden', !edicaoPermitida);
-    modo.textContent = edicaoPermitida ? 'Consulta e cadastro' : 'Somente consulta';
+    modo.textContent = edicaoPermitida ? '' : 'Somente consulta';
     if (!edicaoPermitida && !editor.classList.contains('hidden')) fecharEditor();
     if (!autorizado()) {
       estado.textContent = 'Acesso não autorizado.';

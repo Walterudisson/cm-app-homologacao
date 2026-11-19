@@ -1276,3 +1276,20 @@
 body.cm-pdv-kiosk .app-shell {display:block!important;grid-template-columns:minmax(0,1fr)!important}
 body.cm-pdv-kiosk .app-workspace {margin-left:0!important;width:100%!important}
 @media(max-width:639px){.cm-pdv-launch{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.cm-pdv-tile{min-height:120px;padding:12px}.cm-pdv-tile:last-child{grid-column:1/-1}.cm-pdv-material-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* UX-05 — cabeçalho de gestão inspirado na tela Divisões e responsáveis. */
+.cm-management-header.dsips-intro {align-items:center;gap:12px;margin-bottom:12px;padding:0;background:transparent;border:0;box-shadow:none}
+.cm-management-header.dsips-intro h2 {font-size:1.4rem;font-weight:750;color:var(--app-text);margin:4px 0}
+.cm-management-header.dsips-intro p {font-size:.8rem;line-height:1.45;color:var(--app-muted);margin:0}
+.cm-management-access {font-size:.75rem;color:var(--app-muted)}
+.cm-management-access:empty {display:none}
+.cm-management-kpi.dsips-overview-card {display:flex;flex-direction:row;align-items:center;gap:12px;min-height:92px;padding:14px 16px;border:1px solid var(--app-border);background:var(--app-surface);border-radius:14px;box-shadow:none}
+.cm-management-kpi-icon {display:grid;place-items:center;width:44px;height:44px;flex:0 0 44px;border-radius:12px;background:rgb(59 130 246 / .17);color:#93c5fd}
+.cm-management-kpi-icon svg {width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.cm-management-kpi[data-kpi="check"] .cm-management-kpi-icon {background:rgb(16 185 129 / .15);color:#6ee7b7}
+.cm-management-kpi[data-kpi="clock"] .cm-management-kpi-icon {background:rgb(245 158 11 / .15);color:#fcd34d}
+.cm-management-kpi-copy {display:flex;flex-direction:column;gap:3px;min-width:0}
+.cm-management-kpi-copy strong {order:-1;font-size:1.45rem;line-height:1.15;font-weight:750;color:var(--app-text)}
+.cm-management-kpi-copy span,.cm-management-kpi-copy small {font-size:.75rem;font-weight:500;color:var(--app-muted);overflow-wrap:anywhere}
+.cm-management-header + .dsips-overview,.cm-management-header + .dsips-estoque-overview {margin-top:12px}
+@media(max-width:639px){.cm-management-header.dsips-intro {align-items:stretch;gap:10px}.cm-management-kpi.dsips-overview-card {padding:10px;gap:8px;min-height:82px}.cm-management-kpi-icon {width:34px;height:34px;flex-basis:34px}.cm-management-kpi-icon svg {width:19px;height:19px}.cm-management-kpi-copy strong {font-size:1.25rem}}

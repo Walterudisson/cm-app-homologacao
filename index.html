@@ -21,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.13.22-h.1">
+  <link rel="stylesheet" href="./app.css?v=1.13.23-h.1">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div id="cmapp-hml-banner" class="cmapp-hml-banner" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -56,7 +56,7 @@
 
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.22-H.1 • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.23-H.1 • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -176,7 +176,7 @@
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.13.22-H.1</span>
+        <span>v1.13.23-H.1</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -522,14 +522,14 @@
       </section>
       <!-- SPRINT 1.13.12-H.1: CONSULTA DSIPS DENTRO DO CMAPP ORIGINAL -->
       <section id="sec-dsips-materiais" class="hidden space-y-5" aria-label="Consulta de materiais DSIPS">
-        <article class="app-card dsips-intro">
+        <article class="cm-panel-header cm-management-header dsips-intro">
           <div>
             <span class="eyebrow">DSIPS · Materiais e cautelas</span>
             <h2>Consulta de materiais</h2>
-            <p>Consulte e mantenha o cadastro de materiais. Estoque, cautelas e modo PDV serão integrados em etapas posteriores.</p>
+            <p>Consulte e gerencie os materiais cadastrados.</p>
           </div>
           <div class="dsips-intro-actions">
-            <span id="dsips-material-mode" class="dsips-readonly" aria-live="polite">Verificando acesso…</span>
+            <span id="dsips-material-mode" class="cm-management-access" aria-live="polite">Verificando acesso…</span>
             <button id="dsips-material-new" class="app-button app-button-primary hidden" type="button">+ Novo material</button>
           </div>
         </article>
@@ -537,7 +537,7 @@
           <div class="dsips-editor-heading">
             <span class="eyebrow">Cadastro DSIPS</span>
             <h3 id="dsips-material-editor-title">Novo material</h3>
-            <p>Informe as características do material. Estoque e quantidade serão tratados em outra etapa.</p>
+            <p>Informe as características do material.</p>
           </div>
           <form id="dsips-material-form" class="dsips-editor-form">
             <div class="dsips-editor-fields">
@@ -558,8 +558,8 @@
           </form>
         </article>
         <div class="dsips-overview">
-          <article class="app-card dsips-overview-card"><span>Materiais cadastrados</span><strong id="dsips-material-total">0</strong></article>
-          <article class="app-card dsips-overview-card"><span>Materiais ativos</span><strong id="dsips-material-active">0</strong></article>
+          <article class="app-card dsips-overview-card cm-management-kpi" data-kpi="box"><span class="cm-management-kpi-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4zm0 0v10l9 4 9-4V7M12 11v10"/></svg></span><div class="cm-management-kpi-copy"><span>Materiais cadastrados</span><strong id="dsips-material-total">0</strong></div></article>
+          <article class="app-card dsips-overview-card cm-management-kpi" data-kpi="check"><span class="cm-management-kpi-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></span><div class="cm-management-kpi-copy"><span>Materiais ativos</span><strong id="dsips-material-active">0</strong></div></article>
         </div>
         <article class="app-card dsips-panel">
           <div class="dsips-toolbar">
@@ -580,14 +580,14 @@
 
       <!-- SPRINT 1.13.14-H.1: CATEGORIAS E LOCAIS DSIPS -->
       <section id="sec-dsips-cadastros" class="hidden space-y-5" aria-label="Cadastros DSIPS">
-        <article class="app-card dsips-intro">
+        <article class="cm-panel-header cm-management-header dsips-intro">
           <div>
             <span class="eyebrow">DSIPS · Organização de materiais</span>
             <h2>Cadastros</h2>
-            <p>Organize as categorias dos materiais e os locais de armazenamento. Os responsáveis pelas cautelas são usuários do CMAPP, não cadastros separados.</p>
+            <p>Gerencie categorias e locais de armazenamento.</p>
           </div>
           <div class="dsips-intro-actions">
-            <span id="dsips-cadastros-mode" class="dsips-readonly" aria-live="polite">Verificando acesso…</span>
+            <span id="dsips-cadastros-mode" class="cm-management-access" aria-live="polite">Verificando acesso…</span>
             <button id="dsips-cadastros-new" type="button" class="app-button app-button-primary hidden">+ Novo cadastro</button>
           </div>
         </article>
@@ -616,8 +616,8 @@
           </form>
         </article>
         <div class="dsips-overview">
-          <article class="app-card dsips-overview-card"><span>Registros cadastrados</span><strong id="dsips-cadastros-total">0</strong></article>
-          <article class="app-card dsips-overview-card"><span>Registros ativos</span><strong id="dsips-cadastros-active">0</strong></article>
+          <article class="app-card dsips-overview-card cm-management-kpi" data-kpi="box"><span class="cm-management-kpi-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4zm0 0v10l9 4 9-4V7M12 11v10"/></svg></span><div class="cm-management-kpi-copy"><span>Registros cadastrados</span><strong id="dsips-cadastros-total">0</strong></div></article>
+          <article class="app-card dsips-overview-card cm-management-kpi" data-kpi="check"><span class="cm-management-kpi-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></span><div class="cm-management-kpi-copy"><span>Registros ativos</span><strong id="dsips-cadastros-active">0</strong></div></article>
         </div>
         <article class="app-card dsips-panel">
           <div class="dsips-toolbar">
@@ -635,21 +635,21 @@
 
       <!-- SPRINT 1.13.15-H.1: ESTOQUE E SALDO INICIAL DSIPS -->
       <section id="sec-dsips-estoque" class="hidden space-y-5" aria-label="Estoque DSIPS">
-        <article class="app-card dsips-intro">
+        <article class="cm-panel-header cm-management-header dsips-intro">
           <div>
             <span class="eyebrow">DSIPS · Materiais e cautelas</span>
             <h2>Estoque</h2>
-            <p>Confira o saldo de cada material e registre a posição inicial. Lançamentos são únicos, auditáveis e não podem ser editados.</p>
+            <p>Consulte saldos, registre posições iniciais e ajustes de estoque.</p>
           </div>
           <div class="dsips-intro-actions">
-            <span id="dsips-estoque-mode" class="dsips-readonly" aria-live="polite">Verificando acesso…</span>
+            <span id="dsips-estoque-mode" class="cm-management-access" aria-live="polite">Verificando acesso…</span>
             <button id="dsips-estoque-new" type="button" class="app-button app-button-primary hidden">+ Registrar saldo inicial</button>
           </div>
         </article>
         <div class="dsips-estoque-overview">
-          <article class="app-card dsips-overview-card"><span>Materiais inicializados</span><strong id="dsips-estoque-inicializados">0</strong></article>
-          <article class="app-card dsips-overview-card"><span>Aguardando saldo inicial</span><strong id="dsips-estoque-pendentes">0</strong></article>
-          <article class="app-card dsips-overview-card"><span>Identificações disponíveis</span><strong id="dsips-estoque-identificacoes">0</strong><small>Somente materiais individualizados</small></article>
+          <article class="app-card dsips-overview-card cm-management-kpi" data-kpi="check"><span class="cm-management-kpi-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></span><div class="cm-management-kpi-copy"><span>Materiais inicializados</span><strong id="dsips-estoque-inicializados">0</strong></div></article>
+          <article class="app-card dsips-overview-card cm-management-kpi" data-kpi="clock"><span class="cm-management-kpi-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Zm0 4v5l3 2"/></svg></span><div class="cm-management-kpi-copy"><span>Aguardando saldo inicial</span><strong id="dsips-estoque-pendentes">0</strong></div></article>
+          <article class="app-card dsips-overview-card cm-management-kpi" data-kpi="tag"><span class="cm-management-kpi-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 3h8l10 10-8 8L3 11zM7 7h.01"/></svg></span><div class="cm-management-kpi-copy"><span>Identificações disponíveis</span><strong id="dsips-estoque-identificacoes">0</strong><small>Somente materiais individualizados</small></div></article>
         </div>
         <article id="dsips-estoque-editor" class="app-card dsips-editor hidden" aria-label="Registrar saldo inicial DSIPS">
           <div class="dsips-editor-heading">
@@ -720,12 +720,12 @@
           <button type="button" id="dsips-pdv-consulta" class="cm-pdv-tile"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 20l-5-5M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg><strong>Consultar cautelas</strong><span>Pesquisar registros</span></button>
         </div>
         <div class="dsips-overview">
-          <article class="app-card dsips-overview-card">
+          <article class="app-card dsips-overview-card cm-management-kpi" data-kpi="box"><span class="cm-management-kpi-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4zm0 0v10l9 4 9-4V7M12 11v10"/></svg></span><div class="cm-management-kpi-copy">
             <span>Cautelas registradas</span><strong id="dsips-cautelas-total">0</strong>
-          </article>
-          <article class="app-card dsips-overview-card">
+          </div></article>
+          <article class="app-card dsips-overview-card cm-management-kpi" data-kpi="clock"><span class="cm-management-kpi-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Zm0 4v5l3 2"/></svg></span><div class="cm-management-kpi-copy">
             <span>Cautelas pendentes de devolução</span><strong id="dsips-cautelas-abertas">0</strong>
-          </article>
+          </div></article>
         </div>
         <article id="dsips-cautelas-editor" class="app-card dsips-editor hidden" aria-label="Registrar cautela">
           <div class="dsips-editor-heading">
@@ -824,15 +824,15 @@
 
       <!-- SPRINT 1.13.17-H.1: CONSULTA DE POSSE DSIPS -->
       <section id="sec-dsips-posse" class="hidden space-y-5" aria-label="Quem está com o quê">
-        <article class="app-card dsips-intro">
+        <article class="cm-panel-header cm-management-header dsips-intro">
           <div><span class="eyebrow">DSIPS · Consulta de posse</span>
           <h2>Quem está com o quê</h2>
-          <p>Localize materiais ainda cautelados por responsável, quantidade e identificação individual. As devoluções já registradas são descontadas.</p></div>
-          <span class="dsips-readonly">Somente consulta</span>
+          <p>Localize materiais em posse por responsável ou identificação.</p></div>
+          <span class="cm-management-access">Somente consulta</span>
         </article>
         <div class="dsips-overview">
-          <article class="app-card dsips-overview-card"><span>Responsáveis com pendências</span><strong id="dsips-posse-total">0</strong></article>
-          <article class="app-card dsips-overview-card"><span>Cautelas com pendências</span><strong id="dsips-posse-cautelas">0</strong></article>
+          <article class="app-card dsips-overview-card cm-management-kpi" data-kpi="box"><span class="cm-management-kpi-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4zm0 0v10l9 4 9-4V7M12 11v10"/></svg></span><div class="cm-management-kpi-copy"><span>Responsáveis com pendências</span><strong id="dsips-posse-total">0</strong></div></article>
+          <article class="app-card dsips-overview-card cm-management-kpi" data-kpi="clipboard"><span class="cm-management-kpi-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 4H5v17h14V4h-3M8 3h8v4H8zM8 12h8M8 16h5"/></svg></span><div class="cm-management-kpi-copy"><span>Cautelas com pendências</span><strong id="dsips-posse-cautelas">0</strong></div></article>
         </div>
         <article class="app-card dsips-panel">
           <div class="dsips-toolbar">
@@ -848,11 +848,11 @@
 
       <!-- SPRINT 1.13.18-H.1: HISTÓRICO DSIPS -->
       <section id="sec-dsips-historico" class="hidden space-y-5" aria-label="Histórico DSIPS">
-        <article class="app-card dsips-intro">
+        <article class="cm-panel-header cm-management-header dsips-intro">
           <div><span class="eyebrow">DSIPS · Auditoria</span>
           <h2>Histórico de movimentações</h2>
-          <p>Consulte os eventos registrados pelo sistema, com operador, data e detalhes da operação. Os registros não podem ser alterados por esta tela.</p></div>
-          <span class="dsips-readonly">Somente consulta</span>
+          <p>Consulte movimentações, operadores e detalhes de auditoria.</p></div>
+          <span class="cm-management-access">Somente consulta</span>
         </article>
         <article class="app-card dsips-panel">
           <div class="dsips-toolbar">
@@ -1123,7 +1123,7 @@
 
       <footer class="app-footer">
         <span>CM APP</span>
-        <span>v1.13.22-H.1 · HOMOLOGAÇÃO</span>
+        <span>v1.13.23-H.1 · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -1324,6 +1324,6 @@
   </div>
 
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.5.0/dist/driver.js.iife.js"></script>
-    <script type="module" src="./app.js?v=1.13.22-h.1"></script>
+    <script type="module" src="./app.js?v=1.13.23-h.1"></script>
 </body>
 </html>
