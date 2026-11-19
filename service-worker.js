@@ -1,4 +1,4 @@
-const VERSAO = 'v1.13.25-h.2-ux-fila';
+const VERSAO = 'v1.13.26-h.1-ux-pdv-refino';
 const CACHE_SHELL = `cmapp-shell-${VERSAO}`;
 const CACHE_RUNTIME = `cmapp-runtime-${VERSAO}`;
 const PREFIXO_CACHE = 'cmapp-';

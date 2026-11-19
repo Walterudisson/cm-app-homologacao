@@ -21,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.13.25-h.2">
+  <link rel="stylesheet" href="./app.css?v=1.13.26-h.1">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div id="cmapp-hml-banner" class="cmapp-hml-banner" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -56,7 +56,7 @@
 
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.25-H.2 • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.26-H.1 • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -176,7 +176,7 @@
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.13.25-H.2</span>
+        <span>v1.13.26-H.1</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -748,11 +748,11 @@
             <div class="cm-pdv-tools"><label for="dsips-pdv-search">Pesquisar material</label><input id="dsips-pdv-search" type="search" autocomplete="off" placeholder="Nome do material"></div>
             <div id="dsips-pdv-materials" class="cm-pdv-material-grid" aria-label="Materiais disponíveis"></div>
             <div class="dsips-editor-fields">
-              <label>Material com saldo disponível
-                <select id="dsips-cautelas-material"><option value="">Selecione um material disponível</option></select>
+              <label class="hidden">Material com saldo disponível
+                <select id="dsips-cautelas-material" tabindex="-1"><option value="">Selecione um material disponível</option></select>
               </label>
               <label>Quantidade
-                <input id="dsips-cautelas-quantity" type="number" inputmode="numeric" min="1" step="1" placeholder="Quantidade disponível">
+                <div class="cm-pdv-quantity"><button type="button" id="dsips-pdv-minus" class="app-button app-button-secondary" aria-label="Diminuir quantidade">−</button><input id="dsips-cautelas-quantity" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="Quantidade"><button type="button" id="dsips-pdv-plus" class="app-button app-button-secondary" aria-label="Aumentar quantidade">+</button></div><div id="dsips-pdv-quick" class="cm-pdv-quick"></div><small id="dsips-pdv-balance" aria-live="polite"></small>
               </label>
             </div>
             <div id="dsips-cautelas-units-box" class="hidden dsips-cautelas-units-box">
@@ -761,10 +761,10 @@
               <div id="dsips-cautelas-units" class="dsips-cautelas-units"></div>
             </div>
             <div class="dsips-cautelas-add-row">
-              <button id="dsips-cautelas-add" type="button" class="app-button app-button-secondary">Adicionar material à cesta</button>
+              <button id="dsips-cautelas-add" type="button" class="app-button app-button-secondary">Adicionar à cautela</button>
             </div>
-            <h4 class="dsips-cautelas-step">3. Confira a cesta</h4>
-            <p id="dsips-cautelas-cart-status" class="dsips-editor-status" role="status" aria-live="polite">Cesta vazia.</p>
+            <h4 class="dsips-cautelas-step">3. Confira a cautela</h4>
+            <p id="dsips-cautelas-cart-status" class="dsips-editor-status" role="status" aria-live="polite">Nenhum material adicionado à cautela.</p>
             <div id="dsips-cautelas-cart" class="dsips-cautelas-cart"></div>
             <label class="dsips-editor-notes">Observações da entrega (opcional)
               <textarea name="observacoes" rows="3" maxlength="500" placeholder="Informações importantes sobre a entrega"></textarea>
@@ -1124,7 +1124,7 @@
 
       <footer class="app-footer">
         <span>CM APP</span>
-        <span>v1.13.25-H.2 · HOMOLOGAÇÃO</span>
+        <span>v1.13.26-H.1 · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -1325,6 +1325,6 @@
   </div>
 
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.5.0/dist/driver.js.iife.js"></script>
-    <script type="module" src="./app.js?v=1.13.25-h.2"></script>
+    <script type="module" src="./app.js?v=1.13.26-h.1"></script>
 </body>
 </html>

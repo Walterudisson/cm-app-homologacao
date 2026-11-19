@@ -59,8 +59,8 @@
     import { criarConsultaMateriaisDsips } from "./js/modules/dsips/consulta-materiais-ui.js?v=1.13.23-h.1";
     import { criarCadastrosDsips } from "./js/modules/dsips/cadastros-ui.js?v=1.13.23-h.1";
     import { criarEstoqueDsips } from "./js/modules/dsips/estoque-ui.js?v=1.13.23-h.1";
-    import { criarRegistroCautelasDsips } from "./js/modules/dsips/registro-cautelas-ui.js?v=1.13.23-h.1";
-    import { criarPosseDsips } from "./js/modules/dsips/posse-ui.js?v=1.13.17-h.1";
+    import { criarRegistroCautelasDsips } from "./js/modules/dsips/registro-cautelas-ui.js?v=1.13.26-h.1";
+    import { criarPosseDsips } from "./js/modules/dsips/posse-ui.js?v=1.13.26-h.1";
     import { criarHistoricoDsips } from "./js/modules/dsips/historico-ui.js?v=1.13.19-h.1";
     import { podeConsultarHistoricoDsips } from "./js/modules/dsips/historico-model.js?v=1.13.19-h.1";
 
@@ -162,7 +162,12 @@
     const painelDsips = criarPainelDsips({obterUsuario:()=>usuarioLogado,navegar:aba=>alternarAba(aba)});
     const estoqueDsips = criarEstoqueDsips({ obterUsuario: () => usuarioLogado, confirmar: confirmarAcao, notificar: notificarMensagem });
     const cautelasDsips = criarRegistroCautelasDsips({ obterUsuario: () => usuarioLogado, confirmar: confirmarAcao, notificar: notificarMensagem });
-    const posseDsips = criarPosseDsips({ obterUsuario: () => usuarioLogado });
+    const posseDsips = criarPosseDsips({ obterUsuario: () => usuarioLogado, iniciarDevolucao: async id => {
+      const uid=usuarioLogado?.uid;
+      if(abaAtual!=='dsips-posse'||!podeConsultarMateriaisDsips(usuarioLogado)||!['admin','gestor'].includes(usuarioLogado?.perfil))return;
+      await alternarAba('dsips-cautelas');
+      if(uid===usuarioLogado?.uid&&abaAtual==='dsips-cautelas')cautelasDsips.iniciarDevolucaoPorId(id);
+    }});
     const historicoDsips = criarHistoricoDsips({ obterUsuario: () => usuarioLogado });
     inicializarAlternadoresSenha();
     inicializarGestaoDivisoes();

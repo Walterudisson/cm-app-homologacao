@@ -43,7 +43,7 @@ export function validarCautelaDsips(campos, { responsaveis = [], materiais = [],
   const normalizados = itens.map(item => {
     const materialId = String(item.materialId || '').trim();
     const material = materiais.find(m => m.id === materialId && m.ativo !== false);
-    if (!material || ids.has(materialId)) throw new Error('Material inválido ou repetido na cesta.');
+    if (!material || ids.has(materialId)) throw new Error('Material inválido ou repetido na cautela.');
     ids.add(materialId);
     const quantidade = Number(item.quantidade);
     const disponivel = saldoDisponivelDsips(materialId, estoque);

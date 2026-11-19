@@ -1,7 +1,8 @@
 import { listarCadastroDsips } from './service.js?v=1.13.17-h.1';
 import { podeConsultarPosseDsips, consolidarPosseDsips, filtrarPosseDsips } from './posse-model.js?v=1.13.17-h.1';
 
-export function criarPosseDsips({obterUsuario}) {
+import {podeRegistrarCautelasDsips} from './registro-cautelas-model.js?v=1.13.26-h.1';
+export function criarPosseDsips({obterUsuario,iniciarDevolucao=()=>{}}) {
   const porId=id=>document.getElementById(id);
   const lista=porId('dsips-posse-list'), status=porId('dsips-posse-status');
   const busca=porId('dsips-posse-search'), atualizar=porId('dsips-posse-refresh');
@@ -42,6 +43,10 @@ export function criarPosseDsips({obterUsuario}) {
         bloco.append(el('strong','',material.nome),el('p','dsips-posse-qtd',material.quantidade+' '+material.unidade+' pendente(s)'));
         if(material.identificacoes.length)bloco.append(el('p','dsips-cautelas-card-meta','Identificações: '+material.identificacoes.join(', ')));
         bloco.append(el('p','dsips-cautelas-card-meta','Cautelas: '+material.cautelas.map(c=>c.id+' ('+c.quantidade+')').join(' · ')));
+        if(podeRegistrarCautelasDsips(obterUsuario())){
+          const acoes=el('div','cm-posse-devolucoes');
+          for(const cautela of material.cautelas){if(!cautela.id)continue;const b=el('button','app-button app-button-secondary',material.cautelas.length===1?'Iniciar devolução':'Devolver · '+cautela.id.slice(0,10));b.type='button';b.addEventListener('click',()=>{if(autorizado()&&podeRegistrarCautelasDsips(obterUsuario()))void iniciarDevolucao(cautela.id);});acoes.append(b);}bloco.append(acoes);
+        }
         card.append(bloco);
       }
       lista.append(card);
