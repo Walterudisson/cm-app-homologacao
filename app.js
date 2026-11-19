@@ -697,6 +697,7 @@
         encerrarOuvinteTransferencias();
         if (controladorCamera.estaAtiva()) await controladorCamera.desligar({ limparResultado: true });
         usuarioLogado = null;
+        escolherPainelPatrimonio('v1');
         renderizarCentral(document.getElementById('central-modulos-grid'), null, ()=>{});
         escopoVisualizacao = '';
         revisaoEscopo++;
@@ -1577,6 +1578,28 @@
       // O badge da fila é mantido pelos listeners em tempo real, incluindo
       // transferências físicas e sugestões de destino.
     }
+
+    // UX-06: alternância local; o mesmo DOM conserva métricas, escopo e ações.
+    const painelPatrimonio = document.getElementById('sec-dashboard');
+    const painelV1 = document.getElementById('dash-view-v1');
+    const painelV2 = document.getElementById('dash-view-v2');
+    function escolherPainelPatrimonio(versao) {
+      const moderno = versao === 'v2';
+      painelPatrimonio.classList.toggle('cm-dashboard-v2', moderno);
+      painelV1.setAttribute('aria-pressed', String(!moderno));
+      painelV2.setAttribute('aria-pressed', String(moderno));
+    }
+    painelV1.addEventListener('click', () => escolherPainelPatrimonio('v1'));
+    painelV2.addEventListener('click', () => escolherPainelPatrimonio('v2'));
+    // O gráfico usa a largura da barra original inclusive em carregamento e erro.
+    const progressoOriginal = document.getElementById('dash-progress-bar');
+    const sincronizarAnel = () => {
+      const valor = Number.parseFloat(progressoOriginal.style.width);
+      painelPatrimonio.style.setProperty('--cm-dash-progress', Number.isFinite(valor) ? Math.min(100, Math.max(0, valor)) + '%' : '0%');
+    };
+    const observadorPainel = new MutationObserver(sincronizarAnel);
+    observadorPainel.observe(progressoOriginal, {attributes:true, attributeFilter:['style']});
+    sincronizarAnel();
 
     document.querySelectorAll('[data-dashboard-target]').forEach(card => {
       card.addEventListener('click', async () => {

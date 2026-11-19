@@ -1293,3 +1293,32 @@ body.cm-pdv-kiosk .app-workspace {margin-left:0!important;width:100%!important}
 .cm-management-kpi-copy span,.cm-management-kpi-copy small {font-size:.75rem;font-weight:500;color:var(--app-muted);overflow-wrap:anywhere}
 .cm-management-header + .dsips-overview,.cm-management-header + .dsips-estoque-overview {margin-top:12px}
 @media(max-width:639px){.cm-management-header.dsips-intro {align-items:stretch;gap:10px}.cm-management-kpi.dsips-overview-card {padding:10px;gap:8px;min-height:82px}.cm-management-kpi-icon {width:34px;height:34px;flex-basis:34px}.cm-management-kpi-icon svg {width:19px;height:19px}.cm-management-kpi-copy strong {font-size:1.25rem}}
+
+/* UX-06 — duas apresentações, uma única fonte de dados. V1 conserva os estilos originais. */
+.cm-dash-switch {display:flex;justify-content:flex-end;align-items:center;gap:12px;flex-wrap:wrap}
+.cm-dash-switch-controls {display:inline-flex;gap:4px;padding:4px;border:1px solid var(--app-border);border-radius:10px;background:var(--app-surface)}
+.cm-dash-switch-controls button {font-size:.78rem;font-weight:650;padding:8px 12px;border-radius:7px;color:var(--app-muted)}
+.cm-dash-switch-controls button[aria-pressed="true"] {background:#2563eb;color:white}
+#sec-dashboard:not(.cm-dashboard-v2) .cm-dash-v2-only {display:none!important}
+#sec-dashboard.cm-dashboard-v2 .cm-dash-switch {justify-content:space-between}
+#sec-dashboard.cm-dashboard-v2 .cm-dash-switch h2 {font-size:1.5rem;font-weight:750;letter-spacing:-.025em;margin:4px 0;color:var(--app-text)}
+#sec-dashboard.cm-dashboard-v2 .cm-dash-switch p {font-size:.8rem;color:var(--app-muted)}
+#sec-dashboard.cm-dashboard-v2 .kpi-card {--kpi-accent:#93c5fd;--kpi-fill:rgb(59 130 246 / .14);background:var(--app-surface);color:var(--app-text);border:1px solid var(--app-border);border-radius:15px;box-shadow:none;min-height:155px;padding:18px;display:grid;grid-template-columns:46px minmax(0,1fr);grid-template-rows:auto auto auto;align-content:center;column-gap:13px;row-gap:5px;text-align:left}
+#sec-dashboard.cm-dashboard-v2 .kpi-card::after {display:none}
+#sec-dashboard.cm-dashboard-v2 .kpi-card-green {--kpi-accent:#34d399;--kpi-fill:rgb(16 185 129 / .14)}
+#sec-dashboard.cm-dashboard-v2 .kpi-card-red {--kpi-accent:#fb7185;--kpi-fill:rgb(244 63 94 / .13)}
+#sec-dashboard.cm-dashboard-v2 .kpi-card-amber {--kpi-accent:#fbbf24;--kpi-fill:rgb(245 158 11 / .14)}
+#sec-dashboard.cm-dashboard-v2 .cm-dash-icon {grid-column:1;grid-row:1/3;display:grid;place-items:center;width:46px;height:46px;border-radius:12px;background:var(--kpi-fill);color:var(--kpi-accent);align-self:center}
+#sec-dashboard.cm-dashboard-v2 .cm-dash-icon svg {width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#sec-dashboard.cm-dashboard-v2 .kpi-label {grid-column:2;grid-row:2;color:var(--app-muted);font-size:.78rem;font-weight:600;overflow-wrap:anywhere}
+#sec-dashboard.cm-dashboard-v2 .kpi-card strong {grid-column:2;grid-row:1;font-size:clamp(1.45rem,2.4vw,2.2rem);line-height:1.1;margin:0;color:var(--app-text)}
+#sec-dashboard.cm-dashboard-v2 .kpi-action {grid-column:1/-1;grid-row:3;margin-top:10px;padding-top:10px;border-top:1px solid var(--app-border);color:var(--app-muted);font-size:.75rem}
+#sec-dashboard.cm-dashboard-v2 .kpi-card:hover {border-color:var(--kpi-accent);filter:none}
+#sec-dashboard.cm-dashboard-v2 .dashboard-progress {grid-template-columns:112px minmax(0,1fr);gap:20px;padding:20px;align-items:center}
+#sec-dashboard.cm-dashboard-v2 .cm-dash-ring {grid-row:1/3;width:112px;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;background:conic-gradient(#10b981 var(--cm-dash-progress,0%),var(--app-border) 0);position:relative}
+#sec-dashboard.cm-dashboard-v2 .cm-dash-ring::before {content:'';position:absolute;inset:11px;border-radius:50%;background:var(--app-surface)}
+#sec-dashboard.cm-dashboard-v2 .cm-dash-ring span {position:relative;font-size:.7rem;color:var(--app-muted);font-weight:650}
+#sec-dashboard.cm-dashboard-v2 .dashboard-progress strong {font-size:clamp(1.2rem,3vw,1.8rem);color:var(--app-text)}
+#sec-dashboard.cm-dashboard-v2 .dashboard-progress .progress-track {grid-column:2;height:9px;background:var(--app-border)}
+#sec-dashboard.cm-dashboard-v2 .dashboard-progress .progress-track span {background:#10b981}
+@media(max-width:639px){#sec-dashboard.cm-dashboard-v2 .kpi-card {min-height:125px;padding:10px;grid-template-columns:32px minmax(0,1fr);column-gap:8px}#sec-dashboard.cm-dashboard-v2 .cm-dash-icon {width:32px;height:32px;border-radius:9px}#sec-dashboard.cm-dashboard-v2 .cm-dash-icon svg{width:20px;height:20px}#sec-dashboard.cm-dashboard-v2 .dashboard-progress{grid-template-columns:76px minmax(0,1fr);gap:12px;padding:12px}#sec-dashboard.cm-dashboard-v2 .cm-dash-ring{width:76px}#sec-dashboard.cm-dashboard-v2 .cm-dash-ring::before{inset:8px}#sec-dashboard.cm-dashboard-v2 .cm-dash-ring span{font-size:.58rem}}
