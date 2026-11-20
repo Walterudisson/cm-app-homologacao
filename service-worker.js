@@ -1,4 +1,4 @@
-const VERSAO = 'v1.13.37-h.2-hotfix-login';
+const VERSAO = 'v1.13.37-h.3-recuperacao';
 const CACHE_SHELL = `cmapp-shell-${VERSAO}`;
 const CACHE_RUNTIME = `cmapp-runtime-${VERSAO}`;
 const PREFIXO_CACHE = 'cmapp-';
@@ -151,6 +151,10 @@ self.addEventListener('fetch', evento => {
   canonica.search = '';
   canonica.hash = '';
   if (requisicao.mode === 'navigate') {
+    // A recuperação deve sempre vir da rede, inclusive se o app estiver quebrado.
+    if(canonica.href===new URL('./recuperar.html',self.registration.scope).href){
+      evento.respondWith(fetch(requisicao,{cache:'no-store'}).catch(()=>new Response('Conecte-se à internet para recuperar o CMAPP.',{status:503,headers:{'Content-Type':'text/plain; charset=utf-8'}})));return;
+    }
     // Não servir a tela legada para entradas V2 ou outras rotas.
     if (ENTRADAS.has(canonica.href)) evento.respondWith(respostaShell(canonica.href));
     else evento.respondWith(fetch(requisicao).catch(() => respostaShell(new URL('./offline.html', self.registration.scope).href)));

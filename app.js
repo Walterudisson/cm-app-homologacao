@@ -3875,3 +3875,8 @@
       suggestionsBox.innerHTML = '';
       suggestionsBox.classList.add('hidden');
     }
+
+    // Só habilita o envio após toda a inicialização síncrona concluir.
+    document.getElementById('btn-submit-login').disabled=false;
+    const statusInicializacao=document.getElementById('login-bootstrap-status');
+    if(statusInicializacao)statusInicializacao.textContent='';
