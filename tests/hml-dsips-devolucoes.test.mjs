@@ -82,9 +82,9 @@ test('devolução integra Cautelas com confirmação, acesso, sessão e recupera
   assert.match(ui,/fecharDevolucao\(\);\s*notificar\('Devolução registrada no HML.'/);
   const preencher=ui.slice(ui.indexOf('function preencherDevolucaoIntegral()'),ui.indexOf('async function salvarDevolucao('));
   assert.doesNotMatch(preencher,/registrarDevolucaoDsips|salvarDevolucao\(/);
-  assert.match(service,/httpsCallable\(functions, 'dsipsRegistrarDevolucao'\)/);
-  assert.match(app,/registro-cautelas-ui\.js\?v=1\.13\.33-h\.1/);
-  assert.match(sw,/v1\.13\.33-h\.1-perf-paginacao/);
+  assert.match(service,/gravarDsips\('dsipsRegistrarDevolucao',dados\)/);
+  assert.match(app,/registro-cautelas-ui\.js\?v=1\.13\.34-h\.1/);
+  assert.match(sw,/v1\.13\.34-h\.1-perf-cache/);
   assert.match(sw,/\.\/js\/modules\/dsips\/devolucoes-model\.js/);
   assert.match(css,/\.dsips-devolucao-item/);
   assert.doesNotMatch(ui,/innerHTML\s*=/);

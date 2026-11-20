@@ -1,6 +1,7 @@
+import {invalidarCacheDsips} from './service.js?v=1.13.34-h.1';
 import {criarPaginadorLocal} from '../../ui/paginador.js?v=1.13.33-h.1';
 import {podeConsultarHistoricoDsips} from './historico-model.js?v=1.13.29-h.1';
-import { listarCautelasPendentesDsips } from './service.js?v=1.13.33-h.1';
+import { listarCautelasPendentesDsips } from './service.js?v=1.13.34-h.1';
 import { podeConsultarPosseDsips, consolidarPosseDsips, filtrarPosseDsips } from './posse-model.js?v=1.13.17-h.1';
 
 import {podeRegistrarCautelasDsips} from './registro-cautelas-model.js?v=1.13.26-h.1';
@@ -72,6 +73,6 @@ export function criarPosseDsips({obterUsuario,iniciarDevolucao=()=>{}, abrirHist
     }finally{if(token===revisao){carregando=false;renderizar();}}
   }
   busca.addEventListener('input',renderizar);
-  atualizar.addEventListener('click',()=>{void carregar();});
+  atualizar.addEventListener('click',()=>{invalidarCacheDsips();void carregar();});
   limpar();return {carregar,limpar};
 }

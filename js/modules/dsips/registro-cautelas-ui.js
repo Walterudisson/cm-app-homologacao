@@ -1,8 +1,9 @@
+import {invalidarCacheDsips} from './service.js?v=1.13.34-h.1';
 import {criarPaginadorLocal} from '../../ui/paginador.js?v=1.13.33-h.1';
 import {criarAutocomplete} from '../../ui/autocomplete.js?v=1.13.32-h.1';
 import {
   listarCadastroDsips, listarUnidadesDsips, registrarCautelaDsips, registrarDevolucaoDsips
-} from './service.js?v=1.13.16-h.3';
+} from './service.js?v=1.13.34-h.1';
 import {
   podeConsultarCautelasDsips, podeRegistrarCautelasDsips,
   saldoDisponivelDsips, unidadesDisponiveisDsips,
@@ -573,7 +574,7 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
   pdvConsulta.addEventListener('click',()=>{if(!pdvConsulta.disabled){paginador.reset();filtro.value='todas';busca.value='';renderizar();focarConsulta();busca.focus({preventScroll:true});}});
   pdvRetorno.addEventListener('click',()=>{if(!pdvRetorno.disabled&&podeGravar()){paginador.reset();filtro.value='pendentes';busca.value='';renderizar();focarConsulta();busca.focus({preventScroll:true});}});
   function sairTela(){document.body.classList.remove('cm-pdv-kiosk');painelConsulta.classList.add('hidden');comboResponsavel.fechar();}
-  atualizarBotao.addEventListener('click',()=>{void carregar();});
+  atualizarBotao.addEventListener('click',()=>{invalidarCacheDsips();void carregar();});
   form.addEventListener('submit',evento=>{void salvar(evento);});
   busca.addEventListener('input',renderizar);
   filtro.addEventListener('change',renderizar);

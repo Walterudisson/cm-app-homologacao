@@ -1,7 +1,8 @@
+import {invalidarCacheDsips} from './service.js?v=1.13.34-h.1';
 import {criarPaginadorLocal} from '../../ui/paginador.js?v=1.13.33-h.1';
 import {adaptarSelectAutocomplete} from '../../ui/autocomplete.js?v=1.13.32-h.1';
 import {podeConsultarHistoricoDsips} from './historico-model.js?v=1.13.29-h.1';
-import { listarCadastroDsips, salvarCadastroDsips } from './service.js?v=1.13.13-h.3';
+import { listarCadastroDsips, salvarCadastroDsips } from './service.js?v=1.13.34-h.1';
 import {
   filtrarMateriaisDsips, podeConsultarMateriaisDsips,
   podeGerenciarMateriaisDsips, prepararCadastroMaterialDsips,
@@ -293,7 +294,7 @@ export function criarConsultaMateriaisDsips({ obterUsuario, notificar = () => {}
   formulario.addEventListener('submit', evento => { void salvarMaterial(evento); });
   busca.addEventListener('input', renderizar);
   categoria.addEventListener('change', renderizar);
-  atualizarBotao.addEventListener('click', carregar);
+  atualizarBotao.addEventListener('click',()=>{invalidarCacheDsips();void carregar();});
   limpar();
   return { carregar, limpar };
 }
