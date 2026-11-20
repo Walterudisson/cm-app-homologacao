@@ -1,4 +1,4 @@
-const VERSAO = 'v1.13.37-h.1-qa-integrada';
+const VERSAO = 'v1.13.37-h.2-hotfix-login';
 const CACHE_SHELL = `cmapp-shell-${VERSAO}`;
 const CACHE_RUNTIME = `cmapp-runtime-${VERSAO}`;
 const PREFIXO_CACHE = 'cmapp-';

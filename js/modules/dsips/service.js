@@ -60,4 +60,4 @@ export async function listarCautelasPendentesDsips(){
   const snapshot=await getDocs(query(collection(db,'dsipsCautelas'),where('status','in',['aberta','parcial'])));
   return snapshot.docs.map(doc=>({...doc.data(),id:doc.id}));
   });
-
+}
