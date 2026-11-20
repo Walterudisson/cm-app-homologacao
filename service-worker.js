@@ -1,4 +1,4 @@
-const VERSAO = 'v1.13.35-h.1-qa-acesso';
+const VERSAO = 'v1.13.36-h.1-qa-pwa';
 const CACHE_SHELL = `cmapp-shell-${VERSAO}`;
 const CACHE_RUNTIME = `cmapp-runtime-${VERSAO}`;
 const PREFIXO_CACHE = 'cmapp-';
@@ -17,6 +17,8 @@ const ARQUIVOS_SHELL = [
   './assets/apple-touch-icon.png',
   './js/config/firebase.js',
   './js/platform/modules.js',
+  './js/platform/pages.js',
+  './js/modules/patrimonios/pages.js',
   './js/platform/acesso-sessao.js',
   './js/modules/patrimonios/module.js',
   './js/modules/dsips/module.js',
@@ -91,7 +93,7 @@ async function armazenarDependenciasExternas() {
 self.addEventListener('install', evento => {
   evento.waitUntil((async () => {
     const cache = await caches.open(CACHE_SHELL);
-    await cache.addAll(ARQUIVOS_SHELL);
+    await cache.addAll(ARQUIVOS_SHELL.map(path => new Request(new URL(path, self.registration.scope), { cache: 'reload' })));
     await armazenarDependenciasExternas();
   })());
 });
@@ -110,57 +112,65 @@ self.addEventListener('message', evento => {
   if (evento.data?.tipo === 'ATIVAR_ATUALIZACAO') self.skipWaiting();
 });
 
+// O shell ativo é um snapshot local da release. O caminho canônico é
+// utilizado somente para recursos explicitamente incluídos no precache.
+const URLS_SHELL = new Set(ARQUIVOS_SHELL.map(path => new URL(path, self.registration.scope).href));
+const ENTRADAS = new Set(['./', './index.html'].map(path => new URL(path, self.registration.scope).href));
+async function respostaShell(url) {
+  const cache = await caches.open(CACHE_SHELL);
+  return (await cache.match(url)) || Response.error();
+}
 async function redePrimeiro(requisicao, fallback) {
+  const cache = await caches.open(CACHE_RUNTIME);
   try {
     const resposta = await fetch(requisicao);
-    if (resposta.ok && requisicao.method === 'GET') {
-      const cache = await caches.open(CACHE_RUNTIME);
-      await cache.put(requisicao, resposta.clone());
-    }
+    if (resposta.ok) await cache.put(requisicao, resposta.clone());
     return resposta;
   } catch (_) {
-    return (await caches.match(requisicao, { ignoreSearch: true }))
-      || (fallback ? await caches.match(fallback, { ignoreSearch: true }) : null)
-      || Response.error();
+    return (await cache.match(requisicao))
+      || (fallback ? await respostaShell(new URL(fallback, self.registration.scope).href) : Response.error());
   }
 }
-
-async function cachePrimeiroComAtualizacao(requisicao) {
+async function cachePrimeiroComAtualizacao(requisicao, evento) {
   const cache = await caches.open(CACHE_RUNTIME);
-  const armazenada = await caches.match(requisicao, { ignoreSearch: true });
+  const armazenada = await cache.match(requisicao);
   const atualizacao = fetch(requisicao)
-    .then(resposta => {
-      if (resposta.ok || resposta.type === 'opaque') cache.put(requisicao, resposta.clone());
+    .then(async resposta => {
+      if (resposta.ok || resposta.type === 'opaque') await cache.put(requisicao, resposta.clone());
       return resposta;
     })
     .catch(() => null);
+  evento.waitUntil(atualizacao.then(() => undefined));
   return armazenada || await atualizacao || Response.error();
 }
-
 self.addEventListener('fetch', evento => {
   const requisicao = evento.request;
   if (requisicao.method !== 'GET') return;
-
   const url = new URL(requisicao.url);
+  const canonica = new URL(url.href);
+  canonica.search = '';
+  canonica.hash = '';
   if (requisicao.mode === 'navigate') {
-    evento.respondWith(redePrimeiro(requisicao, './index.html').then(resposta => {
-      if (resposta.type !== 'error') return resposta;
-      return caches.match('./offline.html');
-    }));
+    // Não servir a tela legada para entradas V2 ou outras rotas.
+    if (ENTRADAS.has(canonica.href)) evento.respondWith(respostaShell(canonica.href));
+    else evento.respondWith(fetch(requisicao).catch(() => respostaShell(new URL('./offline.html', self.registration.scope).href)));
     return;
   }
-
-  const recursoLocalEstatico = url.origin === self.location.origin
+  const local = url.origin === self.location.origin
+    && url.href.startsWith(self.registration.scope)
     && ['script', 'style', 'worker', 'image', 'font', 'manifest'].includes(requisicao.destination);
-  if (recursoLocalEstatico) {
+  if (local) {
     const codigo = ['script', 'style', 'worker'].includes(requisicao.destination);
-    evento.respondWith(codigo
-      ? redePrimeiro(requisicao)
-      : cachePrimeiroComAtualizacao(requisicao));
+    if (URLS_SHELL.has(canonica.href)) {
+      evento.respondWith(respostaShell(canonica.href));
+    } else if (codigo) {
+      evento.respondWith(redePrimeiro(requisicao));
+    } else {
+      evento.respondWith(cachePrimeiroComAtualizacao(requisicao, evento));
+    }
     return;
   }
-
   const dependenciaEstatica = HOSTS_ESTATICOS.has(url.hostname)
     && ['script', 'style', 'worker'].includes(requisicao.destination);
-  if (dependenciaEstatica) evento.respondWith(cachePrimeiroComAtualizacao(requisicao));
+  if (dependenciaEstatica) evento.respondWith(cachePrimeiroComAtualizacao(requisicao, evento));
 });

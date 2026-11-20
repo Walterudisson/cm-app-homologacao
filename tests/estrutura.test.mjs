@@ -1,3 +1,4 @@
+import { conferirVersaoAtual } from './contrato-versao.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
@@ -70,8 +71,8 @@ test('o aviso pausado duplicado é ocultado quando o resultado está visível', 
   assert.match(controlador, /camera-status-result/);
 });
 
-test('a interface identifica a versão v1.16.1-H.1', () => {
-  assert.match(html, /v1\.16\.1-H\.1 • HOMOLOGAÇÃO/);
+test('a interface identifica a mesma release HML do Service Worker', async () => {
+  await conferirVersaoAtual();
 });
 
 test('Gestão separa usuários e inventários em telas próprias', () => {
@@ -145,7 +146,7 @@ test('o botão voltar fecha camadas e percorre as telas do app', () => {
 });
 
 test('toasts ficam abaixo do header e a sidebar expande por hover', () => {
-  assert.match(css, /\.toast-container[\s\S]*?top:\s*calc\(var\(--topbar-height\)/);
+  assert.match(css, /\.toast-container\s*\{[^}]*top:\s*calc\(var\(--hml-banner-height\)\s*\+\s*var\(--topbar-height\)/);
   assert.match(css, /app-sidebar:is\(:hover, :focus-within\)/);
 });
 

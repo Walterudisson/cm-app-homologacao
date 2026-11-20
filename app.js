@@ -54,7 +54,7 @@
       fecharNavegacaoMovel,
       inicializarNavegacao
     } from "./js/ui/navigation.js?v=1.13.27-h.1";
-    import { inicializarPwa } from "./js/pwa.js?v=1.12.0";
+    import { inicializarPwa } from "./js/pwa.js?v=1.13.36-h.1";
     import { podeConsultarMateriaisDsips } from "./js/modules/dsips/consulta-materiais-model.js?v=1.13.13-h.3";
     import {invalidarCacheDsips} from './js/modules/dsips/service.js?v=1.13.34-h.1';
     import { criarConsultaMateriaisDsips } from "./js/modules/dsips/consulta-materiais-ui.js?v=1.13.34-h.1";
