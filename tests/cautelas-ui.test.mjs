@@ -1,130 +1,24 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createRequire } from 'node:module';
-import { readFile } from 'node:fs/promises';
-import { internalFile } from './internal-source.mjs';
-import { criarInterfaceCautelas } from '../js/modules/dsips/cautelas-controller.js';
-const { JSDOM } = createRequire(internalFile('functions/package.json'))('jsdom');
-const html = await readFile(new URL('../index.html',import.meta.url),'utf8');
-const esperar = async () => { for (let i=0;i<8;i++) await new Promise(resolve=>setImmediate(resolve)); };
-function ambiente(perfil='admin') {
-  const dom = new JSDOM(html,{url:'https://teste.invalid/'});const originais={document:globalThis.document,Option:globalThis.Option};
-  globalThis.document=dom.window.document;globalThis.Option=dom.window.Option;
-  const estado={categorias:[{id:'cat',nome:'Categoria'}],responsaveis:[{id:'p',nome:'Pessoa Teste',matricula:'123',ativo:true}],materiais:[
-    {id:'m',nome:'Quantidade',unidade:'un',controle:'quantidade',ativo:true},{id:'i',nome:'Individual',unidade:'un',controle:'individualizado',ativo:true}
-  ],estoque:[{materialId:'m',disponivel:10},{materialId:'i',disponivel:2}],cautelas:[]};
-  const chamadas=[],avisos=[];const usuario={uid:'teste',perfil,modulos:['dsips']};
-  const servicos={listar:async tipo=>structuredClone(estado[tipo]),listarUnidades:async()=>[
-    {id:'u1',identificacao:'SER-1',situacao:'disponivel'},{id:'u2',identificacao:'SER-2',situacao:'em_cautela',cautelaId:'outra'}
-  ],registrarCautela:async payload=>{chamadas.push(payload);},registrarDevolucao:async payload=>{chamadas.push(payload);}};
-  const ui=criarInterfaceCautelas({obterUsuario:()=>usuario,servicos,confirmar:async()=>true,notificar:(...args)=>avisos.push(args)});
-  const id=nome=>dom.window.document.getElementById(nome);
-  const evento=(elemento,nome)=>elemento.dispatchEvent(new dom.window.Event(nome,{bubbles:true,cancelable:true}));
-  return{ui,estado,servicos,chamadas,avisos,usuario,id,evento,dom,fechar(){Object.assign(globalThis,originais);dom.window.close();}};
+import {ambiente,aguardar,cautela} from './dsips-dom-fixture.mjs';
+const {criarRegistroCautelasDsips}=await import('../js/modules/dsips/registro-cautelas-ui.js');
+const {criarPosseDsips}=await import('../js/modules/dsips/posse-ui.js');
+async function setup(perfil='admin',preparar=()=>{}){
+ const f=ambiente(perfil);try{preparar(f);f.abrir('dsips-cautelas');f.abrir('dsips-posse');f.ui=criarRegistroCautelasDsips(f.options);f.posse=criarPosseDsips(f.options);await f.ui.carregar();return f;}catch(e){f.fechar();throw e;}
 }
-const cautela=()=>({id:'C-123',status:'aberta',responsavelId:'p',responsavelNome:'Pessoa Teste',responsavelMatricula:'123',itens:[
-  {materialId:'m',nome:'Quantidade',quantidade:5,devolvida:0,unidade:'un',controle:'quantidade',unidades:[],unidadesDevolvidas:[]},
-  {materialId:'i',nome:'Individual',quantidade:1,devolvida:0,unidade:'un',controle:'individualizado',unidades:[{id:'u1',identificacao:'SER-1'}],unidadesDevolvidas:[]}
-]});
-test('formulário monta cautela com vários materiais e seleciona somente unidades disponíveis',async()=>{
-  const f=ambiente();try{
-    await f.ui.carregar('dsips-cautelas');const form=f.id('dsips-cautela-form');form.elements.responsavelId.value='p';
-    f.id('dsips-pdv-cards').querySelector('[data-material-id=m]').click();
-    let rows=f.id('dsips-cautela-rows').children;rows[0].querySelector('input[type=number]').value='3';
-    f.id('dsips-pdv-cards').querySelector('[data-material-id=i]').click();const individual=rows[1];await esperar();
-    assert.equal(individual.querySelectorAll('input[type=checkbox]').length,1);
-    const unidade=individual.querySelector('input[type=checkbox]');unidade.checked=true;f.evento(unidade,'change');
-    assert.equal(individual.querySelector('input[type=number]').value,'1');
-    f.evento(form,'submit');await esperar();assert.equal(f.chamadas.length,1);assert.equal(f.chamadas[0].itens.length,2);
-    assert.deepEqual(f.chamadas[0].itens[1].unidadeIds,['u1']);assert.equal(f.chamadas[0].itens[0].quantidade,3);
-  }finally{f.fechar();}
-});
-test('devolução parcial não inclui os materiais que continuam com o responsável',async()=>{
-  const f=ambiente();try{
-    f.estado.cautelas=[cautela()];await f.ui.carregar('dsips-cautelas');f.id('dsips-cautela-list').querySelector('button').click();
-    assert.ok(!f.id('dsips-devolucao-form').classList.contains('hidden'));
-    f.id('dsips-devolucao-rows').querySelector('input[type=number]').value='2';f.evento(f.id('dsips-devolucao-form'),'submit');await esperar();
-    assert.equal(f.chamadas[0].cautelaId,'C-123');assert.deepEqual(f.chamadas[0].itens,[{materialId:'m',quantidade:2,unidadeIds:[]}]);
-  }finally{f.fechar();}
-});
-test('selecionar tudo pendente inclui quantidades e identificações da cautela original',async()=>{
-  const f=ambiente();try{
-    f.estado.cautelas=[cautela()];await f.ui.carregar('dsips-cautelas');f.id('dsips-cautela-list').querySelector('button').click();
-    f.id('dsips-devolver-tudo').click();f.evento(f.id('dsips-devolucao-form'),'submit');await esperar();
-    assert.equal(f.chamadas[0].itens[0].quantidade,5);assert.deepEqual(f.chamadas[0].itens[1].unidadeIds,['u1']);
-  }finally{f.fechar();}
-});
-test('Conferente consulta posse e cautelas sem formularios de operação ou botões de devolução',async()=>{
-  const f=ambiente('conferente');try{
-    f.estado.cautelas=[cautela()];await f.ui.carregar('dsips-cautelas');assert.ok(f.id('dsips-cautela-form').classList.contains('hidden'));
-    assert.equal(f.id('dsips-cautela-list').querySelectorAll('button').length,0);
-    await f.ui.carregar('dsips-posse');assert.match(f.id('dsips-posse-list').textContent,/Quantidade: 5 un/);assert.match(f.id('dsips-posse-list').textContent,/SER-1/);
-    f.evento(f.id('dsips-cautela-form'),'submit');await esperar();assert.equal(f.chamadas.length,0);
-  }finally{f.fechar();}
-});
-test('filtros e busca não mostram cautelas encerradas na visão de posse',async()=>{
-  const f=ambiente();try{
-    f.estado.cautelas=[{...cautela(),status:'encerrada'}];await f.ui.carregar('dsips-posse');assert.match(f.id('dsips-posse-list').textContent,/Nenhum material/);
-    await f.ui.carregar('dsips-cautelas');f.id('dsips-cautela-status').value='aberta';f.evento(f.id('dsips-cautela-status'),'change');assert.match(f.id('dsips-cautela-list').textContent,/Nenhuma cautela/);
-    f.id('dsips-cautela-status').value='todas';f.evento(f.id('dsips-cautela-status'),'change');assert.match(f.id('dsips-cautela-list').textContent,/Encerrada/);
-  }finally{f.fechar();}
-});
-test('reenvio após erro mantém o identificador de operação e evita duplo clique',async()=>{
-  const f=ambiente();try{
-    f.estado.cautelas=[cautela()];f.servicos.registrarDevolucao=async payload=>{f.chamadas.push(payload);throw new Error('Sem conexão');};
-    await f.ui.carregar('dsips-cautelas');f.id('dsips-cautela-list').querySelector('button').click();f.id('dsips-devolver-tudo').click();
-    f.evento(f.id('dsips-devolucao-form'),'submit');f.evento(f.id('dsips-devolucao-form'),'submit');await esperar();assert.equal(f.chamadas.length,1);
-    f.evento(f.id('dsips-devolucao-form'),'submit');await esperar();assert.equal(f.chamadas[0].operacaoId,f.chamadas[1].operacaoId);
-  }finally{f.fechar();}
-});
-
-test('PDV soma cliques do mesmo material na mesma linha e respeita o saldo disponível',async()=>{
- const f=ambiente();try{
-  await f.ui.carregar('dsips-cautelas');const card=f.id('dsips-pdv-cards').querySelector('[data-material-id=m]');
-  for(let i=0;i<12;i++)card.click();
-  assert.equal(f.id('dsips-cautela-rows').children.length,1);
-  assert.equal(f.id('dsips-cautela-rows').querySelector('input[type=number]').value,'10');
-  assert.match(f.avisos[0][0],/quantidade disponível/);
-  f.id('dsips-pdv-limpar').click();assert.equal(f.id('dsips-cautela-rows').children.length,0);
- }finally{f.fechar();}
-});
-test('cards usam personalização segura, pesquisa e categoria sem interpretar nomes como HTML',async()=>{
- const f=ambiente();try{
-  f.estado.materiais[0].nome='<img src=x onerror=alert(1)>';f.estado.materiais[0].cor='verde';f.estado.materiais[0].icone='radio';f.estado.materiais[0].categoriaId='cat';
-  await f.ui.carregar('dsips-cautelas');assert.equal(f.id('dsips-pdv-cards').querySelectorAll('img').length,0);
-  assert.equal(f.id('dsips-pdv-cards').querySelector('button').dataset.cor,'verde');
-  f.id('dsips-pdv-categoria').value='cat';f.evento(f.id('dsips-pdv-categoria'),'change');assert.equal(f.id('dsips-pdv-cards').querySelectorAll('button').length,1);
-  f.id('dsips-pdv-search').value='não existe';f.evento(f.id('dsips-pdv-search'),'input');assert.match(f.id('dsips-pdv-cards').textContent,/Nenhum material/);
- }finally{f.fechar();}
-});
-test('quiosque preserva operador e sai com Escape, navegação ou logout',async()=>{
- const f=ambiente();try{
-  f.usuario.nome='Operador Teste';await f.ui.carregar('dsips-cautelas');assert.match(f.id('dsips-pdv-operador').textContent,/Operador Teste/);
-  f.id('dsips-quiosque').click();assert.ok(f.dom.window.document.body.classList.contains('dsips-quiosque'));
-  f.dom.window.document.dispatchEvent(new f.dom.window.KeyboardEvent('keydown',{key:'Escape'}));assert.ok(!f.dom.window.document.body.classList.contains('dsips-quiosque'));
-  f.id('dsips-quiosque').click();f.ui.sairDaPagina();assert.ok(!f.dom.window.document.body.classList.contains('dsips-quiosque'));
-  f.id('dsips-quiosque').click();f.ui.limpar();assert.ok(!f.dom.window.document.body.classList.contains('dsips-quiosque'));
- }finally{f.fechar();}
-});
-test('remoção de individualizado durante consulta não repõe dados antigos na cesta',async()=>{
- const f=ambiente();try{
-  let resolver;f.servicos.listarUnidades=()=>new Promise(resolve=>{resolver=resolve;});await f.ui.carregar('dsips-cautelas');
-  f.id('dsips-pdv-cards').querySelector('[data-material-id=i]').click();
-  f.id('dsips-cautela-rows').firstElementChild.lastElementChild.click();resolver([{id:'u',identificacao:'S1',situacao:'disponivel'}]);await esperar();
-  assert.equal(f.id('dsips-cautela-rows').children.length,0);
- }finally{f.fechar();}
-});
-test('Conferente não consulta lista de usuários nem ativa o quiosque por evento forjado',async()=>{
- const f=ambiente('conferente');try{
-  const consultas=[];f.servicos.listar=async tipo=>{consultas.push(tipo);return f.estado[tipo];};await f.ui.carregar('dsips-cautelas');
-  assert.deepEqual(consultas,['cautelas']);f.id('dsips-quiosque').click();assert.ok(!f.dom.window.document.body.classList.contains('dsips-quiosque'));
- }finally{f.fechar();}
-});
-test('pesquisa de usuários mantém o selecionado e não cria responsáveis separados',async()=>{
- const f=ambiente();try{
-  f.estado.responsaveis.push({id:'p2',nome:'Outro usuário',ativo:true});await f.ui.carregar('dsips-cautelas');
-  const select=f.id('dsips-cautela-form').elements.responsavelId;select.value='p';
-  f.id('dsips-usuario-search').value='Outro';f.evento(f.id('dsips-usuario-search'),'input');assert.equal(select.value,'p');assert.equal(select.options.length,3);
-  assert.equal(f.dom.window.document.querySelector('#dsips-catalog-type option[value=responsavel]'),null);
- }finally{f.fechar();}
-});
+function entrega(f){f.id('dsips-pdv-entrega').click();assert.ok(!f.id('dsips-cautelas-editor').classList.contains('hidden'));f.selecionar('dsips-cautelas-user-search','Pessoa');}
+async function material(f,id){const b=f.id('dsips-pdv-materials').querySelector('[data-material-id='+id+']');assert.ok(b);b.click();await aguardar();}
+const enviar=(f,id)=>f.evento(f.id(id),'submit');
+const retorno=f=>{assert.equal(f.ui.iniciarDevolucaoPorId('C-123'),true);assert.ok(!f.id('dsips-devolucao-editor').classList.contains('hidden'));};
+test('formulário monta cautela com vários materiais e seleciona somente unidades disponíveis',async()=>{const f=await setup();try{entrega(f);await material(f,'m');f.id('dsips-cautelas-quantity').value='3';f.evento(f.id('dsips-cautelas-quantity'),'input');f.id('dsips-cautelas-add').click();await material(f,'i');const checks=f.id('dsips-cautelas-units').querySelectorAll('input[type=checkbox]');assert.equal(checks.length,1);checks[0].checked=true;f.evento(checks[0],'change');assert.equal(f.id('dsips-cautelas-quantity').value,'1');f.id('dsips-cautelas-add').click();enviar(f,'dsips-cautelas-form');await aguardar();assert.equal(f.chamadas.length,1);assert.deepEqual(f.chamadas[0].itens,[{materialId:'m',quantidade:3,unidadeIds:[]},{materialId:'i',quantidade:1,unidadeIds:['u1']}]);assert.equal(f.confirmacoes.length,1);}finally{f.fechar();}});
+test('devolução parcial não inclui os materiais que continuam com o responsável',async()=>{const f=await setup('admin',f=>f.estado.cautelas=[cautela()]);try{retorno(f);f.id('dsips-devolucao-itens').querySelector('input[type=number]').value='2';enviar(f,'dsips-devolucao-form');await aguardar();assert.equal(f.chamadas[0].cautelaId,'C-123');assert.deepEqual(f.chamadas[0].itens,[{materialId:'m',quantidade:2,unidadeIds:[]}]);}finally{f.fechar();}});
+test('selecionar tudo pendente inclui quantidades e identificações da cautela original',async()=>{const f=await setup('admin',f=>f.estado.cautelas=[cautela()]);try{retorno(f);f.id('dsips-devolucao-tudo').click();enviar(f,'dsips-devolucao-form');await aguardar();assert.equal(f.chamadas[0].itens[0].quantidade,5);assert.deepEqual(f.chamadas[0].itens[1].unidadeIds,['u1']);}finally{f.fechar();}});
+test('Conferente consulta posse e cautelas sem formularios de operação ou botões de devolução',async()=>{const f=await setup('conferente',f=>f.estado.cautelas=[cautela()]);try{assert.ok(f.id('dsips-cautelas-editor').classList.contains('hidden'));assert.equal(f.ui.iniciarDevolucaoPorId('C-123'),false);assert.doesNotMatch(f.id('dsips-cautelas-list').textContent,/Registrar devolução/);await f.posse.carregar();assert.match(f.id('dsips-posse-list').textContent,/Quantidade.*5 un/s);assert.match(f.id('dsips-posse-list').textContent,/SER-1/);enviar(f,'dsips-cautelas-form');await aguardar();assert.equal(f.chamadas.length,0);}finally{f.fechar();}});
+test('filtros e busca não mostram cautelas encerradas na visão de posse',async()=>{const f=await setup('admin',f=>f.estado.cautelas=[{...cautela(),status:'encerrada',itens:[]}]);try{await f.posse.carregar();assert.match(f.id('dsips-posse-list').textContent,/Nenhuma posse pendente/);const filtro=f.id('dsips-cautelas-filter');filtro.value='aberta';f.evento(filtro,'change');assert.doesNotMatch(f.id('dsips-cautelas-list').textContent,/Pessoa Teste/);filtro.value='todas';f.evento(filtro,'change');assert.match(f.id('dsips-cautelas-list').textContent,/Encerrada/);}finally{f.fechar();}});
+test('reenvio após erro mantém o identificador de operação e evita duplo clique',async()=>{const f=await setup('admin',f=>{f.estado.cautelas=[cautela()];f.servicos.registrarDevolucao=async p=>{f.chamadas.push(p);throw Error('Sem conexão');};});try{retorno(f);f.id('dsips-devolucao-tudo').click();enviar(f,'dsips-devolucao-form');enviar(f,'dsips-devolucao-form');await aguardar();assert.equal(f.chamadas.length,1);enviar(f,'dsips-devolucao-form');await aguardar();assert.equal(f.chamadas.length,2);assert.equal(f.chamadas[0].operacaoId,f.chamadas[1].operacaoId);}finally{f.fechar();}});
+test('PDV atual respeita saldo disponível e não duplica material na cesta',async()=>{const f=await setup();try{entrega(f);await material(f,'m');for(let i=0;i<12;i++)f.id('dsips-pdv-plus').click();assert.equal(f.id('dsips-cautelas-quantity').value,'10');f.id('dsips-cautelas-add').click();assert.equal(f.id('dsips-cautelas-cart').children.length,1);assert.equal(f.id('dsips-pdv-materials').querySelector('[data-material-id=m]'),null);f.id('dsips-cautelas-cart').querySelector('button').click();assert.equal(f.id('dsips-cautelas-cart').children.length,0);}finally{f.fechar();}});
+test('cards de entrega usam personalização segura e pesquisa sem interpretar nomes como HTML',async()=>{const f=await setup('admin',f=>Object.assign(f.estado.materiais[0],{nome:'<img src=x onerror=alert(1)>',cor:'verde',icone:'radio'}));try{entrega(f);const grid=f.id('dsips-pdv-materials');assert.equal(grid.querySelectorAll('img').length,0);assert.equal(grid.querySelector('[data-material-id=m]').dataset.cor,'verde');assert.match(grid.textContent,/<img src=x/);f.id('dsips-pdv-search').value='não existe';f.evento(f.id('dsips-pdv-search'),'input');assert.equal(grid.querySelectorAll('[data-material-id]').length,0);}finally{f.fechar();}});
+test('fluxo de entrega substitui quiosque: cancelar e logout limpam cesta e responsável',async()=>{const f=await setup();try{entrega(f);await material(f,'m');f.id('dsips-cautelas-add').click();f.id('dsips-cautelas-cancel').click();assert.ok(f.id('dsips-cautelas-editor').classList.contains('hidden'));assert.equal(f.id('dsips-cautelas-cart').children.length,0);entrega(f);f.ui.sairTela();f.ui.limpar();assert.equal(f.id('dsips-cautelas-user-search').value,'');assert.ok(f.id('dsips-cautelas-editor').classList.contains('hidden'));assert.equal(f.id('dsips-cautelas-cart').children.length,0);}finally{f.fechar();}});
+test('resposta atrasada de identificações após cancelar não repõe seleção ou cesta',async()=>{const f=await setup();try{let resolver;f.servicos.listarUnidades=()=>new Promise(r=>{resolver=r;});entrega(f);await material(f,'i');assert.equal(typeof resolver,'function');f.id('dsips-cautelas-cancel').click();resolver([{id:'u',identificacao:'S1',situacao:'disponivel'}]);await aguardar();assert.equal(f.id('dsips-cautelas-cart').children.length,0);assert.equal(f.id('dsips-cautelas-units').querySelectorAll('input').length,0);}finally{f.fechar();}});
+test('Conferente não consulta lista de usuários nem inicia entrega por evento forjado',async()=>{const f=await setup('conferente');try{assert.deepEqual(f.consultas,['cautelas']);f.evento(f.id('dsips-pdv-entrega'),'click');assert.ok(f.id('dsips-cautelas-editor').classList.contains('hidden'));assert.equal(f.chamadas.length,0);}finally{f.fechar();}});
+test('autocomplete de responsáveis exige seleção real, limpa escolha ao editar e usa usuários existentes',async()=>{const f=await setup('admin',f=>f.estado.responsaveis.push({id:'p2',nome:'Outro usuário',ativo:true}));try{entrega(f);const form=f.id('dsips-cautelas-form');assert.equal(form.elements.namedItem('responsavelId').value,'p');const campo=f.id('dsips-cautelas-user-search');campo.value='Outro';f.evento(campo,'input');assert.equal(form.elements.namedItem('responsavelId').value,'');assert.equal(f.id(campo.getAttribute('aria-controls')).children.length,1);f.id(campo.getAttribute('aria-controls')).firstElementChild.click();assert.equal(form.elements.namedItem('responsavelId').value,'p2');assert.deepEqual([...f.d.querySelectorAll('[data-dsips-cadastro-tipo]')].map(n=>n.dataset.dsipsCadastroTipo),['categoria','local']);}finally{f.fechar();}});

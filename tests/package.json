@@ -1,0 +1,7 @@
+{
+  "name": "cmapp-testes-interface",
+  "private": true,
+  "devDependencies": {
+    "jsdom": "26.1.0"
+  }
+}
