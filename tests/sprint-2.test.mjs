@@ -35,9 +35,9 @@ test('dois módulos abrem seleção e Administrador não perde acesso por atribu
 
 test('bootstrap restringe consultas patrimoniais e acompanha mudanças de acesso', async () => {
   const app = await readFile(new URL('../app.js', import.meta.url), 'utf8');
-  assert.match(app, /if \(possuiPatrimonios\) \{/);
-  assert.match(app, /if \(possuiPatrimonios && usuarioLogado.perfil !== 'conferente'\) iniciarOuvinteTransferencias/);
-  assert.match(app, /assinaturaAcesso\(snapshot.data\(\)\) !== assinaturaInicial/);
+  assert.match(app, /if\(modulosDoUsuario\(usuarioLogado\).some\(m=>m.id==='patrimonios'\)\)\{/);
+  assert.match(app, /if \(\['admin','gestor'\].includes\(usuarioLogado.perfil\) && modulosDoUsuario\(usuarioLogado\).some\(m=>m.id==='patrimonios'\)\) iniciarOuvinteTransferencias/);
+  assert.match(app, /cancelarVigiaAcesso=onSnapshot\(referencia,/);assert.match(app,/decidirMudancaAcesso\(inicial,snapshot.exists\(\)\?snapshot.data\(\):null/);
 });
 
 test('a faixa HML reserva espaço para sidebar e cabeçalho sem alterar estilos de produção', async () => {

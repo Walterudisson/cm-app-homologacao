@@ -67,9 +67,11 @@
 
     import {renderizarCentral, podeAbrirCentral} from './js/ui/central-trabalho.js?v=1.13.23-h.1';
     import {modulosDoUsuario} from './js/platform/modules.js';
+    import {podeNavegarLegado,decidirMudancaAcesso} from './js/platform/acesso-sessao.js?v=1.13.35-h.1';
 
     import {criarPainelDsips} from './js/modules/dsips/painel-ui.js?v=1.13.34-h.1';
     let usuarioLogado = null;
+    let epocaAcesso=0,cancelarVigiaAcesso=null;
     let bancoPatrimonio = [];
     let bancoUsuarios = [];
     let bancoDivisoes = [];
@@ -658,7 +660,29 @@
       document.getElementById(id)?.addEventListener('click', () => signOut(auth));
     });
 
+    function interromperSessaoAcesso(){
+      ++epocaAcesso;cancelarVigiaAcesso?.();cancelarVigiaAcesso=null;
+      usuarioLogado=null;document.getElementById('view-app').classList.add('hidden');
+      invalidarCacheDsips();encerrarOuvinteTransferencias();
+      painelDsips.limpar();consultaMateriaisDsips.limpar();cadastrosDsips.limpar();estoqueDsips.limpar();cautelasDsips.limpar();posseDsips.limpar();historicoDsips.limpar();
+      revisaoEscopo++;invalidarCacheRelacao();cachePatrimonios.clear();cacheSugestoes.clear();cacheFotosUsuarios.clear();catalogoDivisoes.clear();
+      bancoPatrimonio=[];bancoUsuarios=[];bancoDivisoes=[];bancoFuncoes=[];itemAtualSelecionado=null;
+      fecharCamadaSobreposta();
+    }
+    function vigiarAcesso(user,referencia,inicial,epoca){
+      const vigente=()=>epoca===epocaAcesso&&auth.currentUser?.uid===user.uid;
+      const encerrar=()=>{if(!vigente())return;interromperSessaoAcesso();void signOut(auth).catch(()=>notificarMensagem('Não foi possível encerrar a sessão. Reabra o aplicativo.','erro'));};
+      cancelarVigiaAcesso=onSnapshot(referencia,{includeMetadataChanges:true},snapshot=>{
+        if(!vigente())return;
+        const decisao=decidirMudancaAcesso(inicial,snapshot.exists()?snapshot.data():null,{doCache:snapshot.metadata.fromCache});
+        if(decisao==='encerrar'){encerrar();return;}
+        if(decisao==='reiniciar'){interromperSessaoAcesso();location.reload();}
+      },()=>encerrar());
+    }
     onAuthStateChanged(auth, async (user) => {
+      const epoca=++epocaAcesso;cancelarVigiaAcesso?.();cancelarVigiaAcesso=null;
+      const vigente=()=>epoca===epocaAcesso&&auth.currentUser?.uid===user?.uid;
+      document.getElementById('view-app').classList.add('hidden');usuarioLogado=null;encerrarOuvinteTransferencias();
       invalidarCacheDsips();
       painelDsips.limpar();
       // Descarta dados DSIPS de qualquer sessão anterior antes de validar a nova.
@@ -669,7 +693,9 @@
       posseDsips.limpar();
       historicoDsips.limpar();
       if (user) {
-        const userDoc = await getDoc(doc(db, "usuarios", user.uid));
+        const referencia=doc(db, 'usuarios', user.uid);
+        let userDoc;try{userDoc=await getDocFromServer(referencia);}catch(erro){if(vigente()){notificarMensagem('Não foi possível validar seu acesso. Conecte-se e entre novamente.','erro');await signOut(auth);}return;}
+        if(!vigente())return;
         if (!userDoc.exists()) {
           await signOut(auth);
           return;
@@ -694,19 +720,23 @@
           notificarMensagem('Este acesso está desativado. Procure um Administrador.', 'erro');
           return;
         }
+        vigiarAcesso(user,referencia,userDoc.data(),epoca);
         
         document.getElementById('view-login').classList.add('hidden');
         document.getElementById('view-app').classList.remove('hidden');
         atualizarCabecalhoUsuario();
-        try { await carregarCatalogoDivisoes(); }
-        catch (erro) { console.warn('Catálogo indisponível ao abrir o aplicativo.', erro); }
-        inicializarEscopoVisualizacao();
-        await carregarFotoPerfilAtual();
+        if(modulosDoUsuario(usuarioLogado).some(m=>m.id==='patrimonios')){
+          try { await carregarCatalogoDivisoes(); }
+          catch (erro) { console.warn('Catálogo indisponível ao abrir o aplicativo.', erro); }
+          if(!vigente())return;
+          inicializarEscopoVisualizacao();
+        }
+        await carregarFotoPerfilAtual();if(!vigente())return;
         atualizarCarrossel();
         if (['admin','gestor'].includes(usuarioLogado.perfil) && modulosDoUsuario(usuarioLogado).some(m=>m.id==='patrimonios')) iniciarOuvinteTransferencias();
         if (usuarioLogado.perfil === 'conferente' && modulosDoUsuario(usuarioLogado).some(m=>m.id==='patrimonios')) {
           await alternarAba('dashboard', { substituirHistorico: true });
-          agendarTutorialConferente();
+          if(vigente())agendarTutorialConferente();
         } else if (podeAbrirCentral(usuarioLogado)) {
           await alternarAba('modulos', { substituirHistorico: true });
         } else {
@@ -808,7 +838,12 @@
           tituloCad.innerText = "👥 Cadastrar Novo Gestor ou Conferente";
         }
       }
+      aplicarMenuAutorizado();
+    }
 
+    function aplicarMenuAutorizado(){
+      document.querySelectorAll('[data-nav-page]').forEach(b=>{if(!podeNavegarLegado(usuarioLogado,b.dataset.navPage))b.classList.add('hidden');});
+      document.querySelectorAll('[data-nav-group]').forEach(g=>{if(![...g.querySelectorAll('[data-nav-page]')].some(b=>!b.classList.contains('hidden')&&b.getAttribute('aria-hidden')!=='true'))g.classList.add('hidden');});
     }
 
     function atualizarDadosTelaPerfil() {
@@ -1516,6 +1551,8 @@
     }));
     async function alternarAba(abaAtiva, { registrarHistorico = true, substituirHistorico = false } = {}) {
       if (!usuarioLogado) return;
+      if (!podeNavegarLegado(usuarioLogado,abaAtiva)) {notificarMensagem('Você não possui acesso a esta tela.','aviso');return;}
+      const epoca=epocaAcesso;
       if (abaAtiva === 'modulos' && !podeAbrirCentral(usuarioLogado)) return;
       if (abaAtiva === 'dsips-inicio' && !podeConsultarMateriaisDsips(usuarioLogado)) { painelDsips.limpar(); return; }
       if (abaAtiva === 'dsips-historico' && !podeConsultarHistoricoDsips(usuarioLogado)) {
@@ -1547,6 +1584,7 @@
       if (abaAtiva !== 'scanner' && controladorCamera.estaAtiva()) {
         await controladorCamera.desligar({ retomarAposSalvar: true });
       }
+      if(epoca!==epocaAcesso||!podeNavegarLegado(usuarioLogado,abaAtiva)||abaAtual!==abaAtiva)return;
 
       ['modulos', 'dashboard', 'scanner', 'transferencias', 'usuarios', 'divisoes', 'funcoes', 'inventarios', 'lista', 'perfil', 'dsips-inicio', 'dsips-materiais', 'dsips-cadastros', 'dsips-estoque', 'dsips-cautelas', 'dsips-posse', 'dsips-historico'].forEach(aba => {
         const sec = document.getElementById(`sec-${aba}`);
