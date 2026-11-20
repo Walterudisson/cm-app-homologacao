@@ -22,10 +22,10 @@ test('tarja de homologação ocupa espaço próprio antes do cabeçalho', async 
 });
 test('atualização H.2 preserva login único e base HML', async () => {
   const [html, sw, fb, app] = await Promise.all([ler('index.html'), ler('service-worker.js'), ler('js/config/firebase.js'), ler('app.js')]);
-  assert.match(sw, /v1\.13\.34-h\.1-perf-cache/);
-  assert.match(html, /app\.css\?v=1\.13\.34-h\.1/);
-  assert.match(html, /app\.js\?v=1\.13\.34-h\.1/);
-  assert.match(html, /<span>v1\.13\.34-H\.1<\/span>/);
+  assert.match(sw, /v1\.13\.35-h\.1-qa-acesso/);
+  assert.match(html, /app\.css\?v=1\.13\.35-h\.1/);
+  assert.match(html, /app\.js\?v=1\.13\.35-h\.1/);
+  assert.match(html, /<span>v1\.13\.35-H\.1<\/span>/);
   assert.match(fb, /projectId: "cm-app-homologacao"/);
   assert.match(app, /!podeConsultarMateriaisDsips\(usuarioLogado\)/);
   assert.doesNotMatch(html, /id="pilot-login"/);

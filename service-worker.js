@@ -1,4 +1,4 @@
-const VERSAO = 'v1.13.34-h.1-perf-cache';
+const VERSAO = 'v1.13.35-h.1-qa-acesso';
 const CACHE_SHELL = `cmapp-shell-${VERSAO}`;
 const CACHE_RUNTIME = `cmapp-runtime-${VERSAO}`;
 const PREFIXO_CACHE = 'cmapp-';
@@ -17,6 +17,7 @@ const ARQUIVOS_SHELL = [
   './assets/apple-touch-icon.png',
   './js/config/firebase.js',
   './js/platform/modules.js',
+  './js/platform/acesso-sessao.js',
   './js/modules/patrimonios/module.js',
   './js/modules/dsips/module.js',
   './js/modules/dsips/service.js',
