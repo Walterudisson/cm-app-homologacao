@@ -21,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.13.30-h.1">
+  <link rel="stylesheet" href="./app.css?v=1.13.30-h.2">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div id="cmapp-hml-banner" class="cmapp-hml-banner" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -56,7 +56,7 @@
 
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.30-H.1 • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.30-H.2 • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -176,7 +176,7 @@
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.13.30-H.1</span>
+        <span>v1.13.30-H.2</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -722,12 +722,12 @@
           <button type="button" id="dsips-pdv-consulta" class="cm-pdv-tile"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 20l-5-5M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg><strong>Consultar cautelas</strong><span>Pesquisar registros</span></button>
         </div>
         <div class="dsips-overview">
-          <article class="app-card dsips-overview-card cm-management-kpi" data-kpi="box"><span class="cm-management-kpi-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4zm0 0v10l9 4 9-4V7M12 11v10"/></svg></span><div class="cm-management-kpi-copy">
+          <button type="button" data-cautelas-kpi="todas" aria-pressed="false" class="app-card dsips-overview-card cm-management-kpi" data-kpi="box"><span class="cm-management-kpi-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4zm0 0v10l9 4 9-4V7M12 11v10"/></svg></span><div class="cm-management-kpi-copy">
             <span>Cautelas registradas</span><strong id="dsips-cautelas-total">0</strong>
-          </div></article>
-          <article class="app-card dsips-overview-card cm-management-kpi" data-kpi="clock"><span class="cm-management-kpi-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Zm0 4v5l3 2"/></svg></span><div class="cm-management-kpi-copy">
+          </div></button>
+          <button type="button" data-cautelas-kpi="pendentes" aria-pressed="false" class="app-card dsips-overview-card cm-management-kpi" data-kpi="clock"><span class="cm-management-kpi-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Zm0 4v5l3 2"/></svg></span><div class="cm-management-kpi-copy">
             <span>Cautelas pendentes de devolução</span><strong id="dsips-cautelas-abertas">0</strong>
-          </div></article>
+          </div></button>
         </div>
         <article id="dsips-cautelas-editor" class="app-card dsips-editor hidden" aria-label="Registrar cautela">
           <div class="dsips-editor-heading">
@@ -1130,7 +1130,7 @@
 
       <footer class="app-footer">
         <span>CM APP</span>
-        <span>v1.13.30-H.1 · HOMOLOGAÇÃO</span>
+        <span>v1.13.30-H.2 · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -1331,6 +1331,6 @@
   </div>
 
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.5.0/dist/driver.js.iife.js"></script>
-    <script type="module" src="./app.js?v=1.13.30-h.1"></script>
+    <script type="module" src="./app.js?v=1.13.30-h.2"></script>
 </body>
 </html>

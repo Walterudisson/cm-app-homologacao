@@ -83,8 +83,8 @@ test('devolução integra Cautelas com confirmação, acesso, sessão e recupera
   const preencher=ui.slice(ui.indexOf('function preencherDevolucaoIntegral()'),ui.indexOf('async function salvarDevolucao('));
   assert.doesNotMatch(preencher,/registrarDevolucaoDsips|salvarDevolucao\(/);
   assert.match(service,/httpsCallable\(functions, 'dsipsRegistrarDevolucao'\)/);
-  assert.match(app,/registro-cautelas-ui\.js\?v=1\.13\.30-h\.1/);
-  assert.match(sw,/v1\.13\.30-h\.1-perf-autocomplete/);
+  assert.match(app,/registro-cautelas-ui\.js\?v=1\.13\.30-h\.2/);
+  assert.match(sw,/v1\.13\.30-h\.2-ux-cautelas/);
   assert.match(sw,/\.\/js\/modules\/dsips\/devolucoes-model\.js/);
   assert.match(css,/\.dsips-devolucao-item/);
   assert.doesNotMatch(ui,/innerHTML\s*=/);
