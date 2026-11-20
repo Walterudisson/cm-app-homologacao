@@ -1,4 +1,6 @@
-# Gestão de acessos — implementação da proposta aprovada
+# Gestão de acessos — plano histórico da proposta aprovada
+
+**SAN-01: plano de implantação V2 descontinuado. Não executar a migração nem reativar o piloto.** As diretrizes conceituais podem ser revisadas na GEST-06 após autorização de backend.
 
 Referência: proposta visual aprovada em 16/11/2026. Base operacional HML: v1.16.1-H.1.
 Nenhuma autorização ou dado de usuário é alterado por este plano. PRD permanece inalterado.

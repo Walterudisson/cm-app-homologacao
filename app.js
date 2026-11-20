@@ -67,7 +67,7 @@
 
     import {renderizarCentral, podeAbrirCentral} from './js/ui/central-trabalho.js?v=1.13.23-h.1';
     import {modulosDoUsuario} from './js/platform/modules.js';
-    import {podeNavegarLegado,decidirMudancaAcesso,sincronizarMenuAutorizado} from './js/platform/acesso-sessao.js?v=1.13.37-h.1';
+    import {podeNavegarLegado,decidirMudancaAcesso,sincronizarMenuAutorizado} from './js/platform/acesso-sessao.js?v=1.13.37-h.5';
 
     import {criarPainelDsips} from './js/modules/dsips/painel-ui.js?v=1.13.34-h.1';
     let usuarioLogado = null;
@@ -700,17 +700,12 @@
           await signOut(auth);
           return;
         }
-        // Contas V2 usam exclusivamente a autorização versionada, sem reutilizar o perfil legado.
+        // SAN-01: piloto retirado. Nunca reaproveitar privilégios legados de conta versionada.
         if (Object.hasOwn(userDoc.data(), 'autorizacaoVersao')) {
-          if (userDoc.data().ativo === false) {
-            await signOut(auth);
-            notificarMensagem('Este acesso está desativado. Procure um Administrador.', 'erro');
-          } else if (userDoc.data().autorizacaoVersao === 2) {
-            location.replace(new URL('./homologacao/gestao-acessos/', location.href).href);
-          } else {
-            await signOut(auth);
-            notificarMensagem('Versão de autorização incompatível. Procure a administração.', 'erro');
-          }
+          await signOut(auth);
+          notificarMensagem(userDoc.data().ativo === false
+            ? 'Este acesso está desativado. Procure um Administrador.'
+            : 'Versão de autorização incompatível. Procure a administração.', 'erro');
           return;
         }
         usuarioLogado = { uid: user.uid, email: user.email, ...userDoc.data() };

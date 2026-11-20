@@ -1,4 +1,4 @@
-const VERSAO = 'v1.13.37-h.4-auto-recuperacao';
+const VERSAO = 'v1.13.37-h.5-san-01';
 const CACHE_SHELL = `cmapp-shell-${VERSAO}`;
 const CACHE_RUNTIME = `cmapp-runtime-${VERSAO}`;
 // Emergência HML: somente releases cujo service.js incompleto foi confirmado.
@@ -183,6 +183,11 @@ self.addEventListener('fetch', evento => {
   const canonica = new URL(url.href);
   canonica.search = '';
   canonica.hash = '';
+  // Rotas retiradas: nunca reutilizar respostas armazenadas do piloto.
+  const retiradas=['./homologacao/gestao-acessos','./homologacao/dsips'].map(p=>new URL(p,self.registration.scope).href);
+  if(retiradas.some(p=>canonica.href===p||canonica.href.startsWith(p+'/'))){
+    evento.respondWith(Promise.resolve(new Response('Interface experimental desativada. Utilize o CMAPP principal.',{status:410,headers:{'Content-Type':'text/plain; charset=utf-8','Cache-Control':'no-store'}})));return;
+  }
   if (requisicao.mode === 'navigate') {
     // A recuperação deve sempre vir da rede, inclusive se o app estiver quebrado.
     if(canonica.href===new URL('./recuperar.html',self.registration.scope).href){
