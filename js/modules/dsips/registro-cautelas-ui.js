@@ -365,8 +365,9 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
       await registrarDevolucaoDsips({...pedido,operacaoId});
       if(epoca!==sessao||uid!==obterUsuario()?.uid||!podeGravar()) return;
       envioIncerto=false;
-      fecharDevolucao();painelConsulta.classList.remove('hidden');
+      fecharDevolucao();
       notificar('Devolução registrada no HML.','sucesso');
+      painelConsulta.classList.remove('hidden');
       gravando=false;
       await carregar();
     }catch(erro){
