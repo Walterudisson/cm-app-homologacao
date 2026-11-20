@@ -7,3 +7,32 @@ test('GAB-00 Gabinete autorizado e troca de perfil descartam contato privado',()
 test('GAB-00 favoritos e ramais acionáveis',()=>{const f=setup();try{f.click('[data-page=agenda]');f.click('[data-contact=p1] .star');f.select('type','favorito');assert.equal(f.id('results').querySelectorAll('[data-contact]').length,1);f.click('[data-page=ramais]');assert.equal(f.id('extensions').querySelectorAll('[data-contact]').length,2)}finally{f.close()}});
 test('GAB-00 aniversários e preferência de push são simulação',()=>{const f=setup();try{f.click('[data-page=aniversarios]');assert.equal(f.id('birthdays').querySelectorAll('[data-contact]').length,1);f.click('[data-period=semana]');assert.equal(f.id('birthdays').querySelectorAll('[data-contact]').length,3);f.id('push').click();assert.match(f.id('status').textContent,/demonstrativa ativada/);f.select('theme','dark');assert.equal(f.d.documentElement.dataset.theme,'dark')}finally{f.close()}});
 test('GAB-00 não tem integração externa, dados persistidos ou SDK',()=>assert.doesNotMatch(html,/firebasejs|httpsCallable|fetch\s*\(|XMLHttpRequest|localStorage|indexedDB|Notification\.requestPermission|<script[^>]+src=/));
+
+test('GAB-02 pesquisa rápida e exportação usam os filtros e o perfil atuais', () => {
+  const f = setup();
+  try {
+    f.id('quick').value = 'Unidade Alfa';
+    f.event(f.id('quick-search'), 'submit');
+    assert.equal(f.id('agenda').hidden, false);
+    assert.equal(f.id('results').querySelectorAll('[data-contact]').length, 3);
+    f.dom.window.print = () => {
+      const sheet = f.id('print-agenda');
+      assert.equal(sheet.hidden, false);
+      assert.equal(sheet.querySelectorAll('article').length, 3);
+      assert.doesNotMatch(sheet.textContent, /9XXXX|Unidade Beta/);
+      f.dom.window.dispatchEvent(new f.dom.window.Event('afterprint'));
+    };
+    f.click('#export');
+    f.click('#detail-actions button');
+    assert.equal(f.id('print-agenda').hidden, true);
+    assert.equal(f.id('print-agenda').textContent, '');
+    f.click('#close');
+    f.id('search').value = 'Sem resultados';
+    f.event(f.id('search'), 'input');
+    f.click('#export');
+    assert.match(f.id('detail-body').textContent, /Nenhum contato/);
+    assert.equal(f.id('detail-actions').children.length, 0);
+  } finally {
+    f.close();
+  }
+});
