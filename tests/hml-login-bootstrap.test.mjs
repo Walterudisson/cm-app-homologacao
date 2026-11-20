@@ -44,7 +44,9 @@ test('Inicialização completa do app e submissão do login com transporte simul
   });const source=sources.join('\n');try{execFileSync(process.execPath,['--check','--input-type=module'],{input:source,stdio:['pipe','pipe','pipe']});}catch(err){throw new Error('Shim '+url+'\n'+err.stderr);}return {format:'module',source,shortCircuit:true};}
  });
  try{
+  assert.equal(d.getElementById('btn-submit-login').disabled,true);
   await import('../app.js');
+  assert.equal(d.getElementById('btn-submit-login').disabled,false);
   assert.ok(d.querySelector('#form-login .password-toggle'),'Inicializador do formulário não executou');
   d.getElementById('login-email').value='teste@example.invalid';d.getElementById('login-senha').value='senha-ficticia';
   const e=new dom.window.Event('submit',{bubbles:true,cancelable:true});

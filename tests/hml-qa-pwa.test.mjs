@@ -36,7 +36,7 @@ test('shell ativo serve HTML e scripts versionados do mesmo snapshot sem recorre
   const s=simular();await s.fire('install');s.rede.length=0;
   await s.cache('cmapp-shell-antigo').put(escopo+'app.js',new Response('antigo'));
   assert.equal(await (await s.pedir('./','document','navigate')).text(),'shell:'+escopo);
-  assert.equal(await (await s.pedir('app.js?v=1.13.37-h.2')).text(),'shell:'+escopo+'app.js');
+  assert.equal(await (await s.pedir('app.js?v=1.13.37-h.3')).text(),'shell:'+escopo+'app.js');
   assert.equal(s.rede.length,0);
   await s.fire('activate');assert.ok(s.excluidos.includes('cmapp-shell-antigo'));
   assert.deepEqual(s.mensagens,['claim']);
@@ -63,3 +63,5 @@ test('atualização depende de aceite e registro desabilita cache de atualizaç�
   const s=simular();await s.fire('install');assert.equal(s.mensagens.length,0);
   await s.fire('message',{data:{tipo:'ATIVAR_ATUALIZACAO'}});assert.deepEqual(s.mensagens,['skip']);
 });
+
+test('recuperação usa rede mesmo com shell ativo e responde sem shell quando offline',async()=>{const s=simular();await s.fire('install');assert.match(await (await s.pedir('recuperar.html','document','navigate')).text(),/^rede:/);s.ctx.fetch=async()=>{throw Error('offline');};const r=await s.pedir('recuperar.html','document','navigate');assert.equal(r.status,503);assert.match(await r.text(),/Conecte-se/);});
