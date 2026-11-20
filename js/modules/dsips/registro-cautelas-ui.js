@@ -41,6 +41,7 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
   const observacoes = form.elements.namedItem('observacoes');
   const total = porId('dsips-cautelas-total');
   const abertas = porId('dsips-cautelas-abertas');
+  const kpis=[...secao.querySelectorAll('[data-cautelas-kpi]')];
   const devolucaoEditor = porId('dsips-devolucao-editor');
   const devolucaoForm = porId('dsips-devolucao-form');
   const devolucaoCampos = porId('dsips-devolucao-campos');
@@ -96,6 +97,7 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
     const operacaoAberta=!editor.classList.contains('hidden')||!devolucaoEditor.classList.contains('hidden');
     pdvEntrega.disabled=semEntrega||envioIncerto||operacaoAberta;
     pdvConsulta.disabled=bloqueado||envioIncerto||operacaoAberta;
+    kpis.forEach(b=>{b.disabled=pdvConsulta.disabled||!pronto||!autorizado();b.setAttribute('aria-pressed',String(!painelConsulta.classList.contains('hidden')&&filtro.value===b.dataset.cautelasKpi));});
     pdvRetorno.disabled=bloqueado||!pronto||envioIncerto||!editor.classList.contains('hidden')||!devolucaoEditor.classList.contains('hidden');
     pdvGrid.querySelectorAll('button').forEach(b=>{b.disabled=bloqueado||!pronto||!podeGravar();});
     atualizarQuantidade();
@@ -563,9 +565,10 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
   materiaisSelect.addEventListener('change',()=>{renderizarPdv();void selecionarMaterial();});
   pdvBusca.addEventListener('input',renderizarPdv);
   pdvEntrega.addEventListener('click',()=>{if(!pdvEntrega.disabled)abrirEditor();});
-  function focarConsulta(){painelConsulta.classList.remove('hidden');busca.scrollIntoView({block:'center',behavior:'smooth'});busca.focus({preventScroll:true});}
-  pdvConsulta.addEventListener('click',()=>{if(!pdvConsulta.disabled){filtro.value='todas';busca.value='';renderizar();focarConsulta();}});
-  pdvRetorno.addEventListener('click',()=>{if(!pdvRetorno.disabled&&podeGravar()){filtro.value='pendentes';busca.value='';renderizar();focarConsulta();}});
+  function focarConsulta(){painelConsulta.classList.remove('hidden');atualizarBotoes();painelConsulta.scrollIntoView({block:'start',behavior:'smooth'});}
+  kpis.forEach(b=>b.addEventListener('click',()=>{if(b.disabled||!autorizado()||!ativo())return;filtro.value=b.dataset.cautelasKpi;busca.value='';renderizar();focarConsulta();}));
+  pdvConsulta.addEventListener('click',()=>{if(!pdvConsulta.disabled){filtro.value='todas';busca.value='';renderizar();focarConsulta();busca.focus({preventScroll:true});}});
+  pdvRetorno.addEventListener('click',()=>{if(!pdvRetorno.disabled&&podeGravar()){filtro.value='pendentes';busca.value='';renderizar();focarConsulta();busca.focus({preventScroll:true});}});
   function sairTela(){document.body.classList.remove('cm-pdv-kiosk');painelConsulta.classList.add('hidden');comboResponsavel.fechar();}
   atualizarBotao.addEventListener('click',()=>{void carregar();});
   form.addEventListener('submit',evento=>{void salvar(evento);});

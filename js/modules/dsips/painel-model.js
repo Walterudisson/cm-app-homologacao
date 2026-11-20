@@ -7,7 +7,7 @@ export function resumirPainelDsips(materiais,estoque,cautelas){
 }
 export function acoesPainelDsips(usuario){
  if(!podeConsultarMateriaisDsips(usuario))return [];
- const a=[['dsips-cautelas','PDV / Quiosque','Entregar e receber materiais','clipboard'],['dsips-materiais','Cadastros','Materiais, categorias e locais','folder'],['dsips-estoque','Estoque','Consultar saldos e posições','warehouse'],['dsips-posse','Quem está com o quê?','Localizar materiais em posse','users']];
+ const a=[['dsips-cautelas','Cautelas','Entregar, devolver e consultar materiais','clipboard'],['dsips-materiais','Cadastros','Materiais, categorias e locais','folder'],['dsips-estoque','Estoque','Consultar saldos e posições','warehouse'],['dsips-posse','Quem está com o quê?','Localizar materiais em posse','users']];
  if(podeConsultarHistoricoDsips(usuario))a.push(['dsips-historico','Histórico','Consultar auditoria','history']);
  return a;
 }

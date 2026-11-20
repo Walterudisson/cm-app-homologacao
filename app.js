@@ -59,7 +59,7 @@
     import { criarConsultaMateriaisDsips } from "./js/modules/dsips/consulta-materiais-ui.js?v=1.13.29-h.1";
     import { criarCadastrosDsips } from "./js/modules/dsips/cadastros-ui.js?v=1.13.27-h.1";
     import { criarEstoqueDsips } from "./js/modules/dsips/estoque-ui.js?v=1.13.29-h.1";
-    import { criarRegistroCautelasDsips } from "./js/modules/dsips/registro-cautelas-ui.js?v=1.13.30-h.1";
+    import { criarRegistroCautelasDsips } from "./js/modules/dsips/registro-cautelas-ui.js?v=1.13.30-h.2";
     import { criarPosseDsips } from "./js/modules/dsips/posse-ui.js?v=1.13.29-h.1";
     import { criarHistoricoDsips } from "./js/modules/dsips/historico-ui.js?v=1.13.29-h.1";
     import { podeConsultarHistoricoDsips } from "./js/modules/dsips/historico-model.js?v=1.13.19-h.1";
@@ -67,7 +67,7 @@
     import {renderizarCentral, podeAbrirCentral} from './js/ui/central-trabalho.js?v=1.13.23-h.1';
     import {modulosDoUsuario} from './js/platform/modules.js';
 
-    import {criarPainelDsips} from './js/modules/dsips/painel-ui.js?v=1.13.27-h.1';
+    import {criarPainelDsips} from './js/modules/dsips/painel-ui.js?v=1.13.30-h.2';
     let usuarioLogado = null;
     let bancoPatrimonio = [];
     let bancoUsuarios = [];
