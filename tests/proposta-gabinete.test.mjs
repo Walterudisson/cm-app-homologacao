@@ -36,3 +36,28 @@ test('GAB-02 pesquisa rápida e exportação usam os filtros e o perfil atuais',
     f.close();
   }
 });
+
+test('GAB-03 pesquisa e copia ramal pelo diretório', async () => {
+  const f = setup();
+  try {
+    const copied = [];
+    Object.defineProperty(f.dom.window.navigator, 'clipboard', {
+      value: { async writeText(value) { copied.push(value); } }
+    });
+    f.click('[data-go=ramais]');
+    f.id('extension-search').value = 'recepcao';
+    f.event(f.id('extension-search'), 'input');
+    assert.equal(f.id('extension-count').textContent, '1 ramal');
+    assert.ok(f.id('extensions').querySelector('[data-contact=r1]'));
+    assert.equal(f.id('extensions').querySelector('[data-contact=r2]'), null);
+    f.click('#extensions [data-contact=r1] .actions button:nth-child(2)');
+    await new Promise(resolve => setImmediate(resolve));
+    assert.deepEqual(copied, ['0001']);
+    assert.match(f.id('status').textContent, /0001 copiado/);
+    f.select('role', 'negado');
+    assert.equal(f.id('extension-search').value, '');
+    assert.equal(f.id('extensions').querySelectorAll('[data-contact]').length, 0);
+  } finally {
+    f.close();
+  }
+});
