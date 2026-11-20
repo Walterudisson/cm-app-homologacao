@@ -1,3 +1,4 @@
+import {adaptarSelectAutocomplete} from '../../ui/autocomplete.js?v=1.13.32-h.1';
 import {podeConsultarHistoricoDsips} from './historico-model.js?v=1.13.29-h.1';
 import { listarCadastroDsips, salvarCadastroDsips } from './service.js?v=1.13.13-h.3';
 import {
@@ -24,6 +25,7 @@ export function criarConsultaMateriaisDsips({ obterUsuario, notificar = () => {}
   const cancelarBotao = porId('dsips-material-cancel');
   const salvarBotao = porId('dsips-material-save');
   const campo = nome => formulario.elements.namedItem(nome);
+  const comboCategoria=adaptarSelectAutocomplete(campo('categoriaId'),{id:'dsips-material-categoria-combo',rotulo:'Categoria',placeholder:'Pesquisar categoria'});
   let versao = 0;
   let materiais = [];
   let categorias = [];
@@ -63,7 +65,7 @@ export function criarConsultaMateriaisDsips({ obterUsuario, notificar = () => {}
   }
   function fecharEditor() {
     editor.classList.add('hidden');
-    formulario.reset();
+    formulario.reset();comboCategoria.sincronizar();
     campo('controle').disabled = false;
     campo('unidade').disabled = false;
     materialEditando = null;
@@ -79,6 +81,7 @@ export function criarConsultaMateriaisDsips({ obterUsuario, notificar = () => {}
       seletor.add(new Option(item.nome || 'Categoria sem nome', item.id));
     }
     if (categorias.some(item => item.id === atual && item.ativo !== false)) seletor.value = atual;
+    comboCategoria.sincronizar();
   }
   function abrirEditor(material = null) {
     if (!podeGravar() || carregando || gravando || !pronto) return;
@@ -99,6 +102,7 @@ export function criarConsultaMateriaisDsips({ obterUsuario, notificar = () => {}
       campo('cor').value = 'azul';
       campo('ativo').checked = true;
     }
+    comboCategoria.sincronizar();
     campo('controle').disabled = Boolean(material?.saldoInicialRegistrado);
     campo('unidade').disabled = Boolean(material?.saldoInicialRegistrado);
     editor.classList.remove('hidden');
@@ -189,7 +193,7 @@ export function criarConsultaMateriaisDsips({ obterUsuario, notificar = () => {}
     falha = '';
     busca.value = '';
     categoria.replaceChildren(new Option('Todas as categorias', ''));
-    campo('categoriaId').replaceChildren(new Option('Selecione uma categoria', ''));
+    campo('categoriaId').replaceChildren(new Option('Selecione uma categoria', ''));comboCategoria.sincronizar();
     renderizar();
   }
   async function carregar() {
@@ -257,7 +261,7 @@ export function criarConsultaMateriaisDsips({ obterUsuario, notificar = () => {}
       pendente = { assinatura, operacaoId: crypto.randomUUID() };
     }
     const operacaoId = pendente.operacaoId;
-    gravando = true;
+    gravando = true;comboCategoria.setDisabled(true);
     salvarBotao.disabled = true;
     cancelarBotao.disabled = true;
     editarStatus.textContent = 'Salvando material no HML…';
@@ -276,7 +280,7 @@ export function criarConsultaMateriaisDsips({ obterUsuario, notificar = () => {}
         : 'Não foi possível salvar. Confira os dados e tente novamente.';
       notificar(negado ? 'Operação não autorizada no DSIPS.' : 'Falha ao salvar material.', 'erro');
     } finally {
-      gravando = false;
+      gravando = false;comboCategoria.setDisabled(false);
       salvarBotao.disabled = false;
       cancelarBotao.disabled = false;
     }

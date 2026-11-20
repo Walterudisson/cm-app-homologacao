@@ -1,4 +1,4 @@
-import {criarAutocomplete} from '../../ui/autocomplete.js?v=1.13.30-h.1';
+import {criarAutocomplete} from '../../ui/autocomplete.js?v=1.13.32-h.1';
 import {
   listarCadastroDsips, listarUnidadesDsips, registrarCautelaDsips, registrarDevolucaoDsips
 } from './service.js?v=1.13.16-h.3';
@@ -27,7 +27,7 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
   const enviarBotao = porId('dsips-cautelas-submit');
   const usuarioBusca = porId('dsips-cautelas-user-search');
   const usuarioSelect = form.elements.namedItem('responsavelId');
-  const comboResponsavel=criarAutocomplete({raiz:porId('dsips-responsavel-combo'),campo:usuarioBusca,valor:usuarioSelect,rotulo:p=>p.nome,detalhe:p=>p.matricula?'Matrícula '+p.matricula:'',pesquisa:p=>[p.nome,p.matricula],aoAlterar:()=>{pendente=null;atualizarBotoes();}});
+  const comboResponsavel=criarAutocomplete({mensagemSelecionado:'Responsável selecionado.',raiz:porId('dsips-responsavel-combo'),campo:usuarioBusca,valor:usuarioSelect,rotulo:p=>p.nome,detalhe:p=>p.matricula?'Matrícula '+p.matricula:'',pesquisa:p=>[p.nome,p.matricula],aoAlterar:()=>{pendente=null;atualizarBotoes();}});
   const materiaisSelect = porId('dsips-cautelas-material');
   const quantidade = porId('dsips-cautelas-quantity');
   const identificacoesBox = porId('dsips-cautelas-units-box');

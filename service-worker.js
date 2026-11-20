@@ -1,4 +1,4 @@
-const VERSAO = 'v1.13.31-h.1-bi-dsips';
+const VERSAO = 'v1.13.32-h.1-perf-autocomplete';
 const CACHE_SHELL = `cmapp-shell-${VERSAO}`;
 const CACHE_RUNTIME = `cmapp-runtime-${VERSAO}`;
 const PREFIXO_CACHE = 'cmapp-';

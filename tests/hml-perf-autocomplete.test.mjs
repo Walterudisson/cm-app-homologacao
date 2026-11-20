@@ -21,6 +21,7 @@ test('componente exige seleção explícita, invalida ID quando texto muda e lim
  const anterior=globalThis.document;globalThis.document={createElement:()=>new No(),addEventListener(){}};
  try {
   const c=criarAutocomplete({raiz,campo,valor,pesquisa,rotulo:x=>x.nome,detalhe:x=>x.matricula});c.setItems(pessoas);
+  valor.value='u1';c.sincronizar();assert.equal(campo.value,'João da Silva · 123');assert.equal(campo.validityMessage,'');c.reset();
   campo.value='joao';campo.emit('input');assert.equal(valor.value,'');assert.ok(campo.validityMessage);assert.equal(lista.children.length,2);
   campo.emit('keydown',{key:'Enter'});assert.equal(valor.value,'');
   campo.emit('keydown',{key:'ArrowDown'});campo.emit('keydown',{key:'ArrowDown'});campo.emit('keydown',{key:'Enter'});assert.equal(valor.value,'u2');assert.equal(campo.validityMessage,'');
