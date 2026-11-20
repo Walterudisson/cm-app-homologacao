@@ -96,6 +96,11 @@ jobs:
           BASE_DIR="$RUNNER_TEMP/cmapp-base"
           git worktree add --detach "$BASE_DIR" "$BASE_SHA"
           trap 'git worktree remove --force "$BASE_DIR"' EXIT
+          # Instala as dependências de teste declaradas pela própria base,
+          # quando existirem, para uma comparação nas mesmas condições.
+          if [ -f "$BASE_DIR/tests/package.json" ]; then
+            npm install --prefix "$BASE_DIR/tests" --ignore-scripts --no-audit --no-fund --no-package-lock
+          fi
           BASE_RC=0
           CAND_RC=0
           (cd "$BASE_DIR" && node --test --test-reporter=tap tests/*.test.mjs) > "$RUNNER_TEMP/cmapp-base.tap" 2>&1 || BASE_RC=$?
