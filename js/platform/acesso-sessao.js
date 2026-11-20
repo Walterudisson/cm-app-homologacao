@@ -18,3 +18,15 @@ export function decidirMudancaAcesso(inicial,atual,{doCache=false}={}){
  if(Object.hasOwn(atual,'autorizacaoVersao')&&atual.autorizacaoVersao!==2)return 'encerrar';
  return assinaturaAcesso(inicial)===assinaturaAcesso(atual)?'manter':'reiniciar';
 }
+
+ // Recalcula nos dois sentidos a cada sessão, sem herdar classes do usuário anterior.
+export function sincronizarMenuAutorizado(raiz,usuario){
+  raiz.querySelectorAll('[data-nav-page]').forEach(b=>{
+    const aliasOculto=b.getAttribute('aria-hidden')==='true';
+    b.classList.toggle('hidden',aliasOculto||!podeNavegarLegado(usuario,b.dataset.navPage));
+  });
+  raiz.querySelectorAll('[data-nav-group]').forEach(g=>{
+    const temPagina=[...g.querySelectorAll('[data-nav-page]')].some(b=>!b.classList.contains('hidden'));
+    g.classList.toggle('hidden',!temPagina);
+  });
+}

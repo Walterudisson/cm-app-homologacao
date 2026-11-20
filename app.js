@@ -67,7 +67,7 @@
 
     import {renderizarCentral, podeAbrirCentral} from './js/ui/central-trabalho.js?v=1.13.23-h.1';
     import {modulosDoUsuario} from './js/platform/modules.js';
-    import {podeNavegarLegado,decidirMudancaAcesso} from './js/platform/acesso-sessao.js?v=1.13.35-h.1';
+    import {podeNavegarLegado,decidirMudancaAcesso,sincronizarMenuAutorizado} from './js/platform/acesso-sessao.js?v=1.13.37-h.1';
 
     import {criarPainelDsips} from './js/modules/dsips/painel-ui.js?v=1.13.34-h.1';
     let usuarioLogado = null;
@@ -842,8 +842,7 @@
     }
 
     function aplicarMenuAutorizado(){
-      document.querySelectorAll('[data-nav-page]').forEach(b=>{if(!podeNavegarLegado(usuarioLogado,b.dataset.navPage))b.classList.add('hidden');});
-      document.querySelectorAll('[data-nav-group]').forEach(g=>{if(![...g.querySelectorAll('[data-nav-page]')].some(b=>!b.classList.contains('hidden')&&b.getAttribute('aria-hidden')!=='true'))g.classList.add('hidden');});
+      sincronizarMenuAutorizado(document,usuarioLogado);
     }
 
     function atualizarDadosTelaPerfil() {
