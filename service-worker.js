@@ -1,4 +1,4 @@
-const VERSAO = 'v1.13.30-h.3-ux-painel';
+const VERSAO = 'v1.13.31-h.1-bi-dsips';
 const CACHE_SHELL = `cmapp-shell-${VERSAO}`;
 const CACHE_RUNTIME = `cmapp-runtime-${VERSAO}`;
 const PREFIXO_CACHE = 'cmapp-';
@@ -57,6 +57,8 @@ const ARQUIVOS_SHELL = [
   './js/ui/central-trabalho.js',
   './js/modules/dsips/painel-model.js',
   './js/modules/dsips/painel-ui.js',
+  './js/modules/dsips/painel-bi-ui.js',
+  './js/modules/dsips/painel-bi-model.js',
   './js/pwa.js'
 ];
 

@@ -48,7 +48,7 @@ test('edição é integrada ao CMAPP original, sem outro login ou backend novo',
   assert.match(ui,/uid !== obterUsuario\(\)\?\.uid/);
   assert.match(app,/notificar: notificarMensagem/);
   assert.match(service,/httpsCallable\(functions, 'dsipsSalvarCadastro'\)/);
-  assert.match(sw,/v1\.13\.30-h\.3-ux-painel/);
+  assert.match(sw,/v1\.13\.31-h\.1-bi-dsips/);
   assert.match(fb,/projectId: "cm-app-homologacao"/);
   assert.equal((html.match(/id="view-login"/g)||[]).length,1);
 });
@@ -60,14 +60,14 @@ test('módulos DSIPS têm URL de versão explícita para impedir misturar UI ant
   assert.match(ui,/consulta-materiais-model\.js\?v=1\.13\.13-h\.3/);
   assert.match(ui,/service\.js\?v=1\.13\.13-h\.3/);
   assert.match(html,/id="dsips-material-mode"[^>]+>Verificando acesso…<\/span>/);
-  assert.match(html,/app\.js\?v=1\.13\.30-h\.3/);
-  assert.match(sw,/v1\.13\.30-h\.3-ux-painel/);
+  assert.match(html,/app\.js\?v=1\.13\.31-h\.1/);
+  assert.match(sw,/v1\.13\.31-h\.1-bi-dsips/);
 });
 test('identidade institucional não limita CMAPP a Patrimônio', async () => {
   const html=await ler('index.html');
   assert.doesNotMatch(html,/CM APP · Patrimônio/);
   assert.match(html,/<strong>CM APP<\/strong>\s*<span>Plataforma<\/span>/);
-  assert.match(html,/<span>CM APP<\/span>\s*<span>v1\.13\.30-H\.3 · HOMOLOGAÇÃO<\/span>/);
+  assert.match(html,/<span>CM APP<\/span>\s*<span>v1\.13\.31-H\.1 · HOMOLOGAÇÃO<\/span>/);
   assert.match(html,/<span class="sidebar-section-label sidebar-label">Patrimônio<\/span>/);
 });
 test('controle de gravação não amplia acesso: Admin gerencia, Conferente apenas consulta', () => {
