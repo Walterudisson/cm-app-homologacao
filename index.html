@@ -21,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.13.30-h.3">
+  <link rel="stylesheet" href="./app.css?v=1.13.31-h.1">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div id="cmapp-hml-banner" class="cmapp-hml-banner" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -56,7 +56,7 @@
 
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.30-H.3 • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.31-H.1 • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -176,7 +176,7 @@
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.13.30-H.3</span>
+        <span>v1.13.31-H.1</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -519,6 +519,13 @@
         <header class="cm-panel-header"><div><span class="cm-ux-eyebrow">CONTROLE DE MATERIAIS</span><h2 id="dsips-painel-heading">Painel DSIPS</h2><p>Consulte a situação do módulo e escolha uma operação.</p></div></header>
         <div id="dsips-painel-kpis" class="cm-panel-kpis" aria-label="Indicadores DSIPS"></div>
         <p id="dsips-painel-status" class="cm-panel-status" role="status" aria-live="polite"></p>
+        <section id="dsips-bi" class="cm-bi hidden" aria-labelledby="dsips-bi-title">
+          <div class="cm-bi-heading"><div><h3 id="dsips-bi-title">Inteligência operacional</h3><p>Indicadores de gestão e movimentações de materiais.</p></div><label for="dsips-bi-periodo">Período<select id="dsips-bi-periodo"><option value="30">Últimos 30 dias</option><option value="90">Últimos 90 dias</option><option value="180" selected>Últimos 180 dias</option></select></label></div>
+          <div id="dsips-bi-kpis" class="cm-panel-kpis"></div>
+          <div id="dsips-bi-detalhes" class="cm-bi-detalhes hidden"></div>
+          <div id="dsips-bi-graficos" class="cm-bi-grid"></div>
+          <p id="dsips-bi-status" class="cm-panel-status" role="status" aria-live="polite"></p>
+        </section>
         <h3 class="cm-panel-label">Operações e consultas</h3><div id="dsips-painel-acoes" class="cm-panel-actions"></div>
       </section>
       <!-- SPRINT 1.13.12-H.1: CONSULTA DSIPS DENTRO DO CMAPP ORIGINAL -->
@@ -1130,7 +1137,7 @@
 
       <footer class="app-footer">
         <span>CM APP</span>
-        <span>v1.13.30-H.3 · HOMOLOGAÇÃO</span>
+        <span>v1.13.31-H.1 · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -1331,6 +1338,6 @@
   </div>
 
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.5.0/dist/driver.js.iife.js"></script>
-    <script type="module" src="./app.js?v=1.13.30-h.3"></script>
+    <script type="module" src="./app.js?v=1.13.31-h.1"></script>
 </body>
 </html>

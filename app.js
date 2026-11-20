@@ -67,7 +67,7 @@
     import {renderizarCentral, podeAbrirCentral} from './js/ui/central-trabalho.js?v=1.13.23-h.1';
     import {modulosDoUsuario} from './js/platform/modules.js';
 
-    import {criarPainelDsips} from './js/modules/dsips/painel-ui.js?v=1.13.30-h.3';
+    import {criarPainelDsips} from './js/modules/dsips/painel-ui.js?v=1.13.31-h.1';
     let usuarioLogado = null;
     let bancoPatrimonio = [];
     let bancoUsuarios = [];

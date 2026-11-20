@@ -32,3 +32,10 @@ export const registrarSaldoInicialDsips = dados => httpsCallable(functions, 'dsi
 export const registrarCautelaDsips = dados => httpsCallable(functions, 'dsipsRegistrarCautela')(dados).then(result => result.data);
 export const registrarAjusteEstoqueDsips = dados => httpsCallable(functions, 'dsipsRegistrarAjusteEstoque')(dados).then(result => result.data);
 export const registrarDevolucaoDsips = dados => httpsCallable(functions, 'dsipsRegistrarDevolucao')(dados).then(result => result.data);
+
+/* BI: consulta de período delimitado; 1001º documento informa excesso, nunca é apresentado como total. */
+export async function listarEventosBiDsips(inicio,fim){
+  if(!(inicio instanceof Date)||!(fim instanceof Date)||!Number.isFinite(+inicio)||!Number.isFinite(+fim)||inicio>fim)throw new Error('Período inválido.');
+  const snapshot=await getDocs(query(collection(db,'dsipsEventos'),where('registradoEm','>=',inicio),where('registradoEm','<=',fim),orderBy('registradoEm','desc'),limit(1001)));
+  return {eventos:snapshot.docs.slice(0,1000).map(doc=>({...doc.data(),id:doc.id})),completo:snapshot.docs.length<=1000};
+}
