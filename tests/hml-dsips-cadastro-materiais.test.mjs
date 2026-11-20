@@ -58,7 +58,7 @@ test('módulos DSIPS têm URL de versão explícita para impedir misturar UI ant
   assert.match(app,/consulta-materiais-model\.js\?v=1\.13\.13-h\.3/);
   assert.match(app,/consulta-materiais-ui\.js\?v=1\.13\.34-h\.1/);
   assert.match(ui,/consulta-materiais-model\.js\?v=1\.13\.13-h\.3/);
-  assert.match(ui,/service\.js\?v=1\.13\.13-h\.3/);
+  assert.match(ui,/service\.js\?v=1\.13\.34-h\.1/);
   assert.match(html,/id="dsips-material-mode"[^>]+>Verificando acesso…<\/span>/);
   assert.match(html,/app\.js\?v=1\.13\.34-h\.1/);
   assert.match(sw,/v1\.13\.34-h\.1-perf-cache/);
