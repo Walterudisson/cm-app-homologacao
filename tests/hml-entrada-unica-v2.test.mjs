@@ -1,3 +1,4 @@
+import { conferirVersaoAtual } from './contrato-versao.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
@@ -14,6 +15,7 @@ test('HML conduz conta V2 à gestão sem carregar privilégios legados',async()=
 test('cache da PWA e script principal incluem nova versão',async()=>{
   const index=await readFile(new URL('../index.html',import.meta.url),'utf8');
   const worker=await readFile(new URL('../service-worker.js',import.meta.url),'utf8');
-  assert.match(index,/app\.js\?v=1\.16\.1-h\.2/);
-  assert.match(worker,/v1\.16\.1-h\.2-entrada-v2-homologacao/);
+  await conferirVersaoAtual();
+  assert.match(index,/HOMOLOGAÇÃO/);
+  assert.match(worker,/CACHE_SHELL/);
 });

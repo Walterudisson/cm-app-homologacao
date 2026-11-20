@@ -40,9 +40,9 @@ test('bootstrap restringe consultas patrimoniais e acompanha mudanças de acesso
   assert.match(app, /cancelarVigiaAcesso=onSnapshot\(referencia,/);assert.match(app,/decidirMudancaAcesso\(inicial,snapshot.exists\(\)\?snapshot.data\(\):null/);
 });
 
-test('a faixa HML reserva espaço para sidebar e cabeçalho sem alterar estilos de produção', async () => {
+test('a faixa HML reserva espaço para sidebar e cabeçalho', async () => {
   const [html, css] = await Promise.all(['index.html', 'app.css'].map(path => readFile(new URL('../'+path, import.meta.url), 'utf8')));
-  assert.match(html, /class="hml-env /);
-  assert.match(css, /\.hml-env \.app-sidebar \{ top: var\(--env-banner-height\); height: calc\(100dvh - var\(--env-banner-height\)\)/);
-  assert.match(css, /\.hml-env \.app-topbar \{ top: var\(--env-banner-height\)/);
+  assert.match(html, /id="cmapp-hml-banner" class="cmapp-hml-banner"/);
+  assert.match(css, /\.app-sidebar\s*\{[^}]*top:\s*var\(--hml-banner-height\);[^}]*height:\s*calc\(100dvh - var\(--hml-banner-height\)\)/);
+  assert.match(css, /\.app-topbar\s*\{[^}]*top:\s*var\(--hml-banner-height\)/);
 });

@@ -1,3 +1,4 @@
+import { conferirVersaoAtual } from './contrato-versao.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
@@ -8,8 +9,8 @@ test('recuperacao preserva tela e funcionalidade do CMAPP HML 1.13.11-H',async()
   const sw=await readFile(new URL('service-worker.js',root),'utf8');
   const config=await readFile(new URL('js/config/firebase.js',root),'utf8');
   assert.match(html,/<!-- TELA DE LOGIN -->/);
-  assert.match(html,/app\.js\?v=1\.13\.11-h-recuperacao\.1/);
-  assert.match(sw,/v1\.13\.11-h-recuperacao\.1/);
+  await conferirVersaoAtual();
+  assert.match(sw,/CACHE_SHELL/);
   assert.match(config,/projectId: "cm-app-homologacao"/);
   assert.doesNotMatch(config,/projectId: "patrimonioscm"/);
   assert.doesNotMatch(js,/from "\.\/js\/modules\/dsips\/module\.js/);

@@ -29,8 +29,8 @@ test('Administrador e Gestor DSIPS gerenciam; Conferente consulta sem gravar ou 
 });
 test('cada tela DSIPS possui seção, menu e arquivos no PWA', async () => {
   const [html, worker] = await Promise.all(['index.html', 'service-worker.js'].map(nome => readFile(new URL('../'+nome, import.meta.url), 'utf8')));
-  for (const id of ['dsips-inicio','dsips-materiais','dsips-cadastros','dsips-estoque','dsips-historico']) {
+  for (const id of ['dsips-inicio','dsips-materiais','dsips-cadastros','dsips-estoque','dsips-cautelas','dsips-posse','dsips-historico']) {
     assert.ok(obterPagina(id)); assert.ok(html.includes(`id="sec-${id}"`)); assert.ok(html.includes(`data-nav-page="${id}"`));
   }
-  for (const arquivo of ['model.js', 'controller.js', 'service.js']) assert.ok(worker.includes(`./js/modules/dsips/${arquivo}`));
+  for (const arquivo of ['painel-ui.js','consulta-materiais-ui.js','cadastros-ui.js','estoque-ui.js','registro-cautelas-ui.js','posse-ui.js','historico-ui.js','service.js']) assert.ok(worker.includes(`./js/modules/dsips/${arquivo}`));
 });

@@ -3,6 +3,7 @@ const INTERVALO_NOVA_OFERTA_MS = 7 * 24 * 60 * 60 * 1000;
 
 let eventoInstalacao = null;
 let recarregandoAposAtualizacao = false;
+const atualizacoesOferecidas = new WeakSet();
 
 export function estaEmModoInstalado() {
   return window.matchMedia('(display-mode: standalone)').matches
@@ -65,7 +66,8 @@ function configurarConectividade(notificarMensagem) {
 }
 
 function oferecerAtualizacao(worker, notificarMensagem) {
-  if (!worker) return;
+  if (!worker || atualizacoesOferecidas.has(worker)) return;
+  atualizacoesOferecidas.add(worker);
   notificarMensagem('Uma nova versão do CM APP está pronta para uso.', 'info', {
     titulo: 'Atualização disponível',
     persistente: true,
@@ -77,7 +79,7 @@ function oferecerAtualizacao(worker, notificarMensagem) {
 async function registrarServiceWorker(notificarMensagem) {
   if (!('serviceWorker' in navigator)) return;
   try {
-    const registro = await navigator.serviceWorker.register('./service-worker.js', { scope: './' });
+    const registro = await navigator.serviceWorker.register('./service-worker.js', { scope: './', updateViaCache: 'none' });
     if (registro.waiting) oferecerAtualizacao(registro.waiting, notificarMensagem);
 
     registro.addEventListener('updatefound', () => {
