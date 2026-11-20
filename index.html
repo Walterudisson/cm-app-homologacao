@@ -21,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.13.29-h.1">
+  <link rel="stylesheet" href="./app.css?v=1.13.30-h.1">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div id="cmapp-hml-banner" class="cmapp-hml-banner" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -56,7 +56,7 @@
 
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.29-H.1 • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.30-H.1 • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -176,7 +176,7 @@
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.13.29-H.1</span>
+        <span>v1.13.30-H.1</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -713,8 +713,7 @@
             <p>Entregue, receba e consulte materiais em cautela.</p>
           </div>
           <div class="dsips-intro-actions">
-            <span id="dsips-cautelas-mode" class="cm-pdv-access" aria-live="polite">Verificando acesso…</span><button type="button" id="dsips-pdv-mode" class="app-button app-button-secondary">Modo quiosque</button>
-            <button id="dsips-cautelas-new" class="app-button app-button-primary hidden" type="button">+ Registrar cautela</button>
+            <span id="dsips-cautelas-mode" class="cm-pdv-access" aria-live="polite">Verificando acesso…</span>
           </div>
         </article>
         <div class="cm-pdv-launch" id="dsips-pdv-launch">
@@ -738,13 +737,12 @@
           </div>
           <form id="dsips-cautelas-form" class="dsips-editor-form">
             <h4 class="dsips-cautelas-step">1. Usuário responsável</h4>
-            <div class="dsips-editor-fields">
-              <label>Pesquisar usuário do CMAPP
-                <input id="dsips-cautelas-user-search" type="search" autocomplete="off" placeholder="Nome ou matrícula">
-              </label>
-              <label>Quem receberá os materiais?
-                <select name="responsavelId" required><option value="">Selecione um usuário ativo do CMAPP</option></select>
-              </label>
+            <div class="cm-combobox" id="dsips-responsavel-combo">
+              <label for="dsips-cautelas-user-search">Quem receberá os materiais?</label>
+              <div class="cm-combo-field"><input id="dsips-cautelas-user-search" type="text" autocomplete="off" autocapitalize="none" role="combobox" aria-autocomplete="list" aria-controls="dsips-responsavel-opcoes" aria-expanded="false" required placeholder="Digite nome ou matrícula"><button type="button" class="cm-combo-clear" aria-label="Limpar responsável" hidden>×</button></div>
+              <input type="hidden" name="responsavelId">
+              <div id="dsips-responsavel-opcoes" class="cm-combo-options" role="listbox" aria-label="Responsáveis disponíveis" hidden></div>
+              <small class="cm-combo-status" role="status" aria-live="polite">Digite pelo menos 2 caracteres.</small>
             </div>
             <h4 class="dsips-cautelas-step">2. Materiais a entregar</h4>
             <div class="cm-pdv-tools"><label for="dsips-pdv-search">Pesquisar material</label><input id="dsips-pdv-search" type="search" autocomplete="off" placeholder="Nome do material"></div>
@@ -803,7 +801,7 @@
             </div>
           </form>
         </article>
-        <article class="app-card dsips-panel">
+        <article id="dsips-cautelas-consulta" class="app-card dsips-panel hidden">
           <div class="dsips-toolbar">
             <label class="dsips-search-label" for="dsips-cautelas-search">
               <span>Pesquisar cautelas</span>
@@ -813,6 +811,7 @@
               <span>Situação</span>
               <select id="dsips-cautelas-filter">
                 <option value="todas">Todas</option>
+                <option value="pendentes">Pendentes de devolução</option>
                 <option value="aberta">Sem devolução</option>
                 <option value="parcial">Parcialmente devolvida</option>
                 <option value="encerrada">Encerrada</option>
@@ -1131,7 +1130,7 @@
 
       <footer class="app-footer">
         <span>CM APP</span>
-        <span>v1.13.29-H.1 · HOMOLOGAÇÃO</span>
+        <span>v1.13.30-H.1 · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -1332,6 +1331,6 @@
   </div>
 
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.5.0/dist/driver.js.iife.js"></script>
-    <script type="module" src="./app.js?v=1.13.29-h.1"></script>
+    <script type="module" src="./app.js?v=1.13.30-h.1"></script>
 </body>
 </html>

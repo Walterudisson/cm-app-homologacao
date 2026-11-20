@@ -59,7 +59,7 @@
     import { criarConsultaMateriaisDsips } from "./js/modules/dsips/consulta-materiais-ui.js?v=1.13.29-h.1";
     import { criarCadastrosDsips } from "./js/modules/dsips/cadastros-ui.js?v=1.13.27-h.1";
     import { criarEstoqueDsips } from "./js/modules/dsips/estoque-ui.js?v=1.13.29-h.1";
-    import { criarRegistroCautelasDsips } from "./js/modules/dsips/registro-cautelas-ui.js?v=1.13.26-h.1";
+    import { criarRegistroCautelasDsips } from "./js/modules/dsips/registro-cautelas-ui.js?v=1.13.30-h.1";
     import { criarPosseDsips } from "./js/modules/dsips/posse-ui.js?v=1.13.29-h.1";
     import { criarHistoricoDsips } from "./js/modules/dsips/historico-ui.js?v=1.13.29-h.1";
     import { podeConsultarHistoricoDsips } from "./js/modules/dsips/historico-model.js?v=1.13.19-h.1";
@@ -1529,7 +1529,7 @@
 
       if (registrarHistorico) registrarAbaHistorico(abaAtiva, { substituir: substituirHistorico });
       if (abaAtiva !== 'dsips-inicio') painelDsips.limpar();
-      if (abaAtiva !== 'dsips-cautelas') cautelasDsips.sairQuiosque();
+      if (abaAtiva !== 'dsips-cautelas') cautelasDsips.sairTela();
       if (abaAtual !== abaAtiva && abaAtiva === 'transferencias') {
         document.querySelectorAll('#container-transferencias details.transfer-group').forEach(grupo => { grupo.open = false; });
       }

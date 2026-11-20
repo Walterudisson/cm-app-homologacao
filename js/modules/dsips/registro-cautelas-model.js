@@ -74,7 +74,7 @@ export function filtrarCautelasDsips(cautelas = [], texto = '', status = 'todas'
     .replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR').trim();
   const busca = normalizar(texto);
   return (Array.isArray(cautelas) ? cautelas : []).filter(item =>
-    item && (status === 'todas' || item.status === status) &&
+    item && (status === 'todas' || item.status === status || (status === 'pendentes' && ['aberta','parcial'].includes(item.status))) &&
     normalizar([item.responsavelNome, item.responsavelMatricula,
       ...(item.itens || []).map(m => m.nome)].join(' ')).includes(busca)
   ).sort((a,b) => Number(b.criadoEm?.toMillis?.() || 0) - Number(a.criadoEm?.toMillis?.() || 0));

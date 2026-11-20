@@ -1,3 +1,4 @@
+import {criarAutocomplete} from '../../ui/autocomplete.js?v=1.13.30-h.1';
 import {
   listarCadastroDsips, listarUnidadesDsips, registrarCautelaDsips, registrarDevolucaoDsips
 } from './service.js?v=1.13.16-h.3';
@@ -5,7 +6,7 @@ import {
   podeConsultarCautelasDsips, podeRegistrarCautelasDsips,
   saldoDisponivelDsips, unidadesDisponiveisDsips,
   validarCautelaDsips, filtrarCautelasDsips, STATUS_CAUTELA_DSIPS, classeStatusCautelaDsips
-} from './registro-cautelas-model.js?v=1.13.26-h.1';
+} from './registro-cautelas-model.js?v=1.13.30-h.1';
 import { podeDevolverCautelaDsips, itensPendentesDevolucaoDsips, prepararDevolucaoDsips,
   devolucaoIntegralDsips, criarReciboDevolucaoDsips } from './devolucoes-model.js?v=1.13.16-h.3';
 
@@ -20,12 +21,13 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
   const status = porId('dsips-cautelas-status');
   const lista = porId('dsips-cautelas-list');
   const modo = porId('dsips-cautelas-mode');
-  const abrirBotao = porId('dsips-cautelas-new');
+  const painelConsulta=porId('dsips-cautelas-consulta');
   const atualizarBotao = porId('dsips-cautelas-refresh');
   const cancelarBotao = porId('dsips-cautelas-cancel');
   const enviarBotao = porId('dsips-cautelas-submit');
   const usuarioBusca = porId('dsips-cautelas-user-search');
   const usuarioSelect = form.elements.namedItem('responsavelId');
+  const comboResponsavel=criarAutocomplete({raiz:porId('dsips-responsavel-combo'),campo:usuarioBusca,valor:usuarioSelect,rotulo:p=>p.nome,detalhe:p=>p.matricula?'Matrícula '+p.matricula:'',pesquisa:p=>[p.nome,p.matricula],aoAlterar:()=>{pendente=null;atualizarBotoes();}});
   const materiaisSelect = porId('dsips-cautelas-material');
   const quantidade = porId('dsips-cautelas-quantity');
   const identificacoesBox = porId('dsips-cautelas-units-box');
@@ -48,7 +50,7 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
   const devolucaoTudo = porId('dsips-devolucao-tudo');
   const devolucaoCancelar = porId('dsips-devolucao-cancel');
   const devolucaoEnviar = porId('dsips-devolucao-submit');
-  const pdvGrid=porId('dsips-pdv-materials'),pdvBusca=porId('dsips-pdv-search'),pdvEntrega=porId('dsips-pdv-entrega'),pdvRetorno=porId('dsips-pdv-retorno'),pdvConsulta=porId('dsips-pdv-consulta'),pdvModo=porId('dsips-pdv-mode');
+  const pdvGrid=porId('dsips-pdv-materials'),pdvBusca=porId('dsips-pdv-search'),pdvEntrega=porId('dsips-pdv-entrega'),pdvRetorno=porId('dsips-pdv-retorno'),pdvConsulta=porId('dsips-pdv-consulta');
   const menos=porId('dsips-pdv-minus'),mais=porId('dsips-pdv-plus'),rapidos=porId('dsips-pdv-quick'),saldoPrevisto=porId('dsips-pdv-balance');
   let cautelaDevolucao = null, linhasDevolucao = [], reciboDevolucao = null, envioIncerto = false;
 
@@ -73,43 +75,32 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
     card.append(elemento('strong','',titulo),elemento('p','',detalhe));
     container.append(card);
   }
-  function normalizar(valor) {
-    return String(valor || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
-  }
   function atualizarBotoes() {
     const bloqueado = carregando || gravando || confirmando;
-    abrirBotao.disabled = bloqueado || !pronto || !responsaveis.some(p => p.ativo !== false) ||
+    const semEntrega = bloqueado || !pronto || !podeGravar() || !responsaveis.some(p => p.ativo !== false && p.id) ||
       !materiais.some(item => item.ativo !== false && saldoDisponivelDsips(item.id, estoque) > 0);
     atualizarBotao.disabled = bloqueado;
     adicionarBotao.disabled = bloqueado || !pronto || !materiaisSelect.value;
     cancelarBotao.disabled = bloqueado;
-    enviarBotao.disabled = bloqueado || !cesta.length;
+    enviarBotao.disabled = bloqueado || !cesta.length || !usuarioSelect.value;
+    comboResponsavel.setDisabled(bloqueado||!pronto||!podeGravar());
     devolucaoCampos.disabled = bloqueado || envioIncerto;
     devolucaoCancelar.disabled = bloqueado || envioIncerto;
     devolucaoEnviar.disabled = bloqueado || !cautelaDevolucao;
     if(envioIncerto) {
-      abrirBotao.disabled = true;
       atualizarBotao.disabled = true;
       devolucaoEnviar.textContent = 'Repetir confirmação';
     } else {
       devolucaoEnviar.textContent = 'Conferir e registrar devolução';
     }
-    pdvEntrega.disabled=abrirBotao.disabled||!editor.classList.contains('hidden')||!devolucaoEditor.classList.contains('hidden');
+    const operacaoAberta=!editor.classList.contains('hidden')||!devolucaoEditor.classList.contains('hidden');
+    pdvEntrega.disabled=semEntrega||envioIncerto||operacaoAberta;
+    pdvConsulta.disabled=bloqueado||envioIncerto||operacaoAberta;
     pdvRetorno.disabled=bloqueado||!pronto||envioIncerto||!editor.classList.contains('hidden')||!devolucaoEditor.classList.contains('hidden');
     pdvGrid.querySelectorAll('button').forEach(b=>{b.disabled=bloqueado||!pronto||!podeGravar();});
     atualizarQuantidade();
   }
-  function atualizarUsuarios() {
-    const atual = usuarioSelect.value;
-    const termo = normalizar(usuarioBusca.value);
-    usuarioSelect.replaceChildren(new Option('Selecione um usuário ativo do CMAPP',''));
-    for (const pessoa of responsaveis) {
-      if (pessoa.ativo === false) continue;
-      if (termo && !normalizar(pessoa.nome + ' ' + (pessoa.matricula || '')).includes(termo) && pessoa.id !== atual) continue;
-      usuarioSelect.add(new Option(pessoa.nome + (pessoa.matricula ? ' · ' + pessoa.matricula : ''),pessoa.id));
-    }
-    if (responsaveis.some(p=>p.id===atual && p.ativo!==false)) usuarioSelect.value = atual;
-  }
+  function atualizarUsuarios(){comboResponsavel.setItems(responsaveis.filter(p=>p.ativo!==false&&p.id));}
   function atualizarQuantidade(){
     const m=materialPorId(materiaisSelect.value),saldo=m?saldoDisponivelDsips(m.id,estoque):0,n=Number(quantidade.value);
     const livre=Boolean(m&&m.controle!=='individualizado'&&pronto&&podeGravar()&&!carregando&&!gravando&&!confirmando);
@@ -250,7 +241,7 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
     editor.classList.add('hidden');
     pdvBusca.value='';
     form.reset();
-    cesta=[];pendente=null;usuarioBusca.value='';
+    cesta=[];pendente=null;comboResponsavel.reset();
     limparSelecaoMaterial();
     atualizarUsuarios();atualizarMateriais();
     renderizarCesta();
@@ -262,10 +253,10 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
     }
     if(!pronto||!podeGravar()||gravando||confirmando||carregando) return;
     fecharEditor();
-    editor.classList.remove('hidden');
+    painelConsulta.classList.add('hidden');editor.classList.remove('hidden');
     atualizarBotoes();
     editor.scrollIntoView({block:'start',behavior:'smooth'});
-    usuarioSelect.focus({preventScroll:true});
+    usuarioBusca.focus({preventScroll:true});
   }
   function fecharDevolucao() {
     devolucaoEditor.classList.add('hidden');
@@ -311,7 +302,7 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
       linhasDevolucao.push({item,qtd,unidades});
       devolucaoItens.append(bloco);
     }
-    devolucaoEditor.classList.remove('hidden');
+    painelConsulta.classList.add('hidden');devolucaoEditor.classList.remove('hidden');
     atualizarBotoes();
     devolucaoEditor.scrollIntoView({block:'start',behavior:'smooth'});
   }
@@ -374,7 +365,7 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
       await registrarDevolucaoDsips({...pedido,operacaoId});
       if(epoca!==sessao||uid!==obterUsuario()?.uid||!podeGravar()) return;
       envioIncerto=false;
-      fecharDevolucao();
+      fecharDevolucao();painelConsulta.classList.remove('hidden');
       notificar('Devolução registrada no HML.','sucesso');
       gravando=false;
       await carregar();
@@ -396,7 +387,6 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
     const podeEscrever=podeGravar();
     modo.textContent=podeEscrever?'':'Somente consulta';
     pdvEntrega.classList.toggle('hidden',!podeEscrever);pdvRetorno.classList.toggle('hidden',!podeEscrever);
-    abrirBotao.classList.toggle('hidden',!podeEscrever);
     if(!podeEscrever&&!editor.classList.contains('hidden')) fecharEditor();
     if(!podeEscrever&&!devolucaoEditor.classList.contains('hidden')) fecharDevolucao();
     atualizarBotoes();
@@ -460,7 +450,7 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
   }
   function limpar() {
     revisao++;sessao++;revisaoUnidades++;
-    sairQuiosque();pdvBusca.value='';pdvGrid.replaceChildren();
+    sairTela();pdvBusca.value='';pdvGrid.replaceChildren();
     fecharDevolucao();
     cautelas=[];responsaveis=[];materiais=[];estoque=[];unidadesPorMaterial={};
     cesta=[];pendente=null;pronto=false;carregando=false;gravando=false;confirmando=false;falha='';
@@ -468,7 +458,7 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
     editor.classList.add('hidden');form.reset();usuarioBusca.value='';
     identificacoes.replaceChildren();identificacoesBox.classList.add('hidden');
     editorStatus.textContent='';identificacoesStatus.textContent='';
-    usuarioSelect.replaceChildren(new Option('Selecione um usuário ativo do CMAPP',''));
+    comboResponsavel.reset();comboResponsavel.setItems([]);
     materiaisSelect.replaceChildren(new Option('Selecione um material disponível',''));
     renderizarCesta();renderizar();
   }
@@ -560,9 +550,8 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
     }
   }
   devolucaoTudo.addEventListener('click',preencherDevolucaoIntegral);
-  devolucaoCancelar.addEventListener('click',()=>{if(!gravando&&!confirmando&&!envioIncerto){fecharDevolucao();atualizarBotoes();}});
+  devolucaoCancelar.addEventListener('click',()=>{if(!gravando&&!confirmando&&!envioIncerto){fecharDevolucao();painelConsulta.classList.remove('hidden');atualizarBotoes();}});
   devolucaoForm.addEventListener('submit',evento=>{void salvarDevolucao(evento);});
-  abrirBotao.addEventListener('click',abrirEditor);
   cancelarBotao.addEventListener('click',fecharEditor);
   adicionarBotao.addEventListener('click',adicionarMaterial);
   quantidade.addEventListener('focus',()=>{if(!quantidade.readOnly)quantidade.select();});
@@ -573,16 +562,14 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
   materiaisSelect.addEventListener('change',()=>{renderizarPdv();void selecionarMaterial();});
   pdvBusca.addEventListener('input',renderizarPdv);
   pdvEntrega.addEventListener('click',()=>{if(!pdvEntrega.disabled)abrirEditor();});
-  function focarConsulta(){busca.scrollIntoView({block:'center',behavior:'smooth'});busca.focus({preventScroll:true});}
-  pdvConsulta.addEventListener('click',()=>{if(!gravando&&!confirmando)focarConsulta();});
-  pdvRetorno.addEventListener('click',()=>{if(pdvRetorno.disabled||!podeGravar())return;filtro.value='todas';busca.value='';renderizar();focarConsulta();});
-  function sairQuiosque(){document.body.classList.remove('cm-pdv-kiosk');pdvModo.textContent='Modo quiosque';pdvModo.setAttribute('aria-pressed','false');}
-  pdvModo.addEventListener('click',()=>{if(!autorizado()||!ativo())return;const on=document.body.classList.toggle('cm-pdv-kiosk');pdvModo.textContent=on?'Sair do quiosque':'Modo quiosque';pdvModo.setAttribute('aria-pressed',String(on));});
-  usuarioBusca.addEventListener('input',atualizarUsuarios);
+  function focarConsulta(){painelConsulta.classList.remove('hidden');busca.scrollIntoView({block:'center',behavior:'smooth'});busca.focus({preventScroll:true});}
+  pdvConsulta.addEventListener('click',()=>{if(!pdvConsulta.disabled){filtro.value='todas';busca.value='';renderizar();focarConsulta();}});
+  pdvRetorno.addEventListener('click',()=>{if(!pdvRetorno.disabled&&podeGravar()){filtro.value='pendentes';busca.value='';renderizar();focarConsulta();}});
+  function sairTela(){document.body.classList.remove('cm-pdv-kiosk');painelConsulta.classList.add('hidden');comboResponsavel.fechar();}
   atualizarBotao.addEventListener('click',()=>{void carregar();});
   form.addEventListener('submit',evento=>{void salvar(evento);});
   busca.addEventListener('input',renderizar);
   filtro.addEventListener('change',renderizar);
   limpar();
-  return {carregar,limpar,sairQuiosque,iniciarDevolucaoPorId};
+  return {carregar,limpar,sairTela,iniciarDevolucaoPorId};
 }
