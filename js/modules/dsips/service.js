@@ -39,3 +39,9 @@ export async function listarEventosBiDsips(inicio,fim){
   const snapshot=await getDocs(query(collection(db,'dsipsEventos'),where('registradoEm','>=',inicio),where('registradoEm','<=',fim),orderBy('registradoEm','desc'),limit(1001)));
   return {eventos:snapshot.docs.slice(0,1000).map(doc=>({...doc.data(),id:doc.id})),completo:snapshot.docs.length<=1000};
 }
+
+// Consulta de posse não precisa ler cautelas encerradas. Filtro único no índice padrão de status.
+export async function listarCautelasPendentesDsips(){
+  const snapshot=await getDocs(query(collection(db,'dsipsCautelas'),where('status','in',['aberta','parcial'])));
+  return snapshot.docs.map(doc=>({...doc.data(),id:doc.id}));
+}

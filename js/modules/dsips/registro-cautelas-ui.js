@@ -1,3 +1,4 @@
+import {criarPaginadorLocal} from '../../ui/paginador.js?v=1.13.33-h.1';
 import {criarAutocomplete} from '../../ui/autocomplete.js?v=1.13.32-h.1';
 import {
   listarCadastroDsips, listarUnidadesDsips, registrarCautelaDsips, registrarDevolucaoDsips
@@ -58,6 +59,8 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
   let cautelas = [], responsaveis = [], materiais = [], estoque = [];
   let unidadesPorMaterial = {}, cesta = [];
   let pronto = false, carregando = false, gravando = false, confirmando = false, falha = '';
+  const paginador=criarPaginadorLocal({lista,tamanho:20,renderizar,podeNavegar:()=>autorizado()&&!gravando&&!confirmando&&!envioIncerto&&editor.classList.contains('hidden')&&devolucaoEditor.classList.contains('hidden'),rotulo:'Páginas de cautelas'});
+  const paginadorPdv=criarPaginadorLocal({lista:pdvGrid,tamanho:24,renderizar:renderizarPdv,podeNavegar:()=>pronto&&podeGravar()&&!gravando&&!confirmando&&!carregando,rotulo:'Páginas de materiais disponíveis'});
   let revisao = 0, sessao = 0, revisaoUnidades = 0, pendente = null;
   const autorizado = () => podeConsultarCautelasDsips(obterUsuario());
   const podeGravar = () => podeRegistrarCautelasDsips(obterUsuario());
@@ -117,8 +120,8 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
   }
   function definirQuantidade(n){const m=materialPorId(materiaisSelect.value);if(!m||m.controle==='individualizado'||!podeGravar()||gravando||confirmando||carregando)return;quantidade.value=String(Math.min(saldoDisponivelDsips(m.id,estoque),Math.max(1,n)));atualizarBotoes();}
   function renderizarPdv(){
-    pdvGrid.replaceChildren();
-    for(const material of filtrarMateriaisPdv(materiais,estoque,cesta,pdvBusca.value)){
+    paginadorPdv.ocultar();pdvGrid.replaceChildren();
+    for(const material of paginadorPdv.recortar(filtrarMateriaisPdv(materiais,estoque,cesta,pdvBusca.value),pdvBusca.value)){
       const b=elemento('button','cm-pdv-material');b.type='button';b.dataset.materialId=material.id;b.dataset.cor=material.visual.cor;
       b.append(criarIconePdv(material.visual.icone),elemento('strong','',material.nome),elemento('span','',material.saldo+' '+(material.unidade||'un')+' disponíveis'));
       b.setAttribute('aria-pressed',String(materiaisSelect.value===material.id));
@@ -241,7 +244,7 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
   }
   function fecharEditor() {
     editor.classList.add('hidden');
-    pdvBusca.value='';
+    paginadorPdv.reset();pdvBusca.value='';
     form.reset();
     cesta=[];pendente=null;comboResponsavel.reset();
     limparSelecaoMaterial();
@@ -386,7 +389,7 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
     }finally{if(epoca===sessao){gravando=false;atualizarBotoes();}}
   }
   function renderizar() {
-    lista.replaceChildren();
+    paginador.ocultar();lista.replaceChildren();
     const podeEscrever=podeGravar();
     modo.textContent=podeEscrever?'':'Somente consulta';
     pdvEntrega.classList.toggle('hidden',!podeEscrever);pdvRetorno.classList.toggle('hidden',!podeEscrever);
@@ -418,7 +421,7 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
           'Registre uma cautela de teste com materiais disponíveis.');
       return;
     }
-    for(const cautela of filtradas) {
+    for(const cautela of paginador.recortar(filtradas,JSON.stringify([busca.value,filtro.value]))) {
       const card=elemento('article','dsips-cautelas-card');
       const cab=elemento('div','dsips-cautelas-card-heading');
       cab.append(elemento('h3','',cautela.responsavelNome || 'Responsável não informado'),
@@ -452,7 +455,7 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
     }
   }
   function limpar() {
-    revisao++;sessao++;revisaoUnidades++;
+    paginador.reset();paginadorPdv.reset();revisao++;sessao++;revisaoUnidades++;
     sairTela();pdvBusca.value='';pdvGrid.replaceChildren();
     fecharDevolucao();
     cautelas=[];responsaveis=[];materiais=[];estoque=[];unidadesPorMaterial={};
@@ -468,7 +471,7 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
   async function carregar() {
     if(!autorizado()) {limpar();return;}
     if(gravando||confirmando||envioIncerto) return;
-    const uid=obterUsuario()?.uid,token=++revisao;
+    paginador.reset();paginadorPdv.reset();const uid=obterUsuario()?.uid,token=++revisao;
     ++revisaoUnidades;
     fecharEditor();fecharDevolucao();
     carregando=true;falha='';renderizar();
@@ -566,9 +569,9 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
   pdvBusca.addEventListener('input',renderizarPdv);
   pdvEntrega.addEventListener('click',()=>{if(!pdvEntrega.disabled)abrirEditor();});
   function focarConsulta(){painelConsulta.classList.remove('hidden');atualizarBotoes();painelConsulta.scrollIntoView({block:'start',behavior:'smooth'});}
-  kpis.forEach(b=>b.addEventListener('click',()=>{if(b.disabled||!autorizado()||!ativo())return;filtro.value=b.dataset.cautelasKpi;busca.value='';renderizar();focarConsulta();}));
-  pdvConsulta.addEventListener('click',()=>{if(!pdvConsulta.disabled){filtro.value='todas';busca.value='';renderizar();focarConsulta();busca.focus({preventScroll:true});}});
-  pdvRetorno.addEventListener('click',()=>{if(!pdvRetorno.disabled&&podeGravar()){filtro.value='pendentes';busca.value='';renderizar();focarConsulta();busca.focus({preventScroll:true});}});
+  kpis.forEach(b=>b.addEventListener('click',()=>{if(b.disabled||!autorizado()||!ativo())return;paginador.reset();filtro.value=b.dataset.cautelasKpi;busca.value='';renderizar();focarConsulta();}));
+  pdvConsulta.addEventListener('click',()=>{if(!pdvConsulta.disabled){paginador.reset();filtro.value='todas';busca.value='';renderizar();focarConsulta();busca.focus({preventScroll:true});}});
+  pdvRetorno.addEventListener('click',()=>{if(!pdvRetorno.disabled&&podeGravar()){paginador.reset();filtro.value='pendentes';busca.value='';renderizar();focarConsulta();busca.focus({preventScroll:true});}});
   function sairTela(){document.body.classList.remove('cm-pdv-kiosk');painelConsulta.classList.add('hidden');comboResponsavel.fechar();}
   atualizarBotao.addEventListener('click',()=>{void carregar();});
   form.addEventListener('submit',evento=>{void salvar(evento);});

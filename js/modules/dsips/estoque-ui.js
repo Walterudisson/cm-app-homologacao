@@ -1,3 +1,4 @@
+import {criarPaginadorLocal} from '../../ui/paginador.js?v=1.13.33-h.1';
 import {adaptarSelectAutocomplete} from '../../ui/autocomplete.js?v=1.13.32-h.1';
 import {podeConsultarHistoricoDsips} from './historico-model.js?v=1.13.29-h.1';
 import {
@@ -15,6 +16,10 @@ export function criarEstoqueDsips({ obterUsuario, confirmar, notificar = () => {
   const secao = porId('sec-dsips-estoque');
   const lista = porId('dsips-estoque-list');
   const unidadesLista = porId('dsips-estoque-unidades');
+  const paginador=criarPaginadorLocal({lista,tamanho:20,renderizar,podeNavegar:()=>autorizado()&&!gravando&&!confirmando&&!ajustes.ocupado(),rotulo:'Páginas de estoque'});
+  const unidadesBusca=porId('dsips-estoque-unidades-search');
+  const paginadorUnidades=criarPaginadorLocal({lista:unidadesLista,tamanho:30,renderizar:renderizarUnidades,podeNavegar:()=>autorizado()&&ativo(),rotulo:'Páginas de identificações'});
+  let unidadesConsulta=[],unidadesMaterialId='';
   const status = porId('dsips-estoque-status');
   const unidadesStatus = porId('dsips-estoque-unidades-status');
   const resumoInicializados = porId('dsips-estoque-inicializados');
@@ -110,7 +115,8 @@ export function criarEstoqueDsips({ obterUsuario, confirmar, notificar = () => {
     cancelarBotao.disabled = gravando || confirmando;
   }
   function renderizar() {
-    ajustes.fechar();
+    if(ajustes.ocupado())return;
+    paginador.ocultar();ajustes.fechar();
     lista.replaceChildren();
     const podeEscrever = podeGravar();
     modo.textContent = podeEscrever ? '' : 'Somente consulta';
@@ -157,7 +163,7 @@ export function criarEstoqueDsips({ obterUsuario, confirmar, notificar = () => {
           'Registre o saldo inicial de um material de teste para começar.');
       return;
     }
-    for (const posicao of filtrados) {
+    for (const posicao of paginador.recortar(filtrados,filtro.value)) {
       const material = materialPorId(posicao.materialId);
       const local = localPorId(posicao.localId);
       const card = elemento('article','dsips-estoque-card');
@@ -187,7 +193,7 @@ export function criarEstoqueDsips({ obterUsuario, confirmar, notificar = () => {
     }
   }
   function limpar() {
-    ajustes.limpar();
+    paginador.reset();limparUnidades();ajustes.limpar();
     revisao++; sessao++; unidadesRevisao++;
     materiais = []; locais = []; estoque = [];
     pronto = false; carregando = false; falha = '';
@@ -201,8 +207,8 @@ export function criarEstoqueDsips({ obterUsuario, confirmar, notificar = () => {
   }
   async function carregar() {
     if (!autorizado()) { limpar(); return; }
-    if (gravando || confirmando) return;
-    const token = ++revisao, uid = obterUsuario()?.uid;
+    if (gravando || confirmando || ajustes.ocupado()) return;
+    paginador.reset();limparUnidades();const token = ++revisao, uid = obterUsuario()?.uid;
     unidadesRevisao++;
     unidadesLista.replaceChildren();
     unidadesStatus.textContent = '';
@@ -233,18 +239,29 @@ export function criarEstoqueDsips({ obterUsuario, confirmar, notificar = () => {
   }
   async function mostrarUnidades(materialId) {
     if (!autorizado()) return;
-    const token = ++unidadesRevisao, uid = obterUsuario()?.uid;
+    limparUnidades();const token = ++unidadesRevisao, uid = obterUsuario()?.uid;
     unidadesLista.replaceChildren();
     const item = materialPorId(materialId);
     unidadesStatus.textContent = 'Consultando identificações de ' + (item?.nome || 'material') + '…';
     try {
       const unidades = await listarUnidadesDsips(materialId);
       if (token !== unidadesRevisao || uid !== obterUsuario()?.uid || !ativo() || !autorizado()) return;
-      unidadesStatus.textContent = (unidades.length || 0) + ' identificação(ões) encontrada(s).';
-      if (!unidades.length) {
-        vazio(unidadesLista,'Nenhuma identificação encontrada','Confira o saldo inicial deste material.');
-      }
-      for (const unidade of unidades) {
+      unidadesConsulta=unidades;unidadesMaterialId=materialId;unidadesBusca.disabled=false;renderizarUnidades();
+      unidadesLista.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } catch (erro) {
+      if (token !== unidadesRevisao || uid !== obterUsuario()?.uid || !ativo()) return;
+      console.warn('Erro ao consultar identificações DSIPS.',erro);
+      unidadesStatus.textContent = 'Falha ao consultar identificações. Tente novamente.';
+    }
+  }
+  function limparUnidades(){unidadesConsulta=[];unidadesMaterialId='';unidadesBusca.value='';unidadesBusca.disabled=true;paginadorUnidades.reset();unidadesLista.replaceChildren();}
+  function renderizarUnidades(){
+    paginadorUnidades.ocultar();unidadesLista.replaceChildren();if(!autorizado()||!ativo()||!unidadesMaterialId)return;
+    const materialId=unidadesMaterialId,normalizar=v=>String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR').trim();
+    const termo=normalizar(unidadesBusca.value),filtradas=unidadesConsulta.filter(u=>normalizar([u.identificacao,u.id,localPorId(u.localId)?.nome].join(' ')).includes(termo));
+    unidadesStatus.textContent=filtradas.length+' de '+unidadesConsulta.length+' identificação(ões) encontrada(s).';
+    if(!filtradas.length)vazio(unidadesLista,'Nenhuma identificação encontrada','Altere a pesquisa ou confira o saldo inicial deste material.');
+    for(const unidade of paginadorUnidades.recortar(filtradas,termo)) {
         const linha = elemento('article','dsips-estoque-unidade');
         const nome = elemento('strong','',unidade.identificacao || 'Sem identificação');
         const estado = elemento('span','',
@@ -255,12 +272,6 @@ export function criarEstoqueDsips({ obterUsuario, confirmar, notificar = () => {
         if(podeConsultarHistoricoDsips(obterUsuario())&&unidade.id&&unidade.identificacao){const b=elemento('button','app-button app-button-secondary','Histórico da unidade');b.type='button';b.addEventListener('click',()=>abrirHistorico({visao:'unidade',id:unidade.id,identificacao:unidade.identificacao,materialId,nome:unidade.identificacao}));linha.append(b);}
         unidadesLista.append(linha);
       }
-      unidadesLista.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    } catch (erro) {
-      if (token !== unidadesRevisao || uid !== obterUsuario()?.uid || !ativo()) return;
-      console.warn('Erro ao consultar identificações DSIPS.',erro);
-      unidadesStatus.textContent = 'Falha ao consultar identificações. Tente novamente.';
-    }
   }
   async function salvar(evento) {
     evento.preventDefault();
@@ -327,6 +338,7 @@ export function criarEstoqueDsips({ obterUsuario, confirmar, notificar = () => {
   materialCampo.addEventListener('change',()=>{ identificadoresCampo.value = ''; quantidadeCampo.value = ''; sincronizarCampos(); });
   identificadoresCampo.addEventListener('input',sincronizarCampos);
   filtro.addEventListener('input',renderizar);
+  unidadesBusca.addEventListener('input',renderizarUnidades);
   limpar();
   return { carregar, limpar };
 }

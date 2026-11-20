@@ -54,8 +54,8 @@ test('integra menu e sessão existente, exclusivamente leitura de cautelas',asyn
   assert.match(app,/posseDsips\.carregar\(\)/);
   assert.match(app,/'dsips-cautelas', 'dsips-posse'\]\.includes\(abaAtiva\)/);
   assert.match(nav,/'dsips-posse': \{ titulo: 'Quem está com o quê'/);
-  assert.match(ui,/await listarCadastroDsips\('cautelas'\)/);
+  assert.match(ui,/await listarCautelasPendentesDsips\(\)/);
   assert.match(ui,/uid!==obterUsuario\(\)\?\.uid/);
   assert.doesNotMatch(ui,/salvarCadastroDsips|registrarCautelaDsips|registrarDevolucaoDsips|innerHTML|listarEventosDsips|responsaveis'\)/);
-  assert.match(sw,/v1\.13\.32-h\.1-perf-autocomplete/);
+  assert.match(sw,/v1\.13\.33-h\.1-perf-paginacao/);
 });

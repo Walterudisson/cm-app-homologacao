@@ -1,4 +1,4 @@
-const VERSAO = 'v1.13.32-h.1-perf-autocomplete';
+const VERSAO = 'v1.13.33-h.1-perf-paginacao';
 const CACHE_SHELL = `cmapp-shell-${VERSAO}`;
 const CACHE_RUNTIME = `cmapp-runtime-${VERSAO}`;
 const PREFIXO_CACHE = 'cmapp-';
@@ -53,6 +53,7 @@ const ARQUIVOS_SHELL = [
   './js/services/usuarios.service.js',
   './js/ui/feedback.js',
   './js/ui/autocomplete.js',
+  './js/ui/paginador.js',
   './js/ui/navigation.js',
   './js/ui/central-trabalho.js',
   './js/modules/dsips/painel-model.js',

@@ -1353,3 +1353,6 @@ button[data-cautelas-kpi]{width:100%;text-align:left;cursor:pointer}button[data-
 
 /* PERF-01.1: selects pesquisáveis preservam o valor nativo */
 .cm-combo-native[hidden]{display:none!important}.dsips-editor-fields>.cm-combo-select{min-width:0;max-width:none}.cm-combo-select .cm-combo-options{max-height:220px}.cm-combo-select .cm-combo-field input{border:0;box-shadow:none;min-width:0}
+
+/* PERF-02: navegação local de listas */
+.cm-list-pagination{display:flex;align-items:center;justify-content:center;gap:12px;margin:14px 0;flex-wrap:wrap}.cm-list-pagination[hidden]{display:none!important}.cm-list-page-info{font-size:.75rem;color:var(--app-muted);text-align:center;font-variant-numeric:tabular-nums}.cm-list-pagination button{min-height:40px}.cm-list-pagination button:disabled{opacity:.45;cursor:default}@media(max-width:639px){.cm-list-pagination{gap:8px}.cm-list-pagination button{padding:8px 10px}.cm-list-page-info{flex:1;min-width:90px}}
