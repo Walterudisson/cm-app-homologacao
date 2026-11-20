@@ -41,6 +41,7 @@ export function adaptarSelectAutocomplete(select,{id,rotulo,placeholder='Pesquis
  const anterior=select.value;select.required=false;select.hidden=true;select.tabIndex=-1;select.setAttribute('aria-hidden','true');select.classList.add('cm-combo-native');
  label.replaceWith(raiz);linha.append(campo,clear);raiz.append(titulo,linha,lista,status,select);select.value=anterior;
  const combo=criarAutocomplete({raiz,campo,valor:select,minimo,aoAlterar:()=>select.dispatchEvent(new Event('change',{bubbles:true}))});
+ select.value=anterior;
  function sincronizar(){combo.setItems([...select.options].filter(o=>o.value&&!o.disabled).map(o=>({id:o.value,nome:o.textContent})));combo.setDisabled(select.disabled);}
  sincronizar();
  return {sincronizar,reset:combo.reset,setDisabled:combo.setDisabled,focar:()=>campo.focus({preventScroll:true})};
