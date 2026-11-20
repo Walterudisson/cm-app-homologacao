@@ -39,7 +39,7 @@ test('HML tem tela e menu dentro do login e layout existentes', async () => {
   assert.match(app, /consultaMateriaisDsips\.carregar\(\)/);
   assert.match(app, /!podeConsultarMateriaisDsips\(usuarioLogado\)/);
   assert.match(navigation, /'dsips-materiais':/);
-  assert.match(worker, /v1\.13\.37-h\.4-auto-recuperacao/);
+  assert.match(worker, /v1\.13\.37-h\.5-san-01/);
   assert.match(fb, /projectId: "cm-app-homologacao"/);
   assert.doesNotMatch(fb, /projectId: "patrimonioscm"/);
 });
