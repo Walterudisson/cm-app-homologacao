@@ -1,9 +1,9 @@
 import {podeConsultarMateriaisDsips} from './consulta-materiais-model.js';
 import {podeConsultarHistoricoDsips} from './historico-model.js';
 import {consolidarPosseDsips} from './posse-model.js';
-export function resumirPainelDsips(materiais,estoque,cautelas){
+export function resumirPainelDsips(materiais,estoque,cautelas,categorias=[]){
  const ativos=new Set(materiais.filter(m=>m.ativo!==false).map(m=>m.id));
- return {materiais:ativos.size,disponiveis:new Set(estoque.filter(p=>ativos.has(p.materialId)&&Number.isSafeInteger(p.disponivel)&&p.disponivel>0).map(p=>p.materialId)).size,cautelas:cautelas.filter(c=>['aberta','parcial'].includes(c.status)).length,responsaveis:consolidarPosseDsips(cautelas).length};
+ return {materiais:ativos.size,categorias:categorias.length,cautelas:cautelas.filter(c=>['aberta','parcial'].includes(c.status)).length,responsaveis:consolidarPosseDsips(cautelas).length};
 }
 export function acoesPainelDsips(usuario){
  if(!podeConsultarMateriaisDsips(usuario))return [];

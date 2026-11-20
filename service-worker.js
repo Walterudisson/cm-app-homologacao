@@ -1,4 +1,4 @@
-const VERSAO = 'v1.13.30-h.2-ux-cautelas';
+const VERSAO = 'v1.13.30-h.3-ux-painel';
 const CACHE_SHELL = `cmapp-shell-${VERSAO}`;
 const CACHE_RUNTIME = `cmapp-runtime-${VERSAO}`;
 const PREFIXO_CACHE = 'cmapp-';
