@@ -21,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.13.37-h.3">
+  <link rel="stylesheet" href="./app.css?v=1.13.37-h.4">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div id="cmapp-hml-banner" class="cmapp-hml-banner" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -58,7 +58,7 @@
       <p class="text-xs text-center"><a href="./recuperar.html" class="text-blue-400 underline">Problemas para entrar? Recuperar atualização</a></p>
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.37-H.3 • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.37-H.4 • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -178,7 +178,7 @@
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.13.37-H.3</span>
+        <span>v1.13.37-H.4</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -1140,7 +1140,7 @@
 
       <footer class="app-footer">
         <span>CM APP</span>
-        <span>v1.13.37-H.3 · HOMOLOGAÇÃO</span>
+        <span>v1.13.37-H.4 · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -1346,11 +1346,45 @@
       (() => {
         const form=document.getElementById('form-login'),botao=document.getElementById('btn-submit-login'),status=document.getElementById('login-bootstrap-status');
         form.addEventListener('submit',e=>{if(botao.disabled)e.preventDefault();});
-        const aviso=()=>{if(botao.disabled)status.textContent='Não foi possível iniciar o aplicativo. Use Recuperar atualização abaixo.';};
-        window.addEventListener('error',aviso,true);
-        setTimeout(aviso,15000);
+        // Watchdog independente dos módulos, acionado apenas se o app não iniciar.
+        // Nunca ativa uma atualização quando o formulário já está habilitado.
+        let tentando=false,tentou=false;
+        const bloqueado=()=>botao.disabled&&document.getElementById('view-app').classList.contains('hidden');
+        async function recuperar(){
+          if(!bloqueado()||tentando||tentou)return;
+          if(!navigator.onLine){status.textContent='Sem conexão. A recuperação será tentada ao voltar à internet.';return;}
+          tentou=true;tentando=true;
+          status.textContent='Verificando atualização do aplicativo…';
+          try{
+            if(!('serviceWorker' in navigator))throw new Error('Service Worker indisponível');
+            const sw=navigator.serviceWorker,anterior=sw.controller;
+            let recarregou=false;
+            sw.addEventListener('controllerchange',()=>{
+              if(anterior&&sw.controller!==anterior&&bloqueado()&&!recarregou){recarregou=true;location.reload();}
+            });
+            const escopo=new URL('./',location.href).href;
+            const registro=await sw.register(new URL('service-worker.js',escopo),{scope:escopo,updateViaCache:'none'});
+            if(registro.scope!==escopo)throw new Error('Escopo inesperado');
+            const oferecer=()=>{
+              if(!bloqueado())return;
+              if(registro.waiting){registro.waiting.postMessage({tipo:'ATIVAR_ATUALIZACAO'});status.textContent='Atualizando aplicativo…';}
+            };
+            const observar=()=>{
+              const worker=registro.installing;
+              worker?.addEventListener('statechange',()=>{if(worker.state==='installed')oferecer();});
+            };
+            registro.addEventListener('updatefound',observar);
+            observar();oferecer();
+            await registro.update();
+            observar();oferecer();
+            if(bloqueado()&&!registro.installing&&!registro.waiting)status.textContent='Não foi possível iniciar. Use Recuperar atualização abaixo.';
+          }catch(_){if(bloqueado())status.textContent='Não foi possível recuperar automaticamente. Use Recuperar atualização abaixo.';}
+          finally{tentando=false;}
+        }
+        setTimeout(recuperar,15000);
+        window.addEventListener('online',()=>{if(bloqueado()){tentou=false;void recuperar();}});
       })();
     </script>
-    <script type="module" src="./app.js?v=1.13.37-h.3"></script>
+    <script type="module" src="./app.js?v=1.13.37-h.4"></script>
 </body>
 </html>

@@ -1,7 +1,25 @@
-const VERSAO = 'v1.13.37-h.3-recuperacao';
+const VERSAO = 'v1.13.37-h.4-auto-recuperacao';
 const CACHE_SHELL = `cmapp-shell-${VERSAO}`;
 const CACHE_RUNTIME = `cmapp-runtime-${VERSAO}`;
-const PREFIXO_CACHE = 'cmapp-';
+// Emergência HML: somente releases cujo service.js incompleto foi confirmado.
+const SHELLS_COM_FALHA = new Set([
+  'cmapp-shell-v1.13.34-h.1-perf-cache',
+  'cmapp-shell-v1.13.35-h.1-qa-acesso',
+  'cmapp-shell-v1.13.36-h.1-qa-pwa',
+  'cmapp-shell-v1.13.37-h.1-qa-integrada'
+]);
+async function shellsDoEscopo(){
+  const nomes=await caches.keys(),validos=[];
+  for(const nome of nomes){
+    if(!nome.startsWith('cmapp-shell-')||nome===CACHE_SHELL)continue;
+    const cache=await caches.open(nome);
+    if(await cache.match(new URL('./index.html',self.registration.scope).href)
+      ||await cache.match(new URL('./app.js',self.registration.scope).href)
+      ||await cache.match(new URL('./',self.registration.scope).href))validos.push(nome);
+  }
+  return validos;
+}
+async function legadosComFalha(){return (await shellsDoEscopo()).some(n=>SHELLS_COM_FALHA.has(n));}
 
 const ARQUIVOS_SHELL = [
   './',
@@ -95,16 +113,31 @@ self.addEventListener('install', evento => {
     const cache = await caches.open(CACHE_SHELL);
     await cache.addAll(ARQUIVOS_SHELL.map(path => new Request(new URL(path, self.registration.scope), { cache: 'reload' })));
     await armazenarDependenciasExternas();
+    // Só troca automaticamente depois de instalar todos os recursos locais.
+    // Atualizações normais continuam dependendo do aceite ou do fechamento das janelas.
+    if(await legadosComFalha())await self.skipWaiting();
   })());
 });
 
 self.addEventListener('activate', evento => {
   evento.waitUntil((async () => {
-    const nomes = await caches.keys();
-    await Promise.all(nomes
-      .filter(nome => nome.startsWith(PREFIXO_CACHE) && ![CACHE_SHELL, CACHE_RUNTIME].includes(nome))
-      .map(nome => caches.delete(nome)));
+    const antigos=await shellsDoEscopo();
+    const recuperar=antigos.some(n=>SHELLS_COM_FALHA.has(n));
+    // CacheStorage é compartilhado na origem; só remover shells comprovadamente
+    // deste escopo e os respectivos runtimes. Não tocar em cookies/IndexedDB.
+    await Promise.all(antigos.flatMap(n=>[n,n.replace('cmapp-shell-','cmapp-runtime-')]).map(n=>caches.delete(n)));
     await self.clients.claim();
+    if(recuperar){
+      const janelas=await self.clients.matchAll({type:'window'});
+      for(const janela of janelas){
+        const url=new URL(janela.url);url.search='';url.hash='';
+        if(!ENTRADAS.has(url.href))continue;
+        // Não aguardar a navegação dentro do activate: o fetch da nova página
+        // pode depender da conclusão da própria ativação.
+        url.searchParams.set('cmapp-recovery',VERSAO);
+        void janela.navigate(url.href).catch(()=>{});
+      }
+    }
   })());
 });
 
