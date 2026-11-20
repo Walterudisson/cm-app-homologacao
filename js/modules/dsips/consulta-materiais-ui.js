@@ -1,3 +1,4 @@
+import {criarPaginadorLocal} from '../../ui/paginador.js?v=1.13.33-h.1';
 import {adaptarSelectAutocomplete} from '../../ui/autocomplete.js?v=1.13.32-h.1';
 import {podeConsultarHistoricoDsips} from './historico-model.js?v=1.13.29-h.1';
 import { listarCadastroDsips, salvarCadastroDsips } from './service.js?v=1.13.13-h.3';
@@ -10,6 +11,7 @@ import {
 export function criarConsultaMateriaisDsips({ obterUsuario, notificar = () => {} , abrirHistorico=()=>{}}) {
   const porId = id => document.getElementById(id);
   const lista = porId('dsips-material-list');
+  const paginador=criarPaginadorLocal({lista,tamanho:24,renderizar,podeNavegar:()=>autorizado()&&!gravando,rotulo:'Páginas de materiais'});
   const estado = porId('dsips-material-status');
   const busca = porId('dsips-material-search');
   const categoria = porId('dsips-material-category');
@@ -115,7 +117,7 @@ export function criarConsultaMateriaisDsips({ obterUsuario, notificar = () => {}
     campo('nome').focus({ preventScroll: true });
   }
   function renderizar() {
-    lista.replaceChildren();
+    paginador.ocultar();lista.replaceChildren();
     lista.setAttribute('aria-busy', String(carregando));
     atualizarBotao.disabled = carregando;
     const edicaoPermitida = podeGravar();
@@ -152,7 +154,7 @@ export function criarConsultaMateriaisDsips({ obterUsuario, notificar = () => {}
       return;
     }
     const nomesCategorias = new Map(categorias.map(item => [item.id, item.nome]));
-    for (const material of filtrados) {
+    for (const material of paginador.recortar(filtrados,JSON.stringify([busca.value,categoria.value]))) {
       const visual = visualMaterialDsips(material);
       const card = elemento('article', 'dsips-material-card dsips-cor-' + visual.cor);
       const cab = elemento('div', 'dsips-material-head');
@@ -184,6 +186,7 @@ export function criarConsultaMateriaisDsips({ obterUsuario, notificar = () => {}
     }
   }
   function limpar() {
+    paginador.reset();
     fecharEditor();
     versao++;
     materiais = [];
@@ -198,7 +201,7 @@ export function criarConsultaMateriaisDsips({ obterUsuario, notificar = () => {}
   }
   async function carregar() {
     if (!autorizado()) { limpar(); return; }
-    const atual = ++versao;
+    paginador.reset();const atual = ++versao;
     carregando = true;
     pronto = false;
     falha = '';

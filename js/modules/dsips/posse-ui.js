@@ -1,11 +1,13 @@
+import {criarPaginadorLocal} from '../../ui/paginador.js?v=1.13.33-h.1';
 import {podeConsultarHistoricoDsips} from './historico-model.js?v=1.13.29-h.1';
-import { listarCadastroDsips } from './service.js?v=1.13.17-h.1';
+import { listarCautelasPendentesDsips } from './service.js?v=1.13.33-h.1';
 import { podeConsultarPosseDsips, consolidarPosseDsips, filtrarPosseDsips } from './posse-model.js?v=1.13.17-h.1';
 
 import {podeRegistrarCautelasDsips} from './registro-cautelas-model.js?v=1.13.26-h.1';
 export function criarPosseDsips({obterUsuario,iniciarDevolucao=()=>{}, abrirHistorico=()=>{}}) {
   const porId=id=>document.getElementById(id);
   const lista=porId('dsips-posse-list'), status=porId('dsips-posse-status');
+  const paginador=criarPaginadorLocal({lista,tamanho:15,renderizar,podeNavegar:()=>autorizado(),rotulo:'Páginas de responsáveis'});
   const busca=porId('dsips-posse-search'), atualizar=porId('dsips-posse-refresh');
   const total=porId('dsips-posse-total'), cautelasTotal=porId('dsips-posse-cautelas');
   let grupos=[],revisao=0,carregando=false,pronto=false,falha='';
@@ -15,7 +17,7 @@ export function criarPosseDsips({obterUsuario,iniciarDevolucao=()=>{}, abrirHist
     if(valor!==undefined)node.textContent=String(valor??'');return node;
   }
   function renderizar(){
-    lista.replaceChildren();atualizar.disabled=carregando;
+    paginador.ocultar();lista.replaceChildren();atualizar.disabled=carregando;
     lista.setAttribute('aria-busy',String(carregando));
     total.textContent='0';cautelasTotal.textContent='0';
     if(!autorizado()){status.textContent='Acesso não autorizado.';return;}
@@ -32,7 +34,7 @@ export function criarPosseDsips({obterUsuario,iniciarDevolucao=()=>{}, abrirHist
         el('p','',grupos.length?'Altere o termo pesquisado.':'Não há cautelas com materiais pendentes.'));
       lista.append(vazio);return;
     }
-    for(const grupo of filtrados){
+    for(const grupo of paginador.recortar(filtrados,busca.value)){
       const card=el('article','dsips-cautelas-card');
       const cab=el('div','dsips-cautelas-card-heading');
       cab.append(el('h3','',grupo.nome));
@@ -54,13 +56,13 @@ export function criarPosseDsips({obterUsuario,iniciarDevolucao=()=>{}, abrirHist
       lista.append(card);
     }
   }
-  function limpar(){revisao++;grupos=[];carregando=false;pronto=false;falha='';busca.value='';renderizar();}
+  function limpar(){paginador.reset();revisao++;grupos=[];carregando=false;pronto=false;falha='';busca.value='';renderizar();}
   async function carregar(){
     if(!autorizado()){limpar();return;}
-    const token=++revisao,uid=obterUsuario()?.uid;
+    paginador.reset();const token=++revisao,uid=obterUsuario()?.uid;
     grupos=[];pronto=false;carregando=true;falha='';renderizar();
     try{
-      const cautelas=await listarCadastroDsips('cautelas');
+      const cautelas=await listarCautelasPendentesDsips();
       if(token!==revisao||uid!==obterUsuario()?.uid||!autorizado())return;
       grupos=consolidarPosseDsips(cautelas);pronto=true;
     }catch(erro){
