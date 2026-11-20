@@ -36,7 +36,7 @@ test('shell ativo serve HTML e scripts versionados do mesmo snapshot sem recorre
   const s=simular();await s.fire('install');s.rede.length=0;
   await s.cache('cmapp-shell-antigo').put(escopo+'app.js',new Response('antigo'));
   assert.equal(await (await s.pedir('./','document','navigate')).text(),'shell:'+escopo);
-  assert.equal(await (await s.pedir('app.js?v=1.13.36-h.1')).text(),'shell:'+escopo+'app.js');
+  assert.equal(await (await s.pedir('app.js?v=1.13.37-h.1')).text(),'shell:'+escopo+'app.js');
   assert.equal(s.rede.length,0);
   await s.fire('activate');assert.ok(s.excluidos.includes('cmapp-shell-antigo'));
   assert.deepEqual(s.mensagens,['claim']);
