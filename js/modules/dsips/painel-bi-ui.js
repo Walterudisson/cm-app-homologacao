@@ -1,4 +1,4 @@
-import {listarEventosBiDsips} from './service.js?v=1.13.31-h.1';
+import {listarEventosBiDsips} from './service.js?v=1.13.34-h.1';
 import {podeConsultarHistoricoDsips} from './historico-model.js?v=1.13.29-h.1';
 import {podeConsultarMateriaisDsips} from './consulta-materiais-model.js';
 import {periodoBi,resumirEstoqueBi,resumirCautelasBi,resumirEventosBi} from './painel-bi-model.js?v=1.13.31-h.1';

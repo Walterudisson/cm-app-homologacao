@@ -1,5 +1,5 @@
 import {elegivelAjuste,unidadesDisponiveis,preverAjuste,prepararAjuste} from './ajustes-model.js?v=1.13.19-h.1';
-import {listarUnidadesDsips,registrarAjusteEstoqueDsips} from './service.js?v=1.13.19-h.1';
+import {listarUnidadesDsips,registrarAjusteEstoqueDsips} from './service.js?v=1.13.34-h.1';
 export function criarAjustesDsips({obterUsuario,podeGravar,ativo,confirmar,notificar,carregar,secao,fecharSaldoInicial,podeAbrir}) {
   let editor=null, epoca=0, ocupado=false;
   const pendencias=new Map();

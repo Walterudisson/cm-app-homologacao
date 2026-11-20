@@ -1,4 +1,4 @@
-const VERSAO = 'v1.13.33-h.1-perf-paginacao';
+const VERSAO = 'v1.13.34-h.1-perf-cache';
 const CACHE_SHELL = `cmapp-shell-${VERSAO}`;
 const CACHE_RUNTIME = `cmapp-runtime-${VERSAO}`;
 const PREFIXO_CACHE = 'cmapp-';
@@ -42,6 +42,7 @@ const ARQUIVOS_SHELL = [
   './js/core/movimentacao.js',
   './js/core/escopo.js',
   './js/core/paginacao.js',
+  './js/core/cache-consultas.js',
   './js/core/relacao.js',
   './js/core/perfil.js',
   './js/core/inventario-id.js',

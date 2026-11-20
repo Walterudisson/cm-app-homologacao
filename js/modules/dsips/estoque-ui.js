@@ -1,15 +1,16 @@
+import {invalidarCacheDsips} from './service.js?v=1.13.34-h.1';
 import {criarPaginadorLocal} from '../../ui/paginador.js?v=1.13.33-h.1';
 import {adaptarSelectAutocomplete} from '../../ui/autocomplete.js?v=1.13.32-h.1';
 import {podeConsultarHistoricoDsips} from './historico-model.js?v=1.13.29-h.1';
 import {
   listarCadastroDsips, listarUnidadesDsips, registrarSaldoInicialDsips
-} from './service.js?v=1.13.15-h.1';
+} from './service.js?v=1.13.34-h.1';
 import {
   podeConsultarEstoqueDsips, podeRegistrarSaldoDsips, materiaisPendentesSaldoDsips,
   resumoEstoqueDsips, identificadoresDoTextoDsips, prepararSaldoInicialDsips
 } from './estoque-model.js?v=1.13.15-h.1';
 
-import { criarAjustesDsips } from './ajustes-ui.js?v=1.13.19-h.1';
+import { criarAjustesDsips } from './ajustes-ui.js?v=1.13.34-h.1';
 
 export function criarEstoqueDsips({ obterUsuario, confirmar, notificar = () => {} , abrirHistorico=()=>{}}) {
   const porId = id => document.getElementById(id);
@@ -333,7 +334,7 @@ export function criarEstoqueDsips({ obterUsuario, confirmar, notificar = () => {
   }
   novoBotao.addEventListener('click',abrirEditor);
   cancelarBotao.addEventListener('click',fecharEditor);
-  atualizarBotao.addEventListener('click',()=>{ void carregar(); });
+  atualizarBotao.addEventListener('click',()=>{invalidarCacheDsips();void carregar();});
   formulario.addEventListener('submit',evento=>{ void salvar(evento); });
   materialCampo.addEventListener('change',()=>{ identificadoresCampo.value = ''; quantidadeCampo.value = ''; sincronizarCampos(); });
   identificadoresCampo.addEventListener('input',sincronizarCampos);

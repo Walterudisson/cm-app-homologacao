@@ -1,9 +1,21 @@
 import { collection, getDocs, query, where, orderBy, limit, startAfter } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
 import { httpsCallable } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-functions.js';
-import { db, functions } from '../../config/firebase.js';
+import { auth, db, functions } from '../../config/firebase.js';
+import {criarCacheConsultas} from '../../core/cache-consultas.js?v=1.13.34-h.1';
+const cache=criarCacheConsultas({identidade:()=>auth.currentUser?.uid});
+const TTL_CATALOGO=60000;
+const catalogos=new Set(['materiais','categorias','locais']);
+export function invalidarCacheDsips(){cache.limpar();}
+let gravacoes=0;
+async function gravarDsips(nome,dados){invalidarCacheDsips();gravacoes++;try{return (await httpsCallable(functions,nome)(dados)).data;}finally{gravacoes--;invalidarCacheDsips();}}
+
 
 const colecoes = Object.freeze({ categorias: 'dsipsCategorias', locais: 'dsipsLocais', materiais: 'dsipsMateriais', estoque: 'dsipsEstoque', cautelas: 'dsipsCautelas' });
 export async function listarCadastroDsips(tipo) {
+  // Responsáveis, cautelas e estoque não reutilizam resultados concluídos.
+  return cache.consultar('cadastro:'+tipo,()=>consultarCadastroDsips(tipo),!gravacoes&&catalogos.has(tipo)?TTL_CATALOGO:0);
+}
+async function consultarCadastroDsips(tipo) {
   if (tipo === 'responsaveis') return httpsCallable(functions, 'dsipsListarResponsaveis')({}).then(result => result.data.usuarios);
   if (!Object.hasOwn(colecoes, tipo)) throw new Error('Consulta inválida.');
   const snapshot = await getDocs(collection(db, colecoes[tipo]));
@@ -24,14 +36,16 @@ export async function listarPaginaEventosDsips(cursor = null) {
     cursor: docs.at(-1) || null, temMais: snapshot.docs.length > 30 };
 }
 export async function listarUnidadesDsips(materialId) {
+  return cache.consultar('unidades:'+materialId,async()=>{
   const snapshot = await getDocs(query(collection(db, 'dsipsUnidades'), where('materialId', '==', materialId)));
   return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+  });
 }
-export const salvarCadastroDsips = dados => httpsCallable(functions, 'dsipsSalvarCadastro')(dados).then(result => result.data);
-export const registrarSaldoInicialDsips = dados => httpsCallable(functions, 'dsipsRegistrarSaldoInicial')(dados).then(result => result.data);
-export const registrarCautelaDsips = dados => httpsCallable(functions, 'dsipsRegistrarCautela')(dados).then(result => result.data);
-export const registrarAjusteEstoqueDsips = dados => httpsCallable(functions, 'dsipsRegistrarAjusteEstoque')(dados).then(result => result.data);
-export const registrarDevolucaoDsips = dados => httpsCallable(functions, 'dsipsRegistrarDevolucao')(dados).then(result => result.data);
+export const salvarCadastroDsips = dados => gravarDsips('dsipsSalvarCadastro',dados);
+export const registrarSaldoInicialDsips = dados => gravarDsips('dsipsRegistrarSaldoInicial',dados);
+export const registrarCautelaDsips = dados => gravarDsips('dsipsRegistrarCautela',dados);
+export const registrarAjusteEstoqueDsips = dados => gravarDsips('dsipsRegistrarAjusteEstoque',dados);
+export const registrarDevolucaoDsips = dados => gravarDsips('dsipsRegistrarDevolucao',dados);
 
 /* BI: consulta de período delimitado; 1001º documento informa excesso, nunca é apresentado como total. */
 export async function listarEventosBiDsips(inicio,fim){
@@ -42,6 +56,8 @@ export async function listarEventosBiDsips(inicio,fim){
 
 // Consulta de posse não precisa ler cautelas encerradas. Filtro único no índice padrão de status.
 export async function listarCautelasPendentesDsips(){
+  return cache.consultar('cautelas:pendentes',async()=>{
   const snapshot=await getDocs(query(collection(db,'dsipsCautelas'),where('status','in',['aberta','parcial'])));
   return snapshot.docs.map(doc=>({...doc.data(),id:doc.id}));
-}
+  });
+

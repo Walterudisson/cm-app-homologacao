@@ -1,4 +1,5 @@
-import { listarCadastroDsips, salvarCadastroDsips } from './service.js?v=1.13.14-h.1';
+import {invalidarCacheDsips} from './service.js?v=1.13.34-h.1';
+import { listarCadastroDsips, salvarCadastroDsips } from './service.js?v=1.13.34-h.1';
 import {
   TIPOS_CADASTRO_DSIPS,
   filtrarCadastrosDsips,
@@ -257,7 +258,7 @@ export function criarCadastrosDsips({ obterUsuario, notificar = () => {} }) {
   cancelarBotao.addEventListener('click', fecharEditor);
   formulario.addEventListener('submit', evento => { void salvar(evento); });
   busca.addEventListener('input', renderizar);
-  atualizarBotao.addEventListener('click', carregar);
+  atualizarBotao.addEventListener('click',()=>{invalidarCacheDsips();void carregar();});
   limpar();
   return { carregar, limpar, mudarTipo };
 }
