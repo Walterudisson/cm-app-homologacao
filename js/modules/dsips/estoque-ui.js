@@ -1,3 +1,4 @@
+import {adaptarSelectAutocomplete} from '../../ui/autocomplete.js?v=1.13.32-h.1';
 import {podeConsultarHistoricoDsips} from './historico-model.js?v=1.13.29-h.1';
 import {
   listarCadastroDsips, listarUnidadesDsips, registrarSaldoInicialDsips
@@ -30,6 +31,8 @@ export function criarEstoqueDsips({ obterUsuario, confirmar, notificar = () => {
   const identificadoresBox = porId('dsips-estoque-identificadores-box');
   const materialCampo = formulario.elements.namedItem('materialId');
   const localCampo = formulario.elements.namedItem('localId');
+  const comboMaterial=adaptarSelectAutocomplete(materialCampo,{id:'dsips-estoque-material-combo',rotulo:'Material',placeholder:'Pesquisar material sem saldo inicial'});
+  const comboLocal=adaptarSelectAutocomplete(localCampo,{id:'dsips-estoque-local-combo',rotulo:'Local de estoque',placeholder:'Pesquisar local'});
   const quantidadeCampo = formulario.elements.namedItem('quantidade');
   const identificadoresCampo = formulario.elements.namedItem('identificadores');
   const motivoCampo = formulario.elements.namedItem('motivo');
@@ -59,7 +62,7 @@ export function criarEstoqueDsips({ obterUsuario, confirmar, notificar = () => {
   }
   function fecharEditor() {
     editor.classList.add('hidden');
-    formulario.reset();
+    formulario.reset();comboMaterial.sincronizar();comboLocal.sincronizar();
     identificadoresBox.classList.add('hidden');
     quantidadeCampo.readOnly = false;
     quantidadeCampo.value = '';
@@ -86,6 +89,7 @@ export function criarEstoqueDsips({ obterUsuario, confirmar, notificar = () => {
     localCampo.replaceChildren(new Option('Selecione um local ativo', ''));
     for (const item of locais.filter(item => item.ativo !== false)) localCampo.add(new Option(item.nome || 'Local sem nome', item.id));
     if (locais.some(item => item.id === anteriorLocal && item.ativo !== false)) localCampo.value = anteriorLocal;
+    comboMaterial.sincronizar();comboLocal.sincronizar();
     sincronizarCampos();
   }
   function abrirEditor() {
@@ -95,10 +99,11 @@ export function criarEstoqueDsips({ obterUsuario, confirmar, notificar = () => {
     atualizarSeletores();
     editor.classList.remove('hidden');
     editor.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    materialCampo.focus({ preventScroll: true });
+    comboMaterial.focar();
   }
   function atualizarBotoes() {
     const bloqueado = carregando || gravando || confirmando;
+    comboMaterial.setDisabled(bloqueado||!podeGravar());comboLocal.setDisabled(bloqueado||!podeGravar());
     atualizarBotao.disabled = bloqueado;
     novoBotao.disabled = bloqueado || !pronto || !pendentes().length || !locais.some(item => item.ativo !== false);
     salvarBotao.disabled = gravando || confirmando;
