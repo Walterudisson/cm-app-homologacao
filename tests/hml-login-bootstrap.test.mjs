@@ -5,6 +5,7 @@ import {readFile,readdir} from 'node:fs/promises';
 import {JSDOM} from 'jsdom';
 import {fileURLToPath} from 'node:url';
 import {join} from 'node:path';
+import {execFileSync} from 'node:child_process';
 const root=fileURLToPath(new URL('../',import.meta.url));
 const names=new Map();
 async function scan(p){
@@ -18,7 +19,7 @@ async function collect(q){
  const s=await readFile(q,'utf8');
  for(const m of s.matchAll(/import\s*\{([^}]+)\}\s*from\s*['"](https:\/\/www\.gstatic\.com\/firebasejs\/[^'"]+)['"]/g)){
   if(!names.has(m[2]))names.set(m[2],new Set());
-  for(const name of m[1].split(',')){const n=name.trim().split(/\s+as\s+/)[0];if(n)names.get(m[2]).add(n);}
+  for(const name of m[1].split(',')){const n=name.trim().split(/\s+as\s+/)[0];if(n){assert.match(n,/^[A-Za-z_$][\w$]*$/,'Nome de import inválido em '+q);names.get(m[2]).add(n);}}
  }
 }
 await scan(join(root,'js'));await collect(join(root,'app.js'));
@@ -35,12 +36,12 @@ test('Inicialização completa do app e submissão do login com transporte simul
  globalThis.__cmappSmoke={calls:0};
  const shim=registerHooks({
   resolve(specifier,context,next){if(names.has(specifier))return {url:specifier,shortCircuit:true};return next(specifier,context);},
-  load(url,context,next){if(!names.has(url))return next(url,context);const sources=[...names.get(url)].map(n=>{
+  load(url,context,next){if(!names.has(url)){const loaded=next(url,context);if(url.startsWith('file:')&&url.includes('/js/')){try{execFileSync(process.execPath,['--check','--input-type=module'],{input:loaded.source,stdio:['pipe','pipe','pipe']});}catch(err){throw new Error('Sintaxe em '+url+'\n'+err.stderr);}}return loaded;}const sources=[...names.get(url)].map(n=>{
     if(n==='signInWithEmailAndPassword')return "export async function signInWithEmailAndPassword(){globalThis.__cmappSmoke.calls++;throw Object.assign(new Error('simulado'),{code:'auth/invalid-credential'});}";
     if(n==='httpsCallable')return "export const httpsCallable=()=>async()=>({data:{}});";
     if(n==='onAuthStateChanged')return "export const onAuthStateChanged=()=>()=>{};";
     return 'export const '+n+'=(...args)=>({});';
-  });return {format:'module',source:sources.join('\n'),shortCircuit:true};}
+  });const source=sources.join('\n');try{execFileSync(process.execPath,['--check','--input-type=module'],{input:source,stdio:['pipe','pipe','pipe']});}catch(err){throw new Error('Shim '+url+'\n'+err.stderr);}return {format:'module',source,shortCircuit:true};}
  });
  try{
   await import('../app.js');
