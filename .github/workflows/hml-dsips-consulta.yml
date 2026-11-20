@@ -121,6 +121,18 @@ jobs:
           print('CANDIDATO:', cand)
           print('FALHAS PRESENTES ANTES:', sorted(falhas_base.elements()))
           print('FALHAS PERSISTENTES:', sorted((falhas_base & falhas_cand).elements()))
+          # QA-01: diagnóstico mínimo sem reproduzir dumps de código.
+          relatorio = Path(sys.argv[2]).read_text()
+          blocos = re.split(r'(?m)^not ok \d+ - ', relatorio)[1:]
+          for bloco in blocos:
+              linhas = bloco.splitlines()
+              nome = linhas[0]
+              corpo = '\n'.join(linhas[1:]).split('\n  ...',1)[0]
+              local = re.search(r"(?m)^  location: (.+)$", corpo)
+              tipo = re.search(r"(?m)^  failureType: (.+)$", corpo)
+              codigo = re.search(r"(?m)^  code: (.+)$", corpo)
+              erro = re.search(r"(?m)^    (?:The input did not match the regular expression|Cannot find |ENOENT:|Error:|Expected values|The expression evaluated)[^\n]*", corpo)
+              print('QA DIAGNOSTICO:', nome, '|', local.group(1) if local else '', '|', tipo.group(1) if tipo else '', '|', codigo.group(1) if codigo else '', '|', erro.group(0).strip()[:240] if erro else '')
           novas = falhas_cand - falhas_base
           print('NOVAS FALHAS:', sorted(novas.elements()))
           print('FALHAS RESOLVIDAS:', sorted((falhas_base - falhas_cand).elements()))
