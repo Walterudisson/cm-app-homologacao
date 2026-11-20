@@ -15,8 +15,8 @@ export const aguardar=async()=>{for(let i=0;i<8;i++)await new Promise(resolve=>s
 export function ambiente(perfil='admin'){
   const dom=new JSDOM(html,{url:'https://teste.invalid/'});
   const d=dom.window.document;dom.window.HTMLElement.prototype.scrollIntoView=function(){};
-  const anteriores={document:globalThis.document,Option:globalThis.Option,window:globalThis.window,sessionStorage:globalThis.sessionStorage};
-  Object.assign(globalThis,{document:d,Option:dom.window.Option,window:dom.window,sessionStorage:dom.window.sessionStorage});
+  const anteriores={document:globalThis.document,Option:globalThis.Option,window:globalThis.window,Event:globalThis.Event,sessionStorage:globalThis.sessionStorage};
+  Object.assign(globalThis,{document:d,Option:dom.window.Option,window:dom.window,Event:dom.window.Event,sessionStorage:dom.window.sessionStorage});
   const usuario={uid:'teste',perfil,modulos:['dsips'],nome:'Operador Teste'};
   const estado={categorias:[{id:'cat',nome:'Categoria',ativo:true}],locais:[{id:'local',nome:'Depósito',ativo:true}],responsaveis:[{id:'p',nome:'Pessoa Teste',matricula:'123',ativo:true}],materiais:[{id:'m',nome:'Quantidade',categoriaId:'cat',unidade:'un',controle:'quantidade',ativo:true},{id:'i',nome:'Individual',categoriaId:'cat',unidade:'un',controle:'individualizado',ativo:true}],estoque:[{materialId:'m',localId:'local',total:10,disponivel:10,emCautela:0},{materialId:'i',localId:'local',total:2,disponivel:2,emCautela:0}],cautelas:[]};
   const chamadas=[],avisos=[],consultas=[],confirmacoes=[];
