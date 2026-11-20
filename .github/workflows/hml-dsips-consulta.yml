@@ -6,6 +6,7 @@ on:
       - 'index.html'
       - 'recuperar.html'
       - 'homologacao/**'
+      - 'propostas/gabinete/**'
       - 'js/platform/acesso-sessao.js'
       - 'app.css'
       - 'js/modules/dsips/consulta-materiais*'
@@ -89,7 +90,7 @@ jobs:
           node --check js/modules/dsips/historico-ui.js
           node --input-type=module --check < js/modules/dsips/service.js
       - name: Executar testes da sprint
-        run: node --test tests/hml-dsips-consulta.test.mjs tests/hml-dsips-mobile-layout.test.mjs tests/hml-dsips-cadastro-materiais.test.mjs tests/hml-dsips-visual-materiais.test.mjs tests/hml-dsips-cadastros.test.mjs tests/hml-dsips-estoque.test.mjs tests/hml-dsips-registro-cautelas.test.mjs tests/hml-dsips-devolucoes.test.mjs tests/hml-dsips-posse.test.mjs tests/hml-dsips-historico.test.mjs tests/hml-dsips-ajustes.test.mjs tests/hml-ux-central.test.mjs tests/hml-ux-painel.test.mjs tests/hml-ux-pdv.test.mjs tests/hml-ux-gestao.test.mjs tests/hml-ux-patrimonio.test.mjs tests/hml-ux-polimento.test.mjs tests/hml-ux-fila.test.mjs tests/hml-ux-pdv-refino.test.mjs tests/hml-ux-cadastros-unificados.test.mjs tests/hml-ux-timeline.test.mjs tests/hml-ux-auditoria.test.mjs tests/hml-perf-autocomplete.test.mjs tests/hml-ux-cautelas-kpi.test.mjs tests/hml-bi-dsips.test.mjs tests/hml-perf-selects.test.mjs tests/hml-perf-paginacao.test.mjs tests/hml-perf-cache.test.mjs tests/hml-qa-acesso.test.mjs tests/hml-qa-pwa.test.mjs tests/cautelas-ui.test.mjs tests/dsips-ui.test.mjs tests/proposta-acessos.test.mjs tests/hml-qa-integrada.test.mjs tests/hml-login-bootstrap.test.mjs tests/hml-pwa-recuperacao.test.mjs tests/hml-pwa-watchdog.test.mjs tests/hml-dsips-piloto.test.mjs tests/hml-entrada-unica-v2.test.mjs
+        run: node --test tests/hml-dsips-consulta.test.mjs tests/hml-dsips-mobile-layout.test.mjs tests/hml-dsips-cadastro-materiais.test.mjs tests/hml-dsips-visual-materiais.test.mjs tests/hml-dsips-cadastros.test.mjs tests/hml-dsips-estoque.test.mjs tests/hml-dsips-registro-cautelas.test.mjs tests/hml-dsips-devolucoes.test.mjs tests/hml-dsips-posse.test.mjs tests/hml-dsips-historico.test.mjs tests/hml-dsips-ajustes.test.mjs tests/hml-ux-central.test.mjs tests/hml-ux-painel.test.mjs tests/hml-ux-pdv.test.mjs tests/hml-ux-gestao.test.mjs tests/hml-ux-patrimonio.test.mjs tests/hml-ux-polimento.test.mjs tests/hml-ux-fila.test.mjs tests/hml-ux-pdv-refino.test.mjs tests/hml-ux-cadastros-unificados.test.mjs tests/hml-ux-timeline.test.mjs tests/hml-ux-auditoria.test.mjs tests/hml-perf-autocomplete.test.mjs tests/hml-ux-cautelas-kpi.test.mjs tests/hml-bi-dsips.test.mjs tests/hml-perf-selects.test.mjs tests/hml-perf-paginacao.test.mjs tests/hml-perf-cache.test.mjs tests/hml-qa-acesso.test.mjs tests/hml-qa-pwa.test.mjs tests/cautelas-ui.test.mjs tests/dsips-ui.test.mjs tests/proposta-acessos.test.mjs tests/hml-qa-integrada.test.mjs tests/hml-login-bootstrap.test.mjs tests/hml-pwa-recuperacao.test.mjs tests/hml-pwa-watchdog.test.mjs tests/hml-dsips-piloto.test.mjs tests/hml-entrada-unica-v2.test.mjs tests/proposta-gabinete.test.mjs
       - name: Testar migração real do worker em Chromium
         run: |
           npm install --prefix tests --no-save --ignore-scripts --no-audit --no-fund --no-package-lock playwright-core@1.51.1
