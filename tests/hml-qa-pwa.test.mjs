@@ -75,7 +75,7 @@ test('resgate automático de cada shell defeituoso confirmado, sem clique nem li
   s.janela(escopo+'#perfil');s.janela(escopo+'index.html');s.janela(escopo+'homologacao/gestao-acessos/');s.janela('https://example.test/outra/');s.janela(escopo+'recuperar.html');
   await s.fire('install');assert.deepEqual(s.mensagens,['skip']);assert.equal(s.excluidos.length,0);
   await s.fire('activate');assert.deepEqual(s.mensagens,['skip','claim']);
-  assert.deepEqual(s.navegacoes,[escopo+'#perfil',escopo+'index.html']);
+  assert.deepEqual(s.navegacoes,[escopo+'?cmapp-recovery=v1.13.37-h.4-auto-recuperacao',escopo+'index.html?cmapp-recovery=v1.13.37-h.4-auto-recuperacao']);
   assert.ok(s.excluidos.includes(antigo));assert.ok(s.excluidos.includes('cmapp-runtime-'+versao));assert.ok(s.store.has('cmapp-shell-outra-aplicacao'));
   assert.equal(await (await s.pedir('./','document','navigate')).text(),'shell:'+escopo);
  }

@@ -134,7 +134,8 @@ self.addEventListener('activate', evento => {
         if(!ENTRADAS.has(url.href))continue;
         // Não aguardar a navegação dentro do activate: o fetch da nova página
         // pode depender da conclusão da própria ativação.
-        void janela.navigate(janela.url).catch(()=>{});
+        url.searchParams.set('cmapp-recovery',VERSAO);
+        void janela.navigate(url.href).catch(()=>{});
       }
     }
   })());
