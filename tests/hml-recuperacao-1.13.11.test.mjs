@@ -18,8 +18,9 @@ test('recuperacao preserva tela e funcionalidade do CMAPP HML 1.13.11-H',async()
 test('conta versionada nunca entra em fluxos de permissao legado',async()=>{
   const js=await readFile(new URL('../app.js',import.meta.url),'utf8');
   const marker=js.indexOf("Object.hasOwn(userDoc.data(), 'autorizacaoVersao')");
-  const redirect=js.indexOf("location.replace(new URL('./homologacao/gestao-acessos/'",marker);
+  const logout=js.indexOf('await signOut(auth)',marker);
   const legacy=js.indexOf('usuarioLogado = { uid: user.uid',marker);
-  const stop=js.indexOf('return;',redirect);
-  assert.ok(marker>0 && redirect>marker && stop>redirect && stop<legacy);
+  const stop=js.indexOf('return;',logout);
+  assert.ok(marker>0 && logout>marker && stop>logout && stop<legacy);
+  assert.doesNotMatch(js.slice(marker,legacy),/location\.replace/);
 });
