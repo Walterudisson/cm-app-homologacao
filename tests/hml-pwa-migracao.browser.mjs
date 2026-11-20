@@ -10,13 +10,13 @@ const antigo=execFileSync('git',['show','b3a1b485ed051a097340f8b018b3159290e0ce5
 const semCDN=s=>s.replace(/const DEPENDENCIAS_EXTERNAS = \[[\s\S]*?\];/,'const DEPENDENCIAS_EXTERNAS = [];');
 let atual=false;
 const escopo='/cm-app-homologacao/';
-const pagina=()=>'<html><body><h1 id="versao">'+(atual?'H.4':'H.1')+'</h1></body></html>';
+const pagina=()=>'<html><body><h1 id="versao">'+(atual?'H.5':'H.1')+'</h1></body></html>';
 const server=createServer((req,res)=>{
  const path=new URL(req.url,'http://localhost').pathname;
  res.setHeader('Cache-Control','no-store');
  if(path===escopo+'service-worker.js'){res.setHeader('Content-Type','text/javascript');res.end(semCDN(atual?novo:antigo));return;}
  if(path===escopo||path===escopo+'index.html'){res.setHeader('Content-Type','text/html');res.end(pagina());return;}
- if(path===escopo+'homologacao/gestao-acessos/'){res.setHeader('Content-Type','text/html');res.end('<h1>V2</h1>');return;}
+ if(path===escopo+'outra-rota/'){res.setHeader('Content-Type','text/html');res.end('<h1>V2</h1>');return;}
  if(path.endsWith('.js'))res.setHeader('Content-Type','text/javascript');
  if(path.endsWith('.css'))res.setHeader('Content-Type','text/css');
  res.end('');
@@ -34,20 +34,20 @@ try{
  await page.waitForFunction(()=>Boolean(navigator.serviceWorker.controller));
  await page.reload();
  assert.equal(await page.locator('#versao').textContent(),'H.1');
- const v2=await context.newPage();await v2.goto(entrada+'homologacao/gestao-acessos/');
- await v2.evaluate(()=>{window.marcadorV2='preservado';});
+ const v2=await context.newPage();await v2.goto(entrada+'outra-rota/');
+ await v2.evaluate(()=>{window.marcadorOutraRota='preservado';});
  await page.evaluate(()=>{localStorage.setItem('preferencia-teste','preservada');document.cookie='sessaoTeste=1; path=/cm-app-homologacao/';});
  atual=true;
  // Verificação do navegador iniciada explicitamente para tornar o teste determinístico.
  // Nenhum postMessage, aceite, recuperação do HTML antigo, limpeza ou reload manual.
  await page.evaluate(async()=>{const r=await navigator.serviceWorker.getRegistration();void r.update();});
- await page.waitForFunction(()=>document.querySelector('#versao')?.textContent==='H.4',{},{timeout:30000});
+ await page.waitForFunction(()=>document.querySelector('#versao')?.textContent==='H.5',{},{timeout:30000});
  assert.match(page.url(),/cmapp-recovery=/);
  assert.equal(await page.evaluate(()=>localStorage.getItem('preferencia-teste')),'preservada');
  assert.match(await page.evaluate(()=>document.cookie),/sessaoTeste=1/);
- assert.equal(await v2.evaluate(()=>window.marcadorV2),'preservado');
+ assert.equal(await v2.evaluate(()=>window.marcadorOutraRota),'preservado');
  const cachesApos=await page.evaluate(()=>caches.keys());
  assert.ok(!cachesApos.includes('cmapp-shell-v1.13.37-h.1-qa-integrada'));
- assert.ok(cachesApos.includes('cmapp-shell-v1.13.37-h.4-auto-recuperacao'));
- console.log('Chromium: migração H.1 → H.4 automática, reload somente legado, cookies e preferências preservados.');
+ assert.ok(cachesApos.includes('cmapp-shell-v1.13.37-h.5-san-01'));
+ console.log('Chromium: migração H.1 → H.5 automática, reload somente legado, cookies e preferências preservados.');
 }finally{await browser?.close();await new Promise(r=>server.close(r));}

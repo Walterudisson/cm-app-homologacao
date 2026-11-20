@@ -15,7 +15,7 @@ export function podeNavegarLegado(u,id){
 export function decidirMudancaAcesso(inicial,atual,{doCache=false}={}){
  if(doCache)return 'ignorar';
  if(!atual||atual.ativo===false)return 'encerrar';
- if(Object.hasOwn(atual,'autorizacaoVersao')&&atual.autorizacaoVersao!==2)return 'encerrar';
+ if(Object.hasOwn(atual,'autorizacaoVersao'))return 'encerrar';
  return assinaturaAcesso(inicial)===assinaturaAcesso(atual)?'manter':'reiniciar';
 }
 

@@ -21,7 +21,7 @@ Usar somente contas e registros de teste HML já autorizados. Não modificar per
 | INT-13 | Admin/gestor DSIPS | Devolução parcial e integral em sequência | Status e saldos coerentes; histórico preservado |
 | INT-14 | Conferente DSIPS | Consultar cautelas/posse; tentar operação e histórico | Somente consulta, sem gravar ou abrir auditoria |
 | INT-15 | Admin/gestor Gestão | Usuários, Divisões, Funções conforme perfil | Sem privilégios adicionais; gestor não acessa Funções |
-| INT-16 | Conta V2 existente, se houver | Entrada única, sair e retornar | Sem acesso a legado; sem criar/migrar contas |
+| INT-16 | SAN-01: piloto retirado | Abrir antigas URLs em HML | Interface experimental indisponível; nenhuma migração/criação de conta |
 | INT-17 | Duas contas de teste, se autorizado | Alterar acesso de conta teste enquanto aberta e restaurar | Recarga/encerramento após confirmação remota; sem dados antigos |
 | INT-18 | Android/desktop | Menu, botão Voltar, teclado, toast, tema disponível | Sem sobreposição, layout utilizável, sem perda indevida de navegação |
 | INT-19 | PWA | Desconectar e reconectar sem operação em curso | Feedback offline, nova validação de acesso; sem promessa de uso offline |
