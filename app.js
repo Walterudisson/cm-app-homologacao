@@ -67,7 +67,7 @@
     import {renderizarCentral, podeAbrirCentral} from './js/ui/central-trabalho.js?v=1.13.23-h.1';
     import {modulosDoUsuario} from './js/platform/modules.js';
 
-    import {criarPainelDsips} from './js/modules/dsips/painel-ui.js?v=1.13.30-h.2';
+    import {criarPainelDsips} from './js/modules/dsips/painel-ui.js?v=1.13.30-h.3';
     let usuarioLogado = null;
     let bancoPatrimonio = [];
     let bancoUsuarios = [];
@@ -165,7 +165,11 @@
     }
     const consultaMateriaisDsips = criarConsultaMateriaisDsips({ obterUsuario: () => usuarioLogado, notificar: notificarMensagem, abrirHistorico: abrirAuditoriaContextual });
     const cadastrosDsips = criarCadastrosDsips({ obterUsuario: () => usuarioLogado, notificar: notificarMensagem });
-    const painelDsips = criarPainelDsips({obterUsuario:()=>usuarioLogado,navegar:aba=>alternarAba(aba)});
+    const painelDsips = criarPainelDsips({obterUsuario:()=>usuarioLogado,navegar:async (aba,contexto)=>{
+      const uid=usuarioLogado?.uid;
+      await alternarAba(aba);
+      if(contexto==='categoria'&&uid===usuarioLogado?.uid&&abaAtual==='dsips-cadastros'&&podeConsultarMateriaisDsips(usuarioLogado))cadastrosDsips.mudarTipo('categoria');
+    }});
     const estoqueDsips = criarEstoqueDsips({ obterUsuario: () => usuarioLogado, confirmar: confirmarAcao, notificar: notificarMensagem, abrirHistorico: abrirAuditoriaContextual });
     const cautelasDsips = criarRegistroCautelasDsips({ obterUsuario: () => usuarioLogado, confirmar: confirmarAcao, notificar: notificarMensagem });
     const posseDsips = criarPosseDsips({ obterUsuario: () => usuarioLogado, abrirHistorico: abrirAuditoriaContextual, iniciarDevolucao: async id => {
