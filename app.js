@@ -67,13 +67,13 @@
 
     import {renderizarCentral, podeAbrirCentral} from './js/ui/central-trabalho.js?v=1.13.38-h.4';
     import {modulosDoUsuario} from './js/platform/modules.js';
-    import {criarAgendaGabinete} from './js/modules/gabinete/agenda-ui.js?v=1.13.42-h.1';
-    import {criarAniversariantesGabinete} from './js/modules/gabinete/aniversarios-ui.js?v=1.13.42-h.1';
-import {criarCadastroGabineteEmMemoria} from './js/modules/gabinete/cadastro-model.js?v=1.13.42-h.1';
-import {criarOrgaosGabineteEmMemoria} from './js/modules/gabinete/orgaos-model.js?v=1.13.42-h.1';
-import {criarOrgaosGabineteUI} from './js/modules/gabinete/orgaos-ui.js?v=1.13.42-h.1';
-import {criarDiretorioGabinete} from './js/modules/gabinete/diretorio-referencias.js?v=1.13.42-h.1';
-import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.13.42-h.1';
+    import {criarAgendaGabinete} from './js/modules/gabinete/agenda-ui.js?v=1.13.43-h.1';
+    import {criarAniversariantesGabinete} from './js/modules/gabinete/aniversarios-ui.js?v=1.13.43-h.1';
+import {criarCadastroGabineteEmMemoria} from './js/modules/gabinete/cadastro-model.js?v=1.13.43-h.1';
+import {criarOrgaosGabineteEmMemoria} from './js/modules/gabinete/orgaos-model.js?v=1.13.43-h.1';
+import {criarOrgaosGabineteUI} from './js/modules/gabinete/orgaos-ui.js?v=1.13.43-h.1';
+import {criarDiretorioGabinete} from './js/modules/gabinete/diretorio-referencias.js?v=1.13.43-h.1';
+import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.13.43-h.1';
     import {podeNavegarLegado,decidirMudancaAcesso,sincronizarMenuAutorizado} from './js/platform/acesso-sessao.js?v=1.13.37-h.5';
 
     import {criarPainelDsips} from './js/modules/dsips/painel-ui.js?v=1.13.34-h.1';
@@ -1776,10 +1776,10 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
           const uidConsulta=usuarioLogado.uid;
           try{
             const divisoes=await listarDivisoes();
-            if(uidConsulta!==usuarioLogado?.uid||epoca!==epocaAcesso)return;
+            if(uidConsulta!==usuarioLogado?.uid||epoca!==epocaAcesso||abaAtual!==abaAtiva)return;
             cadastroGabineteEmMemoria.definirDivisoes(divisoes.filter(d=>d.ativo!==false).map(d=>({id:d.id,nome:d.nome})));
           }catch(_){notificarMensagem('Divisões indisponíveis; nesta sessão há apenas as referências fictícias.','aviso');}
-          if(uidConsulta!==usuarioLogado?.uid||epoca!==epocaAcesso)return;
+          if(uidConsulta!==usuarioLogado?.uid||epoca!==epocaAcesso||abaAtual!==abaAtiva)return;
           cadastrosGabinete.atualizarOpcoesVinculo();
           cadastrosGabinete.renderizar();
           orgaosGabineteUI.renderizar();
