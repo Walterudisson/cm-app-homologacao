@@ -1,8 +1,7 @@
-import {CONTATOS_DEMONSTRACAO} from './agenda-model.js';
 import {dataLocalHoje,listarAniversariantes,normalizarPreferencias,PREFERENCIAS_PADRAO} from './aniversarios-model.js';
 
 // GAB-06: prévia local, sem push, agendamentos, listeners externos ou Firebase.
-export function criarAniversariantesGabinete({obterUsuario,podeConsultar,abrirContato,notificar,hoje=()=>dataLocalHoje()}){
+export function criarAniversariantesGabinete({obterUsuario,podeConsultar,abrirContato,notificar,armazenamento,hoje=()=>dataLocalHoje()}){
   const painel=document.getElementById('gabinete-aniversarios');
   const lista=document.getElementById('gabinete-aniversarios-lista');
   const vazio=document.getElementById('gabinete-aniversarios-vazio');
@@ -13,7 +12,6 @@ export function criarAniversariantesGabinete({obterUsuario,podeConsultar,abrirCo
   const seletor=document.getElementById('gabinete-aniversarios-periodo');
   const avisos=document.getElementById('gabinete-aniversarios-avisos');
   const observacao=document.getElementById('gabinete-aniversarios-local');
-  const dados=CONTATOS_DEMONSTRACAO;
   let uidAtual='',preferencias={...PREFERENCIAS_PADRAO},inicializado=false;
   const autorizado=()=>Boolean(obterUsuario()?.uid&&podeConsultar());
   const chave=uid=>'cmapp-gab06-aniversarios-demo-'+uid;
@@ -49,6 +47,7 @@ export function criarAniversariantesGabinete({obterUsuario,podeConsultar,abrirCo
     }
     avisos.checked=preferencias.exibirPainel;
     seletor.value=preferencias.periodo;
+    const dados=armazenamento.listar();
     const ativos=preferencias.exibirPainel;
     totalHoje.textContent=ativos?String(listarAniversariantes(dados,{hoje:hoje(),periodo:'hoje'}).length):'—';
     totalSemana.textContent=ativos?String(listarAniversariantes(dados,{hoje:hoje(),periodo:'7'}).length):'—';
