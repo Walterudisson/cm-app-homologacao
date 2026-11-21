@@ -1,0 +1,34 @@
+name: CMAPP HML | QA Gestão
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cmapp-gestao-qa-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gestao-integrada:
+    name: Gestão | Node 22 e regressões
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Obter código do HML
+        uses: actions/checkout@v4
+      - name: Preparar Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Instalar apenas dependências de teste (sem scripts)
+        run: npm install --no-package-lock --ignore-scripts --no-audit --no-fund
+      - name: Verificar parsing do bootstrap
+        run: npm run check:bootstrap
+      - name: Executar regressões GEST-01 a GEST-05
+        run: npm run test:gestao
