@@ -7,7 +7,7 @@ export function criarCadastroGabineteUI({armazenamento,obterUsuario,podeGerencia
   const secao=document.getElementById('sec-gabinete-cadastros');
   const novo=document.getElementById('gab-cad-novo');
   const termo=document.getElementById('gab-cad-busca');
-  const tipoFiltro=document.getElementById('gab-cad-tipo');
+  const tipoFiltro=document.getElementById('gab-cad-filtro-tipo');
   const estadoFiltro=document.getElementById('gab-cad-estado');
   const lista=document.getElementById('gab-cad-lista');
   const vazio=document.getElementById('gab-cad-vazio');
