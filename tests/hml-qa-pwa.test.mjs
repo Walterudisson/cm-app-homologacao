@@ -36,7 +36,7 @@ test('shell ativo serve HTML e scripts versionados do mesmo snapshot sem recorre
   const s=simular();await s.fire('install');s.rede.length=0;
   await s.cache('cmapp-shell-antigo').put(escopo+'app.js',new Response('antigo'));
   assert.equal(await (await s.pedir('./','document','navigate')).text(),'shell:'+escopo);
-  assert.equal(await (await s.pedir('app.js?v=1.13.37-h.5')).text(),'shell:'+escopo+'app.js');
+  assert.equal(await (await s.pedir('app.js?v=1.13.38-h.1')).text(),'shell:'+escopo+'app.js');
   assert.equal(s.rede.length,0);
   await s.fire('activate');assert.ok(s.excluidos.includes('cmapp-shell-antigo'));
   assert.deepEqual(s.mensagens,['claim']);
@@ -75,7 +75,7 @@ test('resgate automático de cada shell defeituoso confirmado, sem clique nem li
   s.janela(escopo+'#perfil');s.janela(escopo+'index.html');s.janela(escopo+'outra-rota/');s.janela('https://example.test/outra/');s.janela(escopo+'recuperar.html');
   await s.fire('install');assert.deepEqual(s.mensagens,['skip']);assert.equal(s.excluidos.length,0);
   await s.fire('activate');assert.deepEqual(s.mensagens,['skip','claim']);
-  assert.deepEqual(s.navegacoes,[escopo+'?cmapp-recovery=v1.13.37-h.5-san-01',escopo+'index.html?cmapp-recovery=v1.13.37-h.5-san-01']);
+  assert.deepEqual(s.navegacoes,[escopo+'?cmapp-recovery=v1.13.38-h.1-gabinete',escopo+'index.html?cmapp-recovery=v1.13.38-h.1-gabinete']);
   assert.ok(s.excluidos.includes(antigo));assert.ok(s.excluidos.includes('cmapp-runtime-'+versao));assert.ok(s.store.has('cmapp-shell-outra-aplicacao'));
   assert.equal(await (await s.pedir('./','document','navigate')).text(),'shell:'+escopo);
  }
@@ -90,7 +90,7 @@ test('release saudável não é forçada; shell de outro escopo não autoriza em
 test('instalação incompleta nunca força ativação nem remove cache antigo',async()=>{
  const s=simular(),antigo='cmapp-shell-v1.13.37-h.1-qa-integrada';
  await s.cache(antigo).put(escopo+'index.html',new Response('antigo'));
- const open=s.ctx.caches.open;s.ctx.caches.open=async nome=>{const c=await open(nome);if(nome.includes('h.5'))c.addAll=async()=>{throw Error('download falhou');};return c;};
+ const open=s.ctx.caches.open;s.ctx.caches.open=async nome=>{const c=await open(nome);if(nome==='cmapp-shell-v1.13.38-h.1-gabinete')c.addAll=async()=>{throw Error('download falhou');};return c;};
  await assert.rejects(s.fire('install'),/download falhou/);assert.deepEqual(s.mensagens,[]);assert.ok(s.store.has(antigo));assert.equal(s.excluidos.length,0);
 });
 

@@ -53,7 +53,7 @@
       fecharCamadasNavegacao,
       fecharNavegacaoMovel,
       inicializarNavegacao
-    } from "./js/ui/navigation.js?v=1.13.27-h.1";
+    } from "./js/ui/navigation.js?v=1.13.38-h.1";
     import { inicializarPwa } from "./js/pwa.js?v=1.13.36-h.1";
     import { podeConsultarMateriaisDsips } from "./js/modules/dsips/consulta-materiais-model.js?v=1.13.13-h.3";
     import {invalidarCacheDsips} from './js/modules/dsips/service.js?v=1.13.34-h.1';
@@ -1543,6 +1543,34 @@
       await alternarAba('dsips-cadastros');
       if(uid===usuarioLogado?.uid&&abaAtual==='dsips-cadastros')cadastrosDsips.mudarTipo(tipo);
     }));
+    const buscaRamal = document.getElementById('gabinete-busca-ramal');
+    const listaRamais = document.getElementById('gabinete-lista-ramais');
+    const normalizarRamal = texto => texto.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase().trim();
+
+    function filtrarRamais() {
+      const termo = normalizarRamal(buscaRamal.value);
+      let encontrou = false;
+      for (const ramal of listaRamais.children) {
+        const visivel = normalizarRamal(ramal.firstElementChild.textContent).includes(termo);
+        ramal.classList.toggle('hidden', !visivel);
+        encontrou ||= visivel;
+      }
+      document.getElementById('gabinete-sem-ramais').classList.toggle('hidden', encontrou);
+    }
+
+    buscaRamal.addEventListener('input', filtrarRamais);
+    listaRamais.addEventListener('click', async evento => {
+      const botao = evento.target.closest('[data-copiar-ramal]');
+      if (!botao || !podeNavegarLegado(usuarioLogado, 'gabinete-ramais')) return;
+      const ramal = botao.dataset.copiarRamal;
+      try {
+        await navigator.clipboard.writeText(ramal);
+        notificarMensagem(`Ramal ${ramal} copiado.`, 'sucesso');
+      } catch {
+        notificarMensagem(`A cópia automática está indisponível. Ramal ${ramal}.`, 'aviso');
+      }
+    });
+
     async function alternarAba(abaAtiva, { registrarHistorico = true, substituirHistorico = false } = {}) {
       if (!usuarioLogado) return;
       if (!podeNavegarLegado(usuarioLogado,abaAtiva)) {notificarMensagem('Você não possui acesso a esta tela.','aviso');return;}
@@ -1580,7 +1608,7 @@
       }
       if(epoca!==epocaAcesso||!podeNavegarLegado(usuarioLogado,abaAtiva)||abaAtual!==abaAtiva)return;
 
-      ['modulos', 'dashboard', 'scanner', 'transferencias', 'usuarios', 'divisoes', 'funcoes', 'inventarios', 'lista', 'perfil', 'dsips-inicio', 'dsips-materiais', 'dsips-cadastros', 'dsips-estoque', 'dsips-cautelas', 'dsips-posse', 'dsips-historico'].forEach(aba => {
+      ['modulos', 'dashboard', 'scanner', 'transferencias', 'usuarios', 'divisoes', 'funcoes', 'inventarios', 'lista', 'perfil', 'dsips-inicio', 'dsips-materiais', 'dsips-cadastros', 'dsips-estoque', 'dsips-cautelas', 'dsips-posse', 'dsips-historico', 'gabinete-ramais'].forEach(aba => {
         const sec = document.getElementById(`sec-${aba}`);
         if (sec) sec.classList.toggle('hidden', aba !== abaAtiva);
       });
