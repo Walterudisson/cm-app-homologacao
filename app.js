@@ -29,10 +29,10 @@
     import { criarControladorCamera } from "./js/controllers/camera.controller.js?v=1.12.0";
     import { atualizarDivisao, criarDivisao, listarDivisoes, listarDivisoesAtivas } from "./js/services/divisoes.service.js?v=1.13.10";
     import { CATALOGO_PERMISSOES, FUNCOES_NATIVAS, PERMISSOES, usuarioPode } from "./js/core/permissoes.js?v=1.13.11";
-    import { criarMatrizAcessosGestaoUI } from "./js/modules/gestao/matriz-acessos-ui.js?v=1.13.45-h.1";
+    import { criarMatrizAcessosGestaoUI } from "./js/modules/gestao/matriz-acessos-ui.js?v=1.13.46-h.1";
     import { analisarImpactoFuncao,prepararPermissoesFuncao,permissoesDesconhecidas,
       resumoImpactoFuncao,mensagemConfirmacaoFuncao,descreverPermissaoLegada
-    } from "./js/modules/gestao/funcoes-impacto-model.js?v=1.13.45-h.1";
+    } from "./js/modules/gestao/funcoes-impacto-model.js?v=1.13.46-h.1";
     import { alterarEstadoFuncao, atualizarFuncao, criarFuncao, listarFuncoesPersonalizadas } from "./js/services/funcoes.service.js?v=1.13.11";
     import {
       consultarCicloDivisao, encerrarDivisao, reabrirDivisao,
@@ -71,13 +71,15 @@
 
     import {renderizarCentral, podeAbrirCentral} from './js/ui/central-trabalho.js?v=1.13.38-h.4';
     import {modulosDoUsuario} from './js/platform/modules.js';
-    import {criarAgendaGabinete} from './js/modules/gabinete/agenda-ui.js?v=1.13.45-h.1';
-    import {criarAniversariantesGabinete} from './js/modules/gabinete/aniversarios-ui.js?v=1.13.45-h.1';
-import {criarCadastroGabineteEmMemoria} from './js/modules/gabinete/cadastro-model.js?v=1.13.45-h.1';
-import {criarOrgaosGabineteEmMemoria} from './js/modules/gabinete/orgaos-model.js?v=1.13.45-h.1';
-import {criarOrgaosGabineteUI} from './js/modules/gabinete/orgaos-ui.js?v=1.13.45-h.1';
-import {criarDiretorioGabinete} from './js/modules/gabinete/diretorio-referencias.js?v=1.13.45-h.1';
-import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.13.45-h.1';
+    import {resumirVinculoUsuario,resumirPreviaAtribuicao,filtrarUsuariosPorFuncao}
+      from './js/modules/gestao/usuarios-acessos-model.js?v=1.13.46-h.1';
+    import {criarAgendaGabinete} from './js/modules/gabinete/agenda-ui.js?v=1.13.46-h.1';
+    import {criarAniversariantesGabinete} from './js/modules/gabinete/aniversarios-ui.js?v=1.13.46-h.1';
+import {criarCadastroGabineteEmMemoria} from './js/modules/gabinete/cadastro-model.js?v=1.13.46-h.1';
+import {criarOrgaosGabineteEmMemoria} from './js/modules/gabinete/orgaos-model.js?v=1.13.46-h.1';
+import {criarOrgaosGabineteUI} from './js/modules/gabinete/orgaos-ui.js?v=1.13.46-h.1';
+import {criarDiretorioGabinete} from './js/modules/gabinete/diretorio-referencias.js?v=1.13.46-h.1';
+import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.13.46-h.1';
     import {podeNavegarLegado,decidirMudancaAcesso,sincronizarMenuAutorizado} from './js/platform/acesso-sessao.js?v=1.13.37-h.5';
 
     import {criarPainelDsips} from './js/modules/dsips/painel-ui.js?v=1.13.34-h.1';
@@ -2555,6 +2557,68 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
       }
     }
 
+    // GEST-03: Projeção de acesso, não autorizador. Não altera payload de cadastro.
+    function atualizarPreviaAcessoUsuario(tipo){
+      const criacao=tipo==='cad';
+      const prefixo=criacao?'cad':'edit';
+      const seletorPerfil=document.getElementById(prefixo+'-perfil');
+      const seletorFuncao=document.getElementById(prefixo+'-funcao');
+      const descricao=document.getElementById('gest-previa-'+(criacao?'cadastro':'edicao'));
+      const avisos=document.getElementById('gest-previa-'+(criacao?'cadastro':'edicao')+'-avisos');
+      if(!seletorPerfil||!seletorFuncao||!descricao||!avisos)return;
+      const divisoes=[...document.querySelectorAll('input[name="'+(criacao?'divisao-check':'edit-divisao-check')+'"]:checked')]
+        .map(input=>input.value);
+      const previa=resumirPreviaAtribuicao({
+        perfil:seletorPerfil.value,funcaoId:seletorFuncao.value,
+        divisoesAtribuidas:divisoes,funcoes:bancoFuncoes
+      });
+      if(!previa)return;
+      descricao.textContent='Perfil-base: '+previa.perfilRotulo+
+        ' · Função: '+previa.funcaoRotulo+
+        ' · Divisões: '+previa.divisaoResumo;
+      avisos.replaceChildren();
+      for(const texto of previa.avisos){
+        const li=document.createElement('li');li.textContent=texto;
+        avisos.append(li);
+      }
+    }
+    function preencherPainelVinculoUsuario(usuario){
+      const resumo=resumirVinculoUsuario(usuario,{
+        funcoes:bancoFuncoes,modulos:modulosDoUsuario(usuario)
+      });
+      if(!resumo)return;
+      const funcao=document.getElementById('gest-detalhes-funcao-vinculo');
+      const situacao=document.getElementById('gest-detalhes-funcao-situacao');
+      const modulos=document.getElementById('gest-detalhes-modulos');
+      const permissoes=document.getElementById('gest-detalhes-permissoes');
+      const aviso=document.getElementById('gest-detalhes-aviso');
+      if(!funcao||!situacao||!modulos||!permissoes||!aviso)return;
+      funcao.textContent=resumo.funcaoRotulo;
+      situacao.textContent={
+        nativa:'Somente perfil-base',cadastrada:'Função cadastrada',
+        inativa:'Função cadastrada, mas inativa',
+        'nao-verificada':'Vínculo registrado; catálogo não verificado'
+      }[resumo.funcaoSituacao]||'Não verificada';
+      const chip=(alvo,texto,classe='')=>{
+        const span=document.createElement('span');span.className='gest-usuario-chip '+classe;
+        span.textContent=texto;alvo.append(span);
+      };
+      modulos.replaceChildren();permissoes.replaceChildren();
+      if(resumo.modulosNavegacao.length){
+        for(const modulo of resumo.modulosNavegacao)chip(modulos,modulo);
+      }else chip(modulos,'Nenhum módulo indicado pela navegação','restrito');
+      if(resumo.permissoesDeclaradas.length){
+        for(const permissao of resumo.permissoesDeclaradas)
+          chip(permissoes,permissao.rotulo,permissao.origem==='adicional'?'adicional':'');
+      }else chip(permissoes,'Nenhuma chave reconhecida no catálogo legado','restrito');
+      const notas=[resumo.nota];
+      if(resumo.chavesDesconhecidas.length)
+        notas.push(resumo.chavesDesconhecidas.length+' chave(s) adicional(is) antigas não reconhecidas no catálogo atual.');
+      if(!resumo.ativo)notas.push('Conta desativada: nenhum acesso deve ser presumido.');
+      if(resumo.funcaoSituacao==='inativa')notas.push('Função vinculada encontra-se inativa.');
+      aviso.textContent=notas.join(' ');
+    }
+
     async function popularFuncoesUsuarios() {
       if (usuarioLogado?.perfil !== 'admin') return;
       if (!funcoesCarregadas) {
@@ -2585,10 +2649,13 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
     document.getElementById('cad-perfil')?.addEventListener('change', atualizarDivisoesCadastro);
     document.getElementById('cad-funcao')?.addEventListener('change', () => aplicarFuncaoAoPerfil('cad-funcao', 'cad-perfil'));
     document.getElementById('edit-funcao')?.addEventListener('change', () => aplicarFuncaoAoPerfil('edit-funcao', 'edit-perfil'));
+    document.getElementById('form-cad-usuario')?.addEventListener('change',()=>atualizarPreviaAcessoUsuario('cad'));
+    document.getElementById('form-editar-usuario')?.addEventListener('change',()=>atualizarPreviaAcessoUsuario('edit'));
 
     window.abrirModalCriacaoUsuario = async function() {
       await popularFuncoesUsuarios();
       atualizarDivisoesCadastro();
+      atualizarPreviaAcessoUsuario('cad');
       abrirModalHistorico('modal-criacao-usuario', 'criacao-usuario');
     }
 
@@ -2738,7 +2805,8 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
         return false;
       });
 
-      const usuariosFinais = usuariosFiltradosPorPermissao.filter(u => {
+      const filtroFuncao=document.getElementById('filtro-funcao-usuarios')?.value||'todos';
+      const usuariosFinais = filtrarUsuariosPorFuncao(usuariosFiltradosPorPermissao,filtroFuncao).filter(u => {
         const nomeMatch = (u.nome || "").toLowerCase().includes(termoBusca);
         const emailMatch = (u.email || "").toLowerCase().includes(termoBusca);
         const statusMatch = filtroStatusUsuarios === 'todos'
@@ -2778,7 +2846,7 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
         return `<article class="user-row ${ativo ? '' : 'is-inactive'}" role="button" tabindex="0" data-user-details="${escaparHtml(u.uid)}" aria-label="Abrir detalhes de ${escaparHtml(u.nome)}">
           <div class="user-identity"><span class="user-avatar" data-user-avatar="${escaparHtml(u.uid)}">${escaparHtml(iniciaisUsuario(u.nome))}</span><div><strong>${escaparHtml(u.nome)}</strong><small>${escaparHtml(u.email)}</small></div></div>
           <div data-label="Perfil"><span class="user-role role-${u.perfil}">${escaparHtml(u.funcaoNome || rotuloPerfil[u.perfil] || u.perfil)}</span></div>
-          <div data-label="Divisões" class="user-divisions">${u.perfil === 'conferente' ? escaparHtml(divisoes.join(', ') || 'Nenhuma') : 'Acesso global'}</div>
+          <div data-label="Divisões" class="user-divisions">${u.perfil === 'conferente' ? escaparHtml(divisoes.join(', ') || 'Nenhuma') : 'Por perfil / módulo'}</div>
           <div data-label="Status"><span class="user-status ${ativo ? 'active' : 'inactive'}">${ativo ? 'Ativo' : 'Inativo'}</span></div>
           <div data-label="Cadastro" class="user-date">${formatarDataUsuario(u.criadoEm)}</div>
           <div data-label="Detalhes"><span class="user-open-details">Abrir perfil →</span></div>
@@ -2792,6 +2860,10 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
     }
 
     window.mudarPaginaUsuarios = deslocamento => { paginaUsuarios += deslocamento; renderizarListaUsuarios(); };
+
+    document.getElementById('filtro-funcao-usuarios')?.addEventListener('change',()=>{
+      paginaUsuarios=1;renderizarListaUsuarios();
+    });
 
     const filtroBuscaUsuarios = document.getElementById('filtro-busca-usuarios');
     const btnLimparBuscaUsuarios = document.getElementById('btn-limpar-busca-usuarios');
@@ -2870,7 +2942,8 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
       document.getElementById('detalhes-usuario-status').innerHTML = `<span class="user-status ${ativo ? 'active' : 'inactive'}">${ativo ? 'Ativo' : 'Inativo'}</span>`;
       document.getElementById('detalhes-usuario-divisoes').textContent = usuario.perfil === 'conferente'
         ? (divisoes.join(', ') || 'Nenhuma divisão atribuída')
-        : 'Acesso global';
+        : 'Abrangência por divisão não definida na navegação legada';
+      preencherPainelVinculoUsuario(usuario);
       document.getElementById('detalhes-usuario-cadastro').textContent = formatarDataUsuario(usuario.criadoEm);
       const acoes = document.getElementById('detalhes-usuario-acoes');
       acoes.innerHTML = usuarioLogado.perfil === 'admin'
@@ -2991,6 +3064,7 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
       });
 
       campoDivisoesEdit.classList.toggle('hidden', user.perfil !== 'conferente');
+      atualizarPreviaAcessoUsuario('edit');
 
       abrirModalHistorico('modal-edicao-usuario', 'edicao-usuario');
     }
