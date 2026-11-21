@@ -29,16 +29,30 @@ export function criarOrgaosGabineteUI({orgaos,contatos,obterUsuario,podeGerencia
  const botao=(texto,acao,classe='cm-gab-action')=>{const e=criar('button',classe,texto);e.type='button';e.addEventListener('click',acao);return e;};
  const abrir=d=>{if(typeof d.showModal==='function'){if(!d.open)d.showModal();}else d.setAttribute('open','');};
  const fecharDialogo=d=>{if(d.open&&typeof d.close==='function')d.close();else d.removeAttribute('open');};
+ const limparErros=()=>{
+   erro.hidden=true;erro.textContent='';
+   for(const input of Object.values(inputs)){
+     input.removeAttribute('aria-invalid');
+     input.removeAttribute('aria-describedby');
+   }
+ };
  const mensagemErro=e=>{
-   erro.hidden=false;erro.textContent=e.message||'Verifique os dados.';
-   const campo=inputs[e.campo];if(campo){campo.setAttribute('aria-invalid','true');campo.focus();}else erro.focus();
+   limparErros();
+   erro.hidden=false;
+   erro.textContent=e instanceof ErroOrgaoGabinete?e.message:'Não foi possível salvar o órgão. Confira os dados.';
+   const campo=inputs[e.campo];
+   if(campo){
+     campo.setAttribute('aria-invalid','true');
+     campo.setAttribute('aria-describedby','gab-org-erro');
+     campo.focus();
+   }else erro.focus();
  };
  function formulario(id=null){
    if(!permitido())return;
    const org=id?orgaos.obter(id):null;
    if(id&&!org?.ativo)return;
-   editando=org?.id||null;form.reset();erro.hidden=true;
-   for(const [campo,input] of Object.entries(inputs)){input.value=org?.[campo]||'';input.removeAttribute('aria-invalid');}
+   editando=org?.id||null;form.reset();limparErros();
+   for(const [campo,input] of Object.entries(inputs))input.value=org?.[campo]||'';
    titulo.textContent=org?'Editar órgão externo':'Novo órgão externo';
    abrir(dialogo);inputs.nome.focus();
  }
@@ -75,7 +89,7 @@ export function criarOrgaosGabineteUI({orgaos,contatos,obterUsuario,podeGerencia
      fecharDialogo(decisao);renderizar();notificar('Órgão atualizado nesta sessão.','sucesso');
    }catch(err){fecharDialogo(decisao);notificar(err.message||'Não foi possível concluir.','aviso');}
  }
- function card(org){
+ function card(org,contatosVinculados){
    const li=criar('li','cm-gab-cad-row');li.dataset.id=org.id;
    if(!org.ativo)li.dataset.inativo='true';
    const info=criar('div','cm-gab-cad-info');
@@ -86,7 +100,7 @@ export function criarOrgaosGabineteUI({orgaos,contatos,obterUsuario,podeGerencia
    const revisao=situacaoRevisaoGabinete(org.revisadoEm);
    const tag=criar('span','cm-gab-cad-badge',org.ativo?revisao.rotulo:'Arquivado');
    tag.dataset.estado=org.ativo?revisao.codigo:'excluido';
-   situacao.append(tag,criar('small','',quantidadeVinculos(org.id)+' contatos vinculados'));
+   situacao.append(tag,criar('small','',contatosVinculados+' contatos vinculados'));
    const acoes=criar('div','cm-gab-cad-actions');
    if(org.ativo)acoes.append(botao('Editar',()=>formulario(org.id)),botao('Revisar hoje',()=>perguntar(org.id,'revisar')),botao('Arquivar',()=>perguntar(org.id,'arquivar'),'cm-gab-action cm-gab-cad-danger'));
    else acoes.append(botao('Restaurar',()=>perguntar(org.id,'restaurar'),'cm-gab-action cm-gab-primary'));
@@ -101,12 +115,24 @@ export function criarOrgaosGabineteUI({orgaos,contatos,obterUsuario,podeGerencia
      if(filtro.value==='arquivados'?org.ativo:!org.ativo)return false;
      return normalizarBusca([org.nome,org.sigla,org.categoria,org.cidade,org.email].join(' ')).includes(q);
    }).sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));
-   for(const org of dados)lista.append(card(org));
+   // Uma única passagem sobre contatos, evitando N consultas a cada card de órgão.
+   const vinculos=new Map();
+   for(const contato of contatos.listar()){
+     if(contato.tipo==='externo'&&contato.orgaoId)
+       vinculos.set(contato.orgaoId,(vinculos.get(contato.orgaoId)||0)+1);
+   }
+   for(const org of dados)lista.append(card(org,vinculos.get(org.id)||0));
    total.textContent=dados.length===1?'1 órgão externo':dados.length+' órgãos externos';
    vazio.hidden=dados.length>0;
  }
- function fecharDialogs(){fecharDialogo(dialogo);fecharDialogo(decisao);}
- function limpar(){fecharDialogs();editando=null;pendente=null;buscar.value='';filtro.value='ativos';lista.replaceChildren();total.textContent='';}
+ function fecharDialogs(){
+   fecharDialogo(dialogo);fecharDialogo(decisao);
+   editando=null;pendente=null;limparErros();
+ }
+ function limpar(){
+   fecharDialogs();buscar.value='';filtro.value='ativos';
+   lista.replaceChildren();total.textContent='';vazio.hidden=true; 
+ }
  function inicializar(){
    if(inicializado)return;inicializado=true;
    novo.addEventListener('click',()=>formulario());
@@ -116,7 +142,7 @@ export function criarOrgaosGabineteUI({orgaos,contatos,obterUsuario,podeGerencia
    decisaoCancelar.addEventListener('click',()=>{pendente=null;fecharDialogo(decisao);});
    decisaoFechar.addEventListener('click',()=>{pendente=null;fecharDialogo(decisao);});
    decisaoExecutar.addEventListener('click',executar);
-   dialogo.addEventListener('close',()=>{editando=null;erro.hidden=true;});
+   dialogo.addEventListener('close',()=>{editando=null;limparErros();});
    decisao.addEventListener('close',()=>{pendente=null;});
  }
  return {inicializar,renderizar,limpar,fecharDialogs};
