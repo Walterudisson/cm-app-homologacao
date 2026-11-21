@@ -62,7 +62,7 @@ export function situacaoRevisaoGabinete(revisadoEm,hoje=dataLocalHoje()){
   const ultimo=dataCivil(revisadoEm);
   if(ultimo===null||ultimo>atual)return {codigo:'sem-revisao',dias:null,rotulo:'Sem revisão válida'};
   const dias=Math.round((atual-ultimo)/DIA);
-  if(dias>PRAZO_REVISAO_DIAS)return {codigo:'vencida',dias,rotulo:'Revisão vencida'};
+  if(dias>=PRAZO_REVISAO_DIAS)return {codigo:'vencida',dias,rotulo:'Revisão vencida'};
   if(dias>=75)return {codigo:'proxima',dias,rotulo:'Revisar em breve'};
   return {codigo:'em-dia',dias,rotulo:'Revisão em dia'};
 }
