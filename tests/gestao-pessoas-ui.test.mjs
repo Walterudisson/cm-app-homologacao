@@ -85,3 +85,29 @@ test('GEST-04 troca de sessão ou perda de autorização limpa todos os dados',(
     assert.equal(x.id('gest04-total-contas').textContent,'0');
   }finally{x.fechar();}
 });
+
+test('GEST-05 isolamento total: indicadores, referência agregada e abas são limpos no logout',()=>{
+  const x=montar();
+  try{
+    x.ui.atualizar({usuarios,divisoes});
+    assert.match(x.id('gest04-referencia').textContent,/sem pessoaId/);
+    x.dom.window.document.querySelector('[data-gest04-visao="pendencias"]').click();
+    x.negar();
+    assert.equal(x.id('gest04-total-contas').textContent,'0');
+    assert.equal(x.id('gest04-total-divisoes').textContent,'0');
+    assert.equal(x.id('gest04-lista').children.length,0);
+    assert.equal(x.id('gest04-referencia').textContent,'Nenhum vínculo institucional carregado nesta sessão.');
+    assert.equal(x.id('gest04-resumo').textContent,'Dados não carregados.');
+    assert.equal(x.dom.window.document.querySelector('[data-gest04-visao="pessoas"]').getAttribute('aria-pressed'),'true');
+    assert.equal(x.dom.window.document.querySelector('[data-gest04-visao="pendencias"]').getAttribute('aria-pressed'),'false');
+  }finally{x.fechar();}
+});
+
+test('GEST-05 nomes externos são renderizados como texto, jamais interpretados como HTML',()=>{
+  const x=montar();
+  try{
+    x.ui.atualizar({usuarios:[{uid:'uid-ficticio',nome:'<img src=x onerror=alert(1)>',ativo:true}],divisoes:[]});
+    assert.equal(x.id('gest04-lista').querySelectorAll('img').length,0);
+    assert.match(x.id('gest04-lista').textContent,/<img src=x onerror=alert\(1\)>/);
+  }finally{x.fechar();}
+});
