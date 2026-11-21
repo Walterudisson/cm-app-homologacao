@@ -119,12 +119,13 @@ export function criarCadastroGabineteUI({armazenamento,obterUsuario,podeGerencia
     if(!autorizado())return;
     limparErros();
     try{
+      const criando=!alterando;
       const registro=alterando?armazenamento.editar(alterando,entrada()):armazenamento.criar(entrada());
       fecharModal(dialogo);alterando=null;
       // Permite visualizar o registro recém-incluído apesar de filtros anteriores.
       termo.value='';tipoFiltro.value='';estadoFiltro.value='ativos';
       renderizar();
-      notificar(registro.id.startsWith('sessao-')?'Contato demonstrativo incluído.':'Contato demonstrativo atualizado.','sucesso');
+      notificar(criando?'Contato demonstrativo incluído.':'Contato demonstrativo atualizado.','sucesso');
     }catch(e){
       if(e instanceof ErroCadastroGabinete){msgErro(e.message,e.campo);return;}
       msgErro('Não foi possível salvar. Tente novamente.');
@@ -218,5 +219,6 @@ export function criarCadastroGabineteUI({armazenamento,obterUsuario,podeGerencia
       if(autorizado()&&!secao.classList.contains('hidden'))renderizar();
     });
   }
-  return {inicializar,renderizar,limpar,abrirEdicao:abrirFormulario};
+  function fecharDialogs(){fecharModal(dialogo);fecharModal(confirmacao);}
+  return {inicializar,renderizar,limpar,abrirEdicao:abrirFormulario,fecharDialogs};
 }
