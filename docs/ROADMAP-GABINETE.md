@@ -21,7 +21,14 @@
 | GAB-05 | Favoritos, ficha e ações rápidas |
 | GAB-06 | Aniversários, painéis e push configurável |
 | GAB-07 | Revisão cadastral e qualidade |
+| GAB-07.1 | Fonte cadastral única, órgãos externos, ramais, divisões e foto do perfil no card/ficha; integração inicial demonstrativa sem backend |
 | GAB-08 | PDF e vCard autorizados |
 | GAB-09 | Homologação integrada, segurança, desempenho |
 ## Gate
 GAB-00 é HTML independente, dados integralmente sintéticos, sem Firebase, acesso real, persistência ou integração operacional. Referência visual: identidade atual do CMAPP e padrões Users/Contacts; pacote original do template não inspecionado nesta entrega. Sem alterações no shell, backend, HML operacional ou PRD. Antes de GAB-01: homologar protótipo, validar SAN-01 em dispositivo real, revisar contrato atual de contas/Rules/Functions, confirmar mapeamentos e aprovar alterações específicas do backend. Não promover PRD.
+
+## Atualização de decisão (21/11/2026): identidade única e fotografia
+
+A GAB-07 de novembro é apenas um CRUD em memória para testes do frontend. A solução final **não** terá cadastros duplicados de uma pessoa em Agenda, DSIPS, RH ou Gestão. Usuários cadastrados compõem a Agenda, divisões são referenciadas do cadastro da Gestão, e responsáveis da DSIPS devem manter os identificadores atuais. O Gabinete será dono dos cadastros de órgãos externos, contatos externos e ramais. A fotografia já cadastrada pelo usuário em **Meu Perfil** deverá ser a mesma exibida no card e na ficha da Agenda, com fallback por iniciais e leitura autorizada. A integração da fotografia ainda não foi feita.
+
+Fonte normativa detalhada: [DP-GAB-UNICIDADE-CADASTRAL-FOTOS](./DP-GAB-UNICIDADE-CADASTRAL-FOTOS.md). Implementação de backend, privacidade, vinculação e migração depende de autorização específica após revisão das regras e funções implantadas. Nenhuma alteração de dados reais foi feita.
