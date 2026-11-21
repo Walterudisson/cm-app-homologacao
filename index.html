@@ -21,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.13.43-h.1">
+  <link rel="stylesheet" href="./app.css?v=1.13.44-h.1">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div id="cmapp-hml-banner" class="cmapp-hml-banner" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -58,7 +58,7 @@
       <p class="text-xs text-center"><a href="./recuperar.html" class="text-blue-400 underline">Problemas para entrar? Recuperar atualização</a></p>
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.43-H.1 • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.44-H.1 • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -190,7 +190,7 @@
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.13.43-H.1</span>
+        <span>v1.13.44-H.1</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -1276,19 +1276,51 @@
 
       <!-- GESTÃO DE FUNÇÕES E PERMISSÕES -->
       <section id="sec-funcoes" class="hidden space-y-5">
-        <div class="users-heading"><div><span class="eyebrow">Controle de acesso</span><h2>Funções e matriz de permissões</h2><p>Crie funções personalizadas e determine quais operações cada uma pode executar.</p></div><button id="btn-nova-funcao" type="button" class="users-primary-action"><span>＋</span> Nova função</button></div>
+        <div class="users-heading"><div><span class="eyebrow">Controle de acesso</span><h2>Funções e matriz de permissões</h2><p>Consulte as granularidades propostas e gerencie o catálogo legado de funções sem confundir configuração com autorização efetiva.</p></div><button id="btn-nova-funcao" type="button" class="users-primary-action"><span>＋</span> Nova função</button></div>
         <div class="users-stats" aria-label="Resumo das funções">
           <button type="button" class="is-selected" data-functions-card="todas" aria-pressed="true"><span class="users-stat-icon stat-blue">◎</span><div><strong id="funcoes-total">0</strong><small>Total de funções</small></div></button>
           <button type="button" data-functions-card="ativas" aria-pressed="false"><span class="users-stat-icon stat-green">✓</span><div><strong id="funcoes-ativas">0</strong><small>Ativas</small></div></button>
           <button type="button" data-functions-card="inativas" aria-pressed="false"><span class="users-stat-icon stat-red">—</span><div><strong id="funcoes-inativas">0</strong><small>Inativas</small></div></button>
           <button type="button" data-functions-card="nativas" aria-pressed="false"><span class="users-stat-icon stat-amber">◆</span><div><strong id="funcoes-nativas">3</strong><small>Funções nativas</small></div></button>
         </div>
+        <section id="gest-matriz-contrato" class="gest-matriz-contrato app-card" aria-labelledby="gest-matriz-titulo" hidden>
+          <div class="gest-matriz-topo">
+            <div>
+              <span class="eyebrow">GESTÃO · GRANULARIDADE DE ACESSOS</span>
+              <h3 id="gest-matriz-titulo">Mapa de operações por módulo</h3>
+              <p>Compare as permissões nativas declaradas atualmente com as operações que precisamos separar na próxima arquitetura.</p>
+            </div>
+            <span class="gest-matriz-selo">Consulta, sem alterar acessos</span>
+          </div>
+          <p class="gest-matriz-alerta"><strong>Atenção:</strong> “Declarada” significa que a chave existe no frontend legado, não que o backend tenha sido validado. “Proposta futura” ainda não concede acesso. Nenhuma seleção nesta matriz salva permissões ou modifica usuários.</p>
+          <div class="gest-matriz-filtros">
+            <label for="gest-matriz-modulo">Módulo
+              <select id="gest-matriz-modulo"><option value="">Todos os módulos</option></select>
+            </label>
+            <label for="gest-matriz-estado">Situação
+              <select id="gest-matriz-estado"><option value="">Todas</option><option value="legado">Declaradas no legado</option><option value="proposta">Propostas futuras</option></select>
+            </label>
+            <label for="gest-matriz-busca">Buscar operação
+              <input id="gest-matriz-busca" type="search" placeholder="Operação, recurso ou identificador" autocomplete="off">
+            </label>
+          </div>
+          <p id="gest-matriz-resumo" class="gest-matriz-resumo" role="status" aria-live="polite"></p>
+          <div class="gest-matriz-rolagem">
+            <table class="gest-matriz-tabela">
+              <caption class="sr-only">Relação consultiva de operações declaradas no frontend e granularidades propostas por perfil nativo</caption>
+              <thead><tr><th scope="col">Recurso / operação</th><th scope="col">Identificador</th><th scope="col">Situação</th><th scope="col">Admin</th><th scope="col">Gestor</th><th scope="col">Conferente</th><th scope="col">Abrangência proposta</th></tr></thead>
+              <tbody id="gest-matriz-corpo"></tbody>
+            </table>
+            <p id="gest-matriz-vazio" class="users-empty" hidden>Nenhuma operação encontrada com os filtros selecionados.</p>
+          </div>
+          <p class="gest-matriz-rodape">Os perfis acima refletem apenas <strong>atribuições nativas declaradas no código</strong>. Não consideram concessões individuais, função personalizada nem validam acesso a dados no servidor. A implementação de granularidades reais dependerá de Rules, Functions e auditoria autorizadas.</p>
+        </section>
         <div class="functions-layout">
           <div class="users-panel">
             <div class="users-toolbar"><div class="users-tabs"><button type="button" class="active" data-functions-status="todas">Todas</button><button type="button" data-functions-status="ativas">Ativas</button><button type="button" data-functions-status="inativas">Inativas</button></div><div class="users-filters"><input id="filtro-busca-funcoes" type="search" placeholder="Pesquisar função..."></div></div>
             <div id="lista-funcoes-container" class="functions-list" aria-live="polite"></div>
           </div>
-          <aside class="permission-legend app-card"><span class="eyebrow">Como funciona</span><h3>Compatibilidade segura</h3><p>O perfil-base mantém os acessos atuais. A matriz adiciona permissões granulares e será aplicada progressivamente aos módulos.</p><ul><li>Funções nativas são protegidas.</li><li>Funções inativas permanecem no histórico.</li><li>Usuários vinculados mantêm o perfil-base.</li></ul></aside>
+          <aside class="permission-legend app-card"><span class="eyebrow">Como funciona</span><h3>Compatibilidade segura</h3><p>Os seis direitos do catálogo legado e os perfis atuais continuam como estão. O novo mapa acima é apenas consultivo: novas operações exigem backend seguro antes de virar permissões efetivas.</p><ul><li>Funções nativas são protegidas.</li><li>Funções inativas permanecem no histórico.</li><li>Usuários vinculados mantêm o perfil-base.</li></ul></aside>
         </div>
       </section>
 
@@ -1417,7 +1449,7 @@
 
       <footer class="app-footer">
         <span>CM APP</span>
-        <span>v1.13.43-H.1 · HOMOLOGAÇÃO</span>
+        <span>v1.13.44-H.1 · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -1662,6 +1694,6 @@
         window.addEventListener('online',()=>{if(bloqueado()){tentou=false;void recuperar();}});
       })();
     </script>
-    <script type="module" src="./app.js?v=1.13.43-h.1"></script>
+    <script type="module" src="./app.js?v=1.13.44-h.1"></script>
 </body>
 </html>
