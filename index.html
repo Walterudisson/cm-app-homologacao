@@ -21,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.13.45-h.1">
+  <link rel="stylesheet" href="./app.css?v=1.13.46-h.1">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div id="cmapp-hml-banner" class="cmapp-hml-banner" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -58,7 +58,7 @@
       <p class="text-xs text-center"><a href="./recuperar.html" class="text-blue-400 underline">Problemas para entrar? Recuperar atualização</a></p>
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.45-H.1 • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.46-H.1 • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -190,7 +190,7 @@
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.13.45-H.1</span>
+        <span>v1.13.46-H.1</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -1180,8 +1180,8 @@
         <div class="users-heading">
           <div>
             <span class="eyebrow">Controle de acesso</span>
-            <h2>Usuários e permissões</h2>
-            <p>Consulte colaboradores, perfis, divisões de atuação e situação do acesso.</p>
+            <h2>Usuários e acessos</h2>
+            <p>Gerencie contas, consulte vínculos de função e confira abrangências sem duplicar o cadastro institucional.</p>
           </div>
           <button id="btn-novo-usuario" type="button" onclick="abrirModalCriacaoUsuario()" class="users-primary-action">
             <span aria-hidden="true">＋</span> Cadastrar usuário
@@ -1195,6 +1195,11 @@
           <button type="button" data-users-card="conferentes" aria-pressed="false"><span class="users-stat-icon stat-amber" aria-hidden="true">◇</span><div><strong id="usuarios-conferentes">0</strong><small>Conferentes</small></div></button>
         </div>
 
+        <section class="gest-acessos-orientacao" aria-label="Como os acessos são organizados">
+          <div class="gest-acesso-orientacao-card"><span>01 · Identidade</span><strong>Conta do usuário</strong><p>Login e vínculo com a pessoa institucional. Conta não é o cadastro completo do efetivo.</p></div>
+          <div class="gest-acesso-orientacao-card"><span>02 · Responsabilidade</span><strong>Perfil e função</strong><p>Perfil-base preservado; função personalizada pode estar vinculada sem alterar permissões efetivas.</p></div>
+          <div class="gest-acesso-orientacao-card"><span>03 · Abrangência</span><strong>Módulos e divisões</strong><p>Escopo informado pela configuração legada. A autorização final depende das regras do servidor.</p></div>
+        </section>
         <div class="users-panel">
           <div class="users-toolbar">
             <div class="users-tabs" role="tablist" aria-label="Situação do acesso">
@@ -1212,6 +1217,11 @@
                 <option value="admin">Administradores</option>
                 <option value="gestor">Gestores</option>
                 <option value="conferente">Conferentes</option>
+              </select>
+              <select id="filtro-funcao-usuarios" aria-label="Filtrar vínculo com função de acesso">
+                <option value="todos">Todas as funções</option>
+                <option value="com-funcao">Com função vinculada</option>
+                <option value="sem-funcao">Somente perfil-base</option>
               </select>
             </div>
           </div>
@@ -1449,7 +1459,7 @@
 
       <footer class="app-footer">
         <span>CM APP</span>
-        <span>v1.13.45-H.1 · HOMOLOGAÇÃO</span>
+        <span>v1.13.46-H.1 · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -1485,12 +1495,16 @@
         <div id="cad-funcao-container">
           <label class="text-[11px] text-slate-400 block mb-1">Função de acesso</label>
           <select id="cad-funcao" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-1.5 text-xs text-white"><option value="">Usar somente o perfil nativo</option></select>
-          <p class="text-[10px] text-slate-500 mt-1">Ao selecionar uma função personalizada, o perfil-base será aplicado automaticamente.</p>
+          <p class="text-[10px] text-slate-500 mt-1">A seleção informa o vínculo da função e ajusta o perfil-base no formulário; não concede automaticamente as permissões da função.</p>
         </div>
         <div id="cad-divisoes-container">
           <label class="text-[11px] text-slate-400 block mb-1">Divisões Atribuídas (somente Conferentes)</label>
           <div id="cad-divisoes-checkboxes" class="max-h-36 overflow-y-auto bg-slate-900 p-2 rounded border border-slate-700 space-y-1 text-xs"></div>
         </div>
+        <section class="gest-usuario-previa" aria-label="Prévia de acesso da nova conta">
+          <h4>Prévia do vínculo de acesso</h4><p id="gest-previa-cadastro" role="status" aria-live="polite"></p>
+          <ul id="gest-previa-cadastro-avisos"></ul>
+        </section>
         <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded text-xs">
           💾 Cadastrar Usuário no Sistema
         </button>
@@ -1531,6 +1545,10 @@
           <label class="text-[11px] text-slate-400 block mb-1">Divisões Atribuídas (somente Conferentes)</label>
           <div id="edit-divisoes-checkboxes" class="max-h-36 overflow-y-auto bg-slate-900 p-2 rounded border border-slate-700 space-y-1 text-xs"></div>
         </div>
+        <section class="gest-usuario-previa" aria-label="Prévia de vínculo do usuário">
+          <h4>Prévia do vínculo de acesso</h4><p id="gest-previa-edicao" role="status" aria-live="polite"></p>
+          <ul id="gest-previa-edicao-avisos"></ul>
+        </section>
         <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded text-xs">
           💾 Salvar Alterações
         </button>
@@ -1556,6 +1574,16 @@
         <div class="user-details-wide"><dt>Divisões atribuídas</dt><dd id="detalhes-usuario-divisoes"></dd></div>
         <div><dt>Cadastro</dt><dd id="detalhes-usuario-cadastro"></dd></div>
       </dl>
+      <section id="gest-usuario-resumo" class="gest-usuario-resumo" aria-label="Resumo do vínculo de acesso">
+        <h4>Vínculo e permissões declaradas</h4>
+        <div class="gest-usuario-resumo-grid">
+          <div><span>Função de acesso</span><strong id="gest-detalhes-funcao-vinculo"></strong></div>
+          <div><span>Situação do vínculo</span><strong id="gest-detalhes-funcao-situacao"></strong></div>
+          <div class="gest-usuario-resumo-wide"><span>Módulos visíveis pela navegação legada</span><div id="gest-detalhes-modulos" class="gest-usuario-chips"></div></div>
+          <div class="gest-usuario-resumo-wide"><span>Permissões declaradas no frontend</span><div id="gest-detalhes-permissoes" class="gest-usuario-chips"></div></div>
+        </div>
+        <p id="gest-detalhes-aviso" class="gest-usuario-aviso"></p>
+      </section>
       <div id="detalhes-usuario-acoes" class="user-details-actions"></div>
     </div>
   </div>
@@ -1702,6 +1730,6 @@
         window.addEventListener('online',()=>{if(bloqueado()){tentou=false;void recuperar();}});
       })();
     </script>
-    <script type="module" src="./app.js?v=1.13.45-h.1"></script>
+    <script type="module" src="./app.js?v=1.13.46-h.1"></script>
 </body>
 </html>

@@ -1582,3 +1582,41 @@ button[data-cautelas-kpi]{width:100%;text-align:left;cursor:pointer}button[data-
   .function-dialog .suggestion-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
   .function-dialog .suggestion-actions button{min-height:44px;min-width:0;white-space:normal}
 }
+
+/* GEST-03: cartões de contexto de acesso inspirados em roles/users do AppDashboard Pro. */
+.gest-acessos-orientacao{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.gest-acesso-orientacao-card{min-width:0;display:grid;align-content:start;gap:7px;padding:16px;
+ border:1px solid var(--app-border,#334155);border-radius:14px;background:var(--app-surface,rgba(15,23,42,.5));box-shadow:0 6px 17px rgb(2 6 23/.06)}
+.gest-acesso-orientacao-card>span{font-size:.66rem;color:#60a5fa;font-weight:800;letter-spacing:.05em;text-transform:uppercase}
+.gest-acesso-orientacao-card strong{color:var(--app-text,#e2e8f0);font-size:.9rem}
+.gest-acesso-orientacao-card p{color:var(--app-muted,#94a3b8);font-size:.72rem;line-height:1.55}
+.gest-usuario-resumo,.gest-usuario-previa{display:grid;gap:12px;margin-top:13px;padding:14px;
+ border:1px solid var(--app-border,#334155);border-radius:12px;background:var(--app-surface,rgba(15,23,42,.4));color:var(--app-text,#e2e8f0)}
+.gest-usuario-resumo h4,.gest-usuario-previa h4{font-size:.85rem;font-weight:850;color:var(--app-text,#e2e8f0)}
+.gest-usuario-resumo-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.gest-usuario-resumo-grid>div{padding:10px;border:1px solid var(--app-border,#334155);border-radius:9px;min-width:0}
+.gest-usuario-resumo-grid>div>span{display:block;font-size:.66rem;font-weight:700;color:var(--app-muted,#94a3b8);margin-bottom:7px}
+.gest-usuario-resumo-grid>div>strong{display:block;font-size:.76rem;overflow-wrap:anywhere}
+.gest-usuario-resumo-grid>.gest-usuario-resumo-wide{grid-column:1/-1}
+.gest-usuario-chips{display:flex;flex-wrap:wrap;gap:6px;min-height:25px}
+.gest-usuario-chip{display:inline-block;border:1px solid rgb(59 130 246/.35);border-radius:9px;padding:5px 8px;
+ background:rgb(59 130 246/.08);font-size:.69rem;line-height:1.35;overflow-wrap:anywhere}
+.gest-usuario-chip.adicional{border-color:rgb(16 185 129/.35);background:rgb(16 185 129/.08)}
+.gest-usuario-chip.restrito{border-color:var(--app-border,#334155);color:var(--app-muted,#94a3b8);background:transparent}
+.gest-usuario-aviso,.gest-usuario-previa>p{font-size:.72rem;line-height:1.58;color:var(--app-muted,#94a3b8);overflow-wrap:anywhere}
+.gest-usuario-previa ul{font-size:.7rem;line-height:1.55;padding-left:17px;list-style:disc;color:var(--app-muted,#94a3b8)}
+.gest-usuario-previa ul:empty{display:none}
+.gest-usuario-previa li+li{margin-top:5px}
+#filtro-funcao-usuarios{min-width:165px}
+#modal-detalhes-usuario .user-details-dialog{max-width:42rem;max-height:calc(100dvh - 24px)}
+#modal-criacao-usuario .gest-usuario-previa,#modal-edicao-usuario .gest-usuario-previa{margin-top:8px}
+@media(max-width:1050px){.gest-acessos-orientacao{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){
+ .gest-acessos-orientacao{grid-template-columns:1fr;gap:8px}
+ .gest-acesso-orientacao-card{padding:12px}
+ .gest-usuario-resumo-grid{grid-template-columns:1fr}
+ .gest-usuario-resumo-grid>.gest-usuario-resumo-wide{grid-column:auto}
+ .gest-usuario-resumo,.gest-usuario-previa{padding:11px}
+ #filtro-funcao-usuarios{width:100%;min-width:0;min-height:44px}
+ #modal-detalhes-usuario .user-details-dialog{padding-bottom:env(safe-area-inset-bottom,12px)}
+}
