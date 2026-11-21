@@ -508,23 +508,52 @@
         </section>
       </section>
 
-      <section id="sec-gabinete-agenda" class="hidden cm-ux-central space-y-4" aria-labelledby="gabinete-agenda-titulo">
-        <header class="cm-panel-header"><div><h2 id="gabinete-agenda-titulo">Agenda Telefônica</h2><p>Dados de demonstração do diretório institucional.</p></div></header>
-        <div class="app-card p-4 flex flex-wrap gap-3">
-          <label class="block flex-1" for="gabinete-busca-contato">Pesquisar contatos
-            <input id="gabinete-busca-contato" type="search" class="block w-full rounded-lg border border-slate-300 bg-transparent p-3" placeholder="Nome, unidade ou ramal">
-          </label>
-          <label class="block" for="gabinete-tipo-contato">Tipo de contato
-            <select id="gabinete-tipo-contato" class="block rounded-lg border border-slate-300 p-3"><option value="">Todos</option><option value="pessoa">Pessoas</option><option value="ramal">Ramais</option><option value="externo">Externos</option></select>
-          </label>
+      <section id="sec-gabinete-agenda" class="hidden cm-ux-central space-y-4 cm-gab-contacts-page" aria-labelledby="gabinete-agenda-titulo">
+        <header class="cm-panel-header cm-gab-contacts-heading">
+          <div>
+            <span class="cm-ux-eyebrow">GABINETE · DIRETÓRIO INSTITUCIONAL</span>
+            <h2 id="gabinete-agenda-titulo">Agenda Telefônica</h2>
+            <p>Encontre pessoas, ramais e órgãos em um único diretório.</p>
+          </div>
+          <span class="cm-gab-contacts-demo">Dados demonstrativos</span>
+        </header>
+        <div class="cm-gab-contacts-shell">
+          <aside class="cm-gab-contacts-sidebar" id="gabinete-agenda-sidebar" data-open="false" aria-label="Categorias da Agenda">
+            <div class="cm-gab-contacts-sidebar-head">
+              <h3>Contatos</h3>
+              <button id="gabinete-toggle-categorias" class="cm-gab-contacts-mobile-toggle" type="button" aria-expanded="false" aria-controls="gabinete-agenda-categorias">Categorias <span aria-hidden="true">⌄</span></button>
+            </div>
+            <nav id="gabinete-agenda-categorias" class="cm-gab-contacts-nav" aria-label="Filtrar contatos">
+              <button type="button" class="cm-gab-contacts-nav-item" data-gab-categoria="todos" aria-pressed="true"><span aria-hidden="true">▦</span><span>Todos os contatos</span><span class="cm-gab-nav-count" data-gab-contagem="todos"></span></button>
+              <button id="gabinete-filtrar-favoritos" type="button" class="cm-gab-contacts-nav-item" data-gab-categoria="favoritos" aria-pressed="false"><span aria-hidden="true">☆</span><span>Favoritos</span><span class="cm-gab-nav-count" data-gab-contagem="favoritos"></span></button>
+              <div class="cm-gab-contacts-nav-label">Categorias</div>
+              <button type="button" class="cm-gab-contacts-nav-item" data-gab-categoria="pessoa" aria-pressed="false"><span class="cm-gab-nav-dot" data-tipo="pessoa" aria-hidden="true"></span><span>Pessoas</span><span class="cm-gab-nav-count" data-gab-contagem="pessoa"></span></button>
+              <button type="button" class="cm-gab-contacts-nav-item" data-gab-categoria="ramal" aria-pressed="false"><span class="cm-gab-nav-dot" data-tipo="ramal" aria-hidden="true"></span><span>Ramais</span><span class="cm-gab-nav-count" data-gab-contagem="ramal"></span></button>
+              <button type="button" class="cm-gab-contacts-nav-item" data-gab-categoria="externo" aria-pressed="false"><span class="cm-gab-nav-dot" data-tipo="externo" aria-hidden="true"></span><span>Órgãos e externos</span><span class="cm-gab-nav-count" data-gab-contagem="externo"></span></button>
+            </nav>
+            <p class="cm-gab-contacts-side-note">As pessoas utilizam o cadastro único da Gestão. Ramais e órgãos são mantidos pelo Gabinete.</p>
+          </aside>
+          <div class="cm-gab-contacts-main">
+            <div class="cm-gab-contacts-toolbar">
+              <label class="cm-gab-contacts-search" for="gabinete-busca-contato"><span class="cm-gab-contacts-search-icon" aria-hidden="true">⌕</span><span class="sr-only">Pesquisar contatos</span>
+                <input id="gabinete-busca-contato" type="search" autocomplete="off" placeholder="Pesquisar nome, divisão, ramal ou e-mail">
+              </label>
+              <label class="cm-gab-contacts-select" for="gabinete-tipo-contato">Categoria
+                <select id="gabinete-tipo-contato"><option value="">Todos</option><option value="pessoa">Pessoas</option><option value="ramal">Ramais</option><option value="externo">Órgãos e externos</option></select>
+              </label>
+              <div class="cm-gab-contacts-views" role="group" aria-label="Modo de visualização">
+                <button id="gabinete-ver-grade" type="button" aria-label="Visualizar em grade" aria-pressed="true" title="Visualizar em grade"><span aria-hidden="true">▦</span></button>
+                <button id="gabinete-ver-lista" type="button" aria-label="Visualizar em lista" aria-pressed="false" title="Visualizar em lista"><span aria-hidden="true">☷</span></button>
+              </div>
+            </div>
+            <div class="cm-gab-contacts-results">
+              <p id="gabinete-total-contatos" role="status" aria-live="polite"></p>
+              <span id="gabinete-nota-favoritos" class="cm-gab-local-note"></span>
+            </div>
+            <ul id="gabinete-lista-contatos" class="cm-gab-list" data-view="grid" aria-label="Contatos da Agenda"></ul>
+          </div>
         </div>
-        <p id="gabinete-total-contatos" class="text-sm" role="status"></p>
-        <div class="cm-gab-filter-row">
-          <button id="gabinete-filtrar-favoritos" type="button" class="cm-gab-toggle" aria-pressed="false">☆ Somente favoritos</button>
-          <span id="gabinete-nota-favoritos" class="cm-gab-local-note">Favoritos disponíveis apenas neste dispositivo.</span>
-        </div>
-        <ul id="gabinete-lista-contatos" class="cm-gab-list" aria-label="Contatos da Agenda"></ul>
-        <dialog id="gabinete-ficha-dialog" class="cm-gab-dialog" aria-labelledby="gabinete-ficha-titulo">
+        <dialog id="gabinete-ficha-dialog" class="cm-gab-dialog cm-gab-contacts-dialog" aria-labelledby="gabinete-ficha-titulo">
           <div class="cm-gab-dialog-top">
             <div><span class="cm-gab-dialog-eyebrow">GABINETE · AGENDA</span><h3 id="gabinete-ficha-titulo">Ficha do contato</h3></div>
             <button id="gabinete-ficha-fechar" type="button" class="cm-gab-dialog-close" aria-label="Fechar ficha">✕</button>
@@ -533,7 +562,7 @@
           <p id="gabinete-ficha-subtitulo" class="cm-gab-dialog-subtitle"></p>
           <dl id="gabinete-ficha-campos" class="cm-gab-details"></dl>
           <div id="gabinete-ficha-acoes" class="cm-gab-dialog-actions"></div>
-          <p class="cm-gab-privacy">Somente informações institucionais demonstrativas. Telefones particulares não são exibidos.</p>
+          <p class="cm-gab-privacy">Consulta institucional sujeita às permissões do usuário. Telefones particulares não integram esta versão demonstrativa.</p>
         </dialog>
       </section>
 
