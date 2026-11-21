@@ -149,6 +149,10 @@ export function criarAgendaGabinete({obterUsuario,podeConsultar,notificar}){
     alternarFavoritos.textContent=apenasFavoritos?'★ Exibindo favoritos':'☆ Somente favoritos';
     notaFavoritos.textContent=favoritos.size===1?'1 favorito salvo neste dispositivo':favoritos.size+' favoritos salvos neste dispositivo';
   }
+  function mostrarFavoritos(){
+    if(!autorizado())return;
+    entrada.value='';tipo.value='';apenasFavoritos=true;renderizar();
+  }
   function pesquisar(termo){
     entrada.value=String(termo||'');
     tipo.value='';
@@ -173,5 +177,5 @@ export function criarAgendaGabinete({obterUsuario,podeConsultar,notificar}){
     dialogo.addEventListener('close',()=>{aberta=null;});
     dialogo.addEventListener('click',evento=>{if(evento.target===dialogo)fecharFicha();});
   }
-  return {inicializar,renderizar,pesquisar,limpar,fecharFicha};
+  return {inicializar,renderizar,pesquisar,mostrarFavoritos,limpar,fecharFicha};
 }
