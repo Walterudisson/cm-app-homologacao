@@ -107,7 +107,7 @@ export function criarAgendaGabinete({obterUsuario,podeConsultar,podeGerenciar=()
   }
   function preencherFicha(contato){
     fichaTitulo.textContent=contato.nome;
-    fichaSubtitulo.textContent=contato.origem==='usuarios'?'Contato vinculado ao Meu Perfil · Somente leitura':'Ficha institucional · Dados de demonstração';
+    fichaSubtitulo.textContent=contato.origem==='usuarios'?'Contato vinculado ao Meu Perfil · Somente leitura':contato.origem==='orgaos'?'Órgão externo · Cadastro do Gabinete':'Ficha institucional · Dados de demonstração';
     const avatarFicha=document.getElementById('gabinete-ficha-avatar');
     avatarFicha?.replaceChildren(avatar(contato,true));
     fichaCampos.replaceChildren();
@@ -129,7 +129,7 @@ export function criarAgendaGabinete({obterUsuario,podeConsultar,podeGerenciar=()
     marcar.setAttribute('aria-pressed',String(favorito));
     fichaAcoes.append(marcar);
     acoesContato(fichaAcoes,contato);
-    if(contato.somenteLeitura)fichaAcoes.append(elemento('span','cm-gab-readonly','Identidade mantida na Gestão de Usuários'));
+    if(contato.somenteLeitura)fichaAcoes.append(elemento('span','cm-gab-readonly',contato.origem==='orgaos'?'Órgão mantido em Gabinete > Cadastros e revisão':'Identidade mantida na Gestão de Usuários'));
     if(podeGerenciar()&&!contato.somenteLeitura)fichaAcoes.append(botao('Editar cadastro','cm-gab-action',()=>editarContato(contato.id)));
   }
   function abrirFicha(id){
