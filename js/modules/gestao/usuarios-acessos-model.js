@@ -58,6 +58,9 @@ export function resumirPreviaAtribuicao({perfil='',funcaoId='',divisoesAtribuida
   if(dados.funcaoId){
     if(dados.funcaoSituacao==='nao-verificada')avisos.push('Função não confirmada no catálogo carregado. Verifique antes de salvar.');
     if(dados.funcaoSituacao==='inativa')avisos.push('Função inativa. A atribuição precisa ser revisada.');
+    const vinculada=Array.isArray(funcoes)?funcoes.find(item=>item?.id===dados.funcaoId):null;
+    if(vinculada?.perfilBase&&vinculada.perfilBase!==dados.perfil)
+      avisos.push('O perfil selecionado difere do perfil-base da função vinculada. Confira a consistência antes de salvar.');
     avisos.push('A seleção registra o vínculo da função e o perfil-base, sem garantir aplicação das permissões da função no backend.');
   }
   if(dados.perfil==='conferente'&&!dados.divisoes.length)
