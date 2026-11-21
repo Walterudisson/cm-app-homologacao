@@ -690,7 +690,7 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
 
     function interromperSessaoAcesso(){
       ++epocaAcesso;cancelarVigiaAcesso?.();cancelarVigiaAcesso=null;
-      usuarioLogado=null;document.getElementById('view-app').classList.add('hidden');
+      usuarioLogado=null;fotoPerfilUrl='';document.getElementById('view-app').classList.add('hidden');
       invalidarCacheDsips();encerrarOuvinteTransferencias();agendaGabinete?.limpar();aniversariantesGabinete?.limpar();cadastrosGabinete?.limpar();orgaosGabineteUI?.limpar();cadastroGabineteEmMemoria.limpar();orgaosGabineteEmMemoria.limpar();
       painelDsips.limpar();consultaMateriaisDsips.limpar();cadastrosDsips.limpar();estoqueDsips.limpar();cautelasDsips.limpar();posseDsips.limpar();historicoDsips.limpar();
       revisaoEscopo++;invalidarCacheRelacao();cachePatrimonios.clear();cacheSugestoes.clear();cacheFotosUsuarios.clear();catalogoDivisoes.clear();
@@ -710,7 +710,7 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
     onAuthStateChanged(auth, async (user) => {
       const epoca=++epocaAcesso;cancelarVigiaAcesso?.();cancelarVigiaAcesso=null;
       const vigente=()=>epoca===epocaAcesso&&auth.currentUser?.uid===user?.uid;
-      document.getElementById('view-app').classList.add('hidden');usuarioLogado=null;encerrarOuvinteTransferencias();
+      document.getElementById('view-app').classList.add('hidden');usuarioLogado=null;fotoPerfilUrl='';encerrarOuvinteTransferencias();
       invalidarCacheDsips();
       agendaGabinete?.limpar();
       aniversariantesGabinete?.limpar();
@@ -918,16 +918,18 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
 
     async function carregarFotoPerfilAtual() {
       if (!usuarioLogado) return;
+      const uid=usuarioLogado.uid;
+      let foto='';
       try {
-        fotoPerfilUrl = await obterUrlFotoPerfil(usuarioLogado.uid);
+        foto = await obterUrlFotoPerfil(uid);
       } catch (erro) {
         if (erro?.code !== 'storage/object-not-found') {
           console.warn('Foto de perfil indisponível; usando iniciais.', erro);
-          fotoPerfilUrl = auth.currentUser?.photoURL || '';
-        } else {
-          fotoPerfilUrl = '';
+          foto = auth.currentUser?.uid===uid ? auth.currentUser?.photoURL || '' : '';
         }
       }
+      if(usuarioLogado?.uid!==uid||auth.currentUser?.uid!==uid)return;
+      fotoPerfilUrl=foto;
       atualizarFotoUsuario(usuarioLogado, fotoPerfilUrl);
       atualizarDadosTelaPerfil();
     }
@@ -986,6 +988,7 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
         fotoPerfilUrl = '';
         atualizarFotoUsuario(usuarioLogado);
         atualizarDadosTelaPerfil();
+        if(abaAtual==='gabinete-agenda')agendaGabinete?.renderizar();
         notificarMensagem('Foto de perfil removida.', 'sucesso');
       } catch (erro) {
         console.error('Erro ao remover foto de perfil:', erro);
