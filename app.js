@@ -29,10 +29,10 @@
     import { criarControladorCamera } from "./js/controllers/camera.controller.js?v=1.12.0";
     import { atualizarDivisao, criarDivisao, listarDivisoes, listarDivisoesAtivas } from "./js/services/divisoes.service.js?v=1.13.10";
     import { CATALOGO_PERMISSOES, FUNCOES_NATIVAS, PERMISSOES, usuarioPode } from "./js/core/permissoes.js?v=1.13.11";
-    import { criarMatrizAcessosGestaoUI } from "./js/modules/gestao/matriz-acessos-ui.js?v=1.13.46-h.1";
+    import { criarMatrizAcessosGestaoUI } from "./js/modules/gestao/matriz-acessos-ui.js?v=1.13.47-h.1";
     import { analisarImpactoFuncao,prepararPermissoesFuncao,permissoesDesconhecidas,
       resumoImpactoFuncao,mensagemConfirmacaoFuncao,descreverPermissaoLegada
-    } from "./js/modules/gestao/funcoes-impacto-model.js?v=1.13.46-h.1";
+    } from "./js/modules/gestao/funcoes-impacto-model.js?v=1.13.47-h.1";
     import { alterarEstadoFuncao, atualizarFuncao, criarFuncao, listarFuncoesPersonalizadas } from "./js/services/funcoes.service.js?v=1.13.11";
     import {
       consultarCicloDivisao, encerrarDivisao, reabrirDivisao,
@@ -72,14 +72,15 @@
     import {renderizarCentral, podeAbrirCentral} from './js/ui/central-trabalho.js?v=1.13.38-h.4';
     import {modulosDoUsuario} from './js/platform/modules.js';
     import {resumirVinculoUsuario,resumirPreviaAtribuicao,filtrarUsuariosPorFuncao}
-      from './js/modules/gestao/usuarios-acessos-model.js?v=1.13.46-h.1';
-    import {criarAgendaGabinete} from './js/modules/gabinete/agenda-ui.js?v=1.13.46-h.1';
-    import {criarAniversariantesGabinete} from './js/modules/gabinete/aniversarios-ui.js?v=1.13.46-h.1';
-import {criarCadastroGabineteEmMemoria} from './js/modules/gabinete/cadastro-model.js?v=1.13.46-h.1';
-import {criarOrgaosGabineteEmMemoria} from './js/modules/gabinete/orgaos-model.js?v=1.13.46-h.1';
-import {criarOrgaosGabineteUI} from './js/modules/gabinete/orgaos-ui.js?v=1.13.46-h.1';
-import {criarDiretorioGabinete} from './js/modules/gabinete/diretorio-referencias.js?v=1.13.46-h.1';
-import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.13.46-h.1';
+      from './js/modules/gestao/usuarios-acessos-model.js?v=1.13.47-h.1';
+    import {criarPainelPessoasVinculos} from './js/modules/gestao/pessoas-vinculos-ui.js?v=1.13.47-h.1';
+    import {criarAgendaGabinete} from './js/modules/gabinete/agenda-ui.js?v=1.13.47-h.1';
+    import {criarAniversariantesGabinete} from './js/modules/gabinete/aniversarios-ui.js?v=1.13.47-h.1';
+import {criarCadastroGabineteEmMemoria} from './js/modules/gabinete/cadastro-model.js?v=1.13.47-h.1';
+import {criarOrgaosGabineteEmMemoria} from './js/modules/gabinete/orgaos-model.js?v=1.13.47-h.1';
+import {criarOrgaosGabineteUI} from './js/modules/gabinete/orgaos-ui.js?v=1.13.47-h.1';
+import {criarDiretorioGabinete} from './js/modules/gabinete/diretorio-referencias.js?v=1.13.47-h.1';
+import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.13.47-h.1';
     import {podeNavegarLegado,decidirMudancaAcesso,sincronizarMenuAutorizado} from './js/platform/acesso-sessao.js?v=1.13.37-h.5';
 
     import {criarPainelDsips} from './js/modules/dsips/painel-ui.js?v=1.13.34-h.1';
@@ -99,6 +100,7 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
     let itensFiltradosCache = [];
     let unsubscribeTransferencias = [];
     let abaAtual = 'modulos';
+    let painelPessoasVinculos = null;
     let agendaGabinete = null;
     let aniversariantesGabinete = null;
     let cadastrosGabinete = null;
@@ -707,6 +709,8 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
       painelDsips.limpar();consultaMateriaisDsips.limpar();cadastrosDsips.limpar();estoqueDsips.limpar();cautelasDsips.limpar();posseDsips.limpar();historicoDsips.limpar();
       revisaoEscopo++;invalidarCacheRelacao();cachePatrimonios.clear();cacheSugestoes.clear();cacheFotosUsuarios.clear();catalogoDivisoes.clear();
       bancoPatrimonio=[];bancoUsuarios=[];bancoDivisoes=[];bancoFuncoes=[];itemAtualSelecionado=null;
+      usuariosCarregados=false;divisoesCarregadas=false;funcoesCarregadas=false;
+      painelPessoasVinculos?.limpar();
       fecharCamadaSobreposta();
     }
     function vigiarAcesso(user,referencia,inicial,epoca){
@@ -723,6 +727,9 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
       const epoca=++epocaAcesso;cancelarVigiaAcesso?.();cancelarVigiaAcesso=null;
       const vigente=()=>epoca===epocaAcesso&&auth.currentUser?.uid===user?.uid;
       document.getElementById('view-app').classList.add('hidden');usuarioLogado=null;fotoPerfilUrl='';encerrarOuvinteTransferencias();
+      // GEST-04: não permitir que dados de Gestão ou vínculos sobrevivam à troca de conta.
+      painelPessoasVinculos?.limpar();
+      bancoUsuarios=[];bancoDivisoes=[];usuariosCarregados=false;divisoesCarregadas=false;
       const filtroFuncaoSessao=document.getElementById('filtro-funcao-usuarios');
       if(filtroFuncaoSessao)filtroFuncaoSessao.value='todos';
       invalidarCacheDsips();
@@ -1053,6 +1060,8 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
     });
 
     async function carregarUsuarios(forcar = false) {
+      const uidConsulta=usuarioLogado?.uid;
+      if(!uidConsulta||!podeNavegarLegado(usuarioLogado,'usuarios'))return [];
       if (usuariosCarregados && !forcar) {
         renderizarListaUsuarios();
         return bancoUsuarios;
@@ -1062,6 +1071,8 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
         ? query(collection(db, "usuarios"), where("perfil", "==", "conferente"))
         : collection(db, "usuarios");
       const snapshot = await getDocs(consultaUsuarios);
+      // Uma leitura iniciada por sessão antiga não pode repovoar a lista de outra conta.
+      if(uidConsulta!==usuarioLogado?.uid||auth.currentUser?.uid!==uidConsulta)return [];
       bancoUsuarios = snapshot.docs.map(docSnap => ({ uid: docSnap.id, ...docSnap.data() }));
       usuariosCarregados = true;
 
@@ -1228,13 +1239,52 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
     }
 
     async function carregarGestaoDivisoes(forcar = false) {
-      if (!usuarioPode(usuarioLogado, PERMISSOES.DIVISOES_VISUALIZAR)) return;
+      const uidConsulta=usuarioLogado?.uid;
+      if (!uidConsulta||!podeNavegarLegado(usuarioLogado,'divisoes')) return;
       if (!divisoesCarregadas || forcar) {
-        bancoDivisoes = await listarDivisoes();
+        const resultado=await listarDivisoes();
+        if(uidConsulta!==usuarioLogado?.uid||auth.currentUser?.uid!==uidConsulta)return;
+        bancoDivisoes=resultado;
         divisoesCarregadas = true;
       }
       if (usuarioPode(usuarioLogado, PERMISSOES.DIVISOES_GERENCIAR) && !usuariosCarregados) await carregarUsuarios();
+      if(uidConsulta!==usuarioLogado?.uid||auth.currentUser?.uid!==uidConsulta)return;
       renderizarDivisoes();
+    }
+
+    // GEST-04: apenas fontes de Gestão já disponíveis ao administrador.
+    // Não listar contatos privados do Gabinete, dados RH ou cautelas DSIPS nesta tela.
+    async function carregarPessoasVinculos(){
+      const uid=usuarioLogado?.uid,epoca=epocaAcesso;
+      if(!uid||!podeNavegarLegado(usuarioLogado,'pessoas'))return;
+      const atual=()=>uid===usuarioLogado?.uid&&uid===auth.currentUser?.uid
+        &&epoca===epocaAcesso&&abaAtual==='pessoas'&&podeNavegarLegado(usuarioLogado,'pessoas');
+      await carregarUsuarios(true);
+      if(!atual())return;
+      await carregarGestaoDivisoes(true);
+      if(!atual())return;
+      if(!painelPessoasVinculos){
+        painelPessoasVinculos=criarPainelPessoasVinculos({
+          obterUsuario:()=>usuarioLogado,
+          podeConsultar:()=>podeNavegarLegado(usuarioLogado,'pessoas'),
+          abrirConta:async contaUid=>{
+            const sessao=usuarioLogado?.uid;
+            if(!sessao||!podeNavegarLegado(usuarioLogado,'pessoas'))return;
+            await alternarAba('usuarios');
+            if(sessao!==usuarioLogado?.uid||abaAtual!=='usuarios')return;
+            await window.abrirDetalhesUsuario(contaUid);
+          },
+          abrirDivisao:async id=>{
+            const sessao=usuarioLogado?.uid;
+            if(!sessao||!podeNavegarLegado(usuarioLogado,'pessoas'))return;
+            await alternarAba('divisoes');
+            if(sessao!==usuarioLogado?.uid||abaAtual!=='divisoes')return;
+            const divisao=bancoDivisoes.find(item=>item.id===id);
+            if(divisao)abrirModalDivisao(divisao);
+          }
+        });
+      }
+      painelPessoasVinculos.atualizar({usuarios:bancoUsuarios,divisoes:bancoDivisoes});
     }
 
     function inicializarGestaoDivisoes() {
@@ -1824,7 +1874,7 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
         return;
       }
       if (usuarioLogado && usuarioLogado.perfil === 'conferente') {
-        if (abaAtiva === 'transferencias' || abaAtiva === 'usuarios' || abaAtiva === 'divisoes' || abaAtiva === 'funcoes') {
+        if (abaAtiva === 'transferencias' || abaAtiva === 'usuarios' || abaAtiva === 'divisoes' || abaAtiva === 'pessoas' || abaAtiva === 'funcoes') {
           return;
         }
       }
@@ -1847,7 +1897,7 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
       }
       if(epoca!==epocaAcesso||!podeNavegarLegado(usuarioLogado,abaAtiva)||abaAtual!==abaAtiva)return;
 
-      ['modulos', 'dashboard', 'scanner', 'transferencias', 'usuarios', 'divisoes', 'funcoes', 'inventarios', 'lista', 'perfil', 'dsips-inicio', 'dsips-materiais', 'dsips-cadastros', 'dsips-estoque', 'dsips-cautelas', 'dsips-posse', 'dsips-historico', 'gabinete-painel', 'gabinete-agenda', 'gabinete-ramais', 'gabinete-cadastros'].forEach(aba => {
+      ['modulos', 'dashboard', 'scanner', 'transferencias', 'usuarios', 'divisoes', 'pessoas', 'funcoes', 'inventarios', 'lista', 'perfil', 'dsips-inicio', 'dsips-materiais', 'dsips-cadastros', 'dsips-estoque', 'dsips-cautelas', 'dsips-posse', 'dsips-historico', 'gabinete-painel', 'gabinete-agenda', 'gabinete-ramais', 'gabinete-cadastros'].forEach(aba => {
         const sec = document.getElementById(`sec-${aba}`);
         if (sec) sec.classList.toggle('hidden', aba !== abaAtiva);
       });
@@ -1890,6 +1940,7 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
           await carregarCatalogoDivisoes();
         }
         if (abaAtiva === 'divisoes') await carregarGestaoDivisoes();
+        if (abaAtiva === 'pessoas') await carregarPessoasVinculos();
         if (abaAtiva === 'funcoes') await carregarGestaoFuncoes();
         if (abaAtiva === 'inventarios') {
           await carregarCatalogoDivisoes();
