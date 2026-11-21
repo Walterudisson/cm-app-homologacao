@@ -122,6 +122,9 @@ export function criarPainelPessoasVinculos({
       for(const id of ['gest04-total-contas','gest04-total-divisoes','gest04-total-vinculos','gest04-total-pendencias']){
         const campo=porId(id);if(campo)campo.textContent='0';
       }
+      // GEST-05: apagar também os textos agregados da sessão anterior, não só os cards.
+      const referencia=porId('gest04-referencia');
+      if(referencia)referencia.textContent='Nenhum vínculo institucional carregado nesta sessão.';
       resumo.textContent=mapa?'Consulta indisponível para esta sessão.':'Dados não carregados.';
       mensagem.textContent='';
       mais.hidden=true;
@@ -175,6 +178,11 @@ export function criarPainelPessoasVinculos({
     if(busca)busca.value='';
     if(inicializado)definirOpcoes();
     lista?.replaceChildren();
+    // Não manter filtros ou contadores visuais da conta anterior.
+    tabs.forEach((b,i)=>{
+      b.classList.toggle('is-selected',i===0);
+      b.setAttribute('aria-pressed',String(i===0));
+    });
     renderizar();
   }
   return Object.freeze({inicializar,atualizar,renderizar,limpar});
