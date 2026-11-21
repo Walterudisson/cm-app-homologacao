@@ -20,12 +20,14 @@ export function contatoProprioAutorizado(usuario){
   });
 }
 // Não usa fotoURL do Auth para outras contas nem publica URLs recebidas da Gestão.
-export function criarDiretorioGabinete({cadastro,obterUsuario,obterFotoPropria=()=>''}){
+export function criarDiretorioGabinete({cadastro,orgaos,obterUsuario,obterFotoPropria=()=>''}){
   const obterSelf=()=>cadastro.usuarioAtual()===obterUsuario()?.uid?contatoProprioAutorizado(obterUsuario()):null;
   const enriquecer=c=>{
     if(!c)return null;
     if(c.tipo==='pessoa')return Object.freeze({...c,origem:'usuarios-referencia-demo',somenteLeitura:true});
-    return Object.freeze({...c,origem:'gabinete',somenteLeitura:false});
+    const unidade=c.tipo==='externo'&&c.orgaoId
+      ? (orgaos.obter(c.orgaoId)?.nome||'Órgão externo indisponível'):c.unidade;
+    return Object.freeze({...c,unidade,origem:'gabinete',somenteLeitura:false});
   };
   function obter(id){
     const self=obterSelf();
@@ -43,11 +45,17 @@ export function criarDiretorioGabinete({cadastro,obterUsuario,obterFotoPropria=(
     if(!contato||contato.somenteLeitura)throw new Error('Pessoas são gerenciadas pela Gestão, sem cadastro duplicado no Gabinete.');
     return contato;
   }
+  function normalizarVinculo(dados){
+    if(dados?.tipo!=='externo')return dados;
+    const org=orgaos.obter(dados.orgaoId);
+    if(!org?.ativo)throw new Error('Selecione um órgão externo ativo antes de salvar o contato.');
+    return {...dados,unidade:org.nome};
+  }
   function criar(dados){
     if(dados?.tipo==='pessoa')throw new Error('Pessoas internas devem ser cadastradas pela Gestão.');
-    return cadastro.criar(dados);
+    return cadastro.criar(normalizarVinculo(dados));
   }
-  function editar(id,dados){mutacaoPermitida(id);return cadastro.editar(id,dados);}
+  function editar(id,dados){mutacaoPermitida(id);return cadastro.editar(id,normalizarVinculo(dados));}
   function excluir(id){mutacaoPermitida(id);return cadastro.excluir(id);}
   function restaurar(id){mutacaoPermitida(id);return cadastro.restaurar(id);}
   function revisar(id){mutacaoPermitida(id);return cadastro.revisar(id);}
