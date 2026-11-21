@@ -21,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.13.38-h.2">
+  <link rel="stylesheet" href="./app.css?v=1.13.38-h.3">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div id="cmapp-hml-banner" class="cmapp-hml-banner" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -58,7 +58,7 @@
       <p class="text-xs text-center"><a href="./recuperar.html" class="text-blue-400 underline">Problemas para entrar? Recuperar atualização</a></p>
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.38-H.2 • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.38-H.3 • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -85,9 +85,17 @@
 
       <nav class="sidebar-nav">
         <button id="tab-btn-modulos" type="button" class="nav-item hidden" data-nav-page="modulos" aria-label="Central de Trabalho"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/></svg><span class="sidebar-label">Central de Trabalho</span></button>
-        <button type="button" class="nav-item hidden" data-nav-page="gabinete-ramais" aria-label="Gabinete — Ramais">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h4l2 5-3 2a14 14 0 0 0 5 5l2-3 5 2v4a3 3 0 0 1-3 3A15 15 0 0 1 3 6a3 3 0 0 1 3-3z"/></svg><span class="sidebar-label">Gabinete · Ramais</span>
-        </button>
+        <div class="sidebar-module hidden" data-nav-group="gabinete">
+          <button type="button" class="nav-item sidebar-module-toggle" data-nav-group-toggle="gabinete" aria-label="Gabinete" aria-controls="sidebar-submenu-gabinete" aria-expanded="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h4l2 5-3 2a14 14 0 0 0 5 5l2-3 5 2v4a3 3 0 0 1-3 3A15 15 0 0 1 3 6a3 3 0 0 1 3-3z"/></svg><span class="sidebar-section-label sidebar-label">Gabinete</span>
+            <svg class="sidebar-module-chevron sidebar-label" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+          <div id="sidebar-submenu-gabinete" class="sidebar-module-panel" hidden>
+            <button type="button" id="tab-btn-gabinete-painel" class="nav-item hidden" data-nav-page="gabinete-painel"><span class="sidebar-label">Painel</span></button>
+            <button type="button" id="tab-btn-gabinete-agenda" class="nav-item hidden" data-nav-page="gabinete-agenda"><span class="sidebar-label">Agenda Telefônica</span></button>
+            <button type="button" id="tab-btn-gabinete-ramais" class="nav-item hidden" data-nav-page="gabinete-ramais"><span class="sidebar-label">Ramais</span></button>
+          </div>
+        </div>
         <div class="sidebar-module" data-nav-group="patrimonio">
           <button type="button" class="nav-item sidebar-module-toggle has-active-page" data-nav-group-toggle="patrimonio" aria-label="Patrimônio" aria-controls="sidebar-submenu-patrimonio" aria-expanded="true">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10 12 4l9 6v10H3zM9 20v-6h6v6M6 10h12"/></svg>
@@ -181,7 +189,7 @@
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.13.38-H.2</span>
+        <span>v1.13.38-H.3</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -440,6 +448,39 @@
       </section>
 
       <!-- ABA: PERFIL DO USUÁRIO -->
+      <section id="sec-gabinete-painel" class="hidden cm-ux-central space-y-4" aria-labelledby="gabinete-painel-titulo">
+        <header class="cm-panel-header"><div><h2 id="gabinete-painel-titulo">Painel do Gabinete</h2><p>Consulte contatos e ramais da Casa Militar. Dados de demonstração.</p></div></header>
+        <form id="gabinete-busca-rapida" class="app-card p-4 space-y-2">
+          <label for="gabinete-termo-rapido" class="block font-medium">Busca rápida na Agenda</label>
+          <div class="flex flex-wrap gap-2">
+            <input id="gabinete-termo-rapido" type="search" class="min-w-0 flex-1 rounded-lg border border-slate-300 bg-transparent p-3" placeholder="Nome, unidade ou ramal">
+            <button type="submit" class="profile-action profile-action-primary">Buscar</button>
+          </div>
+        </form>
+        <div class="cm-panel-actions" aria-label="Consultas do Gabinete">
+          <button type="button" class="cm-panel-action" data-primary="true" data-gabinete-abrir="gabinete-agenda"><strong>Agenda Telefônica</strong><small>Consultar pessoas, ramais e contatos externos</small></button>
+          <button type="button" class="cm-panel-action" data-gabinete-abrir="gabinete-ramais"><strong>Ramais</strong><small>Pesquisar e copiar um ramal institucional</small></button>
+        </div>
+      </section>
+
+      <section id="sec-gabinete-agenda" class="hidden cm-ux-central space-y-4" aria-labelledby="gabinete-agenda-titulo">
+        <header class="cm-panel-header"><div><h2 id="gabinete-agenda-titulo">Agenda Telefônica</h2><p>Dados de demonstração do diretório institucional.</p></div></header>
+        <div class="app-card p-4 flex flex-wrap gap-3">
+          <label class="block flex-1" for="gabinete-busca-contato">Pesquisar contatos
+            <input id="gabinete-busca-contato" type="search" class="block w-full rounded-lg border border-slate-300 bg-transparent p-3" placeholder="Nome, unidade ou ramal">
+          </label>
+          <label class="block" for="gabinete-tipo-contato">Tipo de contato
+            <select id="gabinete-tipo-contato" class="block rounded-lg border border-slate-300 p-3"><option value="">Todos</option><option value="pessoa">Pessoas</option><option value="ramal">Ramais</option><option value="externo">Externos</option></select>
+          </label>
+        </div>
+        <p id="gabinete-total-contatos" class="text-sm" role="status"></p>
+        <ul id="gabinete-lista-contatos" class="space-y-2">
+          <li data-tipo="pessoa" class="app-card p-3"><details><summary class="cursor-pointer font-medium">SGT Exemplo A</summary><p class="mt-2">Unidade Alfa · Ramal 0001</p></details></li>
+          <li data-tipo="pessoa" class="app-card p-3"><details><summary class="cursor-pointer font-medium">Servidor Exemplo B</summary><p class="mt-2">Unidade Beta · Ramal 0002</p></details></li>
+          <li data-tipo="externo" class="app-card p-3"><details><summary class="cursor-pointer font-medium">Órgão externo exemplo</summary><p class="mt-2">Atendimento institucional · externo@example.invalid</p></details></li>
+        </ul>
+      </section>
+
       <section id="sec-gabinete-ramais" class="hidden cm-ux-central space-y-4" aria-labelledby="gabinete-ramais-titulo">
         <header class="cm-panel-header"><div><h2 id="gabinete-ramais-titulo">Ramais do Gabinete</h2><p>Consulte por setor, unidade ou número. Os registros de demonstração são fictícios.</p></div></header>
         <label class="block" for="gabinete-busca-ramal">Pesquisar ramais</label>
@@ -1156,7 +1197,7 @@
 
       <footer class="app-footer">
         <span>CM APP</span>
-        <span>v1.13.38-H.2 · HOMOLOGAÇÃO</span>
+        <span>v1.13.38-H.3 · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -1401,6 +1442,6 @@
         window.addEventListener('online',()=>{if(bloqueado()){tentou=false;void recuperar();}});
       })();
     </script>
-    <script type="module" src="./app.js?v=1.13.38-h.2"></script>
+    <script type="module" src="./app.js?v=1.13.38-h.3"></script>
 </body>
 </html>
