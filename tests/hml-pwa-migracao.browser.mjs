@@ -48,6 +48,6 @@ try{
  assert.equal(await v2.evaluate(()=>window.marcadorOutraRota),'preservado');
  const cachesApos=await page.evaluate(()=>caches.keys());
  assert.ok(!cachesApos.includes('cmapp-shell-v1.13.37-h.1-qa-integrada'));
- assert.ok(cachesApos.includes('cmapp-shell-v1.13.38-h.1-gabinete'));
+ assert.ok(cachesApos.includes('cmapp-shell-v1.13.38-h.2-gabinete'));
  console.log('Chromium: migração H.1 → H.5 automática, reload somente legado, cookies e preferências preservados.');
 }finally{await browser?.close();await new Promise(r=>server.close(r));}
