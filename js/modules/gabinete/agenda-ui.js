@@ -179,5 +179,5 @@ export function criarAgendaGabinete({obterUsuario,podeConsultar,notificar}){
     dialogo.addEventListener('close',()=>{aberta=null;});
     dialogo.addEventListener('click',evento=>{if(evento.target===dialogo)fecharFicha();});
   }
-  return {inicializar,renderizar,pesquisar,mostrarFavoritos,limpar,fecharFicha};
+  return {inicializar,renderizar,pesquisar,mostrarFavoritos,abrirContato:abrirFicha,limpar,fecharFicha};
 }
