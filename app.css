@@ -1574,6 +1574,7 @@ button[data-cautelas-kpi]{width:100%;text-align:left;cursor:pointer}button[data-
 .gest-funcao-exibir ul{padding:5px 0 5px 14px;list-style:disc}
 .gest-funcao-exibir p{font-size:.66rem;color:var(--app-muted,#94a3b8)}
 #confirmacao-mensagem{white-space:pre-line;overflow-wrap:anywhere}
+#modal-confirmacao .app-dialog{max-height:calc(100dvh - 24px);overflow-y:auto;overscroll-behavior:contain}
 @media(max-width:530px){
   .gest-impacto-diferencas{grid-template-columns:minmax(0,1fr)}
   .gest-impacto{padding:10px}
