@@ -57,7 +57,7 @@
       fecharCamadasNavegacao,
       fecharNavegacaoMovel,
       inicializarNavegacao
-    } from "./js/ui/navigation.js?v=1.13.38-h.3";
+    } from "./js/ui/navigation.js?v=1.13.47-h.1";
     import { inicializarPwa } from "./js/pwa.js?v=1.13.36-h.1";
     import { podeConsultarMateriaisDsips } from "./js/modules/dsips/consulta-materiais-model.js?v=1.13.13-h.3";
     import {invalidarCacheDsips} from './js/modules/dsips/service.js?v=1.13.34-h.1';
@@ -81,7 +81,7 @@ import {criarOrgaosGabineteEmMemoria} from './js/modules/gabinete/orgaos-model.j
 import {criarOrgaosGabineteUI} from './js/modules/gabinete/orgaos-ui.js?v=1.13.47-h.1';
 import {criarDiretorioGabinete} from './js/modules/gabinete/diretorio-referencias.js?v=1.13.47-h.1';
 import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.13.47-h.1';
-    import {podeNavegarLegado,decidirMudancaAcesso,sincronizarMenuAutorizado} from './js/platform/acesso-sessao.js?v=1.13.37-h.5';
+    import {podeNavegarLegado,decidirMudancaAcesso,sincronizarMenuAutorizado} from './js/platform/acesso-sessao.js?v=1.13.47-h.1';
 
     import {criarPainelDsips} from './js/modules/dsips/painel-ui.js?v=1.13.34-h.1';
     let usuarioLogado = null;
