@@ -5,8 +5,10 @@ import {podeNavegarLegado,decidirMudancaAcesso} from '../js/platform/acesso-sess
 test('SAN-01: conta versionada é encerrada antes de carregar privilégios legados',async()=>{
  const src=await readFile(new URL('../app.js',import.meta.url),'utf8');
  const start=src.indexOf("if (Object.hasOwn(userDoc.data(), 'autorizacaoVersao'))");
- const end=src.indexOf("usuarioLogado = { uid: user.uid",start);
+ const end=src.indexOf("usuarioLogado = {",start);
  assert.ok(start>=0&&end>start);
+ // O UID da sessão agora é imposto pelo Firebase Auth, após os campos do documento.
+ assert.match(src.slice(end,end+120),/usuarioLogado = \{ \.\.\.userDoc\.data\(\), uid: user\.uid, email: user\.email \}/);
  assert.match(src.slice(start,end),/await signOut\(auth\)/);
  assert.match(src.slice(start,end),/return;/);
  assert.doesNotMatch(src,/location\.replace.*homologacao\/gestao-acessos/);
