@@ -21,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.13.38-h.1">
+  <link rel="stylesheet" href="./app.css?v=1.13.38-h.2">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div id="cmapp-hml-banner" class="cmapp-hml-banner" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -58,7 +58,7 @@
       <p class="text-xs text-center"><a href="./recuperar.html" class="text-blue-400 underline">Problemas para entrar? Recuperar atualização</a></p>
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.38-H.1 • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.38-H.2 • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -181,7 +181,7 @@
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.13.38-H.1</span>
+        <span>v1.13.38-H.2</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -440,14 +440,16 @@
       </section>
 
       <!-- ABA: PERFIL DO USUÁRIO -->
-      <section id="sec-gabinete-ramais" class="hidden space-y-4" aria-label="Ramais do Gabinete">
-        <p class="text-sm">Demonstração de homologação com ramais fictícios.</p>
+      <section id="sec-gabinete-ramais" class="hidden cm-ux-central space-y-4" aria-labelledby="gabinete-ramais-titulo">
+        <header class="cm-panel-header"><div><h2 id="gabinete-ramais-titulo">Ramais do Gabinete</h2><p>Consulte por setor, unidade ou número. Os registros de demonstração são fictícios.</p></div></header>
         <label class="block" for="gabinete-busca-ramal">Pesquisar ramais</label>
         <input id="gabinete-busca-ramal" type="search" class="w-full rounded-lg border border-slate-300 bg-transparent p-3" placeholder="Setor, unidade ou número">
         <p id="gabinete-sem-ramais" class="hidden" role="status">Nenhum ramal encontrado.</p>
         <ul id="gabinete-lista-ramais" class="space-y-2">
-          <li class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-300 p-3"><div><strong>Recepção exemplo</strong><br>Unidade Alfa · 0001</div><button type="button" class="rounded-lg border border-slate-300 px-3 py-2" data-copiar-ramal="0001" aria-label="Copiar ramal 0001">Copiar ramal</button></li>
-          <li class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-300 p-3"><div><strong>Setor exemplo</strong><br>Unidade Beta · 0002</div><button type="button" class="rounded-lg border border-slate-300 px-3 py-2" data-copiar-ramal="0002" aria-label="Copiar ramal 0002">Copiar ramal</button></li>
+          <li class="flex flex-wrap items-center justify-between gap-3 app-card p-3"><div><strong>Recepção exemplo</strong><br>Unidade Alfa · 0001</div><button type="button" class="rounded-lg border border-slate-300 px-3 py-2" data-copiar-ramal="0001" aria-label="Copiar ramal 0001">Copiar ramal</button></li>
+          <li class="flex flex-wrap items-center justify-between gap-3 app-card p-3"><div><strong>Setor exemplo</strong><br>Unidade Beta · 0002</div><button type="button" class="rounded-lg border border-slate-300 px-3 py-2" data-copiar-ramal="0002" aria-label="Copiar ramal 0002">Copiar ramal</button></li>
+          <li class="flex flex-wrap items-center justify-between gap-3 app-card p-3"><div><strong>Atendimento exemplo</strong><br>Unidade Beta · 0002</div><button type="button" data-copiar-ramal="0002" class="rounded-lg border border-slate-300 px-3 py-2" aria-label="Copiar ramal 0002 de Atendimento exemplo">Copiar ramal</button></li>
+          <li class="app-card p-3"><strong>Apoio exemplo</strong><br>Unidade Beta · Sem ramal informado</li>
         </ul>
       </section>
 
@@ -1154,7 +1156,7 @@
 
       <footer class="app-footer">
         <span>CM APP</span>
-        <span>v1.13.38-H.1 · HOMOLOGAÇÃO</span>
+        <span>v1.13.38-H.2 · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -1399,6 +1401,6 @@
         window.addEventListener('online',()=>{if(bloqueado()){tentou=false;void recuperar();}});
       })();
     </script>
-    <script type="module" src="./app.js?v=1.13.38-h.1"></script>
+    <script type="module" src="./app.js?v=1.13.38-h.2"></script>
 </body>
 </html>
