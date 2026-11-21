@@ -1,4 +1,5 @@
 import {filtrarContatosGabinete} from './agenda-model.js';
+import {iniciaisInstitucionais} from './diretorio-referencias.js';
 
 // O contrato aceita registros estruturados no futuro; esta sprint NÃO busca dados privados.
 export function criarAgendaGabinete({obterUsuario,podeConsultar,podeGerenciar=()=>false,editarContato=()=>{},notificar,armazenamento}){
@@ -84,9 +85,31 @@ export function criarAgendaGabinete({obterUsuario,podeConsultar,podeGerenciar=()
       destino.append(ancorar('Enviar e-mail','mailto:'+encodeURIComponent(contato.email)));
     }
   }
+  function avatar(contato,grande=false){
+    const el=elemento('span',grande?'cm-gab-avatar cm-gab-avatar-lg':'cm-gab-avatar',iniciaisInstitucionais(contato.nome));
+    el.setAttribute('aria-hidden','true');
+    if(contato.tipo==='externo'||contato.tipo==='ramal'){
+      el.textContent=contato.tipo==='externo'?'🏛':'☎';
+      return el;
+    }
+    // A foto real só é reutilizada para o próprio usuário autenticado, em memória.
+    const url=armazenamento.fotoDoContato?.(contato)||'';
+    if(url){
+      const imagem=elemento('img');
+      imagem.alt='';
+      imagem.loading='lazy';
+      imagem.referrerPolicy='no-referrer';
+      imagem.src=url;
+      imagem.addEventListener('error',()=>{imagem.remove();});
+      el.append(imagem);
+    }
+    return el;
+  }
   function preencherFicha(contato){
     fichaTitulo.textContent=contato.nome;
-    fichaSubtitulo.textContent='Ficha institucional · Dados de demonstração';
+    fichaSubtitulo.textContent=contato.origem==='usuarios'?'Contato vinculado ao Meu Perfil · Somente leitura':'Ficha institucional · Dados de demonstração';
+    const avatarFicha=document.getElementById('gabinete-ficha-avatar');
+    avatarFicha?.replaceChildren(avatar(contato,true));
     fichaCampos.replaceChildren();
     const campos=[
       ['Tipo',({pessoa:'Pessoa',ramal:'Ramal',externo:'Contato externo'})[contato.tipo]||contato.tipo],
@@ -106,7 +129,8 @@ export function criarAgendaGabinete({obterUsuario,podeConsultar,podeGerenciar=()
     marcar.setAttribute('aria-pressed',String(favorito));
     fichaAcoes.append(marcar);
     acoesContato(fichaAcoes,contato);
-    if(podeGerenciar())fichaAcoes.append(botao('Editar cadastro','cm-gab-action',()=>editarContato(contato.id)));
+    if(contato.somenteLeitura)fichaAcoes.append(elemento('span','cm-gab-readonly','Identidade mantida na Gestão de Usuários'));
+    if(podeGerenciar()&&!contato.somenteLeitura)fichaAcoes.append(botao('Editar cadastro','cm-gab-action',()=>editarContato(contato.id)));
   }
   function abrirFicha(id){
     if(!autorizado())return;
@@ -134,7 +158,7 @@ export function criarAgendaGabinete({obterUsuario,podeConsultar,podeGerenciar=()
     acoes.append(favoritar);
     if(contato.ramal) acoes.append(botao('Copiar ramal','cm-gab-action',()=>copiar(contato.ramal,'Ramal')));
     else if(contato.email) acoes.append(botao('Copiar e-mail','cm-gab-action',()=>copiar(contato.email,'E-mail')));
-    li.append(corpo,acoes);
+    li.append(avatar(contato),corpo,acoes);
     return li;
   }
   function renderizar(){
