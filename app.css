@@ -1620,3 +1620,88 @@ button[data-cautelas-kpi]{width:100%;text-align:left;cursor:pointer}button[data-
  #filtro-funcao-usuarios{width:100%;min-width:0;min-height:44px}
  #modal-detalhes-usuario .user-details-dialog{padding-bottom:env(safe-area-inset-bottom,12px)}
 }
+
+/* GEST-04 | Identidades e vínculos: AppDashboard Pro reinterpretado no CMAPP. */
+.gest04-aviso{border:1px solid rgb(245 158 11/.32);background:rgb(245 158 11/.06);border-radius:13px;padding:13px 15px;
+  color:var(--app-text,#e2e8f0);font-size:.79rem;line-height:1.58}
+.gest04-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px}
+.gest04-cards article{min-width:0;display:grid;grid-template-columns:42px minmax(0,1fr);align-content:center;column-gap:10px;
+  padding:13px;border:1px solid var(--app-border,#334155);border-radius:13px;background:var(--app-surface,#1e293b)}
+.gest04-icone{grid-row:span 2;align-self:center;display:grid;place-items:center;width:40px;height:40px;
+  border-radius:11px;background:rgb(59 130 246/.1);color:#60a5fa;font-size:1.15rem}
+.gest04-cards strong{font-size:1.45rem;font-weight:850;color:var(--app-text,#e2e8f0);font-variant-numeric:tabular-nums}
+.gest04-cards small{font-size:.69rem;line-height:1.4;color:var(--app-muted,#94a3b8)}
+.gest04-painel{display:grid;gap:14px;min-width:0;padding:17px;border-radius:14px}
+.gest04-painel-topo{display:flex;justify-content:space-between;align-items:start;gap:10px}
+.gest04-painel h3{font-size:1.05rem;font-weight:850;color:var(--app-text,#e2e8f0);margin-top:5px}
+.gest04-referencia{font-size:.75rem;line-height:1.55;margin-top:7px;color:var(--app-muted,#94a3b8)}
+.gest04-trilhas{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.gest04-trilhas>div{display:grid;gap:5px;padding:10px;border:1px solid var(--app-border,#334155);
+  border-radius:10px;background:rgb(59 130 246/.04);min-width:0}
+.gest04-trilhas strong{font-size:.78rem;color:var(--app-text,#e2e8f0)}
+.gest04-trilhas span{font-size:.68rem;line-height:1.45;color:var(--app-muted,#94a3b8)}
+.gest04-barra{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:end}
+.gest04-abas{display:flex;flex-wrap:wrap;gap:5px;background:var(--app-surface,#0f172a);
+  border:1px solid var(--app-border,#334155);border-radius:11px;padding:4px}
+.gest04-abas button{border-radius:8px;padding:10px 12px;min-height:44px;color:var(--app-muted,#94a3b8);
+  font-size:.75rem;font-weight:750;cursor:pointer}
+.gest04-abas button.is-selected{background:rgb(59 130 246/.18);color:var(--app-text,#e2e8f0)}
+.gest04-filtros{display:flex;flex:1;flex-wrap:wrap;justify-content:end;gap:8px}
+.gest04-filtros label{display:grid;gap:5px;min-width:150px;max-width:320px;flex:1;font-size:.69rem;font-weight:750;
+ color:var(--app-muted,#94a3b8)}
+.gest04-filtros input,.gest04-filtros select{width:100%;min-height:44px;border:1px solid var(--app-border,#334155);
+ background:var(--app-surface,#0f172a);color:var(--app-text,#e2e8f0);padding:9px 10px;border-radius:9px;font-size:.8rem}
+.gest04-abas button:focus-visible,.gest04-acao:focus-visible,.gest04-mais:focus-visible,
+.gest04-filtros :is(input,select):focus-visible{outline:2px solid #60a5fa;outline-offset:2px}
+.gest04-resumo,.gest04-mensagem,.gest04-rodape{font-size:.72rem;line-height:1.55;color:var(--app-muted,#94a3b8)}
+.gest04-lista{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.gest04-registro{min-width:0;display:grid;gap:12px;align-content:start;padding:14px;
+ border:1px solid var(--app-border,#334155);border-radius:12px;background:var(--app-surface,#1e293b)}
+.gest04-registro-pendente{border-color:rgb(245 158 11/.26)}
+.gest04-cabecalho{display:flex;flex-wrap:wrap;align-items:center;gap:10px;min-width:0}
+.gest04-avatar{flex:0 0 38px;height:38px;display:grid;place-items:center;border-radius:11px;background:rgb(59 130 246/.12);
+ color:#60a5fa;font-size:.79rem;font-weight:850}
+.gest04-avatar-divisao{font-size:1.2rem}
+.gest04-avatar-pendente{background:rgb(245 158 11/.12);color:#fbbf24;font-size:1rem}
+.gest04-identidade{flex:1 1 150px;min-width:0;display:grid;gap:4px}
+.gest04-identidade strong{font-size:.8rem;font-weight:850;color:var(--app-text,#e2e8f0);overflow-wrap:anywhere}
+.gest04-identidade small{font-size:.69rem;line-height:1.4;color:var(--app-muted,#94a3b8);overflow-wrap:anywhere}
+.gest04-badges{display:flex;flex-wrap:wrap;gap:5px}
+.gest04-status{display:inline-block;padding:5px 8px;border-radius:20px;border:1px solid var(--app-border,#334155);
+ color:var(--app-muted,#94a3b8);font-size:.64rem;font-weight:750;line-height:1.3}
+.gest04-status[data-estado=confirmado],.gest04-status[data-estado=identidade-informada]{
+ background:rgb(16 185 129/.09);border-color:rgb(16 185 129/.3);color:var(--app-text,#e2e8f0)}
+.gest04-status[data-estado=pendente]{background:rgb(245 158 11/.07);border-color:rgb(245 158 11/.28)}
+.gest04-dados{display:grid;gap:8px}
+.gest04-dados-dois{grid-template-columns:repeat(2,minmax(0,1fr))}
+.gest04-dado{display:grid;align-content:start;gap:6px;min-width:0;padding:9px;
+ border:1px solid var(--app-border,#334155);border-radius:9px}
+.gest04-dado>span:first-child{font-size:.65rem;font-weight:760;color:var(--app-muted,#94a3b8)}
+.gest04-dado strong{font-size:.73rem;line-height:1.45;color:var(--app-text,#e2e8f0);
+ font-weight:680;overflow-wrap:anywhere}
+.gest04-dado .gest04-status{justify-self:start}
+.gest04-rodape{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:9px;
+ padding-top:9px;border-top:1px solid var(--app-border,#334155)}
+.gest04-nota{font-size:.68rem;line-height:1.5;color:var(--app-muted,#94a3b8)}
+.gest04-acao,.gest04-mais{min-height:44px;border:1px solid rgb(59 130 246/.38);border-radius:9px;
+ padding:9px 12px;color:#93c5fd;font-size:.72rem;font-weight:780;cursor:pointer}
+.gest04-acao:hover,.gest04-mais:hover{background:rgb(59 130 246/.09)}
+.gest04-mais{justify-self:center}
+.gest04-mais[hidden]{display:none!important}
+.gest04-rodape{border-top:1px solid var(--app-border,#334155);padding-top:12px}
+@media(max-width:1080px){
+ .gest04-cards,.gest04-trilhas{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .gest04-lista{grid-template-columns:1fr}
+}
+@media(max-width:700px){
+ .gest04-cards{gap:8px}.gest04-cards article{padding:10px;grid-template-columns:34px minmax(0,1fr)}
+ .gest04-icone{width:32px;height:32px}.gest04-cards strong{font-size:1.18rem}
+ .gest04-painel{padding:12px}
+ .gest04-trilhas{grid-template-columns:1fr 1fr}
+ .gest04-barra,.gest04-filtros{display:grid;grid-template-columns:1fr;justify-content:stretch;width:100%}
+ .gest04-abas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+ .gest04-abas button{padding:8px 5px;min-width:0;font-size:.7rem}
+ .gest04-filtros label{max-width:none;width:100%;min-width:0}
+ .gest04-registro{padding:11px}.gest04-dados-dois{grid-template-columns:1fr}
+ .gest04-acao{width:100%}
+}
