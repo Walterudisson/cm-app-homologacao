@@ -1,5 +1,6 @@
 import { MODULO_PATRIMONIOS } from '../modules/patrimonios/module.js';
 import { MODULO_DSIPS } from '../modules/dsips/module.js';
+import { MODULO_GABINETE } from '../modules/gabinete/module.js';
 
 const perfisGestao = Object.freeze(['admin', 'gestor']);
 const comum = (titulo, area, nome, perfis) => Object.freeze({
@@ -13,15 +14,13 @@ export const PAGINAS_COMUNS = Object.freeze({
   usuarios: comum('Gestão de usuários', 'Gestão', 'Usuários', perfisGestao),
   divisoes: comum('Gestão de divisões', 'Gestão', 'Divisões', perfisGestao),
   funcoes: comum('Funções e permissões', 'Gestão', 'Funções', Object.freeze(['admin'])),
-  'gabinete-painel': comum('Painel do Gabinete', 'Gabinete', 'Painel', Object.freeze(['admin'])),
-  'gabinete-agenda': comum('Agenda Telefônica', 'Gabinete', 'Agenda', Object.freeze(['admin'])),
-  'gabinete-ramais': comum('Ramais', 'Gabinete', 'Ramais', Object.freeze(['admin'])),
   perfil: comum('Meu perfil', 'Conta', 'Meu perfil')
 });
 
 export const MODULOS = Object.freeze({
   patrimonios: MODULO_PATRIMONIOS,
-  dsips: MODULO_DSIPS
+  dsips: MODULO_DSIPS,
+  gabinete: MODULO_GABINETE
 });
 
 export function listarModulosAtivos() {
@@ -56,7 +55,7 @@ export function modulosDoUsuario(usuario) {
 export function paginaInicialUsuario(usuario) {
   if (usuario?.perfil === 'usuario') return 'perfil';
   const modulos = modulosDoUsuario(usuario);
-  return modulos.length === 1 ? modulos[0].paginaInicial : 'modulos';
+  return modulos.length > 0 ? 'modulos' : 'perfil';
 }
 
 // A mesma atribuição deve ser aplicada pelas Rules e pela função administrativa.
