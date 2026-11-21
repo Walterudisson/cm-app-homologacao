@@ -5,7 +5,7 @@ export const CONTATOS_DEMONSTRACAO = Object.freeze([
   {id:'demo-pessoa-003',tipo:'pessoa',nome:'SGT Exemplo C',unidade:'Unidade Gama',funcao:'Contato institucional de demonstração',ramal:'0003',aniversario:'12-03'},
   {id:'demo-pessoa-004',tipo:'pessoa',nome:'Servidor Exemplo D',unidade:'Unidade Delta',funcao:'Contato institucional de demonstração',ramal:'0004',aniversario:'02-29'},
   {id:'demo-pessoa-005',tipo:'pessoa',nome:'Militar Exemplo E',unidade:'Unidade Épsilon',funcao:'Contato institucional de demonstração',aniversario:'01-15'},
-  {id:'demo-externo-001',tipo:'externo',nome:'Órgão externo exemplo',unidade:'Atendimento institucional',email:'externo@example.invalid'},
+  {id:'demo-externo-001',tipo:'externo',nome:'Contato Externo Exemplo',unidade:'Órgão Externo Alfa (exemplo)',orgaoId:'demo-org-001',email:'externo@example.invalid'},
   {id:'demo-ramal-001',tipo:'ramal',nome:'Recepção exemplo',unidade:'Unidade Alfa',ramal:'0001'},
   {id:'demo-ramal-002',tipo:'ramal',nome:'Setor exemplo',unidade:'Unidade Beta',ramal:'0002'},
   {id:'demo-ramal-003',tipo:'ramal',nome:'Atendimento exemplo',unidade:'Unidade Beta',ramal:'0002'},
