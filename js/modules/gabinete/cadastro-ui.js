@@ -205,7 +205,7 @@ export function criarCadastroGabineteUI({armazenamento,orgaos,uiOrgaos,obterUsua
     }
     secao.dataset.bloqueado='false';
     const hoje=dataLocalHoje();
-    const todos=armazenamento.listar({incluirInativos:true});
+    const todos=armazenamento.listar({incluirInativos:true}).filter(c=>c.origem!=='orgaos');
     const ativos=todos.filter(c=>c.ativo);
     const vencidos=ativos.filter(c=>!c.somenteLeitura&&['sem-revisao','vencida'].includes(qualidadeContatoGabinete(c,hoje).revisao.codigo));
     const pendentes=ativos.filter(c=>!c.somenteLeitura&&qualidadeContatoGabinete(c,hoje).precisaAtencao);
