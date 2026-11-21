@@ -29,7 +29,7 @@
     import { criarControladorCamera } from "./js/controllers/camera.controller.js?v=1.12.0";
     import { atualizarDivisao, criarDivisao, listarDivisoes, listarDivisoesAtivas } from "./js/services/divisoes.service.js?v=1.13.10";
     import { CATALOGO_PERMISSOES, FUNCOES_NATIVAS, PERMISSOES, usuarioPode } from "./js/core/permissoes.js?v=1.13.11";
-    import { criarMatrizAcessosGestaoUI } from "./js/modules/gestao/matriz-acessos-ui.js?v=1.13.44-h.1";
+    import { criarMatrizAcessosGestaoUI } from "./js/modules/gestao/matriz-acessos-ui.js?v=1.13.44-h.2";
     import { alterarEstadoFuncao, atualizarFuncao, criarFuncao, listarFuncoesPersonalizadas } from "./js/services/funcoes.service.js?v=1.13.11";
     import {
       consultarCicloDivisao, encerrarDivisao, reabrirDivisao,
@@ -68,13 +68,13 @@
 
     import {renderizarCentral, podeAbrirCentral} from './js/ui/central-trabalho.js?v=1.13.38-h.4';
     import {modulosDoUsuario} from './js/platform/modules.js';
-    import {criarAgendaGabinete} from './js/modules/gabinete/agenda-ui.js?v=1.13.44-h.1';
-    import {criarAniversariantesGabinete} from './js/modules/gabinete/aniversarios-ui.js?v=1.13.44-h.1';
-import {criarCadastroGabineteEmMemoria} from './js/modules/gabinete/cadastro-model.js?v=1.13.44-h.1';
-import {criarOrgaosGabineteEmMemoria} from './js/modules/gabinete/orgaos-model.js?v=1.13.44-h.1';
-import {criarOrgaosGabineteUI} from './js/modules/gabinete/orgaos-ui.js?v=1.13.44-h.1';
-import {criarDiretorioGabinete} from './js/modules/gabinete/diretorio-referencias.js?v=1.13.44-h.1';
-import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.13.44-h.1';
+    import {criarAgendaGabinete} from './js/modules/gabinete/agenda-ui.js?v=1.13.44-h.2';
+    import {criarAniversariantesGabinete} from './js/modules/gabinete/aniversarios-ui.js?v=1.13.44-h.2';
+import {criarCadastroGabineteEmMemoria} from './js/modules/gabinete/cadastro-model.js?v=1.13.44-h.2';
+import {criarOrgaosGabineteEmMemoria} from './js/modules/gabinete/orgaos-model.js?v=1.13.44-h.2';
+import {criarOrgaosGabineteUI} from './js/modules/gabinete/orgaos-ui.js?v=1.13.44-h.2';
+import {criarDiretorioGabinete} from './js/modules/gabinete/diretorio-referencias.js?v=1.13.44-h.2';
+import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.13.44-h.2';
     import {podeNavegarLegado,decidirMudancaAcesso,sincronizarMenuAutorizado} from './js/platform/acesso-sessao.js?v=1.13.37-h.5';
 
     import {criarPainelDsips} from './js/modules/dsips/painel-ui.js?v=1.13.34-h.1';
@@ -203,6 +203,11 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
       if(uid===usuarioLogado?.uid&&abaAtual==='dsips-cautelas')cautelasDsips.iniciarDevolucaoPorId(id);
     }});
     const historicoDsips = criarHistoricoDsips({ obterUsuario: () => usuarioLogado });
+    // GEST-01 hotfix: o controlador DEVE existir antes da inicialização de Funções.
+    // Uma referência a const ainda não declarada interrompia o bootstrap e desabilitava o login.
+    const matrizAcessosGestao = criarMatrizAcessosGestaoUI({
+      podeConsultar: () => usuarioLogado?.perfil==='admin' && podeNavegarLegado(usuarioLogado,'funcoes')
+    });
     inicializarAlternadoresSenha();
     inicializarGestaoDivisoes();
     inicializarGestaoFuncoes();
@@ -1298,9 +1303,6 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
     }
 
     const ROTULOS_PERFIL = { admin: 'Administrador', gestor: 'Gestor', conferente: 'Conferente' };
-    const matrizAcessosGestao = criarMatrizAcessosGestaoUI({
-      podeConsultar: () => usuarioLogado?.perfil==='admin' && podeNavegarLegado(usuarioLogado,'funcoes')
-    });
 
     function funcoesNativas() {
       return Object.entries(FUNCOES_NATIVAS).map(([id, permissoes]) => ({
