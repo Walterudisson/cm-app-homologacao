@@ -87,7 +87,8 @@ export function criarCadastroGabineteEmMemoria({hoje=()=>dataLocalHoje(),dados=C
     uidAtual=valor;sequencia=0;registros=new Map();
     if(valor){
       for(const origem of dados){
-        const valido=validarCadastroGabinete({...origem,id:undefined,revisadoEm:DATAS_FIXTICIAS[origem.id]||''});
+        const {id,...campos}=origem;
+        const valido=validarCadastroGabinete({...campos,revisadoEm:DATAS_FIXTICIAS[id]||''});
         registros.set(origem.id,Object.freeze({id:origem.id,...valido,ativo:true}));
       }
     }
