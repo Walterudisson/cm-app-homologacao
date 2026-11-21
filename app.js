@@ -67,6 +67,7 @@
 
     import {renderizarCentral, podeAbrirCentral} from './js/ui/central-trabalho.js?v=1.13.38-h.4';
     import {modulosDoUsuario} from './js/platform/modules.js';
+    import {criarAgendaGabinete} from './js/modules/gabinete/agenda-ui.js?v=1.13.39-h.1';
     import {podeNavegarLegado,decidirMudancaAcesso,sincronizarMenuAutorizado} from './js/platform/acesso-sessao.js?v=1.13.37-h.5';
 
     import {criarPainelDsips} from './js/modules/dsips/painel-ui.js?v=1.13.34-h.1';
@@ -86,6 +87,7 @@
     let itensFiltradosCache = [];
     let unsubscribeTransferencias = [];
     let abaAtual = 'modulos';
+    let agendaGabinete = null;
     let usuariosCarregados = false;
     let divisoesCarregadas = false;
     let funcoesCarregadas = false;
@@ -672,7 +674,7 @@
     function interromperSessaoAcesso(){
       ++epocaAcesso;cancelarVigiaAcesso?.();cancelarVigiaAcesso=null;
       usuarioLogado=null;document.getElementById('view-app').classList.add('hidden');
-      invalidarCacheDsips();encerrarOuvinteTransferencias();
+      invalidarCacheDsips();encerrarOuvinteTransferencias();agendaGabinete?.limpar();
       painelDsips.limpar();consultaMateriaisDsips.limpar();cadastrosDsips.limpar();estoqueDsips.limpar();cautelasDsips.limpar();posseDsips.limpar();historicoDsips.limpar();
       revisaoEscopo++;invalidarCacheRelacao();cachePatrimonios.clear();cacheSugestoes.clear();cacheFotosUsuarios.clear();catalogoDivisoes.clear();
       bancoPatrimonio=[];bancoUsuarios=[];bancoDivisoes=[];bancoFuncoes=[];itemAtualSelecionado=null;
@@ -693,6 +695,7 @@
       const vigente=()=>epoca===epocaAcesso&&auth.currentUser?.uid===user?.uid;
       document.getElementById('view-app').classList.add('hidden');usuarioLogado=null;encerrarOuvinteTransferencias();
       invalidarCacheDsips();
+      agendaGabinete?.limpar();
       painelDsips.limpar();
       // Descarta dados DSIPS de qualquer sessão anterior antes de validar a nova.
       consultaMateriaisDsips.limpar();
@@ -1567,41 +1570,25 @@
     }
 
     buscaRamal.addEventListener('input', filtrarRamais);
-    const buscaContato = document.getElementById('gabinete-busca-contato');
-    const tipoContato = document.getElementById('gabinete-tipo-contato');
-    const listaContatos = document.getElementById('gabinete-lista-contatos');
-    for (const ramal of listaRamais.children) {
-      const contato = ramal.cloneNode(true);
-      contato.dataset.tipo = 'ramal';
-      listaContatos.append(contato);
-    }
-
-    function filtrarContatos() {
-      const termo = normalizarContato(buscaContato.value);
-      let total = 0;
-      for (const contato of listaContatos.children) {
-        const corresponde = (!tipoContato.value || contato.dataset.tipo === tipoContato.value)
-          && normalizarContato(contato.textContent.replace(/Copiar ramal/g, '')).includes(termo);
-        contato.classList.toggle('hidden', !corresponde);
-        if (corresponde) total++;
-      }
-      document.getElementById('gabinete-total-contatos').textContent =
-        total === 0 ? 'Nenhum contato encontrado.' : total === 1 ? '1 contato encontrado' : `${total} contatos encontrados`;
-    }
-
-    buscaContato.addEventListener('input', filtrarContatos);
-    tipoContato.addEventListener('change', filtrarContatos);
-    filtrarContatos();
+    agendaGabinete = criarAgendaGabinete({
+      obterUsuario:()=>usuarioLogado,
+      podeConsultar:()=>podeNavegarLegado(usuarioLogado,'gabinete-agenda'),
+      notificar:notificarMensagem
+    });
+    agendaGabinete.inicializar();
 
     document.querySelectorAll('[data-gabinete-abrir]').forEach(botao => {
-      botao.addEventListener('click', () => alternarAba(botao.dataset.gabineteAbrir));
+      botao.addEventListener('click', async () => {
+        await alternarAba(botao.dataset.gabineteAbrir);
+        if (botao.dataset.gabineteFavoritos === 'true' && abaAtual === 'gabinete-agenda') {
+          agendaGabinete.mostrarFavoritos();
+        }
+      });
     });
     document.getElementById('gabinete-busca-rapida').addEventListener('submit', async evento => {
       evento.preventDefault();
       if (!podeNavegarLegado(usuarioLogado, 'gabinete-agenda')) return;
-      buscaContato.value = document.getElementById('gabinete-termo-rapido').value;
-      tipoContato.value = '';
-      filtrarContatos();
+      agendaGabinete.pesquisar(document.getElementById('gabinete-termo-rapido').value);
       await alternarAba('gabinete-agenda');
       if (abaAtual === 'gabinete-agenda') buscaContato.focus();
     });
@@ -1618,7 +1605,6 @@
       }
     }
     listaRamais.addEventListener('click', copiarRamal);
-    listaContatos.addEventListener('click', copiarRamal);
 
     async function alternarAba(abaAtiva, { registrarHistorico = true, substituirHistorico = false } = {}) {
       if (!usuarioLogado) return;
@@ -1647,6 +1633,7 @@
       if (abaAtual !== abaAtiva && abaAtiva === 'transferencias') {
         document.querySelectorAll('#container-transferencias details.transfer-group').forEach(grupo => { grupo.open = false; });
       }
+      if (abaAtiva !== 'gabinete-agenda') agendaGabinete?.fecharFicha();
       abaAtual = abaAtiva;
       ativarPagina(abaAtiva);
       document.getElementById('escopo-barra').classList.toggle('hidden', !['dashboard', 'lista'].includes(abaAtiva));
@@ -1673,6 +1660,7 @@
 
       try {
         if (abaAtiva === 'modulos') renderizarCentral(document.getElementById('central-modulos-grid'), usuarioLogado, aba=>alternarAba(aba));
+        if (abaAtiva === 'gabinete-agenda') agendaGabinete.renderizar();
         if (abaAtiva === 'dashboard') {
           await carregarDashboard();
           if (usuarioLogado?.perfil === 'conferente') agendarTutorialConferente();

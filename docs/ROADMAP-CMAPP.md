@@ -1,0 +1,61 @@
+# CMAPP | Roadmap de desenvolvimento
+
+**Referência:** 21/11/2026. **Ambiente:** HML [cm-app-homologacao](https://walterudisson.github.io/cm-app-homologacao/).
+Esta é a referência única de planejamento para as sprints de frontend do CMAPP.
+
+## Restrições atuais
+
+- Somente alterações incrementais no frontend do HML, sem promoção automática para produção.
+- Backend, Firebase Rules, Cloud Functions, índices, migrações e alterações estruturais de dados ficam **suspensos até nova autorização**.
+- Não publicar dados pessoais reais em arquivos públicos do GitHub Pages nem na prévia de demonstração.
+- Sem liberar acesso amplo à Agenda: consulta depende de permissão concedida. Telefones particulares somente para Gabinete e administradores expressamente autorizados, quando houver proteção pelo backend.
+- PDF deve respeitar a abrangência do usuário; revisão cadastral a cada **90 dias**; aniversários em painel e push configurável quando houver backend autorizado.
+- Preservar identidade CMAPP, mobile-first/PWA, homologação regressiva e centralização em um único aplicativo.
+
+## Estado verificado
+
+| Frente | Estado em 21/11/2026 | Pendência |
+|---|---|---|
+| Central de Trabalho | HML v1.13.38-H.4 integrada, Gabinete como módulo e login direto na Central | Teste funcional Android/desktop |
+| Patrimônios | Telas existentes e Painel V2 | Evolução de gestão sem regressões |
+| DSIPS | Estoque, cautelas, devoluções, posse, histórico e indicadores no frontend | Ajustes de gestão; mudanças de backend em espera |
+| Gestão | Usuários, divisões e matriz de permissões legadas | GEST-01 a GEST-05: UI/UX; GEST-06/07 bloqueadas por backend |
+| Gabinete | Painel, Agenda e Ramais integrados com dados fictícios | Fichas, favoritos, cadastros reais autorizados |
+| Segurança | PWA e mitigação de versões | Sessões/dispositivos e revogação via backend seguro no futuro |
+
+## Gabinete: cronologia, entregas e próximas sprints
+
+| Marco | Escopo | Estado |
+|---|---|---|
+| GAB-00 | Prévia navegável, identidade e requisitos | Protótipo criado |
+| GAB-01 | Contrato de fundação cadastral, regras de autorização e testes | Contrato preparado, sem deploy de backend |
+| GAB-02 | Busca e exportação PDF por impressão do navegador | Prévia estática, **não confundir com integração na Agenda** |
+| GAB-03 | Painel + Agenda Telefônica no CMAPP | HML, dados demonstrativos |
+| GAB-04 | Ramais institucionais e pesquisa/cópia | HML, dados demonstrativos |
+| Integração H.4 | Gabinete na Central e login com rota inicial correta | Código HML integrado; homologação funcional pendente |
+| **GAB-05** | **Fichas, favoritos locais, ações rápidas e responsividade** | **HML v1.13.39-H.1, aguardando homologação funcional** |
+| GAB-06 | Aniversariantes no painel e preferências; push condicionado a backend | Planejada |
+| GAB-07 | Qualidade cadastral, pendências, indicação de revisão a cada 90 dias | Planejada; persistência dependerá de backend |
+| GAB-08 | Exportação PDF conforme perfis, vCard, revisão de privacidade | Planejada; exige proteção por campo na fonte |
+| GAB-09 | QA integrada, auditoria, acessibilidade, PWA e regressões | Planejada |
+
+### Entregáveis e critérios da GAB-05
+
+- Ficha de contato institucional, sem campos particulares na demonstração.
+- Cards responsivos, busca por nome, unidade e ramal.
+- Filtro de favoritos com persistência **somente de IDs fictícios**, local por dispositivo e por usuário.
+- Ações contextuais para copiar ramal e e-mail; chamada/e-mail externo somente se o dado institucional estiver disponível e válido.
+- Rotas existentes preservadas; nada publicado em produção.
+
+### Próximas frentes após Gabinete
+
+1. **Gestão:** simplificar tela de usuários e acessos, perfis por módulo, aprovações e usabilidade mobile, sem migrar modelo até aprovação do backend.
+2. **DSIPS:** indicadores realmente acionáveis e telas de gestão/posse/cautela, preservando fluxo do PDV e histórico.
+3. **Patrimônios:** acompanhar Painel V2, filas, gestão de inventários e consultas.
+4. **Segurança/PWA:** Minha Conta > Segurança > Sessões e Dispositivos, auditoria e revogação segura (backend futuro).
+5. **Novos módulos:** RH (efetivo), Academia (atestados de aptidão), AT (inquéritos) e demais áreas previstas.
+
+## Regra de publicação
+
+**HML → testes/regressão no Android, desktop e PWA → homologação explícita → promoção PRD.** 
+Nenhuma versão HML ou alteração em código representa homologação do usuário.

@@ -21,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.13.38-h.4">
+  <link rel="stylesheet" href="./app.css?v=1.13.39-h.1">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div id="cmapp-hml-banner" class="cmapp-hml-banner" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -58,7 +58,7 @@
       <p class="text-xs text-center"><a href="./recuperar.html" class="text-blue-400 underline">Problemas para entrar? Recuperar atualização</a></p>
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.38-H.4 • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.39-H.1 • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -189,7 +189,7 @@
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.13.38-H.4</span>
+        <span>v1.13.39-H.1</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -460,6 +460,7 @@
         <div class="cm-panel-actions" aria-label="Consultas do Gabinete">
           <button type="button" class="cm-panel-action" data-primary="true" data-gabinete-abrir="gabinete-agenda"><strong>Agenda Telefônica</strong><small>Consultar pessoas, ramais e contatos externos</small></button>
           <button type="button" class="cm-panel-action" data-gabinete-abrir="gabinete-ramais"><strong>Ramais</strong><small>Pesquisar e copiar um ramal institucional</small></button>
+          <button type="button" class="cm-panel-action" data-gabinete-abrir="gabinete-agenda" data-gabinete-favoritos="true"><strong>☆ Favoritos</strong><small>Acesso rápido aos seus contatos marcados neste dispositivo</small></button>
         </div>
       </section>
 
@@ -474,11 +475,21 @@
           </label>
         </div>
         <p id="gabinete-total-contatos" class="text-sm" role="status"></p>
-        <ul id="gabinete-lista-contatos" class="space-y-2">
-          <li data-tipo="pessoa" class="app-card p-3"><details><summary class="cursor-pointer font-medium">SGT Exemplo A</summary><p class="mt-2">Unidade Alfa · Ramal 0001</p></details></li>
-          <li data-tipo="pessoa" class="app-card p-3"><details><summary class="cursor-pointer font-medium">Servidor Exemplo B</summary><p class="mt-2">Unidade Beta · Ramal 0002</p></details></li>
-          <li data-tipo="externo" class="app-card p-3"><details><summary class="cursor-pointer font-medium">Órgão externo exemplo</summary><p class="mt-2">Atendimento institucional · externo@example.invalid</p></details></li>
-        </ul>
+        <div class="cm-gab-filter-row">
+          <button id="gabinete-filtrar-favoritos" type="button" class="cm-gab-toggle" aria-pressed="false">☆ Somente favoritos</button>
+          <span id="gabinete-nota-favoritos" class="cm-gab-local-note">Favoritos disponíveis apenas neste dispositivo.</span>
+        </div>
+        <ul id="gabinete-lista-contatos" class="cm-gab-list" aria-label="Contatos da Agenda"></ul>
+        <dialog id="gabinete-ficha-dialog" class="cm-gab-dialog" aria-labelledby="gabinete-ficha-titulo">
+          <div class="cm-gab-dialog-top">
+            <div><span class="cm-gab-dialog-eyebrow">GABINETE · AGENDA</span><h3 id="gabinete-ficha-titulo">Ficha do contato</h3></div>
+            <button id="gabinete-ficha-fechar" type="button" class="cm-gab-dialog-close" aria-label="Fechar ficha">✕</button>
+          </div>
+          <p id="gabinete-ficha-subtitulo" class="cm-gab-dialog-subtitle"></p>
+          <dl id="gabinete-ficha-campos" class="cm-gab-details"></dl>
+          <div id="gabinete-ficha-acoes" class="cm-gab-dialog-actions"></div>
+          <p class="cm-gab-privacy">Somente informações institucionais demonstrativas. Telefones particulares não são exibidos.</p>
+        </dialog>
       </section>
 
       <section id="sec-gabinete-ramais" class="hidden cm-ux-central space-y-4" aria-labelledby="gabinete-ramais-titulo">
@@ -1197,7 +1208,7 @@
 
       <footer class="app-footer">
         <span>CM APP</span>
-        <span>v1.13.38-H.4 · HOMOLOGAÇÃO</span>
+        <span>v1.13.39-H.1 · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -1442,6 +1453,6 @@
         window.addEventListener('online',()=>{if(bloqueado()){tentou=false;void recuperar();}});
       })();
     </script>
-    <script type="module" src="./app.js?v=1.13.38-h.4"></script>
+    <script type="module" src="./app.js?v=1.13.39-h.1"></script>
 </body>
 </html>

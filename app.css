@@ -1356,3 +1356,40 @@ button[data-cautelas-kpi]{width:100%;text-align:left;cursor:pointer}button[data-
 
 /* PERF-02: navegação local de listas */
 .cm-list-pagination{display:flex;align-items:center;justify-content:center;gap:12px;margin:14px 0;flex-wrap:wrap}.cm-list-pagination[hidden]{display:none!important}.cm-list-page-info{font-size:.75rem;color:var(--app-muted);text-align:center;font-variant-numeric:tabular-nums}.cm-list-pagination button{min-height:40px}.cm-list-pagination button:disabled{opacity:.45;cursor:default}@media(max-width:639px){.cm-list-pagination{gap:8px}.cm-list-pagination button{padding:8px 10px}.cm-list-page-info{flex:1;min-width:90px}}
+
+
+/* GAB-05: agenda e ficha mobile-first, respeitando o tema CMAPP. */
+.cm-ux-module-card[data-modulo="gabinete"] .cm-ux-module-icon{background:rgb(99 102 241 / .16);color:#a5b4fc}
+.cm-ux-module-card[data-modulo="gabinete"] .cm-ux-module-action{background:#4338ca}
+.cm-gab-filter-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.cm-gab-toggle,.cm-gab-action{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:9px 13px;border:1px solid var(--app-border);border-radius:10px;background:var(--app-surface);color:var(--app-text);font-size:.8rem;font-weight:650;text-decoration:none}
+.cm-gab-toggle[aria-pressed="true"],.cm-gab-favorite[aria-pressed="true"]{border-color:#60a5fa;background:rgb(59 130 246 / .13);color:var(--app-text)}
+.cm-gab-local-note{font-size:.75rem;color:var(--app-muted)}
+.cm-gab-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;list-style:none;padding:0;margin:0}
+.cm-gab-contact{display:flex;flex-direction:column;justify-content:space-between;gap:16px;min-width:0;padding:16px;border:1px solid var(--app-border);border-radius:14px;background:var(--app-surface);color:var(--app-text)}
+.cm-gab-contact-copy{display:flex;flex-direction:column;align-items:flex-start;min-width:0;gap:6px}
+.cm-gab-type{display:inline-block;border-radius:20px;padding:4px 10px;background:rgb(59 130 246 / .13);color:var(--app-text);font-size:.7rem;font-weight:700}
+.cm-gab-contact[data-tipo="ramal"] .cm-gab-type{background:rgb(20 184 166 / .16)}
+.cm-gab-contact[data-tipo="externo"] .cm-gab-type{background:rgb(139 92 246 / .16)}
+.cm-gab-contact-name{font-size:.99rem;line-height:1.3;font-weight:740;overflow-wrap:anywhere}
+.cm-gab-contact-details{font-size:.8rem;color:var(--app-muted);overflow-wrap:anywhere}
+.cm-gab-contact-actions,.cm-gab-dialog-actions{display:flex;gap:8px;flex-wrap:wrap}
+.cm-gab-contact-actions .cm-gab-action{flex:1;white-space:nowrap}
+.cm-gab-primary{background:#174d9a;border-color:#2862ac;color:#fff}
+.cm-gab-action:hover,.cm-gab-toggle:hover{border-color:#60a5fa}
+.cm-gab-action:focus-visible,.cm-gab-toggle:focus-visible,.cm-gab-dialog-close:focus-visible{outline:2px solid #60a5fa;outline-offset:2px}
+.cm-gab-empty{grid-column:1/-1;text-align:center;padding:30px 14px;color:var(--app-muted);border:1px dashed var(--app-border);border-radius:14px}
+.cm-gab-dialog{width:min(100% - 24px,560px);max-height:min(90dvh,740px);margin:auto;padding:22px;border:1px solid var(--app-border);border-radius:18px;background:var(--app-surface);color:var(--app-text);box-shadow:0 25px 80px rgb(0 0 0 / .4);overflow-y:auto}
+.cm-gab-dialog::backdrop{background:rgb(2 6 23 / .78)}
+.cm-gab-dialog-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.cm-gab-dialog-top h3{margin-top:5px;font-size:1.25rem;line-height:1.25;font-weight:760;overflow-wrap:anywhere}
+.cm-gab-dialog-eyebrow{font-size:.68rem;font-weight:800;letter-spacing:.07em;color:var(--app-muted)}
+.cm-gab-dialog-close{display:grid;place-items:center;min-height:44px;min-width:44px;border-radius:10px;border:1px solid var(--app-border)}
+.cm-gab-dialog-subtitle,.cm-gab-privacy{font-size:.77rem;color:var(--app-muted);line-height:1.5}
+.cm-gab-dialog-subtitle{margin:10px 0 16px}.cm-gab-privacy{margin-top:16px}
+.cm-gab-details{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:18px}
+.cm-gab-field{display:grid;align-content:start;gap:4px;padding:12px;border-radius:11px;border:1px solid var(--app-border);overflow-wrap:anywhere}
+.cm-gab-field dt{font-size:.68rem;font-weight:650;color:var(--app-muted)}
+.cm-gab-field dd{margin:0;font-size:.9rem;font-weight:600;color:var(--app-text)}
+@media(max-width:700px){.cm-gab-list{grid-template-columns:1fr}.cm-gab-details{grid-template-columns:1fr 1fr}}
+@media(max-width:410px){.cm-gab-contact{padding:12px}.cm-gab-contact-actions{flex-wrap:wrap}.cm-gab-contact-actions .cm-gab-action{min-width:115px}.cm-gab-dialog{padding:14px}.cm-gab-details{grid-template-columns:1fr}}
