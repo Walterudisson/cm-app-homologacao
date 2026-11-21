@@ -13,6 +13,7 @@ export const PAGINAS_COMUNS = Object.freeze({
   usuarios: comum('Gestão de usuários', 'Gestão', 'Usuários', perfisGestao),
   divisoes: comum('Gestão de divisões', 'Gestão', 'Divisões', perfisGestao),
   funcoes: comum('Funções e permissões', 'Gestão', 'Funções', Object.freeze(['admin'])),
+  'gabinete-ramais': comum('Ramais', 'Gabinete', 'Ramais', Object.freeze(['admin'])),
   perfil: comum('Meu perfil', 'Conta', 'Meu perfil')
 });
 

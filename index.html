@@ -21,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.13.37-h.5">
+  <link rel="stylesheet" href="./app.css?v=1.13.38-h.1">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div id="cmapp-hml-banner" class="cmapp-hml-banner" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -58,7 +58,7 @@
       <p class="text-xs text-center"><a href="./recuperar.html" class="text-blue-400 underline">Problemas para entrar? Recuperar atualização</a></p>
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.37-H.5 • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.38-H.1 • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -85,6 +85,9 @@
 
       <nav class="sidebar-nav">
         <button id="tab-btn-modulos" type="button" class="nav-item hidden" data-nav-page="modulos" aria-label="Central de Trabalho"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/></svg><span class="sidebar-label">Central de Trabalho</span></button>
+        <button type="button" class="nav-item hidden" data-nav-page="gabinete-ramais" aria-label="Gabinete — Ramais">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h4l2 5-3 2a14 14 0 0 0 5 5l2-3 5 2v4a3 3 0 0 1-3 3A15 15 0 0 1 3 6a3 3 0 0 1 3-3z"/></svg><span class="sidebar-label">Gabinete · Ramais</span>
+        </button>
         <div class="sidebar-module" data-nav-group="patrimonio">
           <button type="button" class="nav-item sidebar-module-toggle has-active-page" data-nav-group-toggle="patrimonio" aria-label="Patrimônio" aria-controls="sidebar-submenu-patrimonio" aria-expanded="true">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10 12 4l9 6v10H3zM9 20v-6h6v6M6 10h12"/></svg>
@@ -178,7 +181,7 @@
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.13.37-H.5</span>
+        <span>v1.13.38-H.1</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -437,6 +440,17 @@
       </section>
 
       <!-- ABA: PERFIL DO USUÁRIO -->
+      <section id="sec-gabinete-ramais" class="hidden space-y-4" aria-label="Ramais do Gabinete">
+        <p class="text-sm">Demonstração de homologação com ramais fictícios.</p>
+        <label class="block" for="gabinete-busca-ramal">Pesquisar ramais</label>
+        <input id="gabinete-busca-ramal" type="search" class="w-full rounded-lg border border-slate-300 bg-transparent p-3" placeholder="Setor, unidade ou número">
+        <p id="gabinete-sem-ramais" class="hidden" role="status">Nenhum ramal encontrado.</p>
+        <ul id="gabinete-lista-ramais" class="space-y-2">
+          <li class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-300 p-3"><div><strong>Recepção exemplo</strong><br>Unidade Alfa · 0001</div><button type="button" class="rounded-lg border border-slate-300 px-3 py-2" data-copiar-ramal="0001" aria-label="Copiar ramal 0001">Copiar ramal</button></li>
+          <li class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-300 p-3"><div><strong>Setor exemplo</strong><br>Unidade Beta · 0002</div><button type="button" class="rounded-lg border border-slate-300 px-3 py-2" data-copiar-ramal="0002" aria-label="Copiar ramal 0002">Copiar ramal</button></li>
+        </ul>
+      </section>
+
       <section id="sec-perfil" class="hidden space-y-5">
         <div class="profile-page-grid">
           <article class="app-card profile-identity-card">
@@ -1140,7 +1154,7 @@
 
       <footer class="app-footer">
         <span>CM APP</span>
-        <span>v1.13.37-H.5 · HOMOLOGAÇÃO</span>
+        <span>v1.13.38-H.1 · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -1385,6 +1399,6 @@
         window.addEventListener('online',()=>{if(bloqueado()){tentou=false;void recuperar();}});
       })();
     </script>
-    <script type="module" src="./app.js?v=1.13.37-h.5"></script>
+    <script type="module" src="./app.js?v=1.13.38-h.1"></script>
 </body>
 </html>

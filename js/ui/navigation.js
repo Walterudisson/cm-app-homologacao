@@ -15,6 +15,7 @@ const PAGINAS = {
   'dsips-cautelas': { titulo: 'Cautelas DSIPS', trilha: ['CM APP', 'DSIPS', 'Cautelas'] },
   'dsips-posse': { titulo: 'Quem está com o quê', trilha: ['CM APP', 'DSIPS', 'Quem está com o quê'] },
   'dsips-historico': { titulo: 'Histórico DSIPS', trilha: ['CM APP', 'DSIPS', 'Histórico'] },
+  'gabinete-ramais': { titulo: 'Ramais', trilha: ['CM APP', 'Gabinete', 'Ramais'] },
   perfil: { titulo: 'Meu perfil', trilha: ['CM APP', 'Conta', 'Meu perfil'] }
 };
 

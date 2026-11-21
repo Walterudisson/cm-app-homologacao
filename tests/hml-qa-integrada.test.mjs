@@ -12,7 +12,7 @@ const patr=['dashboard','scanner','lista','inventarios'];
 const ds=['dsips-inicio','dsips-cadastros','dsips-estoque','dsips-cautelas','dsips-posse'];
 const gest=['usuarios','divisoes'];
 const matriz=[
- {u:{perfil:'admin'},pages:['modulos',...patr,'transferencias',...gest,'funcoes',...ds,'dsips-historico'],central:['patrimonios','dsips']},
+ {u:{perfil:'admin'},pages:['modulos',...patr,'transferencias',...gest,'funcoes','gabinete-ramais',...ds,'dsips-historico'],central:['patrimonios','dsips']},
  {u:{perfil:'gestor',modulos:['dsips']},pages:['modulos',...gest,...ds,'dsips-historico'],central:['dsips']},
  {u:{perfil:'gestor'},pages:['modulos',...patr,'transferencias',...gest],central:['patrimonios']},
  {u:{perfil:'conferente',modulos:['dsips']},pages:['modulos',...ds],central:['dsips']},
