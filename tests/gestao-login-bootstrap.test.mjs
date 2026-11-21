@@ -29,8 +29,8 @@ test('hotfix login: chamada de inicialização funciona em execução isolada',(
   assert.deepEqual(passos,['criou','senha','divisoes','matriz pronta','funcoes']);
 });
 test('hotfix login: índice, imports e cache compartilham nova versão',()=>{
-  assert.match(html,/v1\.13\.47-H\.1/);
-  assert.match(html,/app\.js\?v=1\.13\.47-h\.1/);
-  assert.match(app,/matriz-acessos-ui\.js\?v=1\.13\.47-h\.1/);
-  assert.match(serviceWorker,/v1\.13\.47-h\.1-gest04/);
+  assert.match(html,/v1\.13\.48-H\.1/);
+  assert.match(html,/app\.js\?v=1\.13\.48-h\.1/);
+  assert.match(app,/matriz-acessos-ui\.js\?v=1\.13\.48-h\.1/);
+  assert.match(serviceWorker,/v1\.13\.48-h\.1-gest05/);
 });
