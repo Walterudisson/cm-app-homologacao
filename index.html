@@ -21,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.13.46-h.1">
+  <link rel="stylesheet" href="./app.css?v=1.13.47-h.1">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div id="cmapp-hml-banner" class="cmapp-hml-banner" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -58,7 +58,7 @@
       <p class="text-xs text-center"><a href="./recuperar.html" class="text-blue-400 underline">Problemas para entrar? Recuperar atualização</a></p>
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.46-H.1 • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.47-H.1 • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -145,6 +145,10 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V7l8-4 8 4v13M8 10h2M14 10h2M8 14h2M14 14h2M10 20v-3h4v3"/></svg>
           <span class="sidebar-label">Divisões</span>
         </button>
+        <button id="tab-btn-pessoas" type="button" class="nav-item" data-nav-page="pessoas" data-perfis="admin">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="7" r="3"/><path d="M3 21v-2a6 6 0 0 1 12 0v2M16 10h6M19 7v6M16 21v-4m4 4v-7"/></svg>
+          <span class="sidebar-label">Pessoas e vínculos</span>
+        </button>
         <button id="tab-btn-funcoes" type="button" class="nav-item" data-nav-page="funcoes" data-perfis="admin">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 7v5c0 5 3.4 8 8 9 4.6-1 8-4 8-9V7l-8-4Zm-3 9 2 2 4-5"/></svg>
           <span class="sidebar-label">Funções e permissões</span>
@@ -190,7 +194,7 @@
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.13.46-H.1</span>
+        <span>v1.13.47-H.1</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -1284,6 +1288,59 @@
         </div>
       </section>
 
+      <!-- GEST-04 | VISÃO DE IDENTIDADES E VÍNCULOS (SOMENTE LEITURA) -->
+      <section id="sec-pessoas" class="hidden space-y-5" aria-labelledby="gest04-titulo">
+        <div class="users-heading">
+          <div>
+            <span class="eyebrow">Gestão · Referência institucional única</span>
+            <h2 id="gest04-titulo">Pessoas e vínculos</h2>
+            <p>Concilie as referências já existentes de contas e divisões antes de unificar os cadastros dos módulos.</p>
+          </div>
+        </div>
+        <p class="gest04-aviso"><strong>Consulta e diagnóstico, sem alterações.</strong> Esta tela usa somente usuários e divisões que a Gestão já pode consultar. Não cria pessoas, não mescla cadastros, não altera responsáveis e não consulta registros privados de RH, DSIPS ou Gabinete. Mesmo nome não significa mesma identidade.</p>
+        <div class="gest04-cards" aria-label="Resumo de referências institucionais">
+          <article><span class="gest04-icone">♙</span><strong id="gest04-total-contas">0</strong><small>Contas consultadas</small></article>
+          <article><span class="gest04-icone">▦</span><strong id="gest04-total-divisoes">0</strong><small>Divisões consultadas</small></article>
+          <article><span class="gest04-icone">✓</span><strong id="gest04-total-vinculos">0</strong><small>Responsáveis por UID</small></article>
+          <article><span class="gest04-icone">!</span><strong id="gest04-total-pendencias">0</strong><small>Referências para revisão</small></article>
+        </div>
+        <div class="gest04-painel app-card">
+          <div class="gest04-painel-topo">
+            <div>
+              <span class="eyebrow">Mapa de identidades e relações</span>
+              <h3>Cadastro institucional, sem duplicidades</h3>
+              <p id="gest04-referencia" class="gest04-referencia">O identificador de pessoa (pessoaId) será instituído somente após validar o backend.</p>
+            </div>
+          </div>
+          <div class="gest04-trilhas" aria-label="Fontes e vínculos previstos">
+            <div><strong>Gestão</strong><span>Contas (UID) e divisões existentes</span></div>
+            <div><strong>Gabinete</strong><span>Referenciar pessoa, sem outro cadastro</span></div>
+            <div><strong>DSIPS</strong><span>Cautelas com responsável por UID</span></div>
+            <div><strong>RH</strong><span>Dados funcionais ligados a pessoaId futuro</span></div>
+          </div>
+          <div class="gest04-barra">
+            <div class="gest04-abas" aria-label="Visão de vínculos">
+              <button type="button" data-gest04-visao="pessoas" aria-pressed="true" class="is-selected">Contas</button>
+              <button type="button" data-gest04-visao="divisoes" aria-pressed="false">Divisões</button>
+              <button type="button" data-gest04-visao="pendencias" aria-pressed="false">Pendências</button>
+            </div>
+            <div class="gest04-filtros">
+              <label for="gest04-situacao">Situação
+                <select id="gest04-situacao"><option value="todas">Todas as contas</option></select>
+              </label>
+              <label for="gest04-busca">Buscar
+                <input type="search" id="gest04-busca" placeholder="Nome, e-mail ou divisão" autocomplete="off">
+              </label>
+            </div>
+          </div>
+          <p id="gest04-resumo" class="gest04-resumo" role="status" aria-live="polite">Dados não carregados.</p>
+          <div id="gest04-lista" class="gest04-lista" aria-label="Registros de pessoas e vínculos"></div>
+          <p id="gest04-mensagem" class="gest04-mensagem" role="status"></p>
+          <button id="gest04-mais" type="button" class="gest04-mais" hidden>Mostrar mais</button>
+          <p class="gest04-rodape">A identidade única não é inferida pela coincidência de nomes, e-mails ou matrícula. Apenas vínculos explícitos por identificador são reconhecidos. A migração de pessoaId e a aplicação real de permissões dependem de autorização específica do backend.</p>
+        </div>
+      </section>
+
       <!-- GESTÃO DE FUNÇÕES E PERMISSÕES -->
       <section id="sec-funcoes" class="hidden space-y-5">
         <div class="users-heading"><div><span class="eyebrow">Controle de acesso</span><h2>Funções e matriz de permissões</h2><p>Consulte as granularidades propostas e gerencie o catálogo legado de funções sem confundir configuração com autorização efetiva.</p></div><button id="btn-nova-funcao" type="button" class="users-primary-action"><span>＋</span> Nova função</button></div>
@@ -1459,7 +1516,7 @@
 
       <footer class="app-footer">
         <span>CM APP</span>
-        <span>v1.13.46-H.1 · HOMOLOGAÇÃO</span>
+        <span>v1.13.47-H.1 · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -1730,6 +1787,6 @@
         window.addEventListener('online',()=>{if(bloqueado()){tentou=false;void recuperar();}});
       })();
     </script>
-    <script type="module" src="./app.js?v=1.13.46-h.1"></script>
+    <script type="module" src="./app.js?v=1.13.47-h.1"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-const VERSAO = 'v1.13.46-h.1-gest03';
+const VERSAO = 'v1.13.47-h.1-gest04';
 const CACHE_SHELL = `cmapp-shell-${VERSAO}`;
 const CACHE_RUNTIME = `cmapp-runtime-${VERSAO}`;
 // Emergência HML: somente releases cujo service.js incompleto foi confirmado.
@@ -53,6 +53,8 @@ const ARQUIVOS_SHELL = [
   './js/modules/gestao/matriz-acessos-model.js',
   './js/modules/gestao/matriz-acessos-ui.js',
   './js/modules/gestao/usuarios-acessos-model.js',
+  './js/modules/gestao/pessoas-vinculos-model.js',
+  './js/modules/gestao/pessoas-vinculos-ui.js',
   './js/modules/gestao/funcoes-impacto-model.js',
   './js/modules/dsips/service.js',
   './js/modules/dsips/consulta-materiais-model.js',

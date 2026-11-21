@@ -10,6 +10,9 @@ export function podeNavegarLegado(u,id){
  if(id==='modulos')return modulosDoUsuario(u).length>0;
  if(id==='divisoes')return usuarioPode(u,PERMISSOES.DIVISOES_VISUALIZAR);
  if(id==='usuarios')return usuarioPode(u,PERMISSOES.USUARIOS_VISUALIZAR);
+ // GEST-04 não amplia acessos legados: exige perfil admin e direito de consultar usuários e divisões.
+ if(id==='pessoas')return u.perfil==='admin'&&usuarioPode(u,PERMISSOES.USUARIOS_VISUALIZAR)
+   &&usuarioPode(u,PERMISSOES.DIVISOES_VISUALIZAR);
  return true;
 }
 export function decidirMudancaAcesso(inicial,atual,{doCache=false}={}){
