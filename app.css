@@ -1475,8 +1475,8 @@ button[data-cautelas-kpi]{width:100%;text-align:left;cursor:pointer}button[data-
 /* GAB-07.1: identidade de contato, fontes referenciais e órgãos externos */
 .cm-gab-contact{display:grid;grid-template-columns:50px minmax(0,1fr);align-content:start;align-items:start;gap:12px}
 .cm-gab-contact-actions{grid-column:1/-1;align-self:end}
-.cm-gab-avatar{width:48px;height:48px;border-radius:15px;display:inline-grid;place-items:center;flex:none;overflow:hidden;font-size:.97rem;font-weight:780;line-height:1;color:#bfdbfe;background:rgb(59 130 246 / .16);border:1px solid rgb(96 165 250 / .2)}
-.cm-gab-avatar img{display:block;width:100%;height:100%;object-fit:cover}
+.cm-gab-avatar{position:relative;width:48px;height:48px;border-radius:15px;display:inline-grid;place-items:center;flex:none;overflow:hidden;font-size:.97rem;font-weight:780;line-height:1;color:#bfdbfe;background:rgb(59 130 246 / .16);border:1px solid rgb(96 165 250 / .2)}
+.cm-gab-avatar img{display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .cm-gab-avatar-lg{width:80px;height:80px;border-radius:22px;font-size:1.55rem}
 .cm-gab-ficha-avatar{margin:18px 0 10px;display:flex;justify-content:center}
 .cm-gab-readonly{font-size:.75rem;color:var(--app-muted);padding:10px;line-height:1.4}
