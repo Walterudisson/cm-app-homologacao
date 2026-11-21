@@ -73,7 +73,7 @@ export function criarCadastroGabineteUI({armazenamento,obterUsuario,podeGerencia
     titulo.textContent=contato?'Editar contato':'Novo contato';
     confirmar.textContent=contato?'Salvar alterações':'Adicionar contato';
     for(const [campo,input] of Object.entries(inputs)){
-      input.value=contato?.[campo]||'';
+      input.value=campo==='tipo'?(contato?.tipo||'pessoa'):(contato?.[campo]||'');
     }
     if(contato?.aniversario){
       const [mes,dia]=contato.aniversario.split('-');
