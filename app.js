@@ -723,6 +723,8 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
       const epoca=++epocaAcesso;cancelarVigiaAcesso?.();cancelarVigiaAcesso=null;
       const vigente=()=>epoca===epocaAcesso&&auth.currentUser?.uid===user?.uid;
       document.getElementById('view-app').classList.add('hidden');usuarioLogado=null;fotoPerfilUrl='';encerrarOuvinteTransferencias();
+      const filtroFuncaoSessao=document.getElementById('filtro-funcao-usuarios');
+      if(filtroFuncaoSessao)filtroFuncaoSessao.value='todos';
       invalidarCacheDsips();
       agendaGabinete?.limpar();
       aniversariantesGabinete?.limpar();
