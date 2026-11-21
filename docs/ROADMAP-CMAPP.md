@@ -19,7 +19,7 @@ Esta é a referência única de planejamento para as sprints de frontend do CMAP
 | Central de Trabalho | HML v1.13.38-H.4 integrada, Gabinete como módulo e login direto na Central | Teste funcional Android/desktop |
 | Patrimônios | Telas existentes e Painel V2 | Evolução de gestão sem regressões |
 | DSIPS | Estoque, cautelas, devoluções, posse, histórico e indicadores no frontend | Ajustes de gestão; mudanças de backend em espera |
-| Gestão | Usuários, divisões e matriz de permissões legadas | GEST-01 a GEST-05: UI/UX; GEST-06/07 bloqueadas por backend |
+| Gestão | Usuários, divisões, contas e matriz de permissões legadas | GEST-01 a GEST-05: UI/UX; GEST-06/07 bloqueadas por backend; preparar cadastro institucional único para RH/Gabinete/DSIPS |
 | Gabinete | Painel, Agenda, Ramais e CRUD demonstrativo de qualidade | Persistência e concessões seguras mediante autorização do backend |
 | Segurança | PWA e mitigação de versões | Sessões/dispositivos e revogação via backend seguro no futuro |
 
@@ -102,7 +102,22 @@ A GAB-07 continua um protótipo CRUD **em memória** e a GAB-07.1 agora oferece 
 2. **DSIPS:** indicadores realmente acionáveis e telas de gestão/posse/cautela, preservando fluxo do PDV e histórico.
 3. **Patrimônios:** acompanhar Painel V2, filas, gestão de inventários e consultas.
 4. **Segurança/PWA:** Minha Conta > Segurança > Sessões e Dispositivos, auditoria e revogação segura (backend futuro).
-5. **Novos módulos:** RH (efetivo), Academia (atestados de aptidão), AT (inquéritos) e demais áreas previstas.
+5. **RH:** planejamento funcional da versão moderna da planilha Controle Geral do Efetivo, originada no RH; utilizar cadastro institucional único de pessoas/usuários e divisões sem duplicidade. Primeiro painel, relação geral e ficha funcional; férias em fase futura. Preparar após consolidação de Gestão, sem antecipar integração real de dados.
+6. **Novos módulos:** Academia (atestados de aptidão), AT (inquéritos) e demais áreas previstas.
+
+### RH: definição funcional aprovada (21/11/2026)
+
+**RH não é um cadastro paralelo de servidores.** Sua primeira versão será uma visualização moderna, filtrável e responsiva da planilha **Controle Geral do Efetivo**, oriunda do RH, aproveitando a identidade institucional e os usuários existentes como referência. Pessoas que constam na planilha podem não ter login, portanto cadastro de pessoa e conta de acesso devem permanecer distintos.
+
+**Responsabilidades:** RH é o setor de origem e validação das informações funcionais do efetivo; Gestão mantém contas, acessos, permissões e a referência institucional única. A autoria/edição de cada campo será definida em matriz de governança antes da persistência. Agenda e DSIPS também utilizarão vínculos estáveis para a mesma pessoa.
+
+**Roadmap RH proposto:** RH-00 (mapeamento de colunas, indicadores, filtros, política de acesso e protótipo fictício); RH-01 (painel, relação geral do efetivo e ficha funcional mobile-first); RH-02 (conciliação/importação autorizada dos dados reais, somente após aprovação de backend); RH-03+ (controle de férias e outras funcionalidades próprias do RH).
+
+O MVP **não** inclui férias, folha de pagamento nem importação automática. A planilha original deverá ser examinada antes de definir os indicadores e regras de contagem. Nenhuma planilha real deverá ir para GitHub Pages ou para o repositório.
+
+**Documento de decisão:** [DP-RH-001-CONTROLE-EFETIVO.md](./DP-RH-001-CONTROLE-EFETIVO.md).
+
+A ordem imediata permanece **GAB-07.1 → GAB-09 → Gestão**; o RH ganha definição arquitetural e entra como frente planejada após a estrutura de cadastro único. GAB-08 permanece adiada.
 
 ## Regra de publicação
 
