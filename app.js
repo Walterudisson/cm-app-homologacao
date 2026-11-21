@@ -2653,6 +2653,7 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
     document.getElementById('form-editar-usuario')?.addEventListener('change',()=>atualizarPreviaAcessoUsuario('edit'));
 
     window.abrirModalCriacaoUsuario = async function() {
+      if(usuarioLogado?.perfil!=='admin')return;
       await popularFuncoesUsuarios();
       atualizarDivisoesCadastro();
       atualizarPreviaAcessoUsuario('cad');
