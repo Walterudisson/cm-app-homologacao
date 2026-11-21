@@ -3,7 +3,7 @@ import {normalizarBusca} from './agenda-model.js';
 import {dataLocalHoje} from './aniversarios-model.js';
 
 // GAB-07: CRUD integralmente em memória para HML. Nenhuma alteração em Firebase/Storage.
-export function criarCadastroGabineteUI({armazenamento,obterUsuario,podeGerenciar,notificar,abrirFicha}){
+export function criarCadastroGabineteUI({armazenamento,orgaos,uiOrgaos,obterUsuario,podeGerenciar,notificar,abrirFicha}){
   const secao=document.getElementById('sec-gabinete-cadastros');
   const novo=document.getElementById('gab-cad-novo');
   const termo=document.getElementById('gab-cad-busca');
@@ -25,9 +25,13 @@ export function criarCadastroGabineteUI({armazenamento,obterUsuario,podeGerencia
   const confirmFechar=document.getElementById('gab-cad-confirmacao-fechar');
   const confirmCancelar=document.getElementById('gab-cad-confirmacao-cancelar');
   const confirmExecutar=document.getElementById('gab-cad-confirmacao-executar');
-  const campos=['tipo','nome','unidade','funcao','ramal','email','telefoneInstitucional','aniversario'];
+  const abaContatos=document.getElementById('gab-cad-aba-contatos');
+  const abaOrgaos=document.getElementById('gab-cad-aba-orgaos');
+  const painelContatos=document.getElementById('gab-cad-contatos-painel');
+  const painelOrgaos=document.getElementById('gab-org-painel');
+  const campos=['tipo','nome','unidade','funcao','ramal','email','telefoneInstitucional','aniversario','orgaoId'];
   const inputs=Object.fromEntries(campos.map(x=>[x,document.getElementById('gab-cad-'+x)]));
-  let alterando=null,acaoConfirmada=null,inicializado=false;
+  let alterando=null,acaoConfirmada=null,inicializado=false,aba='contatos';
   const autorizado=()=>Boolean(obterUsuario()?.uid&&podeGerenciar()&&armazenamento.usuarioAtual()===obterUsuario().uid);
   const el=(tag,classe='',texto)=>{
     const n=document.createElement(tag);
@@ -59,8 +63,13 @@ export function criarCadastroGabineteUI({armazenamento,obterUsuario,podeGerencia
       const m=/^(\d{2})\/(\d{2})$/.exec(aniversario);
       data=m?m[2]+'-'+m[1]:aniversario;
     }
+    const tipo=inputs.tipo.value;
+    const unidadeId=tipo==='ramal'?inputs.unidade.value:'';
+    const unidade=tipo==='externo'?(orgaos.obter(inputs.orgaoId.value)?.nome||''):(
+      armazenamento.listarDivisoes().find(d=>d.id===unidadeId)?.nome||'');
     return {
-      tipo:inputs.tipo.value,nome:inputs.nome.value,unidade:inputs.unidade.value,
+      tipo,nome:inputs.nome.value,unidade,unidadeId,
+      orgaoId:tipo==='externo'?inputs.orgaoId.value:'',
       funcao:inputs.funcao.value,ramal:inputs.ramal.value,email:inputs.email.value,
       telefoneInstitucional:inputs.telefoneInstitucional.value,aniversario:data
     };
@@ -68,12 +77,15 @@ export function criarCadastroGabineteUI({armazenamento,obterUsuario,podeGerencia
   function abrirFormulario(id=null){
     if(!autorizado())return;
     const contato=id?armazenamento.obter(id):null;
-    if(id&&(!contato||!contato.ativo))return;
+    if(id&&(!contato||!contato.ativo||contato.somenteLeitura))return;
     alterando=contato?.id||null;limparErros();form.reset();
     titulo.textContent=contato?'Editar contato':'Novo contato';
     confirmar.textContent=contato?'Salvar alterações':'Adicionar contato';
+    atualizarOpcoesVinculo();
     for(const [campo,input] of Object.entries(inputs)){
-      input.value=campo==='tipo'?(contato?.tipo||'pessoa'):(contato?.[campo]||'');
+      if(campo==='tipo')input.value=contato?.tipo==='externo'?'externo':'ramal';
+      else if(campo==='unidade')input.value=contato?.unidadeId||armazenamento.listarDivisoes().find(d=>d.nome===contato?.unidade)?.id||'';
+      else input.value=contato?.[campo]||'';
     }
     if(contato?.aniversario){
       const [mes,dia]=contato.aniversario.split('-');
@@ -82,16 +94,36 @@ export function criarCadastroGabineteUI({armazenamento,obterUsuario,podeGerencia
     atualizarCampos();
     abrirModal(dialogo);inputs.nome.focus();
   }
+  function atualizarOpcoesVinculo(){
+    const atual=inputs.unidade.value;
+    inputs.unidade.replaceChildren();
+    const vazio=el('option','', 'Selecione uma divisão');vazio.value='';inputs.unidade.append(vazio);
+    for(const d of armazenamento.listarDivisoes()){
+      const opt=el('option','',d.nome+(d.demonstracao?' (exemplo)':''));
+      opt.value=d.id;inputs.unidade.append(opt);
+    }
+    inputs.unidade.value=atual;
+    const orgAtual=inputs.orgaoId.value;
+    inputs.orgaoId.replaceChildren();
+    const sem=el('option','','Selecione um órgão');sem.value='';inputs.orgaoId.append(sem);
+    for(const o of orgaos.listar()){
+      const opt=el('option','',o.nome);opt.value=o.id;inputs.orgaoId.append(opt);
+    }
+    inputs.orgaoId.value=orgAtual;
+  }
   function atualizarCampos(){
-    const soPessoa=inputs.tipo.value==='pessoa';
-    const grupo=document.getElementById('gab-cad-aniversario-grupo');
-    grupo.hidden=!soPessoa;
-    if(!soPessoa)inputs.aniversario.value='';
+    const externo=inputs.tipo.value==='externo';
+    document.getElementById('gab-cad-unidade-grupo').hidden=externo;
+    document.getElementById('gab-cad-orgao-grupo').hidden=!externo;
+    document.getElementById('gab-cad-aniversario-grupo').hidden=true;
+    inputs.aniversario.value='';
+    if(externo)inputs.unidade.value='';
+    else inputs.orgaoId.value='';
   }
   function confirmarAcao(id,tipoAcao){
     if(!autorizado())return;
     const contato=armazenamento.obter(id);
-    if(!contato)return;
+    if(!contato||contato.somenteLeitura)return;
     acaoConfirmada={id,acao:tipoAcao,uid:obterUsuario().uid};
     const textos={
       excluir:'Excluir "'+contato.nome+'" do diretório demonstrativo? O registro poderá ser restaurado nesta sessão.',
@@ -146,18 +178,20 @@ export function criarCadastroGabineteUI({armazenamento,obterUsuario,podeGerencia
     identificacao.append(nome,detalhe,contato);
     const qualidade=qualidadeContatoGabinete(c,hoje);
     const status=el('div','cm-gab-cad-status');
-    status.append(badge(c.ativo?qualidade.revisao.rotulo:'Excluído',c.ativo?qualidade.revisao.codigo:'excluido'));
-    if(c.ativo&&qualidade.pendencias.length){
+    status.append(badge(c.somenteLeitura?'Origem: Gestão':c.ativo?qualidade.revisao.rotulo:'Excluído',c.somenteLeitura?'em-dia':c.ativo?qualidade.revisao.codigo:'excluido'));
+    if(c.ativo&&!c.somenteLeitura&&qualidade.pendencias.length){
       status.append(el('small','',qualidade.pendencias.join(' • ')));
-    }else if(c.ativo&&qualidade.revisao.codigo==='proxima'){
+    }else if(c.ativo&&!c.somenteLeitura&&qualidade.revisao.codigo==='proxima'){
       status.append(el('small','','A revisão completa 90 dias em breve'));
     }
     const acoes=el('div','cm-gab-cad-actions');
     if(c.ativo){
       acoes.append(botao('Ver ficha','cm-gab-action',()=>abrirFicha?.(c.id)));
-      acoes.append(botao('Editar','cm-gab-action',()=>abrirFormulario(c.id)));
-      acoes.append(botao('Revisar hoje','cm-gab-action',()=>confirmarAcao(c.id,'revisar')));
-      acoes.append(botao('Excluir','cm-gab-action cm-gab-cad-danger',()=>confirmarAcao(c.id,'excluir')));
+      if(!c.somenteLeitura)acoes.append(botao('Editar','cm-gab-action',()=>abrirFormulario(c.id)));
+      if(!c.somenteLeitura){
+        acoes.append(botao('Revisar hoje','cm-gab-action',()=>confirmarAcao(c.id,'revisar')));
+        acoes.append(botao('Excluir','cm-gab-action cm-gab-cad-danger',()=>confirmarAcao(c.id,'excluir')));
+      }
     }else{
       acoes.append(botao('Restaurar','cm-gab-action cm-gab-primary',()=>confirmarAcao(c.id,'restaurar')));
     }
@@ -171,10 +205,10 @@ export function criarCadastroGabineteUI({armazenamento,obterUsuario,podeGerencia
     }
     secao.dataset.bloqueado='false';
     const hoje=dataLocalHoje();
-    const todos=armazenamento.listar({incluirInativos:true});
+    const todos=armazenamento.listar({incluirInativos:true}).filter(c=>c.origem!=='orgaos');
     const ativos=todos.filter(c=>c.ativo);
-    const vencidos=ativos.filter(c=>['sem-revisao','vencida'].includes(qualidadeContatoGabinete(c,hoje).revisao.codigo));
-    const pendentes=ativos.filter(c=>qualidadeContatoGabinete(c,hoje).precisaAtencao);
+    const vencidos=ativos.filter(c=>!c.somenteLeitura&&['sem-revisao','vencida'].includes(qualidadeContatoGabinete(c,hoje).revisao.codigo));
+    const pendentes=ativos.filter(c=>!c.somenteLeitura&&qualidadeContatoGabinete(c,hoje).precisaAtencao);
     metricas.replaceChildren();
     for(const [titulo,valor] of [['Contatos ativos',ativos.length],['Revisões pendentes',vencidos.length],['Registros para atenção',pendentes.length]]){
       const card=el('div','cm-gab-cad-kpi');
@@ -185,8 +219,8 @@ export function criarCadastroGabineteUI({armazenamento,obterUsuario,podeGerencia
     const encontrados=todos.filter(c=>{
       if(situacao==='arquivados'&&c.ativo)return false;
       if(situacao!=='arquivados'&&!c.ativo)return false;
-      if(situacao==='pendentes'&&!qualidadeContatoGabinete(c,hoje).precisaAtencao)return false;
-      if(situacao==='vencidos'&&!['vencida','sem-revisao'].includes(qualidadeContatoGabinete(c,hoje).revisao.codigo))return false;
+      if(situacao==='pendentes'&&(c.somenteLeitura||!qualidadeContatoGabinete(c,hoje).precisaAtencao))return false;
+      if(situacao==='vencidos'&&(c.somenteLeitura||!['vencida','sem-revisao'].includes(qualidadeContatoGabinete(c,hoje).revisao.codigo)))return false;
       if(situacao==='em-dia'&&qualidadeContatoGabinete(c,hoje).revisao.codigo!=='em-dia')return false;
       if(tipoFiltro.value&&c.tipo!==tipoFiltro.value)return false;
       return normalizarBusca([c.nome,c.unidade,c.funcao,c.ramal,c.email].join(' ')).includes(consulta);
@@ -196,16 +230,26 @@ export function criarCadastroGabineteUI({armazenamento,obterUsuario,podeGerencia
     total.textContent=encontrados.length===1?'1 contato nesta consulta':encontrados.length+' contatos nesta consulta';
     vazio.hidden=Boolean(encontrados.length);
   }
+  function selecionarAba(valor){
+    aba=valor==='orgaos'?'orgaos':'contatos';
+    painelContatos.hidden=aba!=='contatos';painelOrgaos.hidden=aba!=='orgaos';
+    abaContatos.setAttribute('aria-selected',String(aba==='contatos'));
+    abaOrgaos.setAttribute('aria-selected',String(aba==='orgaos'));
+    novo.hidden=aba==='orgaos';
+    if(aba==='orgaos')uiOrgaos.renderizar();else renderizar();
+  }
   function limpar(){
     fecharModal(dialogo);fecharModal(confirmacao);
     alterando=null;acaoConfirmada=null;lista.replaceChildren();metricas.replaceChildren();
     termo.value='';tipoFiltro.value='';estadoFiltro.value='ativos';
-    total.textContent='';limparErros();vazio.hidden=true;secao.dataset.bloqueado='true';
+    total.textContent='';limparErros();vazio.hidden=true;secao.dataset.bloqueado='true';selecionarAba('contatos');
   }
   function inicializar(){
     if(inicializado)return;
     inicializado=true;
     novo.addEventListener('click',()=>abrirFormulario());
+    abaContatos.addEventListener('click',()=>selecionarAba('contatos'));
+    abaOrgaos.addEventListener('click',()=>selecionarAba('orgaos'));
     for(const input of [termo,tipoFiltro,estadoFiltro])input.addEventListener(input===termo?'input':'change',renderizar);
     inputs.tipo.addEventListener('change',atualizarCampos);
     form.addEventListener('submit',salvar);
@@ -220,6 +264,6 @@ export function criarCadastroGabineteUI({armazenamento,obterUsuario,podeGerencia
       if(autorizado()&&!secao.classList.contains('hidden'))renderizar();
     });
   }
-  function fecharDialogs(){fecharModal(dialogo);fecharModal(confirmacao);}
-  return {inicializar,renderizar,limpar,abrirEdicao:abrirFormulario,fecharDialogs};
+  function fecharDialogs(){fecharModal(dialogo);fecharModal(confirmacao);uiOrgaos.fecharDialogs();}
+  return {inicializar,renderizar,limpar,abrirEdicao:abrirFormulario,fecharDialogs,selecionarAba,atualizarOpcoesVinculo};
 }

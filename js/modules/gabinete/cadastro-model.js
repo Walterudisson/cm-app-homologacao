@@ -4,7 +4,7 @@ import {dataLocalHoje} from './aniversarios-model.js';
 // GAB-07: modelo puro. Nada é persistido, enviado a servidores ou indexado.
 export const PRAZO_REVISAO_DIAS=90;
 const TIPOS=new Set(['pessoa','ramal','externo']);
-const CAMPOS=new Set(['tipo','nome','unidade','funcao','ramal','email','telefoneInstitucional','aniversario','revisadoEm']);
+const CAMPOS=new Set(['tipo','nome','unidade','funcao','ramal','email','telefoneInstitucional','aniversario','revisadoEm','orgaoId','unidadeId']);
 const DATAS_FIXTICIAS=Object.freeze({
   'demo-pessoa-001':'2026-11-15','demo-pessoa-002':'2026-08-01',
   'demo-pessoa-003':'2026-09-10','demo-pessoa-004':'2026-11-10',
@@ -51,9 +51,15 @@ export function validarCadastroGabinete(entrada){
     if(!m||!dataCivil('2000-'+aniversario))throw new ErroCadastroGabinete('aniversario','Aniversário deve ser válido no formato MM-DD.');
     if(tipo!=='pessoa')throw new ErroCadastroGabinete('aniversario','Aniversário é permitido somente para pessoas.');
   }
+  const unidadeId=valor('unidadeId');
+  if(unidadeId&&(tipo!=='ramal'||unidadeId.length>160||/[\/\\\x00-\x1f]/.test(unidadeId)))
+    throw new ErroCadastroGabinete('unidadeId','Referência de divisão inválida.');
+  const orgaoId=valor('orgaoId');
+  if(orgaoId&&(tipo!=='externo'||!(/^(demo-org-[a-zA-Z0-9-]+|sessao-org-[0-9]+)$/.test(orgaoId))))
+    throw new ErroCadastroGabinete('orgaoId','Órgão externo vinculado inválido.');
   const revisadoEm=valor('revisadoEm');
   if(revisadoEm&&!dataCivil(revisadoEm))throw new ErroCadastroGabinete('revisadoEm','Informe uma data válida.');
-  return Object.freeze({tipo,nome,unidade,funcao,ramal,email,telefoneInstitucional,aniversario:tipo==='pessoa'?aniversario:'',revisadoEm});
+  return Object.freeze({tipo,nome,unidade,funcao,ramal,email,telefoneInstitucional,aniversario:tipo==='pessoa'?aniversario:'',orgaoId:tipo==='externo'?orgaoId:'',unidadeId:tipo==='ramal'?unidadeId:'',revisadoEm});
 }
 export function situacaoRevisaoGabinete(revisadoEm,hoje=dataLocalHoje()){
   const atual=dataCivil(hoje);

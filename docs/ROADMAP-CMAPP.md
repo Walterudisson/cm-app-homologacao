@@ -36,7 +36,7 @@ Esta é a referência única de planejamento para as sprints de frontend do CMAP
 | **GAB-05** | **Fichas, favoritos locais, ações rápidas e responsividade** | **HML v1.13.39-H.1, aguardando homologação funcional** |
 | **GAB-06** | **Aniversariantes fictícios, filtros, contadores e preferências locais; sem push** | **HML v1.13.40-H.1, aguardando homologação funcional** |
 | **GAB-07** | **CRUD demonstrativo completo, qualidade e revisão a cada 90 dias** | **HML v1.13.41-H.1; homologação funcional pendente** |
-| **GAB-07.1** | **Identidade única: usuários, divisões, responsáveis DSIPS e fotos da Agenda; CRUD próprio de órgãos externos e ramais** | **Próxima prioridade; frontend/contrato antes de backend** |
+| **GAB-07.1** | **Referências unificadas de Pessoas/Divisões, órgãos externos e avatar nos cards/fichas** | **HML v1.13.42-H.1, código integrado; homologação visual pendente** |
 | GAB-08 | Exportação PDF conforme perfis, vCard, revisão de privacidade | Planejada; exige proteção por campo na fonte |
 | GAB-09 | QA integrada, auditoria, acessibilidade, PWA e regressões | Planejada |
 
@@ -80,7 +80,11 @@ O Gabinete terá CRUD próprio principalmente para **órgãos externos, contatos
 
 **Foto da Agenda:** reutilizar a imagem já cadastrada em Meu Perfil (`usuarios/{uid}/perfil/avatar`), com avatar pequeno no card e maior na ficha, fallback por iniciais e controle de acesso à imagem. A versão atual ainda **não exibe** foto nos cards e fichas. Revisar mecanismo `getDownloadURL`/Storage antes de fornecer imagens reais a outros usuários.
 
-A GAB-07 atual é um protótipo CRUD **em memória**, não uma migração nem implantação do registro único. Antes de exportação PDF/vCard, priorizar GAB-07.1 para demonstrar essa navegação e modelo de vínculo sem mexer no backend.
+A GAB-07 continua um protótipo CRUD **em memória** e a GAB-07.1 agora oferece **abas de Pessoas e ramais / Órgãos externos**, com órgãos e contatos vinculados por `orgaoId`, ramais vinculados a `unidadeId` e pessoas internas somente consulta. O administrador com permissão usa a leitura já existente de divisões para selecionar uma referência sem recadastrá-la. Na indisponibilidade da leitura, usa divisões fictícias de exemplo.
+
+**Entrega de avatar:** foto no card e na ficha para o **próprio usuário autenticado**, a partir da foto já carregada em Meu Perfil; os demais contatos usam iniciais/ícones. A projeção de todas as pessoas reais e o compartilhamento de fotos dos outros usuários ficam bloqueados até backend seguro. Na prévia, nenhuma operação cria contas Auth, altera cautelas ou salva contatos em Firestore/Storage.
+
+**QA:** [roteiro GAB-07.1](./GAB-07.1-HOMOLOGACAO.md) com 25 testes manuais de Android, desktop e PWA; execução visual autenticada permanece pendente. Nenhuma publicação PRD foi autorizada.
 
 **Decisão integral:** [DP-GAB-UNICIDADE-CADASTRAL-FOTOS.md](./DP-GAB-UNICIDADE-CADASTRAL-FOTOS.md).
 
