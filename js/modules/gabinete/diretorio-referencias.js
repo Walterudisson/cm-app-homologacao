@@ -35,15 +35,30 @@ export function criarDiretorioGabinete({cadastro,orgaos,obterUsuario,obterFotoPr
       :c.tipo==='ramal'&&c.unidadeId?(divisoes.get(c.unidadeId)||'Divisão indisponível'):c.unidade;
     return Object.freeze({...c,unidade,origem:'gabinete',somenteLeitura:false});
   };
+  function contatoOrgao(org){
+    if(!org)return null;
+    return Object.freeze({
+      id:'org:'+org.id,tipo:'externo',nome:org.nome,
+      unidade:[org.categoria,org.cidade].filter(Boolean).join(' · ')||'Órgão externo',
+      email:org.email,telefoneInstitucional:org.telefone,ramal:'',
+      funcao:'Órgão externo · fonte Gabinete',ativo:org.ativo,
+      revisadoEm:org.revisadoEm,origem:'orgaos',somenteLeitura:true
+    });
+  }
   function obter(id){
     const self=obterSelf();
     if(self?.id===id)return self;
+    if(typeof id==='string'&&id.startsWith('org:')){
+      const org=orgaos.obter(id.slice(4));
+      return org?.ativo?contatoOrgao(org):null;
+    }
     return enriquecer(cadastro.obter(id));
   }
   function listar(opcoes={}){
     const dados=cadastro.listar(opcoes).map(enriquecer);
+    const externos=orgaos.listar(opcoes).map(contatoOrgao);
     const self=obterSelf();
-    return self?[self,...dados]:dados;
+    return self?[self,...dados,...externos]:[...dados,...externos];
   }
   // Todas as mutações de pessoas ficam com Gestão, inclusive os registros fictícios.
   function mutacaoPermitida(id){
