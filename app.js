@@ -67,7 +67,8 @@
 
     import {renderizarCentral, podeAbrirCentral} from './js/ui/central-trabalho.js?v=1.13.38-h.4';
     import {modulosDoUsuario} from './js/platform/modules.js';
-    import {criarAgendaGabinete} from './js/modules/gabinete/agenda-ui.js?v=1.13.39-h.1';
+    import {criarAgendaGabinete} from './js/modules/gabinete/agenda-ui.js?v=1.13.40-h.1';
+    import {criarAniversariantesGabinete} from './js/modules/gabinete/aniversarios-ui.js?v=1.13.40-h.1';
     import {podeNavegarLegado,decidirMudancaAcesso,sincronizarMenuAutorizado} from './js/platform/acesso-sessao.js?v=1.13.37-h.5';
 
     import {criarPainelDsips} from './js/modules/dsips/painel-ui.js?v=1.13.34-h.1';
@@ -88,6 +89,7 @@
     let unsubscribeTransferencias = [];
     let abaAtual = 'modulos';
     let agendaGabinete = null;
+    let aniversariantesGabinete = null;
     let usuariosCarregados = false;
     let divisoesCarregadas = false;
     let funcoesCarregadas = false;
@@ -674,7 +676,7 @@
     function interromperSessaoAcesso(){
       ++epocaAcesso;cancelarVigiaAcesso?.();cancelarVigiaAcesso=null;
       usuarioLogado=null;document.getElementById('view-app').classList.add('hidden');
-      invalidarCacheDsips();encerrarOuvinteTransferencias();agendaGabinete?.limpar();
+      invalidarCacheDsips();encerrarOuvinteTransferencias();agendaGabinete?.limpar();aniversariantesGabinete?.limpar();
       painelDsips.limpar();consultaMateriaisDsips.limpar();cadastrosDsips.limpar();estoqueDsips.limpar();cautelasDsips.limpar();posseDsips.limpar();historicoDsips.limpar();
       revisaoEscopo++;invalidarCacheRelacao();cachePatrimonios.clear();cacheSugestoes.clear();cacheFotosUsuarios.clear();catalogoDivisoes.clear();
       bancoPatrimonio=[];bancoUsuarios=[];bancoDivisoes=[];bancoFuncoes=[];itemAtualSelecionado=null;
@@ -696,6 +698,7 @@
       document.getElementById('view-app').classList.add('hidden');usuarioLogado=null;encerrarOuvinteTransferencias();
       invalidarCacheDsips();
       agendaGabinete?.limpar();
+      aniversariantesGabinete?.limpar();
       painelDsips.limpar();
       // Descarta dados DSIPS de qualquer sessão anterior antes de validar a nova.
       consultaMateriaisDsips.limpar();
@@ -1576,6 +1579,18 @@
       notificar:notificarMensagem
     });
     agendaGabinete.inicializar();
+    aniversariantesGabinete = criarAniversariantesGabinete({
+      obterUsuario:()=>usuarioLogado,
+      podeConsultar:()=>podeNavegarLegado(usuarioLogado,'gabinete-painel'),
+      notificar:notificarMensagem,
+      abrirContato:async id=>{
+        const uid=usuarioLogado?.uid;
+        if(!podeNavegarLegado(usuarioLogado,'gabinete-agenda'))return;
+        await alternarAba('gabinete-agenda');
+        if(uid===usuarioLogado?.uid&&abaAtual==='gabinete-agenda')agendaGabinete.abrirContato(id);
+      }
+    });
+    aniversariantesGabinete.inicializar();
 
     document.querySelectorAll('[data-gabinete-abrir]').forEach(botao => {
       botao.addEventListener('click', async () => {
@@ -1590,7 +1605,7 @@
       if (!podeNavegarLegado(usuarioLogado, 'gabinete-agenda')) return;
       agendaGabinete.pesquisar(document.getElementById('gabinete-termo-rapido').value);
       await alternarAba('gabinete-agenda');
-      if (abaAtual === 'gabinete-agenda') buscaContato.focus();
+      if (abaAtual === 'gabinete-agenda') document.getElementById('gabinete-busca-contato')?.focus();
     });
 
     async function copiarRamal(evento) {
@@ -1661,6 +1676,7 @@
       try {
         if (abaAtiva === 'modulos') renderizarCentral(document.getElementById('central-modulos-grid'), usuarioLogado, aba=>alternarAba(aba));
         if (abaAtiva === 'gabinete-agenda') agendaGabinete.renderizar();
+        if (abaAtiva === 'gabinete-painel') aniversariantesGabinete.renderizar();
         if (abaAtiva === 'dashboard') {
           await carregarDashboard();
           if (usuarioLogado?.perfil === 'conferente') agendarTutorialConferente();
