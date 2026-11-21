@@ -1,0 +1,28 @@
+import assert from 'node:assert/strict';
+import {CONTATOS_DEMONSTRACAO} from '../js/modules/gabinete/agenda-model.js';
+import {dataLocalHoje,listarAniversariantes,normalizarPreferencias,proximoAniversario} from '../js/modules/gabinete/aniversarios-model.js';
+
+const contatos=CONTATOS_DEMONSTRACAO;
+const data='2026-11-21';
+assert.equal(listarAniversariantes(contatos,{hoje:data,periodo:'hoje'}).length,1);
+assert.equal(listarAniversariantes(contatos,{hoje:data,periodo:'7'}).length,2);
+assert.equal(listarAniversariantes(contatos,{hoje:data,periodo:'30'}).length,3);
+assert.equal(listarAniversariantes(contatos,{hoje:data,periodo:'todos'}).length,5);
+assert.equal(listarAniversariantes(contatos,{hoje:data,periodo:'30'})[0].nome,'SGT Exemplo A');
+assert.equal(listarAniversariantes(contatos,{hoje:data,periodo:'30'})[0].dias,0);
+assert.equal(proximoAniversario('11-25',data).dias,4);
+assert.equal(proximoAniversario('11-20',data).dias,364);
+assert.equal(proximoAniversario('02-29','2027-02-28').data,'2027-03-01');
+assert.equal(proximoAniversario('02-29','2027-02-28').ajustado,true);
+assert.equal(proximoAniversario('02-29','2028-02-28').data,'2028-02-29');
+assert.equal(proximoAniversario('02-29','2028-02-28').ajustado,false);
+assert.equal(proximoAniversario('02-30',data),null);
+assert.equal(proximoAniversario('00-01',data),null);
+assert.equal(proximoAniversario('11-25','2026-02-30'),null);
+assert.equal(normalizarPreferencias({exibirPainel:false,periodo:'7'}).exibirPainel,false);
+assert.equal(normalizarPreferencias({exibirPainel:false,periodo:'7'}).periodo,'7');
+assert.equal(normalizarPreferencias({periodo:'alterado'}).periodo,'30');
+assert.equal(normalizarPreferencias(null).exibirPainel,true);
+assert.equal(dataLocalHoje(new Date('2026-11-21T02:30:00Z')),'2026-11-20');
+assert.equal(dataLocalHoje(new Date('2026-11-21T04:30:00Z')),'2026-11-21');
+console.log('GAB-06: 21 asserções de datas, filtros, timezone e preferências aprovadas.');
