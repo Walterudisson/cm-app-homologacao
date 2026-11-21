@@ -96,7 +96,7 @@ export function projetarMapaInstitucional({usuarios=[],divisoes=[]}={}){
         'mesma-conta':'mesmo UID definido como principal e substituto',
         'uid-duplicado':'UID repetido no conjunto consultado'
       }[v.status]||v.status),divisaoId:v.divisaoId
-    }))),
+    })),
     ...pistas.map((p,i)=>Object.freeze({
       id:'pista:'+i,tipo:'possivel-duplicidade',titulo:'Possível duplicidade',
       detalhe:p.descricao,divisaoId:''
