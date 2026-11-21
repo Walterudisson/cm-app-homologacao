@@ -16,7 +16,7 @@ function preparar(){
   return {cadastro,orgaos,dir,usuario:()=>usuario,foto:()=>foto,trocar(uid){usuario={uid,nome:'Pessoa Exemplo B'};foto='';orgaos.iniciar(uid);dir.iniciar(uid);},alterarFoto(valor){foto=valor;}};
 }
 test('GAB-09 descarta divisões reais e imagens na troca de usuário',()=>{
-  const f=prepar();
+  const f=preparar();
   f.dir.definirDivisoes([{id:'div-A',nome:'Divisão Confidencial de Teste'}]);
   assert.deepEqual(f.dir.listarDivisoes().map(x=>x.id),['div-A']);
   const self=f.dir.obter('self:admin-A');
@@ -29,7 +29,7 @@ test('GAB-09 descarta divisões reais e imagens na troca de usuário',()=>{
   assert.equal(f.dir.obter('self:admin-B').nome,'Pessoa Exemplo B');
 });
 test('GAB-09 lista só divisões reais quando disponíveis, preserva referência de ramal existente',()=>{
-  const f=prepar();
+  const f=preparar();
   const ramal=f.dir.criar({tipo:'ramal',nome:'Ramal Alfa Exemplo',unidadeId:'demo-div-alfa',unidade:'Unidade Alfa',ramal:'0009'});
   f.dir.definirDivisoes([{id:'div-real',nome:'Unidade Real Exemplo'}]);
   assert.deepEqual(f.dir.listarDivisoes().map(x=>x.id),['div-real']);
@@ -41,7 +41,7 @@ test('GAB-09 lista só divisões reais quando disponíveis, preserva referência
   assert.equal(f.dir.obter(novo.id).unidade,'Unidade Real Renomeada');
 });
 test('GAB-09 divisão inexistente não reaparece ao trocar e retornar à mesma conta',()=>{
-  const f=prepar();
+  const f=preparar();
   f.dir.definirDivisoes([{id:'div-A',nome:'Divisão Exemplo'}]);
   f.trocar('admin-B');
   f.trocar('admin-A');
@@ -49,7 +49,7 @@ test('GAB-09 divisão inexistente não reaparece ao trocar e retornar à mesma c
   assert.equal(f.dir.listar({}).length,13);
 });
 test('GAB-09 órgão renomeado atualiza ficha da Agenda por referência',()=>{
-  const f=prepar();
+  const f=preparar();
   const id='demo-org-002';
   const antes=f.dir.obter('org:'+id);
   const org=f.orgaos.obter(id);
@@ -60,7 +60,7 @@ test('GAB-09 órgão renomeado atualiza ficha da Agenda por referência',()=>{
   assert.equal(f.dir.obter(contato.id).unidade,'Parceiro Novo Exemplo');
 });
 test('GAB-09 revisão conserva limite de 90 dias e nenhuma criação de conta',()=>{
-  const f=prepar();
+  const f=preparar();
   assert.equal(situacaoRevisaoGabinete('2026-08-23',hoje()).codigo,'vencida');
   assert.equal(situacaoRevisaoGabinete('2026-08-24',hoje()).codigo,'proxima');
   const contato=f.dir.obter('demo-pessoa-001');
@@ -70,7 +70,7 @@ test('GAB-09 revisão conserva limite de 90 dias e nenhuma criação de conta',(
   assert.ok(!f.dir.listar().some(c=>c.cpf||c.telefoneParticular));
 });
 test('GAB-09 limpa e recria referências ao encerrar sessão',()=>{
-  const f=prepar();
+  const f=preparar();
   const novo=f.orgaos.criar({nome:'Órgão Exemplo Temporário'});
   f.dir.definirDivisoes([{id:'div-temporaria',nome:'Divisão Exemplo Temporária'}]);
   f.dir.limpar();f.orgaos.limpar();
