@@ -1,7 +1,7 @@
-import {CONTATOS_DEMONSTRACAO,filtrarContatosGabinete} from './agenda-model.js';
+import {filtrarContatosGabinete} from './agenda-model.js';
 
 // O contrato aceita registros estruturados no futuro; esta sprint NÃO busca dados privados.
-export function criarAgendaGabinete({obterUsuario,podeConsultar,notificar}){
+export function criarAgendaGabinete({obterUsuario,podeConsultar,podeGerenciar=()=>false,editarContato=()=>{},notificar,armazenamento}){
   const entrada=document.getElementById('gabinete-busca-contato');
   const tipo=document.getElementById('gabinete-tipo-contato');
   const lista=document.getElementById('gabinete-lista-contatos');
@@ -14,7 +14,6 @@ export function criarAgendaGabinete({obterUsuario,podeConsultar,notificar}){
   const fichaCampos=document.getElementById('gabinete-ficha-campos');
   const fichaAcoes=document.getElementById('gabinete-ficha-acoes');
   const fechar=document.getElementById('gabinete-ficha-fechar');
-  const indices=new Set(CONTATOS_DEMONSTRACAO.map(c=>c.id));
   let uidAtual='',favoritos=new Set(),apenasFavoritos=false,inicializada=false,aberta=null;
 
   const elemento=(tag,classe='',valor)=>{
@@ -34,16 +33,16 @@ export function criarAgendaGabinete({obterUsuario,podeConsultar,notificar}){
     if(!uid||!autorizado())return;
     try{
       const valor=JSON.parse(localStorage.getItem(chave(uid))||'[]');
-      if(Array.isArray(valor)) favoritos=new Set(valor.filter(id=>indices.has(id)));
+      if(Array.isArray(valor)) favoritos=new Set(valor.filter(id=>typeof id==='string'&&id.startsWith('demo-')&&armazenamento.obter(id)?.ativo));
     }catch(_){ favoritos=new Set(); }
   }
   function persistirFavoritos(){
     if(!uidAtual||!autorizado())return;
-    try{localStorage.setItem(chave(uidAtual),JSON.stringify([...favoritos]));}
+    try{localStorage.setItem(chave(uidAtual),JSON.stringify([...favoritos].filter(id=>id.startsWith('demo-')&&armazenamento.obter(id)?.ativo)));}
     catch(_){notificar('Favoritos disponíveis nesta sessão, mas não foi possível salvá-los neste dispositivo.','aviso');}
   }
   function alterarFavorito(id){
-    if(!autorizado()||!indices.has(id))return;
+    if(!autorizado()||!armazenamento.obter(id)?.ativo)return;
     sincronizarUsuario();
     if(favoritos.has(id))favoritos.delete(id);else favoritos.add(id);
     persistirFavoritos();
@@ -107,12 +106,13 @@ export function criarAgendaGabinete({obterUsuario,podeConsultar,notificar}){
     marcar.setAttribute('aria-pressed',String(favorito));
     fichaAcoes.append(marcar);
     acoesContato(fichaAcoes,contato);
+    if(podeGerenciar())fichaAcoes.append(botao('Editar cadastro','cm-gab-action',()=>editarContato(contato.id)));
   }
   function abrirFicha(id){
     if(!autorizado())return;
     sincronizarUsuario();
-    const contato=CONTATOS_DEMONSTRACAO.find(c=>c.id===id);
-    if(!contato)return;
+    const contato=armazenamento.obter(id);
+    if(!contato?.ativo)return;
     aberta=contato;preencherFicha(contato);
     if(typeof dialogo.showModal==='function') {
       if(!dialogo.open)dialogo.showModal();
@@ -141,7 +141,8 @@ export function criarAgendaGabinete({obterUsuario,podeConsultar,notificar}){
     sincronizarUsuario();
     lista.replaceChildren();
     if(!autorizado()){contagem.textContent='';return;}
-    const encontrados=filtrarContatosGabinete(CONTATOS_DEMONSTRACAO,{
+    if(aberta&&!armazenamento.obter(aberta.id)?.ativo)fecharFicha();
+    const encontrados=filtrarContatosGabinete(armazenamento.listar(),{
       termo:entrada.value,tipo:tipo.value,apenasFavoritos,favoritos
     });
     for(const contato of encontrados)lista.append(cartão(contato));

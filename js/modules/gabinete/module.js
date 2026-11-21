@@ -11,6 +11,7 @@ export const MODULO_GABINETE = Object.freeze({
   paginas: Object.freeze({
     'gabinete-painel': pagina('Painel do Gabinete', 'Painel'),
     'gabinete-agenda': pagina('Agenda Telefônica', 'Agenda'),
-    'gabinete-ramais': pagina('Ramais', 'Ramais')
+    'gabinete-ramais': pagina('Ramais', 'Ramais'),
+    'gabinete-cadastros': Object.freeze({...pagina('Cadastros e revisão', 'Cadastros'),perfis:Object.freeze(['admin'])})
   })
 });

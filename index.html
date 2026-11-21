@@ -21,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.13.40-h.1">
+  <link rel="stylesheet" href="./app.css?v=1.13.41-h.1">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div id="cmapp-hml-banner" class="cmapp-hml-banner" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -58,7 +58,7 @@
       <p class="text-xs text-center"><a href="./recuperar.html" class="text-blue-400 underline">Problemas para entrar? Recuperar atualização</a></p>
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.40-H.1 • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.41-H.1 • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -94,6 +94,7 @@
             <button type="button" id="tab-btn-gabinete-painel" class="nav-item hidden" data-nav-page="gabinete-painel"><span class="sidebar-label">Painel</span></button>
             <button type="button" id="tab-btn-gabinete-agenda" class="nav-item hidden" data-nav-page="gabinete-agenda"><span class="sidebar-label">Agenda Telefônica</span></button>
             <button type="button" id="tab-btn-gabinete-ramais" class="nav-item hidden" data-nav-page="gabinete-ramais"><span class="sidebar-label">Ramais</span></button>
+            <button type="button" id="tab-btn-gabinete-cadastros" class="nav-item hidden" data-nav-page="gabinete-cadastros"><span class="sidebar-label">Cadastros e revisão</span></button>
           </div>
         </div>
         <div class="sidebar-module" data-nav-group="patrimonio">
@@ -189,7 +190,7 @@
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.13.40-H.1</span>
+        <span>v1.13.41-H.1</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -531,17 +532,108 @@
         </dialog>
       </section>
 
+      <section id="sec-gabinete-cadastros" class="hidden cm-ux-central cm-gab-cadastro" aria-labelledby="gab-cad-titulo">
+        <div class="cm-panel-header">
+          <div>
+            <span class="cm-ux-eyebrow">GABINETE · ADMINISTRAÇÃO</span>
+            <h2 id="gab-cad-titulo">Cadastros e revisão</h2>
+            <p>Gerencie e revise a Agenda Telefônica demonstrativa.</p>
+          </div>
+          <button id="gab-cad-novo" type="button" class="profile-action profile-action-primary">+ Novo contato</button>
+        </div>
+        <p class="cm-gab-cad-banner" role="note"><strong>Ambiente de teste.</strong> Use somente dados fictícios. Nenhum cadastro é enviado ao servidor ou salvo no dispositivo. As alterações são descartadas ao sair ou atualizar.</p>
+        <div id="gab-cad-metricas" class="cm-gab-cad-metrics" aria-label="Indicadores cadastrais"></div>
+        <div class="app-card cm-gab-cad-filters">
+          <label>Pesquisar
+            <input id="gab-cad-busca" type="search" placeholder="Nome, unidade, ramal ou e-mail" autocomplete="off">
+          </label>
+          <label>Tipo
+            <select id="gab-cad-filtro-tipo">
+              <option value="">Todos</option><option value="pessoa">Pessoas</option><option value="ramal">Ramais</option><option value="externo">Externos</option>
+            </select>
+          </label>
+          <label>Situação
+            <select id="gab-cad-estado">
+              <option value="ativos">Ativos</option>
+              <option value="pendentes">Requerem atenção</option>
+              <option value="vencidos">Revisão vencida / ausente</option>
+              <option value="em-dia">Revisão em dia</option>
+              <option value="arquivados">Excluídos (restauráveis)</option>
+            </select>
+          </label>
+        </div>
+        <div class="cm-gab-cad-results">
+          <strong id="gab-cad-total" role="status" aria-live="polite"></strong>
+          <span>Revisão cadastral a cada 90 dias, sem bloqueio de consulta.</span>
+        </div>
+        <ul id="gab-cad-lista" class="cm-gab-cad-list" aria-label="Contatos cadastrados"></ul>
+        <p id="gab-cad-vazio" class="cm-gab-empty" hidden>Nenhum cadastro corresponde aos filtros selecionados.</p>
+
+        <dialog id="gab-cad-dialogo" class="cm-gab-dialog cm-gab-cad-dialog" aria-labelledby="gab-cad-dialogo-titulo">
+          <div class="cm-gab-dialog-top">
+            <div>
+              <span class="cm-gab-dialog-eyebrow">GABINETE · CADASTRO FICTÍCIO</span>
+              <h3 id="gab-cad-dialogo-titulo">Novo contato</h3>
+            </div>
+            <button id="gab-cad-fechar" type="button" class="cm-gab-dialog-close" aria-label="Fechar cadastro">✕</button>
+          </div>
+          <p class="cm-gab-cad-form-note">Não informe CPF, telefone particular ou dados pessoais reais. Este formulário não salva informações no Firebase.</p>
+          <form id="gab-cad-form" class="cm-gab-cad-form" novalidate>
+            <p id="gab-cad-erro" class="cm-gab-cad-error" role="alert" tabindex="-1" hidden></p>
+            <label>Tipo de contato *
+              <select id="gab-cad-tipo" required>
+                <option value="pessoa">Pessoa</option><option value="ramal">Ramal/Setor</option><option value="externo">Contato externo</option>
+              </select>
+            </label>
+            <label>Nome / identificação *
+              <input id="gab-cad-nome" type="text" required maxlength="100" autocomplete="off" placeholder="Ex.: Militar Exemplo F">
+            </label>
+            <label>Unidade / setor *
+              <input id="gab-cad-unidade" type="text" required maxlength="90" autocomplete="off" placeholder="Ex.: Unidade Gama">
+            </label>
+            <label>Função / observação institucional
+              <input id="gab-cad-funcao" type="text" maxlength="100" autocomplete="off" placeholder="Ex.: Apoio">
+            </label>
+            <div class="cm-gab-cad-form-pair">
+              <label>Ramal
+                <input id="gab-cad-ramal" type="text" maxlength="8" inputmode="numeric" autocomplete="off" placeholder="0001">
+              </label>
+              <label>Telefone institucional
+                <input id="gab-cad-telefoneInstitucional" type="tel" maxlength="24" autocomplete="off" placeholder="(41) 3000-0000">
+              </label>
+            </div>
+            <label>E-mail institucional
+              <input id="gab-cad-email" type="email" maxlength="150" autocomplete="off" placeholder="contato@exemplo.invalid">
+            </label>
+            <label id="gab-cad-aniversario-grupo">Aniversário (somente dia/mês)
+              <input id="gab-cad-aniversario" type="text" inputmode="numeric" maxlength="5" autocomplete="off" placeholder="DD/MM">
+            </label>
+            <div class="cm-gab-cad-form-actions">
+              <button id="gab-cad-cancelar" type="button" class="cm-gab-action">Cancelar</button>
+              <button id="gab-cad-confirmar" type="submit" class="cm-gab-action cm-gab-primary">Adicionar contato</button>
+            </div>
+          </form>
+        </dialog>
+
+        <dialog id="gab-cad-confirmacao" class="cm-gab-dialog cm-gab-cad-confirm" aria-labelledby="gab-cad-confirmacao-titulo">
+          <div class="cm-gab-dialog-top">
+            <h3 id="gab-cad-confirmacao-titulo">Confirmar alteração</h3>
+            <button id="gab-cad-confirmacao-fechar" type="button" class="cm-gab-dialog-close" aria-label="Fechar confirmação">✕</button>
+          </div>
+          <p id="gab-cad-confirmacao-texto" class="cm-gab-cad-confirm-text"></p>
+          <div class="cm-gab-cad-form-actions">
+            <button id="gab-cad-confirmacao-cancelar" type="button" class="cm-gab-action">Cancelar</button>
+            <button id="gab-cad-confirmacao-executar" type="button" class="cm-gab-action cm-gab-primary">Confirmar</button>
+          </div>
+        </dialog>
+      </section>
+
       <section id="sec-gabinete-ramais" class="hidden cm-ux-central space-y-4" aria-labelledby="gabinete-ramais-titulo">
         <header class="cm-panel-header"><div><h2 id="gabinete-ramais-titulo">Ramais do Gabinete</h2><p>Consulte por setor, unidade ou número. Os registros de demonstração são fictícios.</p></div></header>
         <label class="block" for="gabinete-busca-ramal">Pesquisar ramais</label>
         <input id="gabinete-busca-ramal" type="search" class="w-full rounded-lg border border-slate-300 bg-transparent p-3" placeholder="Setor, unidade ou número">
         <p id="gabinete-sem-ramais" class="hidden" role="status">Nenhum ramal encontrado.</p>
-        <ul id="gabinete-lista-ramais" class="space-y-2">
-          <li class="flex flex-wrap items-center justify-between gap-3 app-card p-3"><div><strong>Recepção exemplo</strong><br>Unidade Alfa · 0001</div><button type="button" class="rounded-lg border border-slate-300 px-3 py-2" data-copiar-ramal="0001" aria-label="Copiar ramal 0001">Copiar ramal</button></li>
-          <li class="flex flex-wrap items-center justify-between gap-3 app-card p-3"><div><strong>Setor exemplo</strong><br>Unidade Beta · 0002</div><button type="button" class="rounded-lg border border-slate-300 px-3 py-2" data-copiar-ramal="0002" aria-label="Copiar ramal 0002">Copiar ramal</button></li>
-          <li class="flex flex-wrap items-center justify-between gap-3 app-card p-3"><div><strong>Atendimento exemplo</strong><br>Unidade Beta · 0002</div><button type="button" data-copiar-ramal="0002" class="rounded-lg border border-slate-300 px-3 py-2" aria-label="Copiar ramal 0002 de Atendimento exemplo">Copiar ramal</button></li>
-          <li class="app-card p-3"><strong>Apoio exemplo</strong><br>Unidade Beta · Sem ramal informado</li>
-        </ul>
+        <ul id="gabinete-lista-ramais" class="space-y-2" aria-label="Ramais institucionais"></ul>
       </section>
 
       <section id="sec-perfil" class="hidden space-y-5">
@@ -1247,7 +1339,7 @@
 
       <footer class="app-footer">
         <span>CM APP</span>
-        <span>v1.13.40-H.1 · HOMOLOGAÇÃO</span>
+        <span>v1.13.41-H.1 · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -1492,6 +1584,6 @@
         window.addEventListener('online',()=>{if(bloqueado()){tentou=false;void recuperar();}});
       })();
     </script>
-    <script type="module" src="./app.js?v=1.13.40-h.1"></script>
+    <script type="module" src="./app.js?v=1.13.41-h.1"></script>
 </body>
 </html>
