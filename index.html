@@ -1577,7 +1577,8 @@
 
   <div id="modal-funcao" class="hidden fixed inset-0 bg-slate-950/80 z-50 flex items-center justify-center p-4">
     <div class="function-dialog" role="dialog" aria-modal="true" aria-labelledby="titulo-modal-funcao">
-      <div class="user-details-heading"><h3 id="titulo-modal-funcao">Nova função</h3><button id="btn-fechar-modal-funcao" type="button">✕</button></div>
+      <div class="user-details-heading"><h3 id="titulo-modal-funcao">Nova função</h3><button id="btn-fechar-modal-funcao" type="button" aria-label="Fechar edição da função">✕</button></div>
+      <p class="gest-matriz-alerta">Cadastro legado de função. Os campos abaixo configuram apenas as seis chaves atualmente existentes. A nova matriz consultiva não concede permissões; atribuições e proteções no backend ainda exigem auditoria.</p>
       <form id="form-funcao" class="space-y-3 mt-4">
         <input id="funcao-id" type="hidden">
         <label class="profile-field"><span>Nome da função</span><input id="funcao-nome" required minlength="3" maxlength="100" placeholder="Ex.: Responsável de divisão"></label>
