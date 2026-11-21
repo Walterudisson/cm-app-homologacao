@@ -1,4 +1,4 @@
-const VERSAO = 'v1.13.47-h.1-gest04';
+const VERSAO = 'v1.13.48-h.1-gest05';
 const CACHE_SHELL = `cmapp-shell-${VERSAO}`;
 const CACHE_RUNTIME = `cmapp-runtime-${VERSAO}`;
 // Emergência HML: somente releases cujo service.js incompleto foi confirmado.
