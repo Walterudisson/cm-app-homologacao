@@ -12,7 +12,7 @@ const patr=['dashboard','scanner','lista','inventarios'];
 const ds=['dsips-inicio','dsips-cadastros','dsips-estoque','dsips-cautelas','dsips-posse'];
 const gest=['usuarios','divisoes'];
 const matriz=[
- {u:{perfil:'admin'},pages:['modulos',...patr,'transferencias',...gest,'funcoes','gabinete-ramais',...ds,'dsips-historico'],central:['patrimonios','dsips']},
+ {u:{perfil:'admin'},pages:['modulos',...patr,'transferencias',...gest,'funcoes','gabinete-painel','gabinete-agenda','gabinete-ramais',...ds,'dsips-historico'],central:['patrimonios','dsips']},
  {u:{perfil:'gestor',modulos:['dsips']},pages:['modulos',...gest,...ds,'dsips-historico'],central:['dsips']},
  {u:{perfil:'gestor'},pages:['modulos',...patr,'transferencias',...gest],central:['patrimonios']},
  {u:{perfil:'conferente',modulos:['dsips']},pages:['modulos',...ds],central:['dsips']},
@@ -57,3 +57,21 @@ test('QA-03.05 todas as rotas possuem seção única; perfil básico e V2 ficam 
  const f=ambiente();try{for(const id of listarIdsPaginas())assert.equal(f.d.querySelectorAll('#sec-'+id).length,1,id);for(const id of listarIdsPaginas()){assert.equal(podeNavegarLegado({perfil:'usuario',modulos:['dsips']},id),id==='perfil',id);assert.equal(podeNavegarLegado({perfil:'admin',autorizacaoVersao:2},id),false,id);}}finally{f.fechar();}
 });
 test('QA-03.06 release mantém HML e precache de navegação',async()=>{await conferirVersaoAtual();const [a,w,c]=await Promise.all(['app.js','service-worker.js','js/config/firebase.js'].map(p=>readFile(new URL('../'+p,import.meta.url),'utf8')));assert.match(a,/sincronizarMenuAutorizado\(document,usuarioLogado\)/);assert.match(w,/js\/platform\/acesso-sessao\.js/);assert.match(c,/projectId: "cm-app-homologacao"/);assert.doesNotMatch(c,/projectId: "patrimonioscm"/);});
+
+test('Gabinete abre Painel, Agenda e Ramais no menu do CMAPP', () => {
+ const f = ambiente(true);
+ try {
+   const usuario = { perfil: 'admin' };
+   sincronizarMenuAutorizado(f.d, usuario);
+   inicializarNavegacao(ativarPagina);
+   f.d.querySelector('[data-nav-group-toggle="gabinete"]').click();
+   assert.equal(f.id('sidebar-submenu-gabinete').hidden, false);
+   for (const [pagina, titulo] of [['painel', 'Painel do Gabinete'], ['agenda', 'Agenda Telefônica'], ['ramais', 'Ramais']]) {
+     const botao = f.id('tab-btn-gabinete-' + pagina);
+     botao.click();
+     assert.equal(botao.getAttribute('aria-current'), 'page');
+     assert.equal(f.id('page-title').textContent, titulo);
+     assert.ok(f.id('sec-gabinete-' + pagina));
+   }
+ } finally { f.fechar(); }
+});

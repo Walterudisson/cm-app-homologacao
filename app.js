@@ -53,7 +53,7 @@
       fecharCamadasNavegacao,
       fecharNavegacaoMovel,
       inicializarNavegacao
-    } from "./js/ui/navigation.js?v=1.13.38-h.1";
+    } from "./js/ui/navigation.js?v=1.13.38-h.3";
     import { inicializarPwa } from "./js/pwa.js?v=1.13.36-h.1";
     import { podeConsultarMateriaisDsips } from "./js/modules/dsips/consulta-materiais-model.js?v=1.13.13-h.3";
     import {invalidarCacheDsips} from './js/modules/dsips/service.js?v=1.13.34-h.1';
@@ -1545,13 +1545,13 @@
     }));
     const buscaRamal = document.getElementById('gabinete-busca-ramal');
     const listaRamais = document.getElementById('gabinete-lista-ramais');
-    const normalizarRamal = texto => texto.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase().trim();
+    const normalizarContato = texto => texto.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase().trim();
 
     function filtrarRamais() {
-      const termo = normalizarRamal(buscaRamal.value);
+      const termo = normalizarContato(buscaRamal.value);
       let encontrou = false;
       for (const ramal of listaRamais.children) {
-        const visivel = normalizarRamal(ramal.firstElementChild.textContent).includes(termo);
+        const visivel = normalizarContato(ramal.textContent.replace(/Copiar ramal/g, '')).includes(termo);
         ramal.classList.toggle('hidden', !visivel);
         encontrou ||= visivel;
       }
@@ -1559,9 +1559,48 @@
     }
 
     buscaRamal.addEventListener('input', filtrarRamais);
-    listaRamais.addEventListener('click', async evento => {
+    const buscaContato = document.getElementById('gabinete-busca-contato');
+    const tipoContato = document.getElementById('gabinete-tipo-contato');
+    const listaContatos = document.getElementById('gabinete-lista-contatos');
+    for (const ramal of listaRamais.children) {
+      const contato = ramal.cloneNode(true);
+      contato.dataset.tipo = 'ramal';
+      listaContatos.append(contato);
+    }
+
+    function filtrarContatos() {
+      const termo = normalizarContato(buscaContato.value);
+      let total = 0;
+      for (const contato of listaContatos.children) {
+        const corresponde = (!tipoContato.value || contato.dataset.tipo === tipoContato.value)
+          && normalizarContato(contato.textContent.replace(/Copiar ramal/g, '')).includes(termo);
+        contato.classList.toggle('hidden', !corresponde);
+        if (corresponde) total++;
+      }
+      document.getElementById('gabinete-total-contatos').textContent =
+        total === 0 ? 'Nenhum contato encontrado.' : total === 1 ? '1 contato encontrado' : `${total} contatos encontrados`;
+    }
+
+    buscaContato.addEventListener('input', filtrarContatos);
+    tipoContato.addEventListener('change', filtrarContatos);
+    filtrarContatos();
+
+    document.querySelectorAll('[data-gabinete-abrir]').forEach(botao => {
+      botao.addEventListener('click', () => alternarAba(botao.dataset.gabineteAbrir));
+    });
+    document.getElementById('gabinete-busca-rapida').addEventListener('submit', async evento => {
+      evento.preventDefault();
+      if (!podeNavegarLegado(usuarioLogado, 'gabinete-agenda')) return;
+      buscaContato.value = document.getElementById('gabinete-termo-rapido').value;
+      tipoContato.value = '';
+      filtrarContatos();
+      await alternarAba('gabinete-agenda');
+      if (abaAtual === 'gabinete-agenda') buscaContato.focus();
+    });
+
+    async function copiarRamal(evento) {
       const botao = evento.target.closest('[data-copiar-ramal]');
-      if (!botao || !podeNavegarLegado(usuarioLogado, 'gabinete-ramais')) return;
+      if (!botao || !['gabinete-ramais', 'gabinete-agenda'].includes(abaAtual) || !podeNavegarLegado(usuarioLogado, abaAtual)) return;
       const ramal = botao.dataset.copiarRamal;
       try {
         await navigator.clipboard.writeText(ramal);
@@ -1569,7 +1608,9 @@
       } catch {
         notificarMensagem(`A cópia automática está indisponível. Ramal ${ramal}.`, 'aviso');
       }
-    });
+    }
+    listaRamais.addEventListener('click', copiarRamal);
+    listaContatos.addEventListener('click', copiarRamal);
 
     async function alternarAba(abaAtiva, { registrarHistorico = true, substituirHistorico = false } = {}) {
       if (!usuarioLogado) return;
@@ -1608,7 +1649,7 @@
       }
       if(epoca!==epocaAcesso||!podeNavegarLegado(usuarioLogado,abaAtiva)||abaAtual!==abaAtiva)return;
 
-      ['modulos', 'dashboard', 'scanner', 'transferencias', 'usuarios', 'divisoes', 'funcoes', 'inventarios', 'lista', 'perfil', 'dsips-inicio', 'dsips-materiais', 'dsips-cadastros', 'dsips-estoque', 'dsips-cautelas', 'dsips-posse', 'dsips-historico', 'gabinete-ramais'].forEach(aba => {
+      ['modulos', 'dashboard', 'scanner', 'transferencias', 'usuarios', 'divisoes', 'funcoes', 'inventarios', 'lista', 'perfil', 'dsips-inicio', 'dsips-materiais', 'dsips-cadastros', 'dsips-estoque', 'dsips-cautelas', 'dsips-posse', 'dsips-historico', 'gabinete-painel', 'gabinete-agenda', 'gabinete-ramais'].forEach(aba => {
         const sec = document.getElementById(`sec-${aba}`);
         if (sec) sec.classList.toggle('hidden', aba !== abaAtiva);
       });
