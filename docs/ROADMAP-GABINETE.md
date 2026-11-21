@@ -22,8 +22,8 @@
 | GAB-06 | Aniversários, painéis e push configurável |
 | GAB-07 | Revisão cadastral e qualidade |
 | GAB-07.1 | Fonte cadastral única, órgãos externos, ramais, divisões e foto do perfil no card/ficha; integração inicial demonstrativa sem backend |
-| GAB-08 | PDF e vCard autorizados |
-| GAB-09 | Homologação integrada, segurança, desempenho |
+| GAB-09 | **Próxima sprint prioritária**: homologação integrada, segurança, desempenho, PWA e acessibilidade |
+| GAB-08 | **Adiada para backlog futuro**: PDF e vCard autorizados, sem data; não bloqueia GAB-09 ou Gestão |
 ## Gate
 GAB-00 é HTML independente, dados integralmente sintéticos, sem Firebase, acesso real, persistência ou integração operacional. Referência visual: identidade atual do CMAPP e padrões Users/Contacts; pacote original do template não inspecionado nesta entrega. Sem alterações no shell, backend, HML operacional ou PRD. Antes de GAB-01: homologar protótipo, validar SAN-01 em dispositivo real, revisar contrato atual de contas/Rules/Functions, confirmar mapeamentos e aprovar alterações específicas do backend. Não promover PRD.
 
@@ -32,3 +32,7 @@ GAB-00 é HTML independente, dados integralmente sintéticos, sem Firebase, aces
 A GAB-07 de novembro é apenas um CRUD em memória para testes do frontend. A solução final **não** terá cadastros duplicados de uma pessoa em Agenda, DSIPS, RH ou Gestão. Usuários cadastrados compõem a Agenda, divisões são referenciadas do cadastro da Gestão, e responsáveis da DSIPS devem manter os identificadores atuais. O Gabinete será dono dos cadastros de órgãos externos, contatos externos e ramais. A fotografia já cadastrada pelo usuário em **Meu Perfil** deverá ser a mesma exibida no card e na ficha da Agenda, com fallback por iniciais e leitura autorizada. A integração da fotografia ainda não foi feita.
 
 Fonte normativa detalhada: [DP-GAB-UNICIDADE-CADASTRAL-FOTOS](./DP-GAB-UNICIDADE-CADASTRAL-FOTOS.md). Implementação de backend, privacidade, vinculação e migração depende de autorização específica após revisão das regras e funções implantadas. Nenhuma alteração de dados reais foi feita.
+
+## Repriorização aprovada (21/11/2026)
+
+O usuário decidiu **adiar a GAB-08 (exportação PDF/vCard)** para implementação futura. Não implementá-la automaticamente na sequência da GAB-07.1. Próximos passos: homologar visualmente a GAB-07.1 em Android/desktop/PWA, realizar a **GAB-09** (qualidade integrada, acessibilidade, testes de acesso, regressões e ajustes UX/UI) e então avançar para **Gestão e o cadastro institucional único**, respeitando o bloqueio de alterações de backend até autorização específica. A GAB-08 não integra os critérios de aceite da GAB-09 nem bloqueia essa transição.
