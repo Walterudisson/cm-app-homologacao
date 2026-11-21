@@ -72,6 +72,9 @@ A GEST-03 adapta a organização em **cards, filtros e informações de acesso**
 - Testes de unidade em `tests/gestao-usuarios-acessos.test.mjs`, cobrindo perfis nativos, função personalizada, função inativa, chaves adicionais, divisão, status e divergência de perfil.
 - Simulações locais de renderização da ficha e prévia, sem login real.
 - Regressão de bootstrap em `tests/gestao-login-bootstrap.test.mjs`, para impedir novo erro de inicialização.
+- Verificação em JavaScript isolado: **10 casos de modelo, 42 asserções**, além de **9 cenários de UI simulados**, todos aprovados.
+- Verificações adicionais: **4 testes do contrato de UI** aprovados e checagem estática de sintaxe, versionamento, ausência de escrita nova e preservação dos serviços legados.
+- **Não foram executados login autenticado nem testes Android/PWA reais**, e os testes Node não foram executados em pipeline CI nesta entrega.
 - O HTML continua sendo uma página do CMAPP, não uma aplicação paralela do AppDashboard Pro.
 
 ## Gates mantidos
