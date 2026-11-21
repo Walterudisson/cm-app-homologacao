@@ -10,7 +10,7 @@ test('GEST-03 ficha, filtros e prévias possuem elementos estáveis no HTML',asy
     'gest-detalhes-modulos','gest-detalhes-permissoes','gest-detalhes-aviso',
     'gest-previa-cadastro','gest-previa-edicao','filtro-funcao-usuarios'
   ])assert.match(html,new RegExp('id="'+id+'"'));
-  assert.match(html,/v1\.13\.46-H\.1/);
+  assert.match(html,/v1\.13\.47-H\.1/);
 });
 test('GEST-03 mantém o bloqueio de navegação antes de filtrar vínculos',async()=>{
   const app=await ler('app.js');
@@ -29,7 +29,7 @@ test('GEST-03 funções desativadas não são silenciosamente desvinculadas na e
 test('GEST-03 novo arquivo de acesso é pré-cacheado e não altera catálogo de permissões',async()=>{
   const sw=await ler('service-worker.js');
   const mod=await ler('js/modules/gestao/usuarios-acessos-model.js');
-  assert.match(sw,/v1\.13\.46-h\.1-gest03/);
+  assert.match(sw,/v1\.13\.47-h\.1-gest04/);
   assert.match(sw,/\.\/js\/modules\/gestao\/usuarios-acessos-model\.js/);
   assert.doesNotMatch(mod,/(setDoc|updateDoc|httpsCallable|deleteDoc)\(/);
 });
