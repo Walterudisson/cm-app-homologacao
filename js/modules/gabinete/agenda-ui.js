@@ -34,12 +34,12 @@ export function criarAgendaGabinete({obterUsuario,podeConsultar,podeGerenciar=()
     if(!uid||!autorizado())return;
     try{
       const valor=JSON.parse(localStorage.getItem(chave(uid))||'[]');
-      if(Array.isArray(valor)) favoritos=new Set(valor.filter(id=>typeof id==='string'&&id.startsWith('demo-')&&armazenamento.obter(id)?.ativo));
+      if(Array.isArray(valor)) favoritos=new Set(valor.filter(id=>typeof id==='string'&&(id.startsWith('demo-')||id.startsWith('org:demo-org-'))&&armazenamento.obter(id)?.ativo));
     }catch(_){ favoritos=new Set(); }
   }
   function persistirFavoritos(){
     if(!uidAtual||!autorizado())return;
-    try{localStorage.setItem(chave(uidAtual),JSON.stringify([...favoritos].filter(id=>id.startsWith('demo-')&&armazenamento.obter(id)?.ativo)));}
+    try{localStorage.setItem(chave(uidAtual),JSON.stringify([...favoritos].filter(id=>(id.startsWith('demo-')||id.startsWith('org:demo-org-'))&&armazenamento.obter(id)?.ativo)));}
     catch(_){notificar('Favoritos disponíveis nesta sessão, mas não foi possível salvá-los neste dispositivo.','aviso');}
   }
   function alterarFavorito(id){
@@ -174,7 +174,7 @@ export function criarAgendaGabinete({obterUsuario,podeConsultar,podeGerenciar=()
     contagem.textContent=encontrados.length===1?'1 contato encontrado':encontrados.length+' contatos encontrados';
     alternarFavoritos.setAttribute('aria-pressed',String(apenasFavoritos));
     alternarFavoritos.textContent=apenasFavoritos?'★ Exibindo favoritos':'☆ Somente favoritos';
-    notaFavoritos.textContent=favoritos.size===1?'1 favorito salvo neste dispositivo':favoritos.size+' favoritos salvos neste dispositivo';
+    notaFavoritos.textContent=favoritos.size===1?'1 favorito marcado · somente exemplos padrão são preservados no dispositivo':favoritos.size+' favoritos marcados · somente exemplos padrão são preservados no dispositivo';
   }
   function mostrarFavoritos(){
     if(!autorizado())return;
