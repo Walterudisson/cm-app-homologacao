@@ -20,7 +20,7 @@ Esta é a referência única de planejamento para as sprints de frontend do CMAP
 | Patrimônios | Telas existentes e Painel V2 | Evolução de gestão sem regressões |
 | DSIPS | Estoque, cautelas, devoluções, posse, histórico e indicadores no frontend | Ajustes de gestão; mudanças de backend em espera |
 | Gestão | Usuários, divisões e matriz de permissões legadas | GEST-01 a GEST-05: UI/UX; GEST-06/07 bloqueadas por backend |
-| Gabinete | Painel, Agenda e Ramais integrados com dados fictícios | Fichas, favoritos, cadastros reais autorizados |
+| Gabinete | Painel, Agenda, Ramais e CRUD demonstrativo de qualidade | Persistência e concessões seguras mediante autorização do backend |
 | Segurança | PWA e mitigação de versões | Sessões/dispositivos e revogação via backend seguro no futuro |
 
 ## Gabinete: cronologia, entregas e próximas sprints
@@ -35,7 +35,7 @@ Esta é a referência única de planejamento para as sprints de frontend do CMAP
 | Integração H.4 | Gabinete na Central e login com rota inicial correta | Código HML integrado; homologação funcional pendente |
 | **GAB-05** | **Fichas, favoritos locais, ações rápidas e responsividade** | **HML v1.13.39-H.1, aguardando homologação funcional** |
 | **GAB-06** | **Aniversariantes fictícios, filtros, contadores e preferências locais; sem push** | **HML v1.13.40-H.1, aguardando homologação funcional** |
-| GAB-07 | Qualidade cadastral, pendências, indicação de revisão a cada 90 dias | Planejada; persistência dependerá de backend |
+| **GAB-07** | **CRUD demonstrativo completo, qualidade e revisão a cada 90 dias** | **HML v1.13.41-H.1; homologação funcional pendente** |
 | GAB-08 | Exportação PDF conforme perfis, vCard, revisão de privacidade | Planejada; exige proteção por campo na fonte |
 | GAB-09 | QA integrada, auditoria, acessibilidade, PWA e regressões | Planejada |
 
@@ -57,6 +57,19 @@ Esta é a referência única de planejamento para as sprints de frontend do CMAP
 - **Push não disponível:** requer backend seguro, consentimento e controles de autorização; nenhum envio foi implementado.
 - Correção incidental GAB-05: foco da busca rápida da Agenda, antes referenciando variável indefinida.
 - Sem alteração em produção, Firestore Rules, Cloud Functions, índices ou dados pessoais.
+
+### Entregáveis GAB-07 e próximos gates
+
+- CRUD **de demonstração** em tela exclusiva **Gabinete > Cadastros e revisão**, com inserção, consulta, edição, exclusão reversível, restauração e revisão de dados.
+- Nesta etapa, **somente o perfil admin** pode operar o CRUD de homologação. A versão definitiva seguirá concessões administrativas **expressas** da política GAB-01, inclusive para admin, conferidas no servidor; não presumir acesso por perfil.
+- Fonte única em memória por sessão: Agenda, aniversariantes e Ramais refletem alterações do cadastro sem duplicar bases. Sem gravação em Firebase, browser storage, IndexedDB, cache PWA de dados digitados ou produção.
+- Validação de nomes, unidades, ramal como texto, e-mail, telefone institucional, dia/mês e limite de caracteres. Rejeição explícita de campos privados, CPF, nascimento completo, permissões e campos inesperados.
+- Deduplicação por nome normalizado + unidade + tipo; **ramais compartilhados são permitidos**.
+- Lista com busca, filtros por tipo, ativos, excluídos, pendências e situação da revisão; métricas de qualidade, revisão vencida a partir de 90 dias, e alertas não bloqueantes.
+- Exclusão reversível dentro da sessão, após diálogo de confirmação; restauração impede conflito com novo registro. Revisão declarada por botão com confirmação.
+- Alterações em memória são apagadas ao encerrar sessão, trocar de conta ou recarregar página. **Não digitar dados reais no formulário de homologação.**
+- Backend e migração de dados reais, papéis de edição, auditoria oficial e persistência continuam **bloqueados** até revisão de Rules/Functions e autorização específica.
+- Regressão HML deve conferir CRUD, acessos, UI Android/desktop e PWA; nenhuma promoção automática a PRD.
 
 ### Próximas frentes após Gabinete
 
