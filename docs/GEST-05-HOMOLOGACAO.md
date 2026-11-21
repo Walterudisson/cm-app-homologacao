@@ -16,6 +16,13 @@ Estabilizar as funcionalidades já integradas (GEST-01 a GEST-04, Gabinete GAB-0
 6. **Rotina reproduzível:** `npm run check:gestao` roda verificação de parsing do app e a suite `tests/gestao-*.test.mjs` em Node 22. `package.json` de teste contém `jsdom` como dependência de desenvolvimento, sem efeito no GitHub Pages.
 7. **GitHub Actions:** `.github/workflows/qa-gestao-hml.yml` roda em PR/main e manualmente. Permissão somente de leitura, sem acesso a credenciais, sem execução de Functions e sem deploy. **Uma execução verde no CI só pode ser afirmada após conferir o resultado do workflow.**
 
+## Resultado das execuções GitHub Actions (PR #88)
+
+- **CMAPP HML | QA Gestão:** **64 testes aprovados de 64, sem falhas**, Node 22 e jsdom. Inclui GEST-01 a GEST-05, login, rota, permissões e limpeza de sessão. A compilação de `app.js` também passou.
+- **HML - DSIPS (testes), suíte geral histórica:** **173 aprovados de 197, 24 falhas**. A mesma suíte **já apresentou 24 falhas na PR #87**, antes desta sprint. A primeira versão da PR #88 acrescentou uma falha ao teste SAN-01 por corresponder à expressão textual antiga de montagem do usuário. A expectativa foi corrigida para exigir UID/e-mail autoritativos do Auth; a nova execução retornou às **mesmas 24 falhas preexistentes**, sem regressão adicional identificada.
+- **Débito de QA:** revisar os 24 testes históricos contra os contratos atuais de DSIPS, Gabinete, Central e PWA. Não editar regras de negócio apenas para fazer snapshots antigos passarem. A revisão deve distinguir testes obsoletos de problemas funcionais reais, com nova execução completa.
+- **Estado de aceite:** CI de Gestão verde; **suíte geral ainda vermelha**; testes manuais Android/desktop/PWA ainda pendentes. Nenhuma dessas condições equivale a autorização de backend ou promoção PRD.
+
 ## Verificações manuais priorizadas
 
 | ID | Procedimento | Resultado esperado |
