@@ -7,6 +7,7 @@ const PAGINAS = {
   usuarios: { titulo: 'Gestão de usuários', trilha: ['CM APP', 'Gestão', 'Usuários'] },
   divisoes: { titulo: 'Gestão de divisões', trilha: ['CM APP', 'Gestão', 'Divisões'] },
   funcoes: { titulo: 'Funções e permissões', trilha: ['CM APP', 'Gestão', 'Funções'] },
+  pessoas: { titulo: 'Pessoas e vínculos', trilha: ['CM APP', 'Gestão', 'Pessoas e vínculos'] },
   inventarios: { titulo: 'Inventários', trilha: ['CM APP', 'Patrimônio', 'Inventários'] },
   'dsips-inicio': { titulo: 'Painel DSIPS', trilha: ['CM APP', 'DSIPS', 'Painel'] },
   'dsips-materiais': { titulo: 'Cadastros DSIPS', trilha: ['CM APP', 'DSIPS', 'Cadastros'] },
