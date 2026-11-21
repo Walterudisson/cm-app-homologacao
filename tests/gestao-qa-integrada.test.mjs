@@ -98,12 +98,12 @@ test('GEST-05 | relação por UID não unifica pessoas com mesmo nome',()=>{
 
 test('GEST-05 | login, HTML e SW utilizam a mesma release',async()=>{
  const {app,index,sw}=await readSources();
- assert.match(index,/v1\.13\.48-H\.1/);
- assert.match(index,/app\.js\?v=1\.13\.48-h\.1/);
- assert.match(index,/app\.css\?v=1\.13\.48-h\.1/);
- assert.match(sw,/const VERSAO = 'v1\.13\.48-h\.1-gest05'/);
- assert.match(app,/matriz-acessos-ui\.js\?v=1\.13\.48-h\.1/);
- assert.match(app,/pessoas-vinculos-ui\.js\?v=1\.13\.48-h\.1/);
+ assert.match(index,/v1\.13\.49-H\.1/);
+ assert.match(index,/app\.js\?v=1\.13\.49-h\.1/);
+ assert.match(index,/app\.css\?v=1\.13\.49-h\.1/);
+ assert.match(sw,/const VERSAO = 'v1\.13\.49-h\.1-gab10'/);
+ assert.match(app,/matriz-acessos-ui\.js\?v=1\.13\.49-h\.1/);
+ assert.match(app,/pessoas-vinculos-ui\.js\?v=1\.13\.49-h\.1/);
 });
 
 test('GEST-05 | elementos HTML possuem IDs únicos e rotas de Gestão estáveis',async()=>{
