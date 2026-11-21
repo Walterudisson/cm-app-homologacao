@@ -21,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.13.44-h.2">
+  <link rel="stylesheet" href="./app.css?v=1.13.45-h.1">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div id="cmapp-hml-banner" class="cmapp-hml-banner" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -58,7 +58,7 @@
       <p class="text-xs text-center"><a href="./recuperar.html" class="text-blue-400 underline">Problemas para entrar? Recuperar atualização</a></p>
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.44-H.2 • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.45-H.1 • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -190,7 +190,7 @@
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.13.44-H.2</span>
+        <span>v1.13.45-H.1</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -1449,7 +1449,7 @@
 
       <footer class="app-footer">
         <span>CM APP</span>
-        <span>v1.13.44-H.2 · HOMOLOGAÇÃO</span>
+        <span>v1.13.45-H.1 · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -1584,7 +1584,14 @@
         <label class="profile-field"><span>Nome da função</span><input id="funcao-nome" required minlength="3" maxlength="100" placeholder="Ex.: Responsável de divisão"></label>
         <label class="profile-field"><span>Descrição</span><textarea id="funcao-descricao" rows="2" maxlength="300" placeholder="Finalidade e abrangência da função"></textarea></label>
         <label class="profile-field"><span>Perfil-base de compatibilidade</span><select id="funcao-perfil-base"><option value="conferente">Conferente</option><option value="gestor">Gestor</option><option value="admin">Administrador</option></select></label>
-        <div><span class="function-matrix-title">Matriz de permissões</span><div id="matriz-permissoes" class="permission-matrix"></div></div>
+        <div><span class="function-matrix-title">Permissões legadas da função</span><div id="matriz-permissoes" class="permission-matrix"></div></div>
+        <section id="funcao-impacto" class="gest-impacto" aria-labelledby="funcao-impacto-titulo">
+          <div class="gest-impacto-cabecalho"><h4 id="funcao-impacto-titulo">Prévia das alterações</h4><span class="gest-impacto-etiqueta">Sem aplicar acessos</span></div>
+          <p id="funcao-impacto-resumo" role="status" aria-live="polite">Confira as alterações antes de salvar.</p>
+          <div id="funcao-impacto-diferencas" class="gest-impacto-diferencas" aria-label="Alterações da configuração"></div>
+          <p id="funcao-impacto-desconhecidas" class="gest-impacto-aviso" hidden></p>
+          <p class="gest-impacto-aviso">O número de usuários vinculados não é consultado nesta prévia. Uma função cadastrada não garante, por si só, permissões efetivas no backend.</p>
+        </section>
         <div class="suggestion-actions"><button id="btn-cancelar-modal-funcao" type="button">Cancelar</button><button id="btn-salvar-funcao" type="submit">Salvar função</button></div>
       </form>
     </div>
@@ -1695,6 +1702,6 @@
         window.addEventListener('online',()=>{if(bloqueado()){tentou=false;void recuperar();}});
       })();
     </script>
-    <script type="module" src="./app.js?v=1.13.44-h.2"></script>
+    <script type="module" src="./app.js?v=1.13.45-h.1"></script>
 </body>
 </html>
