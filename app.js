@@ -1387,13 +1387,14 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
     }
 
     async function carregarGestaoFuncoes(forcar = false) {
+      // Catálogo de proposta consultiva independe da disponibilidade da coleção de funções.
+      matrizAcessosGestao.renderizar();
       if (usuarioLogado?.perfil !== 'admin') return;
       if (!funcoesCarregadas || forcar) {
         bancoFuncoes = await listarFuncoesPersonalizadas();
         funcoesCarregadas = true;
       }
       renderizarFuncoes();
-      matrizAcessosGestao.renderizar();
     }
 
     function inicializarGestaoFuncoes() {
