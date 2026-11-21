@@ -36,6 +36,7 @@ Esta é a referência única de planejamento para as sprints de frontend do CMAP
 | **GAB-05** | **Fichas, favoritos locais, ações rápidas e responsividade** | **HML v1.13.39-H.1, aguardando homologação funcional** |
 | **GAB-06** | **Aniversariantes fictícios, filtros, contadores e preferências locais; sem push** | **HML v1.13.40-H.1, aguardando homologação funcional** |
 | **GAB-07** | **CRUD demonstrativo completo, qualidade e revisão a cada 90 dias** | **HML v1.13.41-H.1; homologação funcional pendente** |
+| **GAB-07.1** | **Identidade única: usuários, divisões, responsáveis DSIPS e fotos da Agenda; CRUD próprio de órgãos externos e ramais** | **Próxima prioridade; frontend/contrato antes de backend** |
 | GAB-08 | Exportação PDF conforme perfis, vCard, revisão de privacidade | Planejada; exige proteção por campo na fonte |
 | GAB-09 | QA integrada, auditoria, acessibilidade, PWA e regressões | Planejada |
 
@@ -71,9 +72,21 @@ Esta é a referência única de planejamento para as sprints de frontend do CMAP
 - Backend e migração de dados reais, papéis de edição, auditoria oficial e persistência continuam **bloqueados** até revisão de Rules/Functions e autorização específica.
 - Regressão HML deve conferir CRUD, acessos, UI Android/desktop e PWA; nenhuma promoção automática a PRD.
 
+### Decisão arquitetural: fonte cadastral única (GAB-07.1)
+
+**Pessoas não serão recadastradas no Gabinete.** Usuários já cadastrados são exibidos na Agenda como projeção autorizada; o vínculo entre pessoa/UID precisa permanecer o mesmo utilizado por responsáveis nas cautelas DSIPS. Divisões são consultadas do cadastro de Gestão já existente, sem recadastro paralelo. Pessoas sem login poderão integrar um cadastro institucional único com vínculo opcional à conta.
+
+O Gabinete terá CRUD próprio principalmente para **órgãos externos, contatos externos e ramais**, referenciando divisões e pessoas por identificadores estáveis. Alteração de identidade de usuário ou divisão permanece no módulo responsável. Cadastro de órgãos externos não cria contas Firebase Auth.
+
+**Foto da Agenda:** reutilizar a imagem já cadastrada em Meu Perfil (`usuarios/{uid}/perfil/avatar`), com avatar pequeno no card e maior na ficha, fallback por iniciais e controle de acesso à imagem. A versão atual ainda **não exibe** foto nos cards e fichas. Revisar mecanismo `getDownloadURL`/Storage antes de fornecer imagens reais a outros usuários.
+
+A GAB-07 atual é um protótipo CRUD **em memória**, não uma migração nem implantação do registro único. Antes de exportação PDF/vCard, priorizar GAB-07.1 para demonstrar essa navegação e modelo de vínculo sem mexer no backend.
+
+**Decisão integral:** [DP-GAB-UNICIDADE-CADASTRAL-FOTOS.md](./DP-GAB-UNICIDADE-CADASTRAL-FOTOS.md).
+
 ### Próximas frentes após Gabinete
 
-1. **Gestão:** simplificar tela de usuários e acessos, perfis por módulo, aprovações e usabilidade mobile, sem migrar modelo até aprovação do backend.
+1. **Gestão:** simplificar tela de usuários e acessos, perfis por módulo, aprovações e usabilidade mobile, tornando o cadastro institucional uma única referência para Agenda/DSIPS/RH, sem migrar modelo até aprovação do backend.
 2. **DSIPS:** indicadores realmente acionáveis e telas de gestão/posse/cautela, preservando fluxo do PDV e histórico.
 3. **Patrimônios:** acompanhar Painel V2, filas, gestão de inventários e consultas.
 4. **Segurança/PWA:** Minha Conta > Segurança > Sessões e Dispositivos, auditoria e revogação segura (backend futuro).
