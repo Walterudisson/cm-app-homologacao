@@ -729,7 +729,7 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
       document.getElementById('view-app').classList.add('hidden');usuarioLogado=null;fotoPerfilUrl='';encerrarOuvinteTransferencias();
       // GEST-04: não permitir que dados de Gestão ou vínculos sobrevivam à troca de conta.
       painelPessoasVinculos?.limpar();
-      bancoUsuarios=[];bancoDivisoes=[];usuariosCarregados=false;divisoesCarregadas=false;
+      bancoUsuarios=[];bancoDivisoes=[];bancoFuncoes=[];usuariosCarregados=false;divisoesCarregadas=false;funcoesCarregadas=false;
       const filtroFuncaoSessao=document.getElementById('filtro-funcao-usuarios');
       if(filtroFuncaoSessao)filtroFuncaoSessao.value='todos';
       invalidarCacheDsips();
@@ -1073,7 +1073,8 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
       const snapshot = await getDocs(consultaUsuarios);
       // Uma leitura iniciada por sessão antiga não pode repovoar a lista de outra conta.
       if(uidConsulta!==usuarioLogado?.uid||auth.currentUser?.uid!==uidConsulta)return [];
-      bancoUsuarios = snapshot.docs.map(docSnap => ({ uid: docSnap.id, ...docSnap.data() }));
+      // O ID do documento usuarios/{uid} prevalece sobre qualquer campo duplicado legado.
+      bancoUsuarios = snapshot.docs.map(docSnap => ({ ...docSnap.data(), uid: docSnap.id }));
       usuariosCarregados = true;
 
       bancoUsuarios.forEach(usuario => {
@@ -2834,9 +2835,11 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
     }
 
     async function carregarAvataresUsuarios(usuarios) {
+      const sessaoUid=usuarioLogado?.uid;
+      if(!sessaoUid)return;
       await Promise.all(usuarios.map(async usuario => {
         const url = await obterFotoUsuarioCache(usuario.uid);
-        if (!url) return;
+        if (!url||sessaoUid!==usuarioLogado?.uid||auth.currentUser?.uid!==sessaoUid) return;
         document.querySelectorAll('[data-user-avatar]').forEach(avatar => {
           if (avatar.dataset.userAvatar === usuario.uid) {
             avatar.innerHTML = `<img src="${escaparHtml(url)}" alt="Foto de ${escaparHtml(usuario.nome)}">`;
