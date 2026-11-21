@@ -3049,7 +3049,15 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
       document.getElementById('edit-nome').value = user.nome || '';
       document.getElementById('edit-email').value = user.email || '';
       await popularFuncoesUsuarios();
-      document.getElementById('edit-funcao').value = user.funcaoId || '';
+      const selectFuncaoEdicao=document.getElementById('edit-funcao');
+      if(user.funcaoId&&!bancoFuncoes.some(item=>item.id===user.funcaoId&&item.ativo!==false)){
+        // Não apagar vínculo legado de uma função inativa/ausente ao editar outro campo.
+        const anterior=document.createElement('option');
+        anterior.value=user.funcaoId;
+        anterior.textContent='Função vinculada anteriormente (indisponível para nova atribuição)';
+        selectFuncaoEdicao.append(anterior);
+      }
+      selectFuncaoEdicao.value = user.funcaoId || '';
       
       const perfilSelect = document.getElementById('edit-perfil');
       const campoPerfilEdit = document.getElementById('edit-campo-perfil-container');
