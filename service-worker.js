@@ -1,4 +1,4 @@
-const VERSAO = 'v1.13.39-h.1-gab05';
+const VERSAO = 'v1.13.40-h.1-gab06';
 const CACHE_SHELL = `cmapp-shell-${VERSAO}`;
 const CACHE_RUNTIME = `cmapp-runtime-${VERSAO}`;
 // Emergência HML: somente releases cujo service.js incompleto foi confirmado.
@@ -43,6 +43,8 @@ const ARQUIVOS_SHELL = [
   './js/modules/gabinete/module.js',
   './js/modules/gabinete/agenda-model.js',
   './js/modules/gabinete/agenda-ui.js',
+  './js/modules/gabinete/aniversarios-model.js',
+  './js/modules/gabinete/aniversarios-ui.js',
   './js/modules/dsips/service.js',
   './js/modules/dsips/consulta-materiais-model.js',
   './js/modules/dsips/consulta-materiais-ui.js',

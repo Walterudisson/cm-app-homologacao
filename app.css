@@ -1393,3 +1393,38 @@ button[data-cautelas-kpi]{width:100%;text-align:left;cursor:pointer}button[data-
 .cm-gab-field dd{margin:0;font-size:.9rem;font-weight:600;color:var(--app-text)}
 @media(max-width:700px){.cm-gab-list{grid-template-columns:1fr}.cm-gab-details{grid-template-columns:1fr 1fr}}
 @media(max-width:410px){.cm-gab-contact{padding:12px}.cm-gab-contact-actions{flex-wrap:wrap}.cm-gab-contact-actions .cm-gab-action{min-width:115px}.cm-gab-dialog{padding:14px}.cm-gab-details{grid-template-columns:1fr}}
+
+
+/* GAB-06: aniversariantes fictícios, avisos locais no Painel. */
+.cm-gab-birthdays{display:grid;gap:15px;padding:18px;min-width:0}
+.cm-gab-birthdays[hidden],.cm-gab-birthday-empty[hidden]{display:none!important}
+.cm-gab-birthdays-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.cm-gab-birthday-eyebrow{font-size:.7rem;letter-spacing:.08em;font-weight:800;color:var(--app-muted)}
+.cm-gab-birthdays-head h3{font-size:1.2rem;font-weight:750;color:var(--app-text);margin:4px 0}
+.cm-gab-birthdays-head p,.cm-gab-birthday-foot{font-size:.78rem;line-height:1.5;color:var(--app-muted)}
+.cm-gab-birthday-demo{padding:5px 9px;border:1px solid var(--app-border);border-radius:24px;font-size:.72rem;color:var(--app-muted);white-space:nowrap}
+.cm-gab-birthday-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.cm-gab-birthday-stats>div{display:grid;gap:3px;padding:12px 14px;background:var(--app-surface);border:1px solid var(--app-border);border-radius:12px}
+.cm-gab-birthday-stats strong{font-size:1.55rem;line-height:1.2;font-weight:750;color:var(--app-text)}
+.cm-gab-birthday-stats span{font-size:.74rem;color:var(--app-muted)}
+.cm-gab-birthday-controls{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.cm-gab-birthday-select{display:grid;gap:5px;font-weight:650;font-size:.78rem;color:var(--app-text);min-width:min(100%,210px)}
+.cm-gab-birthday-select select{min-height:42px;background:var(--app-surface);border:1px solid var(--app-border);color:var(--app-text);border-radius:9px;padding:8px 12px}
+.cm-gab-birthday-check{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--app-text);cursor:pointer;min-height:42px}
+.cm-gab-birthday-check input{width:18px;height:18px;accent-color:#2563eb}
+.cm-gab-birthday-list-head{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:.83rem;color:var(--app-text)}
+.cm-gab-birthday-list-head span{font-size:.74rem;color:var(--app-muted)}
+.cm-gab-birthday-list{display:grid;gap:8px;padding:0;margin:0;list-style:none}
+.cm-gab-birthday-entry{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px;border:1px solid var(--app-border);background:var(--app-surface);border-radius:12px}
+.cm-gab-birthday-symbol{width:42px;height:42px;border-radius:12px;background:rgb(99 102 241 / .13);display:grid;place-items:center;font-size:1.2rem}
+.cm-gab-birthday-copy{display:flex;flex-direction:column;min-width:0;gap:3px;overflow-wrap:anywhere}
+.cm-gab-birthday-copy strong{font-size:.89rem;color:var(--app-text)}
+.cm-gab-birthday-copy span,.cm-gab-birthday-copy small{font-size:.75rem;color:var(--app-muted)}
+.cm-gab-birthday-actions{display:flex;align-items:center;gap:8px}
+.cm-gab-birthday-countdown,.cm-gab-birthday-today{font-size:.73rem;font-weight:750;white-space:nowrap;color:var(--app-text)}
+.cm-gab-birthday-today{color:#34d399}
+.cm-gab-birthday-empty{font-size:.83rem;color:var(--app-muted);padding:18px;text-align:center;border:1px dashed var(--app-border);border-radius:10px}
+.cm-gab-birthday-foot{display:grid;gap:2px;padding-top:10px;border-top:1px solid var(--app-border)}
+.cm-gab-birthday-foot strong{color:var(--app-text)}
+.cm-gab-birthday-select select:focus-visible,.cm-gab-birthday-check input:focus-visible{outline:2px solid #60a5fa;outline-offset:3px}
+@media(max-width:620px){.cm-gab-birthdays{padding:12px}.cm-gab-birthday-entry{grid-template-columns:38px minmax(0,1fr);gap:8px}.cm-gab-birthday-symbol{width:38px;height:38px}.cm-gab-birthday-actions{grid-column:2;justify-content:space-between;flex-wrap:wrap}.cm-gab-birthday-stats>div{padding:10px}.cm-gab-birthday-stats strong{font-size:1.25rem}}

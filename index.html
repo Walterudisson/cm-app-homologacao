@@ -21,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.13.39-h.1">
+  <link rel="stylesheet" href="./app.css?v=1.13.40-h.1">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div id="cmapp-hml-banner" class="cmapp-hml-banner" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -58,7 +58,7 @@
       <p class="text-xs text-center"><a href="./recuperar.html" class="text-blue-400 underline">Problemas para entrar? Recuperar atualização</a></p>
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.39-H.1 • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.40-H.1 • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -189,7 +189,7 @@
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.13.39-H.1</span>
+        <span>v1.13.40-H.1</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -462,6 +462,45 @@
           <button type="button" class="cm-panel-action" data-gabinete-abrir="gabinete-ramais"><strong>Ramais</strong><small>Pesquisar e copiar um ramal institucional</small></button>
           <button type="button" class="cm-panel-action" data-gabinete-abrir="gabinete-agenda" data-gabinete-favoritos="true"><strong>☆ Favoritos</strong><small>Acesso rápido aos seus contatos marcados neste dispositivo</small></button>
         </div>
+        <section id="gabinete-aniversarios" class="app-card cm-gab-birthdays" aria-labelledby="gabinete-aniversarios-titulo" hidden>
+          <div class="cm-gab-birthdays-head">
+            <div>
+              <span class="cm-gab-birthday-eyebrow">PESSOAS · AGENDA</span>
+              <h3 id="gabinete-aniversarios-titulo">Aniversariantes</h3>
+              <p>Aniversários institucionais de demonstração, sem dados pessoais reais.</p>
+            </div>
+            <span class="cm-gab-birthday-demo">Prévia fictícia</span>
+          </div>
+          <div class="cm-gab-birthday-stats" aria-label="Resumo de aniversariantes">
+            <div><strong id="gabinete-aniversarios-hoje">—</strong><span>Hoje</span></div>
+            <div><strong id="gabinete-aniversarios-semana">—</strong><span>Próximos 7 dias</span></div>
+            <div><strong id="gabinete-aniversarios-mes">—</strong><span>Próximos 30 dias</span></div>
+          </div>
+          <div class="cm-gab-birthday-controls">
+            <label class="cm-gab-birthday-select" for="gabinete-aniversarios-periodo">Mostrar
+              <select id="gabinete-aniversarios-periodo">
+                <option value="hoje">Hoje</option>
+                <option value="7">Próximos 7 dias</option>
+                <option value="30" selected>Próximos 30 dias</option>
+                <option value="todos">Próximos aniversários</option>
+              </select>
+            </label>
+            <label class="cm-gab-birthday-check" for="gabinete-aniversarios-avisos">
+              <input id="gabinete-aniversarios-avisos" type="checkbox" checked>
+              <span>Exibir lembretes neste Painel</span>
+            </label>
+          </div>
+          <div class="cm-gab-birthday-list-head">
+            <strong>Próximas datas</strong>
+            <span id="gabinete-aniversarios-total" role="status" aria-live="polite"></span>
+          </div>
+          <ul id="gabinete-aniversarios-lista" class="cm-gab-birthday-list" aria-label="Lista de aniversariantes"></ul>
+          <p id="gabinete-aniversarios-vazio" class="cm-gab-birthday-empty" hidden></p>
+          <div class="cm-gab-birthday-foot">
+            <p id="gabinete-aniversarios-local">Preferências locais.</p>
+            <p><strong>Push:</strong> ainda não disponível. A ativação dependerá de autorização e backend seguro.</p>
+          </div>
+        </section>
       </section>
 
       <section id="sec-gabinete-agenda" class="hidden cm-ux-central space-y-4" aria-labelledby="gabinete-agenda-titulo">
@@ -1208,7 +1247,7 @@
 
       <footer class="app-footer">
         <span>CM APP</span>
-        <span>v1.13.39-H.1 · HOMOLOGAÇÃO</span>
+        <span>v1.13.40-H.1 · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -1453,6 +1492,6 @@
         window.addEventListener('online',()=>{if(bloqueado()){tentou=false;void recuperar();}});
       })();
     </script>
-    <script type="module" src="./app.js?v=1.13.39-h.1"></script>
+    <script type="module" src="./app.js?v=1.13.40-h.1"></script>
 </body>
 </html>
