@@ -67,8 +67,10 @@
 
     import {renderizarCentral, podeAbrirCentral} from './js/ui/central-trabalho.js?v=1.13.38-h.4';
     import {modulosDoUsuario} from './js/platform/modules.js';
-    import {criarAgendaGabinete} from './js/modules/gabinete/agenda-ui.js?v=1.13.40-h.1';
-    import {criarAniversariantesGabinete} from './js/modules/gabinete/aniversarios-ui.js?v=1.13.40-h.1';
+    import {criarAgendaGabinete} from './js/modules/gabinete/agenda-ui.js?v=1.13.41-h.1';
+    import {criarAniversariantesGabinete} from './js/modules/gabinete/aniversarios-ui.js?v=1.13.41-h.1';
+import {criarCadastroGabineteEmMemoria} from './js/modules/gabinete/cadastro-model.js?v=1.13.41-h.1';
+import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.13.41-h.1';
     import {podeNavegarLegado,decidirMudancaAcesso,sincronizarMenuAutorizado} from './js/platform/acesso-sessao.js?v=1.13.37-h.5';
 
     import {criarPainelDsips} from './js/modules/dsips/painel-ui.js?v=1.13.34-h.1';
@@ -90,6 +92,8 @@
     let abaAtual = 'modulos';
     let agendaGabinete = null;
     let aniversariantesGabinete = null;
+    let cadastrosGabinete = null;
+    const cadastroGabineteEmMemoria = criarCadastroGabineteEmMemoria();
     let usuariosCarregados = false;
     let divisoesCarregadas = false;
     let funcoesCarregadas = false;
@@ -676,7 +680,7 @@
     function interromperSessaoAcesso(){
       ++epocaAcesso;cancelarVigiaAcesso?.();cancelarVigiaAcesso=null;
       usuarioLogado=null;document.getElementById('view-app').classList.add('hidden');
-      invalidarCacheDsips();encerrarOuvinteTransferencias();agendaGabinete?.limpar();aniversariantesGabinete?.limpar();
+      invalidarCacheDsips();encerrarOuvinteTransferencias();agendaGabinete?.limpar();aniversariantesGabinete?.limpar();cadastrosGabinete?.limpar();cadastroGabineteEmMemoria.limpar();
       painelDsips.limpar();consultaMateriaisDsips.limpar();cadastrosDsips.limpar();estoqueDsips.limpar();cautelasDsips.limpar();posseDsips.limpar();historicoDsips.limpar();
       revisaoEscopo++;invalidarCacheRelacao();cachePatrimonios.clear();cacheSugestoes.clear();cacheFotosUsuarios.clear();catalogoDivisoes.clear();
       bancoPatrimonio=[];bancoUsuarios=[];bancoDivisoes=[];bancoFuncoes=[];itemAtualSelecionado=null;
@@ -699,6 +703,8 @@
       invalidarCacheDsips();
       agendaGabinete?.limpar();
       aniversariantesGabinete?.limpar();
+      cadastrosGabinete?.limpar();
+      cadastroGabineteEmMemoria.limpar();
       painelDsips.limpar();
       // Descarta dados DSIPS de qualquer sessão anterior antes de validar a nova.
       consultaMateriaisDsips.limpar();
@@ -730,6 +736,7 @@
           notificarMensagem('Este acesso está desativado. Procure um Administrador.', 'erro');
           return;
         }
+        cadastroGabineteEmMemoria.iniciar(usuarioLogado.uid);
         vigiarAcesso(user,referencia,userDoc.data(),epoca);
         
         // A tela de login só é retirada após a primeira rota ser definida.
@@ -1573,9 +1580,40 @@
     }
 
     buscaRamal.addEventListener('input', filtrarRamais);
+    function renderizarRamaisGabinete(){
+      listaRamais.replaceChildren();
+      if(!podeNavegarLegado(usuarioLogado,'gabinete-ramais'))return;
+      for(const contato of cadastroGabineteEmMemoria.listar().filter(c=>c.tipo==='ramal')){
+        const li=document.createElement('li');
+        li.className='flex flex-wrap items-center justify-between gap-3 app-card p-3';
+        const dados=document.createElement('div');
+        const nome=document.createElement('strong');nome.textContent=contato.nome;
+        const detalhes=document.createElement('span');detalhes.textContent=contato.unidade+' · '+(contato.ramal||'Sem ramal informado');
+        dados.append(nome,document.createElement('br'),detalhes);
+        li.append(dados);
+        if(contato.ramal){
+          const copiar=document.createElement('button');
+          copiar.type='button';copiar.className='rounded-lg border border-slate-300 px-3 py-2';
+          copiar.dataset.copiarRamal=contato.ramal;
+          copiar.setAttribute('aria-label','Copiar ramal de '+contato.nome);
+          copiar.textContent='Copiar ramal';
+          li.append(copiar);
+        }
+        listaRamais.append(li);
+      }
+      filtrarRamais();
+    }
     agendaGabinete = criarAgendaGabinete({
       obterUsuario:()=>usuarioLogado,
       podeConsultar:()=>podeNavegarLegado(usuarioLogado,'gabinete-agenda'),
+      podeGerenciar:()=>usuarioLogado?.perfil==='admin'&&podeNavegarLegado(usuarioLogado,'gabinete-cadastros'),
+      editarContato:async id=>{
+        const uid=usuarioLogado?.uid;
+        if(!uid||usuarioLogado?.perfil!=='admin'||!podeNavegarLegado(usuarioLogado,'gabinete-cadastros'))return;
+        await alternarAba('gabinete-cadastros');
+        if(uid===usuarioLogado?.uid&&abaAtual==='gabinete-cadastros')cadastrosGabinete.abrirEdicao(id);
+      },
+      armazenamento:cadastroGabineteEmMemoria,
       notificar:notificarMensagem
     });
     agendaGabinete.inicializar();
@@ -1583,6 +1621,7 @@
       obterUsuario:()=>usuarioLogado,
       podeConsultar:()=>podeNavegarLegado(usuarioLogado,'gabinete-painel'),
       notificar:notificarMensagem,
+      armazenamento:cadastroGabineteEmMemoria,
       abrirContato:async id=>{
         const uid=usuarioLogado?.uid;
         if(!podeNavegarLegado(usuarioLogado,'gabinete-agenda'))return;
@@ -1591,6 +1630,25 @@
       }
     });
     aniversariantesGabinete.inicializar();
+    cadastrosGabinete = criarCadastroGabineteUI({
+      armazenamento:cadastroGabineteEmMemoria,
+      obterUsuario:()=>usuarioLogado,
+      podeGerenciar:()=>usuarioLogado?.perfil==='admin'&&podeNavegarLegado(usuarioLogado,'gabinete-cadastros'),
+      notificar:notificarMensagem,
+      abrirFicha:async id=>{
+        const uid=usuarioLogado?.uid;
+        if(!uid||!podeNavegarLegado(usuarioLogado,'gabinete-agenda'))return;
+        await alternarAba('gabinete-agenda');
+        if(uid===usuarioLogado?.uid&&abaAtual==='gabinete-agenda')agendaGabinete.abrirContato(id);
+      }
+    });
+    cadastrosGabinete.inicializar();
+    cadastroGabineteEmMemoria.assinar(()=>{
+      if(usuarioLogado?.uid!==cadastroGabineteEmMemoria.usuarioAtual())return;
+      if(abaAtual==='gabinete-agenda')agendaGabinete.renderizar();
+      if(abaAtual==='gabinete-painel')aniversariantesGabinete.renderizar();
+      if(abaAtual==='gabinete-ramais')renderizarRamaisGabinete();
+    });
 
     document.querySelectorAll('[data-gabinete-abrir]').forEach(botao => {
       botao.addEventListener('click', async () => {
@@ -1649,6 +1707,7 @@
         document.querySelectorAll('#container-transferencias details.transfer-group').forEach(grupo => { grupo.open = false; });
       }
       if (abaAtiva !== 'gabinete-agenda') agendaGabinete?.fecharFicha();
+      if (abaAtiva !== 'gabinete-cadastros') cadastrosGabinete?.fecharDialogs();
       abaAtual = abaAtiva;
       ativarPagina(abaAtiva);
       document.getElementById('escopo-barra').classList.toggle('hidden', !['dashboard', 'lista'].includes(abaAtiva));
@@ -1659,7 +1718,7 @@
       }
       if(epoca!==epocaAcesso||!podeNavegarLegado(usuarioLogado,abaAtiva)||abaAtual!==abaAtiva)return;
 
-      ['modulos', 'dashboard', 'scanner', 'transferencias', 'usuarios', 'divisoes', 'funcoes', 'inventarios', 'lista', 'perfil', 'dsips-inicio', 'dsips-materiais', 'dsips-cadastros', 'dsips-estoque', 'dsips-cautelas', 'dsips-posse', 'dsips-historico', 'gabinete-painel', 'gabinete-agenda', 'gabinete-ramais'].forEach(aba => {
+      ['modulos', 'dashboard', 'scanner', 'transferencias', 'usuarios', 'divisoes', 'funcoes', 'inventarios', 'lista', 'perfil', 'dsips-inicio', 'dsips-materiais', 'dsips-cadastros', 'dsips-estoque', 'dsips-cautelas', 'dsips-posse', 'dsips-historico', 'gabinete-painel', 'gabinete-agenda', 'gabinete-ramais', 'gabinete-cadastros'].forEach(aba => {
         const sec = document.getElementById(`sec-${aba}`);
         if (sec) sec.classList.toggle('hidden', aba !== abaAtiva);
       });
@@ -1677,6 +1736,8 @@
         if (abaAtiva === 'modulos') renderizarCentral(document.getElementById('central-modulos-grid'), usuarioLogado, aba=>alternarAba(aba));
         if (abaAtiva === 'gabinete-agenda') agendaGabinete.renderizar();
         if (abaAtiva === 'gabinete-painel') aniversariantesGabinete.renderizar();
+        if (abaAtiva === 'gabinete-ramais') renderizarRamaisGabinete();
+        if (abaAtiva === 'gabinete-cadastros') cadastrosGabinete.renderizar();
         if (abaAtiva === 'dashboard') {
           await carregarDashboard();
           if (usuarioLogado?.perfil === 'conferente') agendarTutorialConferente();
