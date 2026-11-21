@@ -29,6 +29,7 @@
     import { criarControladorCamera } from "./js/controllers/camera.controller.js?v=1.12.0";
     import { atualizarDivisao, criarDivisao, listarDivisoes, listarDivisoesAtivas } from "./js/services/divisoes.service.js?v=1.13.10";
     import { CATALOGO_PERMISSOES, FUNCOES_NATIVAS, PERMISSOES, usuarioPode } from "./js/core/permissoes.js?v=1.13.11";
+    import { criarMatrizAcessosGestaoUI } from "./js/modules/gestao/matriz-acessos-ui.js?v=1.13.44-h.1";
     import { alterarEstadoFuncao, atualizarFuncao, criarFuncao, listarFuncoesPersonalizadas } from "./js/services/funcoes.service.js?v=1.13.11";
     import {
       consultarCicloDivisao, encerrarDivisao, reabrirDivisao,
@@ -67,13 +68,13 @@
 
     import {renderizarCentral, podeAbrirCentral} from './js/ui/central-trabalho.js?v=1.13.38-h.4';
     import {modulosDoUsuario} from './js/platform/modules.js';
-    import {criarAgendaGabinete} from './js/modules/gabinete/agenda-ui.js?v=1.13.43-h.1';
-    import {criarAniversariantesGabinete} from './js/modules/gabinete/aniversarios-ui.js?v=1.13.43-h.1';
-import {criarCadastroGabineteEmMemoria} from './js/modules/gabinete/cadastro-model.js?v=1.13.43-h.1';
-import {criarOrgaosGabineteEmMemoria} from './js/modules/gabinete/orgaos-model.js?v=1.13.43-h.1';
-import {criarOrgaosGabineteUI} from './js/modules/gabinete/orgaos-ui.js?v=1.13.43-h.1';
-import {criarDiretorioGabinete} from './js/modules/gabinete/diretorio-referencias.js?v=1.13.43-h.1';
-import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.13.43-h.1';
+    import {criarAgendaGabinete} from './js/modules/gabinete/agenda-ui.js?v=1.13.44-h.1';
+    import {criarAniversariantesGabinete} from './js/modules/gabinete/aniversarios-ui.js?v=1.13.44-h.1';
+import {criarCadastroGabineteEmMemoria} from './js/modules/gabinete/cadastro-model.js?v=1.13.44-h.1';
+import {criarOrgaosGabineteEmMemoria} from './js/modules/gabinete/orgaos-model.js?v=1.13.44-h.1';
+import {criarOrgaosGabineteUI} from './js/modules/gabinete/orgaos-ui.js?v=1.13.44-h.1';
+import {criarDiretorioGabinete} from './js/modules/gabinete/diretorio-referencias.js?v=1.13.44-h.1';
+import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.13.44-h.1';
     import {podeNavegarLegado,decidirMudancaAcesso,sincronizarMenuAutorizado} from './js/platform/acesso-sessao.js?v=1.13.37-h.5';
 
     import {criarPainelDsips} from './js/modules/dsips/painel-ui.js?v=1.13.34-h.1';
@@ -1297,6 +1298,9 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
     }
 
     const ROTULOS_PERFIL = { admin: 'Administrador', gestor: 'Gestor', conferente: 'Conferente' };
+    const matrizAcessosGestao = criarMatrizAcessosGestaoUI({
+      podeConsultar: () => usuarioLogado?.perfil==='admin' && podeNavegarLegado(usuarioLogado,'funcoes')
+    });
 
     function funcoesNativas() {
       return Object.entries(FUNCOES_NATIVAS).map(([id, permissoes]) => ({
@@ -1383,6 +1387,8 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
     }
 
     async function carregarGestaoFuncoes(forcar = false) {
+      // Catálogo de proposta consultiva independe da disponibilidade da coleção de funções.
+      matrizAcessosGestao.renderizar();
       if (usuarioLogado?.perfil !== 'admin') return;
       if (!funcoesCarregadas || forcar) {
         bancoFuncoes = await listarFuncoesPersonalizadas();
@@ -1392,6 +1398,7 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
     }
 
     function inicializarGestaoFuncoes() {
+      matrizAcessosGestao.inicializar();
       document.getElementById('btn-nova-funcao')?.addEventListener('click', () => abrirModalFuncao());
       document.getElementById('btn-fechar-modal-funcao')?.addEventListener('click', fecharModalFuncao);
       document.getElementById('btn-cancelar-modal-funcao')?.addEventListener('click', fecharModalFuncao);

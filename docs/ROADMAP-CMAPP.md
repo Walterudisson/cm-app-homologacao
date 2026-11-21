@@ -19,9 +19,29 @@ Esta é a referência única de planejamento para as sprints de frontend do CMAP
 | Central de Trabalho | HML v1.13.38-H.4 integrada, Gabinete como módulo e login direto na Central | Teste funcional Android/desktop |
 | Patrimônios | Telas existentes e Painel V2 | Evolução de gestão sem regressões |
 | DSIPS | Estoque, cautelas, devoluções, posse, histórico e indicadores no frontend | Ajustes de gestão; mudanças de backend em espera |
-| Gestão | Usuários, divisões, contas e matriz de permissões legadas | GEST-01 a GEST-05: UI/UX; GEST-06/07 bloqueadas por backend; preparar cadastro institucional único para RH/Gabinete/DSIPS |
+| Gestão | Usuários, divisões, funções e catálogo legado de seis permissões; GEST-01 com 35 operações consultivas | **HML v1.13.44-H.1: GEST-01 integrada ao código, homologação funcional pendente**; GEST-02 a GEST-05 frontend; GEST-06/07 backend bloqueado |
 | Gabinete | Painel, Agenda, Ramais e CRUD demonstrativo de qualidade | Persistência e concessões seguras mediante autorização do backend |
 | Segurança | PWA e mitigação de versões | Sessões/dispositivos e revogação via backend seguro no futuro |
+
+## Gestão: matriz de funções e granularidades
+
+A frente de Gestão está aberta pela **GEST-01**. O objetivo é consolidar o cadastro institucional de pessoas, contas, divisões e funções, compartilhado por Gabinete, DSIPS e RH, preservando direitos e identificadores existentes. **Função, perfil-base, vínculo de lotação e permissão não são a mesma coisa.** Uma operação deverá considerar módulo, recurso, ação e abrangência; autorização final dependerá de verificação no backend.
+
+**Diagnóstico:** `js/core/permissoes.js` tem **seis permissões declaradas** e três perfis nativos no frontend. O cadastro legado de funções personalizadas já grava no Firestore, mas `usuarioPode()` não aplica diretamente as permissões de `funcaoId`. Por isso, a nova matriz de operações é **somente consultiva** até a futura implantação segura.
+
+| Marco | Escopo | Estado |
+|---|---|---|
+| **GEST-01** | **Diagnóstico das permissões, matriz consultiva, perfis nativos, filtros e abrangências** | **HML v1.13.44-H.1 integrada no código; teste autenticado pendente** |
+| GEST-02 | Refinar CRUD de funções, diferença de permissões, prévia de impacto e atribuição | Próxima sprint proposta, frontend |
+| GEST-03 | Melhorar Gestão de usuários, função, módulos, permissões e escopos de concessão | Planejada, frontend/contrato |
+| GEST-04 | Divisões, responsáveis e cadastro institucional de pessoas com referência única | Planejada, contrato e UI |
+| GEST-05 | QA integrado, mobile-first, PWA, testes negativos e regressões | Planejada |
+| GEST-06 | Enforcement verdadeiro nas Rules/Functions, auditoria e revogação | **Bloqueado até autorização de backend** |
+| GEST-07 | Conciliação/migração, concessões reais e promoção controlada | **Bloqueado até autorização + testes** |
+
+**Matriz GEST-01:** seis chaves de frontend preservadas e **29 operações propostas** em Gestão, Patrimônios, DSIPS, Gabinete, RH e Segurança, sem ampliar direitos. O mapa em `Gestão > Funções e permissões` permite selecionar módulo, consultar operações/escopos e comparar perfis nativos, com aviso sobre os limites das permissões legadas.
+
+**Documentação:** [decisão técnica DP-GEST-001](./DP-GEST-001-MATRIZ-GRANULAR.md) e [roteiro GEST-01](./GEST-01-HOMOLOGACAO.md). A matriz é um contrato proposto e **não equivale a acesso concedido**. Nenhuma alteração de permissões efetivas, Rules, Functions, Firestore, migração ou PRD foi publicada pela GEST-01.
 
 ## Gabinete: cronologia, entregas e próximas sprints
 
@@ -92,13 +112,13 @@ A GAB-07 continua um protótipo CRUD **em memória** e a GAB-07.1 agora oferece 
 
 - **Agora:** homologação funcional da GAB-07.1 na versão HML `v1.13.42-H.1`, incluindo CRUD de órgãos externos, referências, fotos do próprio perfil, Android/desktop e PWA.
 - **GAB-09 integrada ao HML:** consistência entre Agenda e Cadastros, tratamento de referências ao trocar de conta, formulários acessíveis, teclado nas abas, fichas atualizadas, layout mobile e cache PWA. Ver [roteiro de homologação GAB-09](./GAB-09-HOMOLOGACAO.md). **Ainda exige teste autenticado Android/desktop/PWA**.
-- **Próxima frente depois da homologação GAB-09: Gestão**, com diagnóstico e melhoria do CRUD de usuários/divisões, permissões e contrato do cadastro institucional único, sem alterações no backend até autorização específica.
+- **Gestão iniciada pela GEST-01 no HML:** diagnóstico, granularidades e matriz de operações consultiva; depois priorizar GEST-02 (melhorias do CRUD de funções) e GEST-03 (gestão de usuários e escopos). Homologação visual de GAB-09 e GEST-01 segue pendente. Backend somente após autorização específica.
 - **GAB-08:** exportações PDF/vCard permanecem no backlog **futuro, sem data definida**. Não implementar nem tratar como requisito de aceite de GAB-09 ou do avanço para Gestão. Quando retomada, respeitar a projeção de dados autorizados, inclusive telefones particulares.
 - **Gate de backend:** novas Rules, Functions, migrações, dados reais e persistência continuam suspensos até autorização específica. Sem promoção automática PRD.
 
 ### Próximas frentes após Gabinete
 
-1. **Gestão:** simplificar tela de usuários e acessos, perfis por módulo, aprovações e usabilidade mobile, tornando o cadastro institucional uma única referência para Agenda/DSIPS/RH, sem migrar modelo até aprovação do backend.
+1. **Gestão:** GEST-01 integrada ao HML; continuar com GEST-02 (funções e impacto) e GEST-03 (usuários, perfis por módulo, escopos e aprovações), transformando o cadastro institucional na referência única para Gabinete/DSIPS/RH, sem migrar backend até aprovação.
 2. **DSIPS:** indicadores realmente acionáveis e telas de gestão/posse/cautela, preservando fluxo do PDV e histórico.
 3. **Patrimônios:** acompanhar Painel V2, filas, gestão de inventários e consultas.
 4. **Segurança/PWA:** Minha Conta > Segurança > Sessões e Dispositivos, auditoria e revogação segura (backend futuro).
