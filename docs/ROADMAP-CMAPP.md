@@ -34,7 +34,7 @@ Esta é a referência única de planejamento para as sprints de frontend do CMAP
 | GAB-04 | Ramais institucionais e pesquisa/cópia | HML, dados demonstrativos |
 | Integração H.4 | Gabinete na Central e login com rota inicial correta | Código HML integrado; homologação funcional pendente |
 | **GAB-05** | **Fichas, favoritos locais, ações rápidas e responsividade** | **HML v1.13.39-H.1, aguardando homologação funcional** |
-| GAB-06 | Aniversariantes no painel e preferências; push condicionado a backend | Planejada |
+| **GAB-06** | **Aniversariantes fictícios, filtros, contadores e preferências locais; sem push** | **HML v1.13.40-H.1, aguardando homologação funcional** |
 | GAB-07 | Qualidade cadastral, pendências, indicação de revisão a cada 90 dias | Planejada; persistência dependerá de backend |
 | GAB-08 | Exportação PDF conforme perfis, vCard, revisão de privacidade | Planejada; exige proteção por campo na fonte |
 | GAB-09 | QA integrada, auditoria, acessibilidade, PWA e regressões | Planejada |
@@ -46,6 +46,17 @@ Esta é a referência única de planejamento para as sprints de frontend do CMAP
 - Filtro de favoritos com persistência **somente de IDs fictícios**, local por dispositivo e por usuário.
 - Ações contextuais para copiar ramal e e-mail; chamada/e-mail externo somente se o dado institucional estiver disponível e válido.
 - Rotas existentes preservadas; nada publicado em produção.
+
+### Entregáveis e critérios da GAB-06
+
+- O Painel do Gabinete exibe indicadores Hoje, próximos 7 dias e próximos 30 dias, além de filtro de período.
+- A lista usa exclusivamente **dia/mês de contatos fictícios** da mesma fonte da Agenda, sem idade ou ano de nascimento.
+- Preferências locais por usuário e dispositivo: exibir/ocultar avisos no Painel e selecionar período; somente configurações são armazenadas localmente.
+- Botão **Ver ficha** em cada aniversariante abre a Agenda, desde que o usuário esteja autorizado.
+- Na prévia, aniversariantes em 29/02 aparecem em 01/03 em anos não bissextos. Regra a confirmar institucionalmente antes de dados reais.
+- **Push não disponível:** requer backend seguro, consentimento e controles de autorização; nenhum envio foi implementado.
+- Correção incidental GAB-05: foco da busca rápida da Agenda, antes referenciando variável indefinida.
+- Sem alteração em produção, Firestore Rules, Cloud Functions, índices ou dados pessoais.
 
 ### Próximas frentes após Gabinete
 
