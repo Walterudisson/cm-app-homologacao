@@ -21,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.13.42-h.1">
+  <link rel="stylesheet" href="./app.css?v=1.13.43-h.1">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div id="cmapp-hml-banner" class="cmapp-hml-banner" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -58,7 +58,7 @@
       <p class="text-xs text-center"><a href="./recuperar.html" class="text-blue-400 underline">Problemas para entrar? Recuperar atualização</a></p>
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.42-H.1 • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.43-H.1 • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -94,7 +94,7 @@
             <button type="button" id="tab-btn-gabinete-painel" class="nav-item hidden" data-nav-page="gabinete-painel"><span class="sidebar-label">Painel</span></button>
             <button type="button" id="tab-btn-gabinete-agenda" class="nav-item hidden" data-nav-page="gabinete-agenda"><span class="sidebar-label">Agenda Telefônica</span></button>
             <button type="button" id="tab-btn-gabinete-ramais" class="nav-item hidden" data-nav-page="gabinete-ramais"><span class="sidebar-label">Ramais</span></button>
-            <button type="button" id="tab-btn-gabinete-cadastros" class="nav-item hidden" data-nav-page="gabinete-cadastros"><span class="sidebar-label">Cadastros e revisão</span></button>
+            <button type="button" id="tab-btn-gabinete-cadastros" class="nav-item hidden" data-nav-page="gabinete-cadastros" data-perfis="admin"><span class="sidebar-label">Cadastros e revisão</span></button>
           </div>
         </div>
         <div class="sidebar-module" data-nav-group="patrimonio">
@@ -190,7 +190,7 @@
       </nav>
 
       <div class="sidebar-footer sidebar-label">
-        <span>v1.13.42-H.1</span>
+        <span>v1.13.43-H.1</span>
         <button id="btn-logout-sidebar" type="button">SAIR</button>
       </div>
     </aside>
@@ -544,8 +544,8 @@
         </div>
         <p class="cm-gab-cad-banner" role="note"><strong>Ambiente de teste.</strong> Use somente dados fictícios. Nenhum cadastro é enviado ao servidor ou salvo no dispositivo. As alterações são descartadas ao sair ou atualizar.</p>
         <div class="cm-gab-cad-tabs" role="tablist" aria-label="Gerenciamento do Gabinete">
-          <button id="gab-cad-aba-contatos" type="button" role="tab" aria-selected="true" aria-controls="gab-cad-contatos-painel">Pessoas e ramais</button>
-          <button id="gab-cad-aba-orgaos" type="button" role="tab" aria-selected="false" aria-controls="gab-org-painel">Órgãos externos</button>
+          <button id="gab-cad-aba-contatos" type="button" role="tab" tabindex="0" aria-selected="true" aria-controls="gab-cad-contatos-painel">Pessoas e ramais</button>
+          <button id="gab-cad-aba-orgaos" type="button" role="tab" tabindex="-1" aria-selected="false" aria-controls="gab-org-painel">Órgãos externos</button>
         </div>
         <section id="gab-cad-contatos-painel" role="tabpanel" aria-labelledby="gab-cad-aba-contatos">
         <p class="cm-gab-cad-banner"><strong>Referências institucionais:</strong> pessoas cadastradas são somente leitura e devem ser atualizadas na Gestão. O Gabinete mantém seus ramais e contatos externos, não cria usuários.</p>
@@ -593,10 +593,10 @@
               </select>
             </label>
             <label>Nome / identificação *
-              <input id="gab-cad-nome" type="text" required maxlength="100" autocomplete="off" placeholder="Ex.: Militar Exemplo F">
+              <input id="gab-cad-nome" type="text" required maxlength="100" autocomplete="off" placeholder="Ex.: Recepção do setor">
             </label>
             <label id="gab-cad-unidade-grupo">Divisão / unidade vinculada *
-              <select id="gab-cad-unidade" required><option value="">Selecione uma divisão</option></select>
+              <select id="gab-cad-unidade" aria-required="true" required><option value="">Selecione uma divisão</option></select>
               <small class="cm-gab-cad-form-note">Usa o identificador da divisão; não cria uma divisão no Gabinete.</small>
             </label>
             <label>Função / observação institucional
@@ -614,7 +614,7 @@
               <input id="gab-cad-email" type="email" maxlength="150" autocomplete="off" placeholder="contato@exemplo.invalid">
             </label>
             <label id="gab-cad-orgao-grupo" hidden>Órgão externo vinculado *
-              <select id="gab-cad-orgaoId">
+              <select id="gab-cad-orgaoId" aria-required="true">
                 <option value="">Selecione o órgão</option>
               </select>
             </label>
@@ -654,7 +654,7 @@
             </label>
           </div>
           <div id="gab-org-total" class="cm-gab-cad-results" role="status" aria-live="polite"></div>
-          <ul id="gab-org-lista" class="cm-gab-cad-list"></ul>
+          <ul id="gab-org-lista" class="cm-gab-cad-list" aria-label="Órgãos externos cadastrados"></ul>
           <p id="gab-org-vazio" class="cm-gab-empty" hidden>Nenhum órgão externo encontrado.</p>
           <dialog id="gab-org-dialogo" class="cm-gab-dialog cm-gab-cad-dialog" aria-labelledby="gab-org-dialogo-titulo">
             <div class="cm-gab-dialog-top">
@@ -695,7 +695,7 @@
           <dialog id="gab-org-confirmacao" class="cm-gab-dialog cm-gab-cad-confirm" aria-labelledby="gab-org-confirmacao-titulo">
             <div class="cm-gab-dialog-top">
               <h3 id="gab-org-confirmacao-titulo">Confirmar ação</h3>
-              <button id="gab-org-confirmacao-fechar" type="button" class="cm-gab-dialog-close">✕</button>
+              <button id="gab-org-confirmacao-fechar" type="button" class="cm-gab-dialog-close" aria-label="Fechar confirmação de órgão">✕</button>
             </div>
             <p id="gab-org-confirmacao-texto" class="cm-gab-cad-confirm-text"></p>
             <div class="cm-gab-cad-form-actions">
@@ -1417,7 +1417,7 @@
 
       <footer class="app-footer">
         <span>CM APP</span>
-        <span>v1.13.42-H.1 · HOMOLOGAÇÃO</span>
+        <span>v1.13.43-H.1 · HOMOLOGAÇÃO</span>
       </footer>
     </div>
   </div>
@@ -1662,6 +1662,6 @@
         window.addEventListener('online',()=>{if(bloqueado()){tentou=false;void recuperar();}});
       })();
     </script>
-    <script type="module" src="./app.js?v=1.13.42-h.1"></script>
+    <script type="module" src="./app.js?v=1.13.43-h.1"></script>
 </body>
 </html>
