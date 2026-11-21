@@ -37,7 +37,7 @@ Esta é a referência única de planejamento para as sprints de frontend do CMAP
 | **GAB-06** | **Aniversariantes fictícios, filtros, contadores e preferências locais; sem push** | **HML v1.13.40-H.1, aguardando homologação funcional** |
 | **GAB-07** | **CRUD demonstrativo completo, qualidade e revisão a cada 90 dias** | **HML v1.13.41-H.1; homologação funcional pendente** |
 | **GAB-07.1** | **Referências unificadas de Pessoas/Divisões, órgãos externos e avatar nos cards/fichas** | **HML v1.13.42-H.1, código integrado; homologação visual pendente** |
-| **GAB-09** | **Homologação integrada, qualidade, acessibilidade, Android/PWA e regressões** | **Próxima sprint prioritária, após conferência GAB-07.1** |
+| **GAB-09** | **Qualidade integrada: acessibilidade, isolamento de sessão, CRUD, Android/PWA e regressões** | **HML v1.13.43-H.1, código integrado; homologação visual pendente** |
 | GAB-08 | Exportação PDF conforme perfis, vCard, revisão de privacidade | **Adiada por decisão do produto (21/11/2026); backlog futuro, sem bloquear GAB-09 ou Gestão** |
 
 ### Entregáveis e critérios da GAB-05
@@ -91,8 +91,8 @@ A GAB-07 continua um protótipo CRUD **em memória** e a GAB-07.1 agora oferece 
 ### Repriorização aprovada em 21/11/2026
 
 - **Agora:** homologação funcional da GAB-07.1 na versão HML `v1.13.42-H.1`, incluindo CRUD de órgãos externos, referências, fotos do próprio perfil, Android/desktop e PWA.
-- **Próxima sprint:** **GAB-09**, dedicada à qualidade do Gabinete, regressões, controles de acesso disponíveis, melhorias de UX, acessibilidade e consistência entre Agenda, Cadastros, Ramais, Painel e Central.
-- **Depois da GAB-09:** priorizar a **Gestão** (cadastro único de pessoas, usuários e divisões, integração dos responsáveis da DSIPS por referência) começando por diagnóstico, contrato e melhorias de frontend que não dependam do backend.
+- **GAB-09 integrada ao HML:** consistência entre Agenda e Cadastros, tratamento de referências ao trocar de conta, formulários acessíveis, teclado nas abas, fichas atualizadas, layout mobile e cache PWA. Ver [roteiro de homologação GAB-09](./GAB-09-HOMOLOGACAO.md). **Ainda exige teste autenticado Android/desktop/PWA**.
+- **Próxima frente depois da homologação GAB-09: Gestão**, com diagnóstico e melhoria do CRUD de usuários/divisões, permissões e contrato do cadastro institucional único, sem alterações no backend até autorização específica.
 - **GAB-08:** exportações PDF/vCard permanecem no backlog **futuro, sem data definida**. Não implementar nem tratar como requisito de aceite de GAB-09 ou do avanço para Gestão. Quando retomada, respeitar a projeção de dados autorizados, inclusive telefones particulares.
 - **Gate de backend:** novas Rules, Functions, migrações, dados reais e persistência continuam suspensos até autorização específica. Sem promoção automática PRD.
 
@@ -117,7 +117,7 @@ O MVP **não** inclui férias, folha de pagamento nem importação automática. 
 
 **Documento de decisão:** [DP-RH-001-CONTROLE-EFETIVO.md](./DP-RH-001-CONTROLE-EFETIVO.md).
 
-A ordem imediata permanece **GAB-07.1 → GAB-09 → Gestão**; o RH ganha definição arquitetural e entra como frente planejada após a estrutura de cadastro único. GAB-08 permanece adiada.
+A ordem de execução está em **homologação da GAB-07.1/GAB-09 → Gestão**; o RH segue planejado após a estrutura de cadastro único. GAB-08 permanece adiada.
 
 ## Regra de publicação
 
