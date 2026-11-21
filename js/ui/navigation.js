@@ -18,6 +18,7 @@ const PAGINAS = {
   'gabinete-painel': { titulo: 'Painel do Gabinete', trilha: ['CM APP', 'Gabinete', 'Painel'] },
   'gabinete-agenda': { titulo: 'Agenda Telefônica', trilha: ['CM APP', 'Gabinete', 'Agenda'] },
   'gabinete-ramais': { titulo: 'Ramais', trilha: ['CM APP', 'Gabinete', 'Ramais'] },
+  'gabinete-cadastros': { titulo: 'Cadastros e revisão', trilha: ['CM APP', 'Gabinete', 'Cadastros e revisão'] },
   perfil: { titulo: 'Meu perfil', trilha: ['CM APP', 'Conta', 'Meu perfil'] }
 };
 
