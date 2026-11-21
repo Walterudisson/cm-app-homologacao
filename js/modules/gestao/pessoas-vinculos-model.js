@@ -98,8 +98,8 @@ export function projetarMapaInstitucional({usuarios=[],divisoes=[]}={}){
       }[v.status]||v.status),divisaoId:v.divisaoId
     })),
     ...pistas.map((p,i)=>Object.freeze({
-      id:'pista:'+i,tipo:'possivel-duplicidade',titulo:'Possível duplicidade',
-      detalhe:p.descricao,divisaoId:''
+      id:'pista:'+i,tipo:'possivel-duplicidade',titulo:'Possível duplicidade · '+p.tipo,
+      detalhe:p.descricao+' Referência a conferir: '+p.referencia+'.',divisaoId:''
     }))
   ]);
   return Object.freeze({
