@@ -19,7 +19,7 @@ Esta é a referência única de planejamento para as sprints de frontend do CMAP
 | Central de Trabalho | HML v1.13.38-H.4 integrada, Gabinete como módulo e login direto na Central | Teste funcional Android/desktop |
 | Patrimônios | Telas existentes e Painel V2 | Evolução de gestão sem regressões |
 | DSIPS | Estoque, cautelas, devoluções, posse, histórico e indicadores no frontend | Ajustes de gestão; mudanças de backend em espera |
-| Gestão | GEST-01 matriz consultiva, GEST-02 prévia de funções e GEST-03 ficha de acessos e usuários inspirada no AppDashboard Pro | **HML v1.13.46-H.1: GEST-03 integrada ao código, homologação funcional pendente**; GEST-04/05 frontend; GEST-06/07 backend bloqueado |
+| Gestão | GEST-01 matriz, GEST-02 funções, GEST-03 usuários e GEST-04 mapa institucional de contas, divisões e vínculos por UID | **HML v1.13.47-H.1: GEST-04 integrada ao código; homologação funcional pendente**; GEST-05 frontend; GEST-06/07 backend bloqueado |
 | Gabinete | Painel, Agenda, Ramais e CRUD demonstrativo de qualidade | Persistência e concessões seguras mediante autorização do backend |
 | Segurança | PWA e mitigação de versões | Sessões/dispositivos e revogação via backend seguro no futuro |
 
@@ -34,8 +34,8 @@ A frente de Gestão está aberta pela **GEST-01**. O objetivo é consolidar o ca
 | **GEST-01** | **Diagnóstico das permissões, matriz consultiva, perfis nativos, filtros e abrangências** | **HML v1.13.44-H.1 integrada no código; teste autenticado pendente** |
 | **GEST-02** | **Prévia dinâmica de mudanças, comparação de permissões, confirmação e proteção de chaves históricas** | **HML v1.13.45-H.1 integrada ao código; testes reais pendentes** |
 | **GEST-03** | **Visão de usuários e acessos, vínculo de função, módulos de navegação, divisões e prévias sem conceder direitos** | **HML v1.13.46-H.1 integrada ao código; homologação manual pendente** |
-| GEST-04 | Divisões, responsáveis e cadastro institucional de pessoas com referência única | Próxima frente proposta, contrato e UI |
-| GEST-05 | QA integrado, mobile-first, PWA, testes negativos e regressões | Planejada |
+| **GEST-04** | **Contrato de identidade única, diagnóstico de contas/divisões e vínculos por UID, pendências de conciliação** | **HML v1.13.47-H.1 integrada ao código, sem cadastro `pessoaId` persistido; homologação pendente** |
+| GEST-05 | QA integrado, mobile-first, PWA, testes negativos e regressões | Próxima frente proposta, frontend |
 | GEST-06 | Enforcement verdadeiro nas Rules/Functions, auditoria e revogação | **Bloqueado até autorização de backend** |
 | GEST-07 | Conciliação/migração, concessões reais e promoção controlada | **Bloqueado até autorização + testes** |
 
@@ -51,6 +51,16 @@ A GEST-03 utiliza os componentes de **Roles & Permissions** (`roles.html`) e do 
 - **Criar/editar usuários:** prévias dinâmicas do perfil, função e divisões no formulário existente, sem novos campos persistidos; aviso de função desconhecida/inativa, perfil-base divergente e ausência de divisão.
 - **Compatibilidade:** vínculo de função inativa/ausente preservado no seletor ao editar usuário para não apagar referências legadas silenciosamente. Nenhum enforcement ou concessão foi modificado.
 - **Homologação:** [GEST-03](./GEST-03-HOMOLOGACAO.md), com 35 cenários Android, desktop e PWA. Testes no app autenticado permanecem pendentes.
+
+### Evolução GEST-04: identidade institucional, sem cadastros paralelos
+
+A GEST-04 estabelece o **contrato de referência única** para pessoa, conta, divisão e vínculos com Gabinete, DSIPS e RH. `uid` representa a **conta de acesso**, enquanto `pessoaId` será a identidade institucional canônica após autorização de backend. Nomes iguais, e-mails e matrículas não autorizam mesclagem automática.
+
+**Entregue na interface:** nova tela **Gestão > Pessoas e vínculos** (admin autorizado), que reutiliza apenas as leituras já existentes de `usuarios` e `divisoes`. Exibe contas, divisão, responsável principal/substituto por UID, referências pendentes e possíveis duplicidades, com pesquisa, filtros e acesso aos cadastros de origem. Não consulta dados privados de RH, Gabinete ou DSIPS. O vínculo pessoaId **não é criado nesta fase**.
+
+**Segurança:** rota restrita ao admin com direitos de visualizar usuários e divisões, limpeza da tela e das leituras pendentes ao trocar de conta, validação da sessão antes de aplicar respostas e proteção de avatares assíncronos. Backend, Functions, Rules, dados, importações, migração e PRD intactos.
+
+**Documentos:** [DP-GEST-002 Identidade institucional única](./DP-GEST-002-IDENTIDADE-UNICA.md) e [GEST-04 Homologação](./GEST-04-HOMOLOGACAO.md), com 43 cenários. **Próxima:** GEST-05, QA funcional integrado. A implantação de identificador canônico persistente continua **bloqueada até autorização específica de backend**.
 
 ## Gabinete: cronologia, entregas e próximas sprints
 
@@ -121,13 +131,13 @@ A GAB-07 continua um protótipo CRUD **em memória** e a GAB-07.1 agora oferece 
 
 - **Agora:** homologação funcional da GAB-07.1 na versão HML `v1.13.42-H.1`, incluindo CRUD de órgãos externos, referências, fotos do próprio perfil, Android/desktop e PWA.
 - **GAB-09 integrada ao HML:** consistência entre Agenda e Cadastros, tratamento de referências ao trocar de conta, formulários acessíveis, teclado nas abas, fichas atualizadas, layout mobile e cache PWA. Ver [roteiro de homologação GAB-09](./GAB-09-HOMOLOGACAO.md). **Ainda exige teste autenticado Android/desktop/PWA**.
-- **Gestão GEST-01/02/03 integradas no HML:** matriz de operações consultiva, prévia de funções e ficha/edição de usuários com módulos de navegação e escopos descritos. A correção do login da `v1.13.44-H.2` foi preservada; próxima frente GEST-04 (cadastro único de pessoas/divisões/responsáveis). Homologações visuais ainda pendentes. Backend somente após autorização específica.
+- **Gestão GEST-01/02/03/04 integradas no HML:** matriz consultiva, prévia de funções, ficha de usuários e mapa de identidade institucional com UID explícito, divisões/responsáveis e pendências. A correção do login da `v1.13.44-H.2` está protegida por regressões; próxima frente GEST-05 (QA). O cadastro `pessoaId` persistente, a migração e permissões novas dependem de autorização específica de backend.
 - **GAB-08:** exportações PDF/vCard permanecem no backlog **futuro, sem data definida**. Não implementar nem tratar como requisito de aceite de GAB-09 ou do avanço para Gestão. Quando retomada, respeitar a projeção de dados autorizados, inclusive telefones particulares.
 - **Gate de backend:** novas Rules, Functions, migrações, dados reais e persistência continuam suspensos até autorização específica. Sem promoção automática PRD.
 
 ### Próximas frentes após Gabinete
 
-1. **Gestão:** GEST-01/02/03 integradas ao HML; continuar com GEST-04 (pessoas, divisões e responsáveis com referência institucional única) e GEST-05 (QA), sem migração ou novas concessões de backend até aprovação.
+1. **Gestão:** GEST-01/02/03/04 integradas ao HML; continuar com GEST-05 (QA integrado e regressões), mantendo cadastro canônico de `pessoaId` e regras de backend bloqueados até aprovação.
 2. **DSIPS:** indicadores realmente acionáveis e telas de gestão/posse/cautela, preservando fluxo do PDV e histórico.
 3. **Patrimônios:** acompanhar Painel V2, filas, gestão de inventários e consultas.
 4. **Segurança/PWA:** Minha Conta > Segurança > Sessões e Dispositivos, auditoria e revogação segura (backend futuro).
