@@ -48,3 +48,9 @@ Candidata HML `v1.13.49-H.1`: referência de layout **inspecionada diretamente n
 **Limites:** sem mudanças de Rules, Functions, Firestore, credenciais, autorizações ou dados reais. Continua usando dados de demonstração e apenas o perfil próprio autenticado autorizado. A fotografia de outros usuários só será exibida após API autorizada no backend. Dados particulares continuam fora do diretório. Estado dos favoritos segue o contrato GAB-05: somente IDs de exemplos persistem localmente. Exportação PDF/vCard GAB-08 permanece futura.
 
 **Critérios de homologação:** alternar grade/lista; pesquisar; filtrar Pessoas/Ramais/Externos/Favoritos em desktop e mobile; copiar ramal; abrir/fechar ficha; preservar revisão de órgãos; verificar ausência de telefone particular; revogar acesso e trocar de usuário sem vazamento de fichas/contadores; testar PWA Android e tema claro/escuro. Testes automatizados em `tests/gabinete-gab10-contacts-ui.test.mjs` e regressões GAB anteriores. PRD não promovida automaticamente.
+
+
+### Ajuste visual GAB-10 H.2 (21/11/2026)
+- Correção solicitada na homologação: a referência **Contacts** mostra **duas colunas de cards no celular**, não uma.
+- Em telas até 540px, modo **Grade**: duas colunas com largura flexível, cards compactos, textos que quebram sem rolagem horizontal e ações com alvos de toque de 40px. Modo **Lista** continua com uma coluna.
+- Sem novos cadastros, dados sensíveis, serviços ou alteração de autorizações. Atualizar cache PWA e testar Android real após a publicação HML v1.13.49-H.2.

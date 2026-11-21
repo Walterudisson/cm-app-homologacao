@@ -1,6 +1,6 @@
 {
   "name": "cmapp-hml-qa",
-  "version": "1.13.49-h.1",
+  "version": "1.13.49-h.2",
   "private": true,
   "type": "module",
   "description": "Suíte de qualidade local/CI para o frontend CMAPP em homologação. Não realiza deploy.",

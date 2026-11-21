@@ -8,6 +8,7 @@ import {criarDiretorioGabinete} from '../js/modules/gabinete/diretorio-referenci
 import {criarAgendaGabinete} from '../js/modules/gabinete/agenda-ui.js';
 
 const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
+const css=await readFile(new URL('../app.css',import.meta.url),'utf8');
 function montar(){
   const dom=new JSDOM(html,{url:'https://example.invalid'});
   const anterior={document:globalThis.document,localStorage:globalThis.localStorage};
@@ -98,4 +99,15 @@ test('GAB-10 revogação oculta contatos, contagens, ficha e não expõe telefon
     assert.equal(f.d.querySelector('[data-gab-contagem="favoritos"]').textContent,'0');
     assert.equal(f.id('gabinete-ficha-campos').textContent.includes('Telefone particular'),false);
   }finally{f.limpar();}
+});
+
+test('GAB-10 H.2 preserva duas colunas de cards no celular e lista de largura total',()=>{
+  const inicio=css.lastIndexOf('@media(max-width:540px){');
+  const fim=css.indexOf('@media(prefers-reduced-motion:reduce)',inicio);
+  assert.ok(inicio>=0 && fim>inicio,'Regra responsiva não encontrada');
+  const mobile=css.slice(inicio,fim);
+  assert.ok(mobile.includes('#sec-gabinete-agenda .cm-gab-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}'),'Grade móvel deve ter duas colunas');
+  assert.ok(mobile.includes('#sec-gabinete-agenda .cm-gab-list[data-view="list"]{grid-template-columns:minmax(0,1fr)}'),'Modo lista deve ocupar toda a largura');
+  assert.match(mobile,/cm-gab-contact-actions \.cm-gab-action\{[^}]*min-height:40px/,'Áreas de toque devem ser mantidas');
+  assert.match(mobile,/\.cm-gab-contact-name\{[^}]*overflow-wrap:anywhere/,'Nomes longos não podem criar rolagem horizontal');
 });
