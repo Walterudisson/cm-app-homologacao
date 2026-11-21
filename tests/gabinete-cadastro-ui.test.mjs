@@ -37,7 +37,7 @@ function preparar(){
  };
 }
 test('GAB-07.1 pessoas não podem ser editadas ou duplicadas na Agenda',()=>{
- const f=prepar();
+ const f=preparar();
  try{
    assert.equal(f.id('gab-cad-lista').children.length,11);
    assert.equal(f.id('gab-cad-tipo').querySelector('[value="pessoa"]'),null);
@@ -50,7 +50,7 @@ test('GAB-07.1 pessoas não podem ser editadas ou duplicadas na Agenda',()=>{
  }finally{f.limpar();}
 });
 test('GAB-07.1 ramais referenciam divisão por ID, preservam CRUD reversível e Agenda',()=>{
- const f=prepar();
+ const f=preparar();
  try{
    f.id('gab-cad-novo').click();
    assert.equal(f.id('gab-cad-dialogo').open,true);
@@ -81,7 +81,7 @@ test('GAB-07.1 ramais referenciam divisão por ID, preservam CRUD reversível e 
  }finally{f.limpar();}
 });
 test('GAB-07.1 órgão externo criado uma vez e utilizado por contato vinculado',()=>{
- const f=prepar();
+ const f=preparar();
  try{
    f.id('gab-cad-aba-orgaos').click();
    assert.equal(f.id('gab-org-painel').hidden,false);
@@ -116,7 +116,7 @@ test('GAB-07.1 órgão externo criado uma vez e utilizado por contato vinculado'
  }finally{f.limpar();}
 });
 test('GAB-07.1 revogação e troca de usuário descartam registros da sessão',()=>{
- const f=prepar();
+ const f=preparar();
  try{
    f.id('gab-cad-novo').click();
    f.id('gab-cad-nome').value='Ramal Temporário';
