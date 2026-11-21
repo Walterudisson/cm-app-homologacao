@@ -132,6 +132,8 @@ export function criarAgendaGabinete({obterUsuario,podeConsultar,notificar}){
     favoritar.setAttribute('aria-pressed',String(marcado));
     favoritar.setAttribute('aria-label',(marcado?'Remover dos favoritos: ':'Adicionar aos favoritos: ')+contato.nome);
     acoes.append(favoritar);
+    if(contato.ramal) acoes.append(botao('Copiar ramal','cm-gab-action',()=>copiar(contato.ramal,'Ramal')));
+    else if(contato.email) acoes.append(botao('Copiar e-mail','cm-gab-action',()=>copiar(contato.email,'E-mail')));
     li.append(corpo,acoes);
     return li;
   }
