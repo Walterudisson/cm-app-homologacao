@@ -1,7 +1,7 @@
 import {filtrarContatosGabinete} from './agenda-model.js';
 
 // O contrato aceita registros estruturados no futuro; esta sprint NÃO busca dados privados.
-export function criarAgendaGabinete({obterUsuario,podeConsultar,notificar,armazenamento}){
+export function criarAgendaGabinete({obterUsuario,podeConsultar,podeGerenciar=()=>false,editarContato=()=>{},notificar,armazenamento}){
   const entrada=document.getElementById('gabinete-busca-contato');
   const tipo=document.getElementById('gabinete-tipo-contato');
   const lista=document.getElementById('gabinete-lista-contatos');
@@ -106,6 +106,7 @@ export function criarAgendaGabinete({obterUsuario,podeConsultar,notificar,armaze
     marcar.setAttribute('aria-pressed',String(favorito));
     fichaAcoes.append(marcar);
     acoesContato(fichaAcoes,contato);
+    if(podeGerenciar())fichaAcoes.append(botao('Editar cadastro','cm-gab-action',()=>editarContato(contato.id)));
   }
   function abrirFicha(id){
     if(!autorizado())return;
