@@ -68,7 +68,7 @@ O GEST-05 acrescenta testes automatizados da Gestão à branch HML com **Node 22
 
 **Correções no frontend:** identidade `uid`/`email` do Firebase Auth prevalece sobre dados documentais legados; foto de usuário só atualiza ficha quando a sessão e o modal permanecem válidos; GEST-04 limpa também os textos agregados da sessão anterior ao desconectar. PWA `v1.13.48-h.1-gest05`.
 
-**Critérios de aceite:** [roteiro GEST-05](./GEST-05-HOMOLOGACAO.md) com 28 cenários manuais. CI verde é pré-requisito, mas não equivale à verificação do usuário no Android/desktop/PWA.
+**Critérios de aceite:** [roteiro GEST-05](./GEST-05-HOMOLOGACAO.md) com 28 cenários manuais. **CI de Gestão: 64/64 testes aprovados.** A suíte geral histórica DSIPS continua com **24 falhas já presentes na PR anterior** (173/197); limpeza dos testes obsoletos e investigação funcional permanecem como débito de QA. CI verde de Gestão não equivale à verificação do usuário no Android/desktop/PWA nem libera o backend.
 
 **Backlog de backend consolidado:** [pendências e dependências BE-01 a BE-10](./BACKLOG-BACKEND-CMAPP.md). Primeiro BE-01, enforcement da matriz de permissões, depois BE-02, identidade persistente `pessoaId`. **Sem autorização para Rules/Functions, dados, migração ou promoção PRD.**
 
