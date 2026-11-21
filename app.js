@@ -65,7 +65,7 @@
     import { criarHistoricoDsips } from "./js/modules/dsips/historico-ui.js?v=1.13.34-h.1";
     import { podeConsultarHistoricoDsips } from "./js/modules/dsips/historico-model.js?v=1.13.19-h.1";
 
-    import {renderizarCentral, podeAbrirCentral} from './js/ui/central-trabalho.js?v=1.13.23-h.1';
+    import {renderizarCentral, podeAbrirCentral} from './js/ui/central-trabalho.js?v=1.13.38-h.4';
     import {modulosDoUsuario} from './js/platform/modules.js';
     import {podeNavegarLegado,decidirMudancaAcesso,sincronizarMenuAutorizado} from './js/platform/acesso-sessao.js?v=1.13.37-h.5';
 
@@ -85,7 +85,7 @@
     let metodoLocalizacaoSelecionado = 'digitacao';
     let itensFiltradosCache = [];
     let unsubscribeTransferencias = [];
-    let abaAtual = 'dashboard';
+    let abaAtual = 'modulos';
     let usuariosCarregados = false;
     let divisoesCarregadas = false;
     let funcoesCarregadas = false;
@@ -118,6 +118,7 @@
     let tutorialConferente = null;
     let tutorialFinalizado = false;
     let tutorialEraRevisao = false;
+    let tutorialConferenteAgendado = false;
     let filaSalvamentoTutorial = Promise.resolve();
     let tutorialEncerrando = false;
 
@@ -621,7 +622,15 @@
       if (usuarioLogado?.perfil !== 'conferente'
         || usuarioLogado.tutorialConferenteV1Concluido === true
         || usuarioLogado.tutorialConferenteV1Adiado === true) return;
-      window.setTimeout(() => iniciarTutorialConferente({ automatico: true }), 700);
+      if (tutorialConferenteAgendado) return;
+      tutorialConferenteAgendado = true;
+      const uid = usuarioLogado.uid;
+      window.setTimeout(() => {
+        tutorialConferenteAgendado = false;
+        if (usuarioLogado?.uid === uid && abaAtual === 'dashboard') {
+          void iniciarTutorialConferente({ automatico: true });
+        }
+      }, 700);
     }
 
     document.getElementById('btn-iniciar-tutorial')?.addEventListener('click', () => iniciarTutorialConferente());
@@ -717,8 +726,7 @@
         }
         vigiarAcesso(user,referencia,userDoc.data(),epoca);
         
-        document.getElementById('view-login').classList.add('hidden');
-        document.getElementById('view-app').classList.remove('hidden');
+        // A tela de login só é retirada após a primeira rota ser definida.
         atualizarCabecalhoUsuario();
         if(modulosDoUsuario(usuarioLogado).some(m=>m.id==='patrimonios')){
           try { await carregarCatalogoDivisoes(); }
@@ -729,14 +737,14 @@
         await carregarFotoPerfilAtual();if(!vigente())return;
         atualizarCarrossel();
         if (['admin','gestor'].includes(usuarioLogado.perfil) && modulosDoUsuario(usuarioLogado).some(m=>m.id==='patrimonios')) iniciarOuvinteTransferencias();
-        if (usuarioLogado.perfil === 'conferente' && modulosDoUsuario(usuarioLogado).some(m=>m.id==='patrimonios')) {
-          await alternarAba('dashboard', { substituirHistorico: true });
-          if(vigente())agendarTutorialConferente();
-        } else if (podeAbrirCentral(usuarioLogado)) {
+        if (podeAbrirCentral(usuarioLogado)) {
           await alternarAba('modulos', { substituirHistorico: true });
         } else {
           await alternarAba('perfil', { substituirHistorico: true });
         }
+        if (!vigente()) return;
+        document.getElementById('view-app').classList.remove('hidden');
+        document.getElementById('view-login').classList.add('hidden');
       } else {
         encerrarOuvinteTransferencias();
         if (controladorCamera.estaAtiva()) await controladorCamera.desligar({ limparResultado: true });
@@ -1665,7 +1673,10 @@
 
       try {
         if (abaAtiva === 'modulos') renderizarCentral(document.getElementById('central-modulos-grid'), usuarioLogado, aba=>alternarAba(aba));
-        if (abaAtiva === 'dashboard') await carregarDashboard();
+        if (abaAtiva === 'dashboard') {
+          await carregarDashboard();
+          if (usuarioLogado?.perfil === 'conferente') agendarTutorialConferente();
+        }
         if (abaAtiva === 'scanner') await carregarCatalogoDivisoes();
         if (abaAtiva === 'transferencias' && unsubscribeTransferencias.length === 0) iniciarOuvinteTransferencias();
         if (abaAtiva === 'usuarios') {
