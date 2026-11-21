@@ -1,7 +1,8 @@
 import {modulosDoUsuario} from '../platform/modules.js';
 const conf = Object.freeze({
   patrimonios: {nome:'Patrimônio',descricao:'Inventário, conferência e movimentação de bens.',destino:'dashboard',path:'M3 7l9-4 9 4-9 4-9-4zm0 0v10l9 4 9-4V7M12 11v10M7.5 5l9 4'},
-  dsips: {nome:'DSIPS',descricao:'Materiais, cautelas, devoluções e estoque.',destino:'dsips-inicio',path:'M12 3l8 3v6c0 5-4 8-8 10-4-2-8-5-8-10V6l8-3zm-4 9 3 3 5-6'}
+  dsips: {nome:'DSIPS',descricao:'Materiais, cautelas, devoluções e estoque.',destino:'dsips-inicio',path:'M12 3l8 3v6c0 5-4 8-8 10-4-2-8-5-8-10V6l8-3zm-4 9 3 3 5-6'},
+  gabinete: {nome:'Gabinete',descricao:'Agenda Telefônica, ramais e contatos institucionais.',destino:'gabinete-painel',path:'M6 3h4l2 5-3 2a14 14 0 0 0 5 5l2-3 5 2v4a3 3 0 0 1-3 3A15 15 0 0 1 3 6a3 3 0 0 1 3-3z'}
 });
 export function destinosCentral(usuario) {
   if(!usuario || Object.hasOwn(usuario,'autorizacaoVersao')) return [];
