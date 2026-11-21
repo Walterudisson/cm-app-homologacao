@@ -85,3 +85,11 @@ test('GEST-03 preview avisa que divisão fora de conferente não é enviada pelo
   assert.ok(v.avisos.some(x=>/só envia divisões para Conferentes/.test(x)));
   assert.match(v.divisaoResumo,/não definida/);
 });
+
+test('GEST-03 alerta divergência do perfil com função vinculada sem alterar o cadastro',()=>{
+  const funcoes=[{id:'gest-funcao',nome:'Função Exemplo',perfilBase:'gestor',ativo:true}];
+  const resumo=resumirPreviaAtribuicao({perfil:'admin',funcaoId:'gest-funcao',funcoes});
+  assert.equal(resumo.perfilRotulo,'Administrador');
+  assert.ok(resumo.avisos.some(item=>/difere do perfil-base/.test(item)));
+  assert.equal(funcoes[0].perfilBase,'gestor');
+});
