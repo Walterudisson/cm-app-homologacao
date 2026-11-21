@@ -1,13 +1,15 @@
 {
   "name": "cmapp-hml-qa",
-  "version": "1.13.48-h.1",
+  "version": "1.13.49-h.1",
   "private": true,
   "type": "module",
   "description": "Suíte de qualidade local/CI para o frontend CMAPP em homologação. Não realiza deploy.",
   "scripts": {
     "test:gestao": "node --test tests/gestao-*.test.mjs",
     "check:bootstrap": "node --check app.js",
-    "check:gestao": "npm run check:bootstrap && npm run test:gestao"
+    "check:gestao": "npm run check:bootstrap && npm run test:gestao",
+    "test:gabinete": "node --test tests/gabinete-*.test.mjs",
+    "check:gabinete": "node --check app.js && npm run test:gabinete"
   },
   "devDependencies": {
     "jsdom": "26.1.0"
