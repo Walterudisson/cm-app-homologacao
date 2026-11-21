@@ -29,7 +29,10 @@
     import { criarControladorCamera } from "./js/controllers/camera.controller.js?v=1.12.0";
     import { atualizarDivisao, criarDivisao, listarDivisoes, listarDivisoesAtivas } from "./js/services/divisoes.service.js?v=1.13.10";
     import { CATALOGO_PERMISSOES, FUNCOES_NATIVAS, PERMISSOES, usuarioPode } from "./js/core/permissoes.js?v=1.13.11";
-    import { criarMatrizAcessosGestaoUI } from "./js/modules/gestao/matriz-acessos-ui.js?v=1.13.44-h.2";
+    import { criarMatrizAcessosGestaoUI } from "./js/modules/gestao/matriz-acessos-ui.js?v=1.13.45-h.1";
+    import { analisarImpactoFuncao,prepararPermissoesFuncao,permissoesDesconhecidas,
+      resumoImpactoFuncao,mensagemConfirmacaoFuncao,descreverPermissaoLegada
+    } from "./js/modules/gestao/funcoes-impacto-model.js?v=1.13.45-h.1";
     import { alterarEstadoFuncao, atualizarFuncao, criarFuncao, listarFuncoesPersonalizadas } from "./js/services/funcoes.service.js?v=1.13.11";
     import {
       consultarCicloDivisao, encerrarDivisao, reabrirDivisao,
@@ -68,13 +71,13 @@
 
     import {renderizarCentral, podeAbrirCentral} from './js/ui/central-trabalho.js?v=1.13.38-h.4';
     import {modulosDoUsuario} from './js/platform/modules.js';
-    import {criarAgendaGabinete} from './js/modules/gabinete/agenda-ui.js?v=1.13.44-h.2';
-    import {criarAniversariantesGabinete} from './js/modules/gabinete/aniversarios-ui.js?v=1.13.44-h.2';
-import {criarCadastroGabineteEmMemoria} from './js/modules/gabinete/cadastro-model.js?v=1.13.44-h.2';
-import {criarOrgaosGabineteEmMemoria} from './js/modules/gabinete/orgaos-model.js?v=1.13.44-h.2';
-import {criarOrgaosGabineteUI} from './js/modules/gabinete/orgaos-ui.js?v=1.13.44-h.2';
-import {criarDiretorioGabinete} from './js/modules/gabinete/diretorio-referencias.js?v=1.13.44-h.2';
-import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.13.44-h.2';
+    import {criarAgendaGabinete} from './js/modules/gabinete/agenda-ui.js?v=1.13.45-h.1';
+    import {criarAniversariantesGabinete} from './js/modules/gabinete/aniversarios-ui.js?v=1.13.45-h.1';
+import {criarCadastroGabineteEmMemoria} from './js/modules/gabinete/cadastro-model.js?v=1.13.45-h.1';
+import {criarOrgaosGabineteEmMemoria} from './js/modules/gabinete/orgaos-model.js?v=1.13.45-h.1';
+import {criarOrgaosGabineteUI} from './js/modules/gabinete/orgaos-ui.js?v=1.13.45-h.1';
+import {criarDiretorioGabinete} from './js/modules/gabinete/diretorio-referencias.js?v=1.13.45-h.1';
+import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.13.45-h.1';
     import {podeNavegarLegado,decidirMudancaAcesso,sincronizarMenuAutorizado} from './js/platform/acesso-sessao.js?v=1.13.37-h.5';
 
     import {criarPainelDsips} from './js/modules/dsips/painel-ui.js?v=1.13.34-h.1';
@@ -133,6 +136,7 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
     let paginaDivisoes = 1;
     let ordenacaoDivisoes = { campo: 'nome', direcao: 'asc' };
     let filtroFuncoes = 'todas';
+    let funcaoOriginalEdicao = null;
     let usuarioDetalhadoUid = '';
     const cacheFotosUsuarios = new Map();
     let tutorialConferente = null;
@@ -1327,10 +1331,62 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
           <label><input type="checkbox" name="permissao-funcao" value="${escaparHtml(item.id)}" ${selecionadas.includes(item.id) ? 'checked' : ''}><span>${escaparHtml(item.acao)}</span></label>`).join('')}</div></div>`).join('');
     }
 
-    function fecharModalFuncao() { document.getElementById('modal-funcao')?.classList.add('hidden'); }
+    function fecharModalFuncao() {
+      document.getElementById('modal-funcao')?.classList.add('hidden');
+      funcaoOriginalEdicao=null;
+    }
+
+    function dadosFormularioFuncao() {
+      const selecionadas=[...document.querySelectorAll('input[name="permissao-funcao"]:checked')].map(item=>item.value);
+      return {
+        nome:document.getElementById('funcao-nome').value.trim(),
+        descricao:document.getElementById('funcao-descricao').value.trim(),
+        perfilBase:document.getElementById('funcao-perfil-base').value,
+        permissoes:[...prepararPermissoesFuncao({selecionadas,original:funcaoOriginalEdicao})]
+      };
+    }
+
+    function atualizarPreviaFuncao(){
+      const resumo=document.getElementById('funcao-impacto-resumo');
+      const lista=document.getElementById('funcao-impacto-diferencas');
+      const nota=document.getElementById('funcao-impacto-desconhecidas');
+      if(!resumo||!lista||!nota)return;
+      const mudanca=analisarImpactoFuncao(funcaoOriginalEdicao,dadosFormularioFuncao());
+      resumo.textContent=resumoImpactoFuncao(mudanca);
+      lista.replaceChildren();
+      const adicionar=(rotulo,permissoes,classe)=>{
+        if(!permissoes.length)return;
+        const bloco=document.createElement('div');bloco.className='gest-impacto-grupo '+classe;
+        const titulo=document.createElement('strong');titulo.textContent=rotulo;
+        const itens=document.createElement('ul');
+        for(const id of permissoes){
+          const li=document.createElement('li');
+          li.textContent=descreverPermissaoLegada(id);
+          itens.append(li);
+        }
+        bloco.append(titulo,itens);lista.append(bloco);
+      };
+      adicionar('Incluídas na configuração',mudanca.adicionadas,'adicionadas');
+      adicionar('Retiradas da configuração',mudanca.removidas,'removidas');
+      if(mudanca.perfilAlterado){
+        const alteracao=document.createElement('p');
+        alteracao.textContent='Perfil-base: '+(ROTULOS_PERFIL[mudanca.baseAnterior]||mudanca.baseAnterior)+' → '+(ROTULOS_PERFIL[mudanca.baseNova]||mudanca.baseNova);
+        lista.prepend(alteracao);
+      }
+      const desconhecidas=permissoesDesconhecidas(funcaoOriginalEdicao);
+      nota.hidden=!desconhecidas.length;
+      nota.textContent=desconhecidas.length
+        ?desconhecidas.length+' chave(s) históricas não reconhecidas: mantidas sem edição. O backend ainda precisa ser auditado.'
+        :'';
+    }
 
     function abrirModalFuncao(funcao = null) {
       if (usuarioLogado?.perfil !== 'admin' || funcao?.nativa) return;
+      // Mantém uma fotografia dos campos originais, sem buscar ou armazenar dados de usuários.
+      funcaoOriginalEdicao=funcao?{
+        id:funcao.id,nome:funcao.nome,descricao:funcao.descricao,
+        perfilBase:funcao.perfilBase,permissoes:[...(Array.isArray(funcao.permissoes)?funcao.permissoes:[])]
+      }:null;
       document.getElementById('titulo-modal-funcao').textContent = funcao ? 'Editar função' : 'Nova função';
       document.getElementById('funcao-id').value = funcao?.id || '';
       document.getElementById('funcao-nome').value = funcao?.nome || '';
@@ -1338,6 +1394,7 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
       document.getElementById('funcao-perfil-base').value = funcao?.perfilBase || 'conferente';
       renderizarMatrizPermissoes(funcao?.permissoes || []);
       document.getElementById('modal-funcao').classList.remove('hidden');
+      atualizarPreviaFuncao();
       setTimeout(() => document.getElementById('funcao-nome').focus(), 0);
     }
 
@@ -1365,7 +1422,11 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
       }).sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
       container.innerHTML = filtradas.length ? filtradas.map(item => `
         <article class="function-row" data-funcao-id="${escaparHtml(item.id)}">
-          <div class="function-identity"><strong>${escaparHtml(item.nome)}</strong><small>${escaparHtml(item.descricao || 'Sem descrição')}</small></div>
+          <div class="function-identity"><strong>${escaparHtml(item.nome)}</strong><small>${escaparHtml(item.descricao || 'Sem descrição')}</small>
+            <details class="gest-funcao-exibir"><summary>Ver permissões declaradas</summary>
+              <ul>${(Array.isArray(item.permissoes)?item.permissoes:[]).map(id=>'<li>'+escaparHtml(descreverPermissaoLegada(id))+'</li>').join('')||'<li>Sem permissões informadas</li>'}</ul>
+              <p>Consulta do cadastro legado, não valida direitos no backend.</p>
+            </details></div>
           <div><span class="user-role role-${escaparHtml(item.perfilBase)}">${escaparHtml(ROTULOS_PERFIL[item.perfilBase] || item.perfilBase)}</span></div>
           <div class="function-permissions">${item.permissoes.length} permissões</div>
           <div><span class="user-status ${item.ativo === false ? 'inactive' : 'active'}">${item.ativo === false ? 'Inativa' : 'Ativa'}</span></div>
@@ -1404,6 +1465,8 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
       document.getElementById('btn-nova-funcao')?.addEventListener('click', () => abrirModalFuncao());
       document.getElementById('btn-fechar-modal-funcao')?.addEventListener('click', fecharModalFuncao);
       document.getElementById('btn-cancelar-modal-funcao')?.addEventListener('click', fecharModalFuncao);
+      document.getElementById('form-funcao')?.addEventListener('input', atualizarPreviaFuncao);
+      document.getElementById('form-funcao')?.addEventListener('change', atualizarPreviaFuncao);
       document.getElementById('filtro-busca-funcoes')?.addEventListener('input', renderizarFuncoes);
       [...document.querySelectorAll('[data-functions-card], [data-functions-status]')].forEach(botao => botao.addEventListener('click', () => {
         const destino = botao.dataset.functionsCard || botao.dataset.functionsStatus;
@@ -1413,23 +1476,42 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
       document.getElementById('form-funcao')?.addEventListener('submit', async evento => {
         evento.preventDefault();
         const id = document.getElementById('funcao-id').value;
-        const dados = {
-          nome: document.getElementById('funcao-nome').value.trim(),
-          descricao: document.getElementById('funcao-descricao').value.trim(),
-          perfilBase: document.getElementById('funcao-perfil-base').value,
-          permissoes: [...document.querySelectorAll('input[name="permissao-funcao"]:checked')].map(item => item.value)
-        };
-        if (!dados.permissoes.length) return notificarMensagem('Selecione ao menos uma permissão.', 'aviso');
         const botao = document.getElementById('btn-salvar-funcao');
-        botao.disabled = true;
-        try {
-          if (id) await atualizarFuncao(id, dados, usuarioLogado); else await criarFuncao(dados, usuarioLogado);
+        if(usuarioLogado?.perfil!=='admin'||botao.disabled)return;
+        const operador=usuarioLogado;
+        botao.disabled=true;
+        try{
+          const dados=dadosFormularioFuncao();
+          if(!dados.permissoes.length){
+            notificarMensagem('Selecione ao menos uma permissão.', 'aviso');return;
+          }
+          const impacto=analisarImpactoFuncao(funcaoOriginalEdicao,dados);
+          if(!impacto.mudou){
+            notificarMensagem('Nenhuma alteração detectada. A função não foi salva novamente.','info');return;
+          }
+          const confirmado=await confirmarAcao({
+            titulo:id?'Confirmar alteração de função':'Confirmar nova função',
+            mensagem:mensagemConfirmacaoFuncao(impacto,dados.nome),
+            confirmarTexto:id?'Salvar alterações':'Criar função',
+            perigosa:impacto.perfilAlterado||impacto.removidas.length>0
+          });
+          if(!confirmado)return;
+          // Uma confirmação não sobrevive à troca de conta, revogação ou fechamento do editor.
+          if(usuarioLogado?.uid!==operador.uid||usuarioLogado?.perfil!=='admin'
+            ||document.getElementById('modal-funcao').classList.contains('hidden')
+            ||document.getElementById('funcao-id').value!==id)return;
+          if(id)await atualizarFuncao(id,dados,operador);
+          else await criarFuncao(dados,operador);
+          if(usuarioLogado?.uid!==operador.uid)return;
           fecharModalFuncao();
           await carregarGestaoFuncoes(true);
-          notificarMensagem(id ? 'Função atualizada com sucesso.' : 'Função criada com sucesso.', 'sucesso');
-        } catch (erro) {
-          notificarMensagem(erro?.code === 'permission-denied' ? 'Somente Administradores podem gerenciar funções.' : (erro?.message || 'Não foi possível salvar a função.'), 'erro');
-        } finally { botao.disabled = false; }
+          notificarMensagem(id?'Função atualizada com sucesso.':'Função criada com sucesso.','sucesso');
+        }catch(erro){
+          if(usuarioLogado?.uid===operador.uid)
+            notificarMensagem(erro?.code==='permission-denied'
+              ?'Somente Administradores podem gerenciar funções.'
+              :(erro?.message||'Não foi possível salvar a função.'),'erro');
+        }finally{botao.disabled=false;}
       });
     }
 
