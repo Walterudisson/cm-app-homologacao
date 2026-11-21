@@ -21,12 +21,18 @@ export function contatoProprioAutorizado(usuario){
 }
 // Não usa fotoURL do Auth para outras contas nem publica URLs recebidas da Gestão.
 export function criarDiretorioGabinete({cadastro,orgaos,obterUsuario,obterFotoPropria=()=>''}){
+  const divisoes=new Map([
+    ['demo-div-alfa','Unidade Alfa'],['demo-div-beta','Unidade Beta'],
+    ['demo-div-gama','Unidade Gama'],['demo-div-delta','Unidade Delta'],
+    ['demo-div-epsilon','Unidade Épsilon']
+  ]);
   const obterSelf=()=>cadastro.usuarioAtual()===obterUsuario()?.uid?contatoProprioAutorizado(obterUsuario()):null;
   const enriquecer=c=>{
     if(!c)return null;
     if(c.tipo==='pessoa')return Object.freeze({...c,origem:'usuarios-referencia-demo',somenteLeitura:true});
     const unidade=c.tipo==='externo'&&c.orgaoId
-      ? (orgaos.obter(c.orgaoId)?.nome||'Órgão externo indisponível'):c.unidade;
+      ? (orgaos.obter(c.orgaoId)?.nome||'Órgão externo indisponível')
+      :c.tipo==='ramal'&&c.unidadeId?(divisoes.get(c.unidadeId)||'Divisão indisponível'):c.unidade;
     return Object.freeze({...c,unidade,origem:'gabinete',somenteLeitura:false});
   };
   function obter(id){
@@ -46,6 +52,11 @@ export function criarDiretorioGabinete({cadastro,orgaos,obterUsuario,obterFotoPr
     return contato;
   }
   function normalizarVinculo(dados){
+    if(dados?.tipo==='ramal'&&dados.unidadeId){
+      const unidade=divisoes.get(dados.unidadeId);
+      if(!unidade)throw new Error('Selecione uma divisão disponível para o ramal.');
+      return {...dados,unidade};
+    }
     if(dados?.tipo!=='externo')return dados;
     const org=orgaos.obter(dados.orgaoId);
     if(!org?.ativo)throw new Error('Selecione um órgão externo ativo antes de salvar o contato.');
@@ -71,6 +82,13 @@ export function criarDiretorioGabinete({cadastro,orgaos,obterUsuario,obterFotoPr
   return Object.freeze({
     listar,obter,criar,editar,excluir,restaurar,revisar,
     fotoDoContato,
+    definirDivisoes(lista){
+      // Recebe somente id e nome já acessíveis por conta da permissão de Gestão.
+      for(const item of Array.isArray(lista)?lista:[]){
+        if(typeof item?.id==='string'&&item.id.trim()&&typeof item.nome==='string'&&item.nome.trim())divisoes.set(item.id,item.nome);
+      }
+    },
+    listarDivisoes:()=>[...divisoes].map(([id,nome])=>({id,nome,demonstracao:id.startsWith('demo-div-')})),
     assinar:cadastro.assinar,iniciar:cadastro.iniciar,limpar:cadastro.limpar,usuarioAtual:cadastro.usuarioAtual
   });
 }
