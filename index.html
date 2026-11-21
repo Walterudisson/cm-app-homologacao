@@ -595,8 +595,9 @@
             <label>Nome / identificação *
               <input id="gab-cad-nome" type="text" required maxlength="100" autocomplete="off" placeholder="Ex.: Militar Exemplo F">
             </label>
-            <label>Unidade / setor *
-              <input id="gab-cad-unidade" type="text" required maxlength="90" autocomplete="off" placeholder="Ex.: Unidade Gama">
+            <label id="gab-cad-unidade-grupo">Divisão / unidade vinculada *
+              <select id="gab-cad-unidade" required><option value="">Selecione uma divisão</option></select>
+              <small class="cm-gab-cad-form-note">Usa o identificador da divisão; não cria uma divisão no Gabinete.</small>
             </label>
             <label>Função / observação institucional
               <input id="gab-cad-funcao" type="text" maxlength="100" autocomplete="off" placeholder="Ex.: Apoio">
