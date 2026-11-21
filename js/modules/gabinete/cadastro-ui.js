@@ -111,6 +111,7 @@ export function criarCadastroGabineteUI({armazenamento,obterUsuario,podeGerencia
       if(acao==='restaurar')armazenamento.restaurar(id);
       if(acao==='revisar')armazenamento.revisar(id);
       fecharModal(confirmacao);
+      renderizar();
       notificar(({excluir:'Contato retirado da lista ativa. Você pode restaurá-lo.',restaurar:'Contato restaurado.',revisar:'Revisão cadastral registrada nesta sessão.'})[acao],'sucesso');
     }catch(e){fecharModal(confirmacao);notificar(e.message||'Não foi possível concluir a ação.','erro');}
   }
