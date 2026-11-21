@@ -22,7 +22,7 @@
 | GAB-06 | Aniversários, painéis e push configurável |
 | GAB-07 | Revisão cadastral e qualidade |
 | GAB-07.1 | Fonte cadastral única, órgãos externos, ramais, divisões e foto do perfil no card/ficha; integração inicial demonstrativa sem backend |
-| GAB-09 | **Próxima sprint prioritária**: homologação integrada, segurança, desempenho, PWA e acessibilidade |
+| GAB-09 | **HML v1.13.43-H.1 integrado, pendente homologação visual**: qualidade, acessibilidade, isolamento de sessão, desempenho demonstrativo e PWA |
 | GAB-08 | **Adiada para backlog futuro**: PDF e vCard autorizados, sem data; não bloqueia GAB-09 ou Gestão |
 ## Gate
 GAB-00 é HTML independente, dados integralmente sintéticos, sem Firebase, acesso real, persistência ou integração operacional. Referência visual: identidade atual do CMAPP e padrões Users/Contacts; pacote original do template não inspecionado nesta entrega. Sem alterações no shell, backend, HML operacional ou PRD. Antes de GAB-01: homologar protótipo, validar SAN-01 em dispositivo real, revisar contrato atual de contas/Rules/Functions, confirmar mapeamentos e aprovar alterações específicas do backend. Não promover PRD.
@@ -36,3 +36,7 @@ Fonte normativa detalhada: [DP-GAB-UNICIDADE-CADASTRAL-FOTOS](./DP-GAB-UNICIDADE
 ## Repriorização aprovada (21/11/2026)
 
 O usuário decidiu **adiar a GAB-08 (exportação PDF/vCard)** para implementação futura. Não implementá-la automaticamente na sequência da GAB-07.1. Próximos passos: homologar visualmente a GAB-07.1 em Android/desktop/PWA, realizar a **GAB-09** (qualidade integrada, acessibilidade, testes de acesso, regressões e ajustes UX/UI) e então avançar para **Gestão e o cadastro institucional único**, respeitando o bloqueio de alterações de backend até autorização específica. A GAB-08 não integra os critérios de aceite da GAB-09 nem bloqueia essa transição.
+
+## GAB-09 | Integração ao frontend HML (21/11/2026)
+
+Versão candidata `v1.13.43-H.1`: controles de foco/teclado, mensagens de validação, ficha de contato atualizada quando a fonte muda, isolamento da lista de divisões por sessão, correção do avatar, melhoria mobile e PWA. Testes em JavaScript e simulações de UI passaram, mas **Android, desktop e PWA autenticados não foram homologados**. [Roteiro GAB-09](./GAB-09-HOMOLOGACAO.md). Depois, avançar a Gestão, mantendo GAB-08 como backlog futuro e backend suspenso até autorização.

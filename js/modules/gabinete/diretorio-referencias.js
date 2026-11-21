@@ -21,11 +21,18 @@ export function contatoProprioAutorizado(usuario){
 }
 // Não usa fotoURL do Auth para outras contas nem publica URLs recebidas da Gestão.
 export function criarDiretorioGabinete({cadastro,orgaos,obterUsuario,obterFotoPropria=()=>''}){
-  const divisoes=new Map([
+  const demoDivisoes=Object.freeze([
     ['demo-div-alfa','Unidade Alfa'],['demo-div-beta','Unidade Beta'],
     ['demo-div-gama','Unidade Gama'],['demo-div-delta','Unidade Delta'],
     ['demo-div-epsilon','Unidade Épsilon']
   ]);
+  let divisoes=new Map(demoDivisoes);
+  let idsDivisoesReais=new Set();
+  // Catálogo derivado da sessão: nenhum identificador de divisão real sobrevive à troca de conta.
+  function limparReferencias(){
+    divisoes=new Map(demoDivisoes);
+    idsDivisoesReais=new Set();
+  }
   const obterSelf=()=>cadastro.usuarioAtual()===obterUsuario()?.uid?contatoProprioAutorizado(obterUsuario()):null;
   const enriquecer=c=>{
     if(!c)return null;
@@ -98,12 +105,23 @@ export function criarDiretorioGabinete({cadastro,orgaos,obterUsuario,obterFotoPr
     listar,obter,criar,editar,excluir,restaurar,revisar,
     fotoDoContato,
     definirDivisoes(lista){
-      // Recebe somente id e nome já acessíveis por conta da permissão de Gestão.
-      for(const item of Array.isArray(lista)?lista:[]){
-        if(typeof item?.id==='string'&&item.id.trim()&&typeof item.nome==='string'&&item.nome.trim())divisoes.set(item.id,item.nome);
+      // Somente referências que a sessão já podia consultar. Não persistir a listagem.
+      const itens=Array.isArray(lista)?lista:[];
+      for(const item of itens){
+        if(typeof item?.id!=='string'||!item.id.trim()||typeof item.nome!=='string'||!item.nome.trim())continue;
+        if(item.id.startsWith('demo-div-'))continue;
+        divisoes.set(item.id,item.nome);
+        idsDivisoesReais.add(item.id);
       }
     },
-    listarDivisoes:()=>[...divisoes].map(([id,nome])=>({id,nome,demonstracao:id.startsWith('demo-div-')})),
-    assinar:cadastro.assinar,iniciar:cadastro.iniciar,limpar:cadastro.limpar,usuarioAtual:cadastro.usuarioAtual
+    listarDivisoes:()=>[...divisoes].filter(([id])=>!idsDivisoesReais.size||idsDivisoesReais.has(id))
+      .map(([id,nome])=>({id,nome,demonstracao:id.startsWith('demo-div-')})),
+    assinar:cadastro.assinar,
+    iniciar(uid){
+      if(cadastro.usuarioAtual()!==uid)limparReferencias();
+      cadastro.iniciar(uid);
+    },
+    limpar(){limparReferencias();cadastro.limpar();},
+    usuarioAtual:cadastro.usuarioAtual
   });
 }

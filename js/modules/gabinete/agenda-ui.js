@@ -27,7 +27,7 @@ export function criarAgendaGabinete({obterUsuario,podeConsultar,podeGerenciar=()
   const chave=uid=>'cmapp-gab05-favoritos-demo-'+uid;
 
   function sincronizarUsuario(){
-    const uid=obterUsuario()?.uid || '';
+    const uid=autorizado()?obterUsuario().uid:'';
     if(uid===uidAtual)return;
     uidAtual=uid;
     favoritos=new Set();
@@ -48,7 +48,6 @@ export function criarAgendaGabinete({obterUsuario,podeConsultar,podeGerenciar=()
     if(favoritos.has(id))favoritos.delete(id);else favoritos.add(id);
     persistirFavoritos();
     renderizar();
-    if(aberta?.id===id && dialogo.open) preencherFicha(aberta);
   }
   function fecharFicha(){
     if(dialogo.open)dialogo.close();
@@ -64,8 +63,8 @@ export function criarAgendaGabinete({obterUsuario,podeConsultar,podeGerenciar=()
     try{
       if(!navigator.clipboard?.writeText)throw new Error('indisponivel');
       await navigator.clipboard.writeText(String(valor));
-      notificar(descricao+' copiado(a).','sucesso');
-    }catch(_){notificar('Não foi possível copiar automaticamente: '+valor,'aviso');}
+      if(autorizado())notificar(descricao+' copiado(a).','sucesso');
+    }catch(_){if(autorizado())notificar('Não foi possível copiar automaticamente.','aviso');}
   }
   function ancorar(texto,url){
     const a=elemento('a','cm-gab-action',texto);a.href=url;
@@ -164,8 +163,18 @@ export function criarAgendaGabinete({obterUsuario,podeConsultar,podeGerenciar=()
   function renderizar(){
     sincronizarUsuario();
     lista.replaceChildren();
-    if(!autorizado()){contagem.textContent='';return;}
-    if(aberta&&!armazenamento.obter(aberta.id)?.ativo)fecharFicha();
+    if(!autorizado()){
+      fecharFicha();contagem.textContent='';
+      notaFavoritos.textContent='';return;
+    }
+    // Revisões, troca de nome do órgão e mudanças de foto devem atualizar também a ficha aberta.
+    if(aberta){
+      const atualizado=armazenamento.obter(aberta.id);
+      if(!atualizado?.ativo)fecharFicha();
+      else {aberta=atualizado;if(dialogo.open)preencherFicha(atualizado);}
+    }
+    // Contato excluído/arquivado não deve permanecer contabilizado como favorito.
+    for(const id of favoritos)if(!armazenamento.obter(id)?.ativo)favoritos.delete(id);
     const encontrados=filtrarContatosGabinete(armazenamento.listar(),{
       termo:entrada.value,tipo:tipo.value,apenasFavoritos,favoritos
     });

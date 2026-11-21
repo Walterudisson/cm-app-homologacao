@@ -49,12 +49,18 @@ export function criarCadastroGabineteUI({armazenamento,orgaos,uiOrgaos,obterUsua
   function fecharModal(d){if(d.open&&typeof d.close==='function')d.close();else d.removeAttribute('open');}
   function msgErro(mensagem,campo){
     erro.textContent=mensagem;erro.hidden=false;
-    if(campo&&inputs[campo]){inputs[campo].setAttribute('aria-invalid','true');inputs[campo].focus();}
-    else erro.focus();
+    if(campo&&inputs[campo]){
+      inputs[campo].setAttribute('aria-invalid','true');
+      inputs[campo].setAttribute('aria-describedby','gab-cad-erro');
+      inputs[campo].focus();
+    }else erro.focus();
   }
   function limparErros(){
     erro.hidden=true;erro.textContent='';
-    for(const input of Object.values(inputs))input.removeAttribute('aria-invalid');
+    for(const input of Object.values(inputs)){
+      input.removeAttribute('aria-invalid');
+      input.removeAttribute('aria-describedby');
+    }
   }
   function entrada(){
     const aniversario=inputs.aniversario.value.trim();
@@ -65,8 +71,13 @@ export function criarCadastroGabineteUI({armazenamento,orgaos,uiOrgaos,obterUsua
     }
     const tipo=inputs.tipo.value;
     const unidadeId=tipo==='ramal'?inputs.unidade.value:'';
-    const unidade=tipo==='externo'?(orgaos.obter(inputs.orgaoId.value)?.nome||''):(
-      armazenamento.listarDivisoes().find(d=>d.id===unidadeId)?.nome||'');
+    const orgao=tipo==='externo'?orgaos.obter(inputs.orgaoId.value):null;
+    if(tipo==='externo'&&!orgao?.ativo)
+      throw new ErroCadastroGabinete('orgaoId','Selecione um órgão externo ativo.');
+    const divisao=tipo==='ramal'?armazenamento.listarDivisoes().find(d=>d.id===unidadeId):null;
+    if(tipo==='ramal'&&!divisao)
+      throw new ErroCadastroGabinete('unidade','Selecione uma divisão disponível.');
+    const unidade=tipo==='externo'?orgao.nome:divisao.nome;
     return {
       tipo,nome:inputs.nome.value,unidade,unidadeId,
       orgaoId:tipo==='externo'?inputs.orgaoId.value:'',
@@ -230,13 +241,23 @@ export function criarCadastroGabineteUI({armazenamento,orgaos,uiOrgaos,obterUsua
     total.textContent=encontrados.length===1?'1 contato nesta consulta':encontrados.length+' contatos nesta consulta';
     vazio.hidden=Boolean(encontrados.length);
   }
-  function selecionarAba(valor){
+  function selecionarAba(valor,{focar=false}={}){
     aba=valor==='orgaos'?'orgaos':'contatos';
     painelContatos.hidden=aba!=='contatos';painelOrgaos.hidden=aba!=='orgaos';
     abaContatos.setAttribute('aria-selected',String(aba==='contatos'));
     abaOrgaos.setAttribute('aria-selected',String(aba==='orgaos'));
+    abaContatos.tabIndex=aba==='contatos'?0:-1;
+    abaOrgaos.tabIndex=aba==='orgaos'?0:-1;
     novo.hidden=aba==='orgaos';
     if(aba==='orgaos')uiOrgaos.renderizar();else renderizar();
+    if(focar)(aba==='orgaos'?abaOrgaos:abaContatos).focus();
+  }
+  function teclaAba(evento){
+    if(!['ArrowLeft','ArrowRight','Home','End'].includes(evento.key))return;
+    evento.preventDefault();
+    const atual=evento.currentTarget===abaOrgaos?'orgaos':'contatos';
+    const proxima=evento.key==='Home'?'contatos':evento.key==='End'?'orgaos':atual==='orgaos'?'contatos':'orgaos';
+    selecionarAba(proxima,{focar:true});
   }
   function limpar(){
     fecharModal(dialogo);fecharModal(confirmacao);
@@ -250,6 +271,8 @@ export function criarCadastroGabineteUI({armazenamento,orgaos,uiOrgaos,obterUsua
     novo.addEventListener('click',()=>abrirFormulario());
     abaContatos.addEventListener('click',()=>selecionarAba('contatos'));
     abaOrgaos.addEventListener('click',()=>selecionarAba('orgaos'));
+    abaContatos.addEventListener('keydown',teclaAba);
+    abaOrgaos.addEventListener('keydown',teclaAba);
     for(const input of [termo,tipoFiltro,estadoFiltro])input.addEventListener(input===termo?'input':'change',renderizar);
     inputs.tipo.addEventListener('change',atualizarCampos);
     form.addEventListener('submit',salvar);
@@ -264,6 +287,10 @@ export function criarCadastroGabineteUI({armazenamento,orgaos,uiOrgaos,obterUsua
       if(autorizado()&&!secao.classList.contains('hidden'))renderizar();
     });
   }
-  function fecharDialogs(){fecharModal(dialogo);fecharModal(confirmacao);uiOrgaos.fecharDialogs();}
+  function fecharDialogs(){
+    fecharModal(dialogo);fecharModal(confirmacao);
+    alterando=null;acaoConfirmada=null;limparErros();
+    uiOrgaos.fecharDialogs();
+  }
   return {inicializar,renderizar,limpar,abrirEdicao:abrirFormulario,fecharDialogs,selecionarAba,atualizarOpcoesVinculo};
 }

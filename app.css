@@ -1475,8 +1475,8 @@ button[data-cautelas-kpi]{width:100%;text-align:left;cursor:pointer}button[data-
 /* GAB-07.1: identidade de contato, fontes referenciais e órgãos externos */
 .cm-gab-contact{display:grid;grid-template-columns:50px minmax(0,1fr);align-content:start;align-items:start;gap:12px}
 .cm-gab-contact-actions{grid-column:1/-1;align-self:end}
-.cm-gab-avatar{width:48px;height:48px;border-radius:15px;display:inline-grid;place-items:center;flex:none;overflow:hidden;font-size:.97rem;font-weight:780;line-height:1;color:#bfdbfe;background:rgb(59 130 246 / .16);border:1px solid rgb(96 165 250 / .2)}
-.cm-gab-avatar img{display:block;width:100%;height:100%;object-fit:cover}
+.cm-gab-avatar{position:relative;width:48px;height:48px;border-radius:15px;display:inline-grid;place-items:center;flex:none;overflow:hidden;font-size:.97rem;font-weight:780;line-height:1;color:#bfdbfe;background:rgb(59 130 246 / .16);border:1px solid rgb(96 165 250 / .2)}
+.cm-gab-avatar img{display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .cm-gab-avatar-lg{width:80px;height:80px;border-radius:22px;font-size:1.55rem}
 .cm-gab-ficha-avatar{margin:18px 0 10px;display:flex;justify-content:center}
 .cm-gab-readonly{font-size:.75rem;color:var(--app-muted);padding:10px;line-height:1.4}
@@ -1490,3 +1490,23 @@ button[data-cautelas-kpi]{width:100%;text-align:left;cursor:pointer}button[data-
 .cm-gab-org-header p{font-size:.8rem;color:var(--app-muted);margin-top:3px}
 .cm-gab-cadastro.hidden,.cm-gab-org-panel[hidden],#gab-cad-contatos-painel[hidden],#gab-cad-unidade-grupo[hidden],#gab-cad-orgao-grupo[hidden],#gab-cad-novo[hidden]{display:none!important}
 @media(max-width:480px){.cm-gab-contact{grid-template-columns:45px minmax(0,1fr);gap:10px}.cm-gab-avatar{width:43px;height:43px;border-radius:12px}.cm-gab-avatar-lg{width:74px;height:74px}.cm-gab-cad-tabs{display:grid;grid-template-columns:1fr 1fr}.cm-gab-cad-tabs button{padding:9px 8px;font-size:.75rem}.cm-gab-org-header>button{width:100%}}
+
+/* GAB-09: acessibilidade dos formulários, toque Android e visualização com teclado aberto. */
+#sec-gabinete-cadastros :is(button,input,select):focus-visible,
+#sec-gabinete-agenda :is(button,input,select):focus-visible,
+#sec-gabinete-ramais :is(button,input,select):focus-visible{
+  outline:2px solid #60a5fa;outline-offset:3px;
+}
+#sec-gabinete-cadastros .cm-gab-cad-actions button,
+#sec-gabinete-cadastros .cm-gab-cad-form-actions button{min-height:44px}
+#sec-gabinete-cadastros .cm-gab-cad-tabs [tabindex="-1"]{cursor:pointer}
+.cm-gab-dialog{overscroll-behavior:contain;scroll-padding-bottom:16px;max-height:calc(100dvh - 22px)}
+.cm-gab-cad-form [aria-invalid="true"]{border:2px solid #fb7185}
+.cm-gab-cad-dialog .cm-gab-cad-form-actions{padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(max-width:530px){
+  #sec-gabinete-cadastros .cm-gab-cad-form-pair{grid-template-columns:minmax(0,1fr)}
+  #sec-gabinete-cadastros .cm-gab-cad-form-actions{display:grid;grid-template-columns:1fr 1fr}
+  #sec-gabinete-cadastros .cm-gab-cad-form-actions button{min-width:0;white-space:normal}
+  #sec-gabinete-cadastros .cm-gab-cad-filters{grid-template-columns:minmax(0,1fr)}
+  #sec-gabinete-cadastros .cm-gab-cad-filters label{grid-column:auto}
+}
