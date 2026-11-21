@@ -1428,3 +1428,45 @@ button[data-cautelas-kpi]{width:100%;text-align:left;cursor:pointer}button[data-
 .cm-gab-birthday-foot strong{color:var(--app-text)}
 .cm-gab-birthday-select select:focus-visible,.cm-gab-birthday-check input:focus-visible{outline:2px solid #60a5fa;outline-offset:3px}
 @media(max-width:620px){.cm-gab-birthdays{padding:12px}.cm-gab-birthday-entry{grid-template-columns:38px minmax(0,1fr);gap:8px}.cm-gab-birthday-symbol{width:38px;height:38px}.cm-gab-birthday-actions{grid-column:2;justify-content:space-between;flex-wrap:wrap}.cm-gab-birthday-stats>div{padding:10px}.cm-gab-birthday-stats strong{font-size:1.25rem}}
+
+
+/* GAB-07: CRUD demonstrativo, registro de revisão e gestão responsiva. */
+.cm-gab-cadastro{display:grid;gap:14px}
+.cm-gab-cad-banner{padding:12px 14px;border:1px solid rgb(245 158 11 / .36);border-radius:12px;background:rgb(245 158 11 / .07);font-size:.8rem;line-height:1.5;color:var(--app-text)}
+.cm-gab-cad-banner strong{color:#fbbf24}
+.cm-gab-cad-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.cm-gab-cad-kpi{display:grid;gap:5px;padding:15px;border:1px solid var(--app-border);border-radius:14px;background:var(--app-surface)}
+.cm-gab-cad-kpi strong{font-size:1.7rem;font-weight:760;color:var(--app-text)}
+.cm-gab-cad-kpi span{font-size:.79rem;color:var(--app-muted)}
+.cm-gab-cad-filters{display:grid;grid-template-columns:minmax(0,2fr) minmax(150px,1fr) minmax(170px,1fr);gap:12px;padding:14px}
+.cm-gab-cad-filters label,.cm-gab-cad-form label{display:grid;gap:6px;font-size:.8rem;font-weight:650;color:var(--app-text);min-width:0}
+.cm-gab-cad-filters input,.cm-gab-cad-filters select,.cm-gab-cad-form input,.cm-gab-cad-form select{display:block;width:100%;min-height:44px;min-width:0;border:1px solid var(--app-border);border-radius:10px;padding:10px 12px;background:var(--app-surface);color:var(--app-text);font:inherit;font-size:16px}
+.cm-gab-cad-filters input:focus-visible,.cm-gab-cad-filters select:focus-visible,.cm-gab-cad-form input:focus-visible,.cm-gab-cad-form select:focus-visible{outline:2px solid #60a5fa;outline-offset:2px}
+.cm-gab-cad-form [aria-invalid=true]{border-color:#fb7185;outline-color:#fb7185}
+.cm-gab-cad-results{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.78rem;color:var(--app-muted)}
+.cm-gab-cad-results strong{font-size:.85rem;color:var(--app-text)}
+.cm-gab-cad-list{display:grid;gap:10px;list-style:none;margin:0;padding:0}
+.cm-gab-cad-row{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(150px,.8fr);gap:10px;align-items:start;padding:15px;border:1px solid var(--app-border);border-radius:14px;background:var(--app-surface)}
+.cm-gab-cad-row[data-inativo=true]{opacity:.75}
+.cm-gab-cad-info,.cm-gab-cad-status{display:grid;gap:6px;min-width:0;overflow-wrap:anywhere}
+.cm-gab-cad-info strong{font-size:.96rem;color:var(--app-text)}
+.cm-gab-cad-info span,.cm-gab-cad-info small,.cm-gab-cad-status small{font-size:.77rem;color:var(--app-muted);line-height:1.4}
+.cm-gab-cad-badge{justify-self:start;padding:5px 10px;border-radius:25px;border:1px solid var(--app-border);font-size:.72rem;font-weight:700;color:var(--app-text)}
+.cm-gab-cad-badge[data-estado=em-dia]{background:rgb(16 185 129 / .12);border-color:rgb(16 185 129 / .3)}
+.cm-gab-cad-badge[data-estado=proxima]{background:rgb(251 191 36 / .12);border-color:rgb(251 191 36 / .3)}
+.cm-gab-cad-badge[data-estado=vencida],.cm-gab-cad-badge[data-estado=sem-revisao]{background:rgb(251 113 133 / .1);border-color:rgb(251 113 133 / .3)}
+.cm-gab-cad-actions{grid-column:1/-1;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;padding-top:10px;border-top:1px solid var(--app-border)}
+.cm-gab-cad-actions button{min-height:42px}
+.cm-gab-cad-danger{border-color:rgb(251 113 133 / .5);color:#fb7185}
+.cm-gab-cad-confirm{max-width:470px}
+.cm-gab-cad-confirm-text{font-size:.87rem;line-height:1.55;color:var(--app-text);margin:15px 0}
+#gab-cad-confirmacao-executar[data-destrutivo=true]{background:#be123c;border-color:#e11d48;color:white}
+.cm-gab-cad-dialog{max-width:620px}
+.cm-gab-cad-form-note{font-size:.76rem;line-height:1.5;color:var(--app-muted);margin:12px 0}
+.cm-gab-cad-form{display:grid;gap:13px;margin-top:12px}
+.cm-gab-cad-form-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cm-gab-cad-form-actions{display:flex;justify-content:flex-end;align-items:center;flex-wrap:wrap;gap:10px;padding-top:12px}
+.cm-gab-cad-error{padding:11px 12px;background:rgb(251 113 133 / .1);border:1px solid rgb(251 113 133 / .4);border-radius:10px;color:var(--app-text);font-size:.79rem}
+.cm-gab-cad-error[hidden],#gab-cad-aniversario-grupo[hidden],#gab-cad-vazio[hidden]{display:none!important}
+@media(max-width:750px){.cm-gab-cad-filters{grid-template-columns:1fr 1fr}.cm-gab-cad-filters label:first-child{grid-column:1/-1}}
+@media(max-width:530px){.cm-gab-cad-metrics{gap:6px}.cm-gab-cad-kpi{padding:10px}.cm-gab-cad-kpi strong{font-size:1.4rem}.cm-gab-cad-kpi span{font-size:.7rem}.cm-gab-cad-row{grid-template-columns:1fr;padding:12px}.cm-gab-cad-actions{justify-content:stretch}.cm-gab-cad-actions button{flex:1 1 auto}.cm-gab-cad-form-pair{grid-template-columns:1fr}.cm-gab-cad-form-actions button{flex:1}.cm-gab-cad-filters{padding:10px;gap:8px}}
