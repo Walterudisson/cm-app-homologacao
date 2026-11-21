@@ -40,3 +40,11 @@ O usuário decidiu **adiar a GAB-08 (exportação PDF/vCard)** para implementaç
 ## GAB-09 | Integração ao frontend HML (21/11/2026)
 
 Versão candidata `v1.13.43-H.1`: controles de foco/teclado, mensagens de validação, ficha de contato atualizada quando a fonte muda, isolamento da lista de divisões por sessão, correção do avatar, melhoria mobile e PWA. Testes em JavaScript e simulações de UI passaram, mas **Android, desktop e PWA autenticados não foram homologados**. [Roteiro GAB-09](./GAB-09-HOMOLOGACAO.md). Depois, avançar a Gestão, mantendo GAB-08 como backlog futuro e backend suspenso até autorização.
+
+## GAB-10 | Agenda no padrão AppDashboard Contacts (21/11/2026)
+
+Candidata HML `v1.13.49-H.1`: referência de layout **inspecionada diretamente no arquivo `AppDashboard-pro/apps-contacts.html`** do template recebido. A Agenda foi reorganizada com menu lateral de categorias institucionais, busca compacta, contagens por tipo, cards com avatar centralizado e ações rápidas, ficha existente, favoritos, modo grade/lista e menu de categorias expansível no Android. O layout foi adaptado à identidade CMAPP e aos modos claro/escuro. Não foram importadas categorias pessoais (família, amigos, clientes), cadastro duplicado ou scripts de terceiros.
+
+**Limites:** sem mudanças de Rules, Functions, Firestore, credenciais, autorizações ou dados reais. Continua usando dados de demonstração e apenas o perfil próprio autenticado autorizado. A fotografia de outros usuários só será exibida após API autorizada no backend. Dados particulares continuam fora do diretório. Estado dos favoritos segue o contrato GAB-05: somente IDs de exemplos persistem localmente. Exportação PDF/vCard GAB-08 permanece futura.
+
+**Critérios de homologação:** alternar grade/lista; pesquisar; filtrar Pessoas/Ramais/Externos/Favoritos em desktop e mobile; copiar ramal; abrir/fechar ficha; preservar revisão de órgãos; verificar ausência de telefone particular; revogar acesso e trocar de usuário sem vazamento de fichas/contadores; testar PWA Android e tema claro/escuro. Testes automatizados em `tests/gabinete-gab10-contacts-ui.test.mjs` e regressões GAB anteriores. PRD não promovida automaticamente.
