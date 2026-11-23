@@ -1,4 +1,4 @@
-const VERSAO = 'v1.13.50-h.1-gest06';
+const VERSAO = 'v1.13.51-h.1-ux05-skeleton';
 const CACHE_SHELL = `cmapp-shell-${VERSAO}`;
 const CACHE_RUNTIME = `cmapp-runtime-${VERSAO}`;
 // Emergência HML: somente releases cujo service.js incompleto foi confirmado.
@@ -90,6 +90,7 @@ const ARQUIVOS_SHELL = [
   './js/services/perfil.service.js',
   './js/services/usuarios.service.js',
   './js/ui/feedback.js',
+  './js/ui/loading.js',
   './js/ui/autocomplete.js',
   './js/ui/paginador.js',
   './js/ui/navigation.js',
