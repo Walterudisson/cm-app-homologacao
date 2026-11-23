@@ -1,4 +1,5 @@
 import {invalidarCacheDsips} from './service.js?v=1.13.34-h.1';
+import {criarIndicadorCarregamento} from '../../ui/loading.js?v=1.13.51-h.1';
 import {criarPaginadorLocal} from '../../ui/paginador.js?v=1.13.33-h.1';
 import {criarAutocomplete} from '../../ui/autocomplete.js?v=1.13.32-h.1';
 import {
@@ -66,6 +67,14 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
   const autorizado = () => podeConsultarCautelasDsips(obterUsuario());
   const podeGravar = () => podeRegistrarCautelasDsips(obterUsuario());
   const ativo = () => !secao.classList.contains('hidden');
+  // UX-05: indicador aparece apenas para consultas que levam mais de 160 ms.
+  // Não altera a resolução da consulta, o cache, a permissão nem o conteúdo listado.
+  const indicador = criarIndicadorCarregamento({
+    elemento:porId('dsips-cautelas-loading'),
+    ocupado:lista,
+    atrasoMs:160,
+    podeExibir:()=>carregando&&autorizado()&&ativo()
+  });
   const materialPorId = id => materiais.find(item => item.id === id);
   const nomeMaterial = id => materialPorId(id)?.nome || 'Material indisponível';
 
@@ -401,12 +410,14 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
       status.textContent='Acesso não autorizado.';
       total.textContent='0';abertas.textContent='0';return;
     }
+    if(carregando) {
+      // Evita exibir contadores antigos ou zeros enquanto a consulta está pendente.
+      total.textContent='…';abertas.textContent='…';
+      status.textContent='Consultando as cautelas no HML…';
+      return;
+    }
     total.textContent=String(cautelas.length);
     abertas.textContent=String(cautelas.filter(c=>['aberta','parcial'].includes(c.status)).length);
-    if(carregando) {
-      status.textContent='Consultando as cautelas no HML…';
-      vazio(lista,'Carregando cautelas','Aguarde a consulta ao DSIPS.');return;
-    }
     if(falha) {
       status.textContent=falha;vazio(lista,'Consulta indisponível',
         'Verifique seu acesso e use Atualizar.');return;
@@ -475,7 +486,7 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
     paginador.reset();paginadorPdv.reset();const uid=obterUsuario()?.uid,token=++revisao;
     ++revisaoUnidades;
     fecharEditor();fecharDevolucao();
-    carregando=true;falha='';renderizar();
+    carregando=true;falha='';indicador.iniciar();renderizar();
     try {
       const [listaCautelas,itens,localEstoque,pessoas]=await Promise.all([
         listarCadastroDsips('cautelas'),
@@ -499,7 +510,7 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
         ? 'Seu perfil não possui acesso à consulta necessária para cautelas.'
         : 'Falha ao consultar cautelas. Tente Atualizar.';
     } finally {
-      if(token===revisao) {carregando=false;renderizar();}
+      if(token===revisao) {carregando=false;indicador.encerrar();renderizar();}
     }
   }
   async function salvar(evento) {
@@ -573,7 +584,7 @@ export function criarRegistroCautelasDsips({ obterUsuario, confirmar, notificar 
   kpis.forEach(b=>b.addEventListener('click',()=>{if(b.disabled||!autorizado()||!ativo())return;paginador.reset();filtro.value=b.dataset.cautelasKpi;busca.value='';renderizar();focarConsulta();}));
   pdvConsulta.addEventListener('click',()=>{if(!pdvConsulta.disabled){paginador.reset();filtro.value='todas';busca.value='';renderizar();focarConsulta();busca.focus({preventScroll:true});}});
   pdvRetorno.addEventListener('click',()=>{if(!pdvRetorno.disabled&&podeGravar()){paginador.reset();filtro.value='pendentes';busca.value='';renderizar();focarConsulta();busca.focus({preventScroll:true});}});
-  function sairTela(){document.body.classList.remove('cm-pdv-kiosk');painelConsulta.classList.add('hidden');comboResponsavel.fechar();}
+  function sairTela(){indicador.encerrar();document.body.classList.remove('cm-pdv-kiosk');painelConsulta.classList.add('hidden');comboResponsavel.fechar();}
   atualizarBotao.addEventListener('click',()=>{invalidarCacheDsips();void carregar();});
   form.addEventListener('submit',evento=>{void salvar(evento);});
   busca.addEventListener('input',renderizar);
