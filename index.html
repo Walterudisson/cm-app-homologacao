@@ -21,7 +21,7 @@
   <!-- Motor de OCR (Tesseract.js) -->
   <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-  <link rel="stylesheet" href="./app.css?v=1.13.49-h.2">
+  <link rel="stylesheet" href="./app.css?v=1.13.50-h.1">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
   <div id="cmapp-hml-banner" class="cmapp-hml-banner" role="status">HOMOLOGAÇÃO · DADOS DE TESTE</div>
@@ -58,7 +58,7 @@
       <p class="text-xs text-center"><a href="./recuperar.html" class="text-blue-400 underline">Problemas para entrar? Recuperar atualização</a></p>
       <div id="login-erro" class="hidden text-xs text-red-400 text-center font-semibold bg-red-950/40 p-2 rounded border border-red-500/30"></div>
     </div>
-    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.49-H.2 • HOMOLOGAÇÃO</div>
+    <div class="mt-4 text-[11px] text-slate-500 font-medium">v1.13.50-H.1 • HOMOLOGAÇÃO</div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
@@ -1258,6 +1258,13 @@
               </select>
             </div>
           </div>
+          <div class="gest06-directory-bar" aria-label="Apresentação do diretório">
+            <p>Contas cadastradas na Gestão, sem duplicação de pessoas. Selecione um registro para consultar a ficha e os acessos declarados.</p>
+            <div class="gest06-view-switch" role="group" aria-label="Modo de visualização de usuários">
+              <button type="button" data-users-view="lista" class="is-selected" aria-pressed="true">☷ Lista</button>
+              <button type="button" data-users-view="cards" aria-pressed="false">▦ Cards</button>
+            </div>
+          </div>
           <div class="users-mobile-sort">
             <label for="ordenacao-usuarios">Ordenar por</label>
             <select id="ordenacao-usuarios">
@@ -1653,14 +1660,18 @@
         <span id="detalhes-usuario-avatar" class="user-avatar user-avatar-large">US</span>
         <div><strong id="detalhes-usuario-nome"></strong><small id="detalhes-usuario-email"></small></div>
       </div>
-      <dl class="user-details-grid">
+      <div class="gest06-profile-tabs" role="tablist" aria-label="Seções da ficha institucional">
+        <button type="button" role="tab" id="gest06-tab-dados" data-gest06-profile-tab="dados" aria-selected="true" aria-controls="gest06-pane-dados">Dados da conta</button>
+        <button type="button" role="tab" id="gest06-tab-acessos" data-gest06-profile-tab="acessos" aria-selected="false" aria-controls="gest-usuario-resumo" tabindex="-1">Acessos e vínculos</button>
+      </div>
+      <dl id="gest06-pane-dados" class="user-details-grid gest06-profile-pane" role="tabpanel" aria-labelledby="gest06-tab-dados">
         <div><dt>Perfil</dt><dd id="detalhes-usuario-perfil"></dd></div>
         <div><dt>Função</dt><dd id="detalhes-usuario-funcao"></dd></div>
         <div><dt>Status</dt><dd id="detalhes-usuario-status"></dd></div>
         <div class="user-details-wide"><dt>Divisões atribuídas</dt><dd id="detalhes-usuario-divisoes"></dd></div>
         <div><dt>Cadastro</dt><dd id="detalhes-usuario-cadastro"></dd></div>
       </dl>
-      <section id="gest-usuario-resumo" class="gest-usuario-resumo" aria-label="Resumo do vínculo de acesso">
+      <section id="gest-usuario-resumo" class="gest-usuario-resumo gest06-profile-pane" role="tabpanel" aria-labelledby="gest06-tab-acessos" aria-label="Resumo do vínculo de acesso" hidden>
         <h4>Vínculo e permissões declaradas</h4>
         <div class="gest-usuario-resumo-grid">
           <div><span>Função de acesso</span><strong id="gest-detalhes-funcao-vinculo"></strong></div>
@@ -1816,6 +1827,6 @@
         window.addEventListener('online',()=>{if(bloqueado()){tentou=false;void recuperar();}});
       })();
     </script>
-    <script type="module" src="./app.js?v=1.13.49-h.2"></script>
+    <script type="module" src="./app.js?v=1.13.50-h.1"></script>
 </body>
 </html>
