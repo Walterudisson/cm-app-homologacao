@@ -1813,3 +1813,65 @@ button[data-cautelas-kpi]{width:100%;text-align:left;cursor:pointer}button[data-
   #sec-gabinete-agenda .cm-gab-local-note{display:none}
 }
 @media(prefers-reduced-motion:reduce){#sec-gabinete-agenda .cm-gab-contact{transition:none}#sec-gabinete-agenda .cm-gab-contact:hover{transform:none}}
+
+
+/* GEST-06 | Diretório de usuários inspirado no AppDashboard Pro: dados reais de usuarios/{uid}. */
+#sec-usuarios .gest06-directory-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 15px;border-top:1px solid var(--app-border);border-bottom:1px solid var(--app-border);background:var(--app-surface)}
+#sec-usuarios .gest06-directory-bar p{min-width:0;max-width:630px;font-size:.72rem;line-height:1.45;color:var(--app-muted)}
+#sec-usuarios .gest06-view-switch{display:inline-flex;flex-shrink:0;gap:3px;padding:4px;border:1px solid var(--app-border);border-radius:10px;background:var(--app-bg)}
+#sec-usuarios .gest06-view-switch button{min-height:38px;padding:8px 12px;border-radius:7px;color:var(--app-muted);font-size:.73rem;font-weight:750}
+#sec-usuarios .gest06-view-switch button.is-selected{background:var(--app-primary);color:#fff}
+#sec-usuarios .gest06-view-switch button:focus-visible{outline:2px solid var(--app-primary);outline-offset:2px}
+#sec-usuarios .users-list[data-view="cards"]{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:13px;padding:13px}
+#sec-usuarios .users-list[data-view="cards"] .user-row{display:flex;min-width:0;min-height:245px;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:10px;padding:17px;border:1px solid var(--app-border);border-radius:13px;background:var(--app-surface-raised);box-shadow:0 4px 14px rgb(0 0 0 / .08)}
+#sec-usuarios .users-list[data-view="cards"] .user-row:hover,
+#sec-usuarios .users-list[data-view="cards"] .user-row:focus-visible{border-color:var(--app-primary);box-shadow:0 7px 24px rgb(59 130 246 / .11)}
+#sec-usuarios .users-list[data-view="cards"] .user-identity{display:flex;flex-direction:column;gap:8px;text-align:center}
+#sec-usuarios .users-list[data-view="cards"] .user-identity .user-avatar{width:60px;height:60px;margin:0 auto}
+#sec-usuarios .users-list[data-view="cards"] .user-identity strong{font-size:.89rem;white-space:normal;overflow-wrap:anywhere;line-height:1.3}
+#sec-usuarios .users-list[data-view="cards"] .user-identity small{font-size:.68rem;white-space:normal;overflow-wrap:anywhere}
+#sec-usuarios .users-list[data-view="cards"] .user-row>div:not(.user-identity){text-align:center;min-width:0;overflow-wrap:anywhere}
+#sec-usuarios .users-list[data-view="cards"] .user-row>div:not(.user-identity)::before{display:none}
+#sec-usuarios .users-list[data-view="cards"] .user-divisions{white-space:normal;font-size:.7rem}
+#sec-usuarios .users-list[data-view="cards"] .user-row>div:nth-child(5){margin-top:auto}
+#sec-usuarios .users-list[data-view="cards"] .user-row>div:nth-child(6){padding-top:9px;border-top:1px solid var(--app-border)}
+#sec-usuarios .users-list[data-view="cards"] .users-empty{grid-column:1/-1}
+#modal-detalhes-usuario .user-details-dialog{max-width:39rem;background:var(--app-surface-raised);border-color:var(--app-border)}
+#modal-detalhes-usuario .user-details-profile{padding:15px 0;gap:13px}
+#modal-detalhes-usuario .user-details-profile .user-avatar-large{width:62px;height:62px;flex-shrink:0}
+#modal-detalhes-usuario .user-details-profile strong{font-size:1.05rem;overflow-wrap:anywhere}
+#modal-detalhes-usuario .user-details-profile small{overflow-wrap:anywhere}
+#modal-detalhes-usuario .gest06-profile-tabs{display:flex;gap:5px;border-bottom:1px solid var(--app-border);margin:2px 0 13px}
+#modal-detalhes-usuario .gest06-profile-tabs button{padding:12px 10px;border-bottom:2px solid transparent;color:var(--app-muted);font-size:.76rem;font-weight:760;text-align:left}
+#modal-detalhes-usuario .gest06-profile-tabs button[aria-selected="true"]{border-bottom-color:var(--app-primary);color:var(--app-text)}
+#modal-detalhes-usuario .gest06-profile-tabs button:focus-visible{outline:2px solid var(--app-primary);outline-offset:-2px}
+#modal-detalhes-usuario .gest06-profile-pane[hidden]{display:none!important}
+#modal-detalhes-usuario .gest-usuario-resumo{margin:0 0 12px}
+@media(max-width:1100px){
+  #sec-usuarios .users-list[data-view="lista"]{display:block;padding:0}
+  #sec-usuarios .users-list[data-view="lista"] .user-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px 9px;margin:0;padding:12px 13px;border:0;border-bottom:1px solid var(--app-border);border-radius:0;background:transparent}
+  #sec-usuarios .users-list[data-view="lista"] .user-identity{grid-column:1;grid-row:1}
+  #sec-usuarios .users-list[data-view="lista"] .user-row>div:nth-child(2){grid-column:1;grid-row:2}
+  #sec-usuarios .users-list[data-view="lista"] .user-row>div:nth-child(4){grid-column:2;grid-row:1;align-self:center}
+  #sec-usuarios .users-list[data-view="lista"] .user-row>div:nth-child(3),
+  #sec-usuarios .users-list[data-view="lista"] .user-row>div:nth-child(5),
+  #sec-usuarios .users-list[data-view="lista"] .user-row>div:nth-child(6){display:none}
+  #sec-usuarios .users-list[data-view="lista"] .user-row>div::before{display:none!important}
+}
+@media(max-width:700px){
+  #sec-usuarios .gest06-directory-bar{align-items:stretch;flex-direction:column;gap:8px;padding:10px}
+  #sec-usuarios .gest06-view-switch{align-self:flex-end}
+  #sec-usuarios .users-list[data-view="cards"]{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:9px}
+  #sec-usuarios .users-list[data-view="cards"] .user-row{min-height:228px;padding:11px 9px;gap:7px}
+  #sec-usuarios .users-list[data-view="cards"] .user-identity .user-avatar{width:48px;height:48px}
+  #sec-usuarios .users-list[data-view="cards"] .user-identity strong{font-size:.77rem}
+  #sec-usuarios .users-list[data-view="cards"] .user-identity small{font-size:.63rem}
+  #sec-usuarios .users-list[data-view="cards"] .user-role,
+  #sec-usuarios .users-list[data-view="cards"] .user-status{max-width:100%;white-space:normal;text-align:center}
+  #sec-usuarios .users-list[data-view="lista"] .user-identity strong,
+  #sec-usuarios .users-list[data-view="lista"] .user-identity small{max-width:100%;overflow-wrap:anywhere}
+  #modal-detalhes-usuario .gest06-profile-tabs button{flex:1;text-align:center}
+}
+@media(max-width:350px){
+  #sec-usuarios .users-list[data-view="cards"]{grid-template-columns:minmax(0,1fr)}
+}
