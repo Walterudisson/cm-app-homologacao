@@ -9,7 +9,8 @@
     "check:bootstrap": "node --check app.js",
     "check:gestao": "npm run check:bootstrap && npm run test:gestao",
     "test:gabinete": "node --test tests/gabinete-*.test.mjs",
-    "check:gabinete": "node --check app.js && npm run test:gabinete"
+    "check:gabinete": "node --check app.js && npm run test:gabinete",
+    "test:loading": "node --test tests/ux05-*.test.mjs"
   },
   "devDependencies": {
     "jsdom": "26.1.0"
