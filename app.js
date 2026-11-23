@@ -29,10 +29,10 @@
     import { criarControladorCamera } from "./js/controllers/camera.controller.js?v=1.12.0";
     import { atualizarDivisao, criarDivisao, listarDivisoes, listarDivisoesAtivas } from "./js/services/divisoes.service.js?v=1.13.10";
     import { CATALOGO_PERMISSOES, FUNCOES_NATIVAS, PERMISSOES, usuarioPode } from "./js/core/permissoes.js?v=1.13.11";
-    import { criarMatrizAcessosGestaoUI } from "./js/modules/gestao/matriz-acessos-ui.js?v=1.13.49-h.2";
+    import { criarMatrizAcessosGestaoUI } from "./js/modules/gestao/matriz-acessos-ui.js?v=1.13.50-h.1";
     import { analisarImpactoFuncao,prepararPermissoesFuncao,permissoesDesconhecidas,
       resumoImpactoFuncao,mensagemConfirmacaoFuncao,descreverPermissaoLegada
-    } from "./js/modules/gestao/funcoes-impacto-model.js?v=1.13.49-h.2";
+    } from "./js/modules/gestao/funcoes-impacto-model.js?v=1.13.50-h.1";
     import { alterarEstadoFuncao, atualizarFuncao, criarFuncao, listarFuncoesPersonalizadas } from "./js/services/funcoes.service.js?v=1.13.11";
     import {
       consultarCicloDivisao, encerrarDivisao, reabrirDivisao,
@@ -57,7 +57,7 @@
       fecharCamadasNavegacao,
       fecharNavegacaoMovel,
       inicializarNavegacao
-    } from "./js/ui/navigation.js?v=1.13.49-h.2";
+    } from "./js/ui/navigation.js?v=1.13.50-h.1";
     import { inicializarPwa } from "./js/pwa.js?v=1.13.36-h.1";
     import { podeConsultarMateriaisDsips } from "./js/modules/dsips/consulta-materiais-model.js?v=1.13.13-h.3";
     import {invalidarCacheDsips} from './js/modules/dsips/service.js?v=1.13.34-h.1';
@@ -72,16 +72,16 @@
     import {renderizarCentral, podeAbrirCentral} from './js/ui/central-trabalho.js?v=1.13.38-h.4';
     import {modulosDoUsuario} from './js/platform/modules.js';
     import {resumirVinculoUsuario,resumirPreviaAtribuicao,filtrarUsuariosPorFuncao}
-      from './js/modules/gestao/usuarios-acessos-model.js?v=1.13.49-h.2';
-    import {criarPainelPessoasVinculos} from './js/modules/gestao/pessoas-vinculos-ui.js?v=1.13.49-h.2';
-    import {criarAgendaGabinete} from './js/modules/gabinete/agenda-ui.js?v=1.13.49-h.2';
-    import {criarAniversariantesGabinete} from './js/modules/gabinete/aniversarios-ui.js?v=1.13.49-h.2';
-import {criarCadastroGabineteEmMemoria} from './js/modules/gabinete/cadastro-model.js?v=1.13.49-h.2';
-import {criarOrgaosGabineteEmMemoria} from './js/modules/gabinete/orgaos-model.js?v=1.13.49-h.2';
-import {criarOrgaosGabineteUI} from './js/modules/gabinete/orgaos-ui.js?v=1.13.49-h.2';
-import {criarDiretorioGabinete} from './js/modules/gabinete/diretorio-referencias.js?v=1.13.49-h.2';
-import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.13.49-h.2';
-    import {podeNavegarLegado,decidirMudancaAcesso,sincronizarMenuAutorizado} from './js/platform/acesso-sessao.js?v=1.13.49-h.2';
+      from './js/modules/gestao/usuarios-acessos-model.js?v=1.13.50-h.1';
+    import {criarPainelPessoasVinculos} from './js/modules/gestao/pessoas-vinculos-ui.js?v=1.13.50-h.1';
+    import {criarAgendaGabinete} from './js/modules/gabinete/agenda-ui.js?v=1.13.50-h.1';
+    import {criarAniversariantesGabinete} from './js/modules/gabinete/aniversarios-ui.js?v=1.13.50-h.1';
+import {criarCadastroGabineteEmMemoria} from './js/modules/gabinete/cadastro-model.js?v=1.13.50-h.1';
+import {criarOrgaosGabineteEmMemoria} from './js/modules/gabinete/orgaos-model.js?v=1.13.50-h.1';
+import {criarOrgaosGabineteUI} from './js/modules/gabinete/orgaos-ui.js?v=1.13.50-h.1';
+import {criarDiretorioGabinete} from './js/modules/gabinete/diretorio-referencias.js?v=1.13.50-h.1';
+import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.13.50-h.1';
+    import {podeNavegarLegado,decidirMudancaAcesso,sincronizarMenuAutorizado} from './js/platform/acesso-sessao.js?v=1.13.50-h.1';
 
     import {criarPainelDsips} from './js/modules/dsips/painel-ui.js?v=1.13.34-h.1';
     let usuarioLogado = null;
@@ -134,6 +134,7 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
     let filtroStatusUsuarios = 'todos';
     let filtroPerfilUsuarios = 'todos';
     let paginaUsuarios = 1;
+    let visualizacaoUsuarios = 'lista'; // Preferência visual transitória; sem armazenamento ou concessão de acesso.
     let ordenacaoUsuarios = { campo: 'nome', direcao: 'asc' };
     let filtroStatusDivisoes = 'todas';
     let filtroResponsavelDivisoes = false;
@@ -2854,6 +2855,7 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
       const container = document.getElementById('lista-usuarios-container');
       const termoBusca = (document.getElementById('filtro-busca-usuarios')?.value || "").toLowerCase().trim();
       if (!container || !usuarioLogado) return;
+      container.dataset.view = visualizacaoUsuarios;
 
       const usuariosFiltradosPorPermissao = bancoUsuarios.filter(u => {
         if (u.uid === usuarioLogado.uid) return false;
@@ -2920,6 +2922,23 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
 
     window.mudarPaginaUsuarios = deslocamento => { paginaUsuarios += deslocamento; renderizarListaUsuarios(); };
 
+    // GEST-06: ambos os modos usam os mesmos registros filtrados e o mesmo modal.
+    // Nenhum cadastro paralelo, permissão nova ou preferência persistente é criado.
+    document.querySelectorAll('[data-users-view]').forEach(botao => {
+      botao.addEventListener('click', () => {
+        const modo = botao.dataset.usersView;
+        if (!['lista', 'cards'].includes(modo) || !usuarioLogado
+            || !podeNavegarLegado(usuarioLogado, 'usuarios')) return;
+        visualizacaoUsuarios = modo;
+        document.querySelectorAll('[data-users-view]').forEach(item => {
+          const selecionado = item.dataset.usersView === modo;
+          item.classList.toggle('is-selected', selecionado);
+          item.setAttribute('aria-pressed', String(selecionado));
+        });
+        renderizarListaUsuarios();
+      });
+    });
+
     document.getElementById('filtro-funcao-usuarios')?.addEventListener('change',()=>{
       paginaUsuarios=1;renderizarListaUsuarios();
     });
@@ -2985,6 +3004,32 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
       window.abrirDetalhesUsuario(linha.dataset.userDetails);
     });
 
+    // Alternância visual da ficha, sem modificar a fonte de dados ou os direitos.
+    function selecionarAbaPerfilGestao(aba, focar = false) {
+      const modo = aba === 'acessos' ? 'acessos' : 'dados';
+      document.querySelectorAll('[data-gest06-profile-tab]').forEach(botao => {
+        const selecionado = botao.dataset.gest06ProfileTab === modo;
+        botao.setAttribute('aria-selected', String(selecionado));
+        botao.tabIndex = selecionado ? 0 : -1;
+        if (selecionado && focar) botao.focus();
+      });
+      const dados = document.getElementById('gest06-pane-dados');
+      const acessos = document.getElementById('gest-usuario-resumo');
+      if (dados) dados.hidden = modo !== 'dados';
+      if (acessos) acessos.hidden = modo !== 'acessos';
+    }
+    document.querySelectorAll('[data-gest06-profile-tab]').forEach(botao => {
+      botao.addEventListener('click', () => selecionarAbaPerfilGestao(botao.dataset.gest06ProfileTab));
+      botao.addEventListener('keydown', evento => {
+        if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(evento.key)) return;
+        evento.preventDefault();
+        const modo = evento.key === 'Home' ? 'dados'
+          : evento.key === 'End' ? 'acessos'
+          : botao.dataset.gest06ProfileTab === 'dados' ? 'acessos' : 'dados';
+        selecionarAbaPerfilGestao(modo, true);
+      });
+    });
+
     window.abrirDetalhesUsuario = async function(uid) {
       const usuario = bancoUsuarios.find(item => item.uid === uid);
       if (!usuario || !['admin', 'gestor'].includes(usuarioLogado?.perfil)) return;
@@ -3013,6 +3058,7 @@ import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.
           <button type="button" class="danger" data-user-action="acesso">Desativar acesso</button>`
           : `<button type="button" class="success" data-user-action="acesso">Reativar acesso</button>`)
         : '<span class="users-readonly">Visualização disponível; alterações são exclusivas de Administradores.</span>';
+      selecionarAbaPerfilGestao('dados');
       abrirModalHistorico('modal-detalhes-usuario', 'detalhes-usuario');
       const url = await obterFotoUsuarioCache(uid);
       // GEST-05: a conclusão tardia de uma foto não deve contaminar uma sessão nova.
