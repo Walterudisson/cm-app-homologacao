@@ -42,8 +42,8 @@ test('GEST-06 ficha do usuário oferece abas reais e reinicia na abertura', asyn
 });
 test('GEST-06 versionamento HML e cache coerentes', async () => {
   const [html, sw, pck] = await Promise.all([ler('index.html'),ler('service-worker.js'),ler('package.json')]);
-  assert.match(html, /v1\.13\.50-H\.1/);
-  assert.match(html, /app\.css\?v=1\.13\.50-h\.1/);
-  assert.match(sw, /v1\.13\.50-h\.1-gest06/);
-  assert.equal(JSON.parse(pck).version, '1.13.50-h.1');
+  assert.match(html, /v1\.13\.51-H\.1/);
+  assert.match(html, /app\.css\?v=1\.13\.51-h\.1/);
+  assert.match(sw, /v1\.13\.51-h\.1-ux05-skeleton/);
+  assert.equal(JSON.parse(pck).version, '1.13.51-h.1');
 });
