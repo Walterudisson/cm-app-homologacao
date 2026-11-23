@@ -29,10 +29,10 @@
     import { criarControladorCamera } from "./js/controllers/camera.controller.js?v=1.12.0";
     import { atualizarDivisao, criarDivisao, listarDivisoes, listarDivisoesAtivas } from "./js/services/divisoes.service.js?v=1.13.10";
     import { CATALOGO_PERMISSOES, FUNCOES_NATIVAS, PERMISSOES, usuarioPode } from "./js/core/permissoes.js?v=1.13.11";
-    import { criarMatrizAcessosGestaoUI } from "./js/modules/gestao/matriz-acessos-ui.js?v=1.13.50-h.1";
+    import { criarMatrizAcessosGestaoUI } from "./js/modules/gestao/matriz-acessos-ui.js?v=1.13.51-h.1";
     import { analisarImpactoFuncao,prepararPermissoesFuncao,permissoesDesconhecidas,
       resumoImpactoFuncao,mensagemConfirmacaoFuncao,descreverPermissaoLegada
-    } from "./js/modules/gestao/funcoes-impacto-model.js?v=1.13.50-h.1";
+    } from "./js/modules/gestao/funcoes-impacto-model.js?v=1.13.51-h.1";
     import { alterarEstadoFuncao, atualizarFuncao, criarFuncao, listarFuncoesPersonalizadas } from "./js/services/funcoes.service.js?v=1.13.11";
     import {
       consultarCicloDivisao, encerrarDivisao, reabrirDivisao,
@@ -57,14 +57,14 @@
       fecharCamadasNavegacao,
       fecharNavegacaoMovel,
       inicializarNavegacao
-    } from "./js/ui/navigation.js?v=1.13.50-h.1";
+    } from "./js/ui/navigation.js?v=1.13.51-h.1";
     import { inicializarPwa } from "./js/pwa.js?v=1.13.36-h.1";
     import { podeConsultarMateriaisDsips } from "./js/modules/dsips/consulta-materiais-model.js?v=1.13.13-h.3";
     import {invalidarCacheDsips} from './js/modules/dsips/service.js?v=1.13.34-h.1';
     import { criarConsultaMateriaisDsips } from "./js/modules/dsips/consulta-materiais-ui.js?v=1.13.34-h.1";
     import { criarCadastrosDsips } from "./js/modules/dsips/cadastros-ui.js?v=1.13.34-h.1";
     import { criarEstoqueDsips } from "./js/modules/dsips/estoque-ui.js?v=1.13.34-h.1";
-    import { criarRegistroCautelasDsips } from "./js/modules/dsips/registro-cautelas-ui.js?v=1.13.34-h.1";
+    import { criarRegistroCautelasDsips } from "./js/modules/dsips/registro-cautelas-ui.js?v=1.13.51-h.1";
     import { criarPosseDsips } from "./js/modules/dsips/posse-ui.js?v=1.13.34-h.1";
     import { criarHistoricoDsips } from "./js/modules/dsips/historico-ui.js?v=1.13.34-h.1";
     import { podeConsultarHistoricoDsips } from "./js/modules/dsips/historico-model.js?v=1.13.19-h.1";
@@ -72,16 +72,16 @@
     import {renderizarCentral, podeAbrirCentral} from './js/ui/central-trabalho.js?v=1.13.38-h.4';
     import {modulosDoUsuario} from './js/platform/modules.js';
     import {resumirVinculoUsuario,resumirPreviaAtribuicao,filtrarUsuariosPorFuncao}
-      from './js/modules/gestao/usuarios-acessos-model.js?v=1.13.50-h.1';
-    import {criarPainelPessoasVinculos} from './js/modules/gestao/pessoas-vinculos-ui.js?v=1.13.50-h.1';
-    import {criarAgendaGabinete} from './js/modules/gabinete/agenda-ui.js?v=1.13.50-h.1';
-    import {criarAniversariantesGabinete} from './js/modules/gabinete/aniversarios-ui.js?v=1.13.50-h.1';
-import {criarCadastroGabineteEmMemoria} from './js/modules/gabinete/cadastro-model.js?v=1.13.50-h.1';
-import {criarOrgaosGabineteEmMemoria} from './js/modules/gabinete/orgaos-model.js?v=1.13.50-h.1';
-import {criarOrgaosGabineteUI} from './js/modules/gabinete/orgaos-ui.js?v=1.13.50-h.1';
-import {criarDiretorioGabinete} from './js/modules/gabinete/diretorio-referencias.js?v=1.13.50-h.1';
-import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.13.50-h.1';
-    import {podeNavegarLegado,decidirMudancaAcesso,sincronizarMenuAutorizado} from './js/platform/acesso-sessao.js?v=1.13.50-h.1';
+      from './js/modules/gestao/usuarios-acessos-model.js?v=1.13.51-h.1';
+    import {criarPainelPessoasVinculos} from './js/modules/gestao/pessoas-vinculos-ui.js?v=1.13.51-h.1';
+    import {criarAgendaGabinete} from './js/modules/gabinete/agenda-ui.js?v=1.13.51-h.1';
+    import {criarAniversariantesGabinete} from './js/modules/gabinete/aniversarios-ui.js?v=1.13.51-h.1';
+import {criarCadastroGabineteEmMemoria} from './js/modules/gabinete/cadastro-model.js?v=1.13.51-h.1';
+import {criarOrgaosGabineteEmMemoria} from './js/modules/gabinete/orgaos-model.js?v=1.13.51-h.1';
+import {criarOrgaosGabineteUI} from './js/modules/gabinete/orgaos-ui.js?v=1.13.51-h.1';
+import {criarDiretorioGabinete} from './js/modules/gabinete/diretorio-referencias.js?v=1.13.51-h.1';
+import {criarCadastroGabineteUI} from './js/modules/gabinete/cadastro-ui.js?v=1.13.51-h.1';
+    import {podeNavegarLegado,decidirMudancaAcesso,sincronizarMenuAutorizado} from './js/platform/acesso-sessao.js?v=1.13.51-h.1';
 
     import {criarPainelDsips} from './js/modules/dsips/painel-ui.js?v=1.13.34-h.1';
     let usuarioLogado = null;

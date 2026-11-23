@@ -1875,3 +1875,18 @@ button[data-cautelas-kpi]{width:100%;text-align:left;cursor:pointer}button[data-
 @media(max-width:350px){
   #sec-usuarios .users-list[data-view="cards"]{grid-template-columns:minmax(0,1fr)}
 }
+
+
+/* UX-05 | Skeleton discreto e reutilizável. Exibição atrasada pelo controlador js/ui/loading.js. */
+.cm-loading-skeleton-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.cm-loading-skeleton-card{display:flex;flex-direction:column;gap:12px;min-width:0;min-height:156px;padding:17px;border:1px solid var(--app-border);border-radius:14px;background:var(--app-surface)}
+.cm-loading-skeleton-row{display:flex;align-items:center;gap:12px}
+.cm-loading-skeleton{display:block;flex-shrink:0;border-radius:7px;background:linear-gradient(100deg,var(--app-border) 5%,var(--app-surface-raised) 40%,var(--app-border) 80%);background-size:200% 100%;animation:cm-loading-shimmer 1.45s ease-in-out infinite}
+.cm-loading-skeleton-avatar{width:39px;height:39px;border-radius:50%}
+.cm-loading-skeleton-title{flex:1;max-width:60%;height:15px}
+.cm-loading-skeleton-line{width:100%;height:11px}
+.cm-loading-skeleton-line-short{width:72%}
+.cm-loading-skeleton-bar{height:27px;width:42%;margin-top:auto}
+@keyframes cm-loading-shimmer{0%{background-position:160% 0}100%{background-position:-160% 0}}
+@media(max-width:700px){.cm-loading-skeleton-grid{grid-template-columns:minmax(0,1fr);gap:10px}.cm-loading-skeleton-card{min-height:136px;padding:14px}}
+@media(prefers-reduced-motion:reduce){.cm-loading-skeleton{animation:none;background:var(--app-border)}}

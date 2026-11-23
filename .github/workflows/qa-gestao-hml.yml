@@ -32,5 +32,7 @@ jobs:
         run: npm run check:bootstrap
       - name: Executar regressões GEST-01 a GEST-05
         run: npm run test:gestao
+      - name: Verificar UX-05 loading assíncrono DSIPS
+        run: npm run test:loading
       - name: Verificar Agenda do Gabinete e regressões GAB
         run: npm run check:gabinete
